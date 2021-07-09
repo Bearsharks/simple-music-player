@@ -1,0 +1,30 @@
+@keyframes rotate {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(720deg);
+    }
+  }
+
+.spinnerWrapper{
+    position: fixed;
+    top: 0px;
+    left: 0px;
+    display: flex;
+    flex-flow: column;
+    justify-content: center;
+    align-items: center;
+    width: 100vw;
+    height: 100vh;
+    z-index: 10;
+    color: white;
+}
+  .spinner {
+    width: calc(100vh/15);
+    height: calc(100vh/15);
+    margin: 10px;
+    animation-name: rotate;
+    animation-duration: 4s;
+    animation-iteration-count: infinite;
+}
