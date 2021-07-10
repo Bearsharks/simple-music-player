@@ -2,6 +2,7 @@ import { curMusicInfoState, musicListState } from "./recoilStates/atoms/musicLis
 import musicListStateManager from "./recoilStates/musicListStateManager";
 import musicListFixture from "./__test__/fixtures/MusicListFixture";
 import { useRecoilState } from "recoil"
+import { useEffect } from "react";
 function Testtset(props) {
     const [curMusicInfo, setCurMusicInfo] = useRecoilState(curMusicInfoState);
     const [musicList, setMusicList] = useRecoilState(musicListState);
@@ -15,6 +16,7 @@ function Testtset(props) {
 
     }
     const gonextbtnclick = () => {
+        INITI();
         goNext();
     }
     const stop = () => {

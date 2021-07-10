@@ -6,8 +6,5 @@ export const musicListState = atom({
 })
 export const curMusicInfoState = atom({
     key: 'curMusicInfoState',
-    default: {
-        idx: -1,
-        id: null
-    }
+    default: { idx: -1, id: null, key: null }
 })

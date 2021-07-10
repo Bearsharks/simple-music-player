@@ -3,54 +3,60 @@ import './App.scss';
 import Spinner from './Spinner';
 import { useEffect, useRef, useState } from 'react';
 import Testtset from './Testtset';
+import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
+import musicListStateManager from "./recoilStates/musicListStateManager"
+import { useRecoilValue, useRecoilState, useSetRecoilState } from 'recoil';
+import { musicListState, curMusicInfoState } from "./recoilStates/atoms/musicListAtoms";
 function App() {
 	const test = useRef();
 	const [musicListRaw, setMusicListRaw] = useState("");
-	const [musicList, setMusicList] = useState([]);
-	const [curMusicIdx, setCurMusicIdx] = useState(-1);
-	const [curMusicInfo, setCurMusicInfo] = useState("");
+	const [musicList, setMusicList] = useRecoilState(musicListState);
+	const [curMusicInfo, setCurMusicInfo] = useRecoilState(curMusicInfoState);
 	const [isInited, setIsInited] = useState(false);
+	const reorderMusicList = musicListStateManager.useReorderMusicList();
+	const goPrevMusic = musicListStateManager.useGoPrevMusic();
+	const goNextMusic = musicListStateManager.useGoNextMusic();
+	const deleteMusic = musicListStateManager.useDeleteMusic();
 	const handleTextAreaChange = (e) => {
 		setMusicListRaw(e.target.value);
 	}
+	let keycnt = 0;
 	const musicListAppend = () => {
 		if (musicListRaw === "") return;
 		let newMusicList = musicListRaw.split("\n").filter((element) => element !== "");
-		newMusicList = newMusicList.map((el) => { return { q: el, etag: null, id: null } });
+		newMusicList = newMusicList.map((el) => { return { q: el, id: null, key: "" + keycnt++ } });
 		if (newMusicList.length < 1) return;
 		newMusicList = [...musicList, ...newMusicList];
 		setMusicList(newMusicList);
 		setMusicListRaw("");
-		if (curMusicIdx === -1) setCurMusicIdx(0);
+		if (curMusicInfo.key === musicListStateManager.NOT_VALID_MUSIC_INFO.key) {
+			setCurMusicInfo({
+				idx: 0,
+				id: newMusicList[0].id,
+				key: newMusicList[0].key,
+			});
+		}
 	}
-	const playMusic = (idx) => {
-		if (idx >= musicList.length || idx < 0) return;
-		setCurMusicIdx(idx);
-		setCurMusicInfo(musicList[idx]);
-		if (musicList[idx].id) {
-			window.player.loadVideoById({ videoId: musicList[idx].id });
+	const playMusic = (musicInfo) => {
+		if (musicInfo.idx >= musicList.length || musicInfo.idx < 0) return;
+		const curMusic = musicList[musicInfo.idx];
+		if (curMusic.id) {
+			window.player.loadVideoById({ videoId: curMusic.id });
 			return;
 		}
 		let params = {
 			part: `id`,
-			maxResults: 1,
+			maxResults: 5,
 			type: `video`,
 			topic: `/m/04rlf`,
-			q: `${musicList[idx].q} official audio`
+			q: `${curMusic.q} official audio`
 		}
 		let query = Object.keys(params).map(k => encodeURIComponent(k) + '=' + encodeURIComponent(params[k])).join('&');
-		//const fields = `items(id,snippet(title,description,thumbnails))`;
-		const fields = `etag,items(id)`;
+		const fields = `items(id,snippet(title,description,thumbnails))`;
 		//const key = `AIzaSyBhZ-w1w_g-YVg1Tkovnw7FGIGsEUZz4is`
 		const key = `AIzaSyBJwDMPWPGnzeDUqogskimWlGHLbqTQjcM`;
 		let url = `https://www.googleapis.com/youtube/v3/search?key=${key}&fields=${fields}&${query}`;
-		fetch(url, {
-			method: 'GET',
-			headers: {
-				'If-None-Match': musicList[idx].etag
-			}
-		}
-		).then(res => {
+		fetch(url, { method: 'GET' }).then(res => {
 			if (res.status === 200) {
 				return res.json();
 			} else {
@@ -58,36 +64,21 @@ function App() {
 			}
 		}).then(json => {
 			if (!json.items) {
-				window.player.loadVideoById({ videoId: musicList[idx].id });
+				window.player.loadVideoById({ videoId: curMusic.id });
 				return;
 			}
-			let nextMusicId = json.items[0].id.videoId;
-			window.player.loadVideoById({ videoId: nextMusicId });
-			let music = musicList[idx];
-			music.id = nextMusicId;
-			music.etag = json.etag;
-			setMusicList(list => {
-				let copy = list.slice();
-				copy[idx] = music;
-				return copy;
-			})
+			let id = json.items[0].id.videoId;
+			window.player.loadVideoById({ videoId: id });
+
+			let curMusic_update = { ...curMusic, id: id };
+			const newlist = musicList.map((item, i) => {
+				if (musicInfo.idx === i) {
+					return curMusic_update;
+				}
+				return item;
+			});
+			setMusicList(newlist);
 		}).catch();
-	}
-	const goPrevMusic = () => {
-		if (curMusicIdx === 0) return;
-		setCurMusicIdx(idx => idx - 1);
-	}
-	const goNextMusic = () => {
-		if (curMusicIdx === musicList.length - 1) return;
-		setCurMusicIdx(idx => idx + 1);
-	}
-	const deleteMusic = (e, idx) => {
-		e.stopPropagation();
-		const newList = musicList.filter((item, index) => index !== idx);
-		if (idx === musicList.length - 1 || curMusicIdx > idx) {
-			setCurMusicIdx(cur => cur - 1);
-		}
-		setMusicList(newList);
 	}
 	useEffect(() => {
 		if (!window.YT) { // If not, load the script asynchronously
@@ -99,7 +90,7 @@ function App() {
 
 			const onStateChange = (event) => {
 				if (event.data === 0) {
-					setCurMusicIdx(prev => prev + 1);
+					goNextMusic();
 				}
 			}
 
@@ -107,7 +98,7 @@ function App() {
 
 			window.onYouTubeIframeAPIReady = function () {
 				window.player = new window.YT.Player('player', {
-					height: '360',
+					height: '480',
 					width: '640',
 					events: {
 						'onStateChange': onStateChange
@@ -117,52 +108,91 @@ function App() {
 			}
 
 		}
-	}, [curMusicIdx]);
-	const onChangeMusicIdx = (idx) => {
-		if (musicList.length <= idx || idx < 0) {
-			window.player.stopVideo();
-		} else if (musicList[idx].id !== curMusicInfo.id) {
-			playMusic(idx);
-		}
+	}, [goNextMusic]);
+	const selectMusic = (e, idx) => {
+		debugger;
+		setCurMusicInfo({
+			idx: idx,
+			id: musicList[idx].id,
+			key: musicList[idx].key,
+		});
 	}
-	useEffect(() => {
-		if (window.player) {
-			onChangeMusicIdx(curMusicIdx);
-		}
-	}, [musicList, curMusicIdx, curMusicInfo]);
 
+	useEffect(() => {
+		if (window.player && curMusicInfo.key !== musicListStateManager.NOT_VALID_MUSIC_INFO.key) {
+			playMusic(curMusicInfo);
+		}
+	}, [curMusicInfo]);
 	// 	events: {
 	// 		'onStateChange': window.onStateChangehandler
 	// 	}
-	// 
+	// a little function to help us with reordering the result
+	const reorder = (list, startIndex, endIndex) => {
+		const result = Array.from(list);
+		const [removed] = result.splice(startIndex, 1);
+		result.splice(endIndex, 0, removed);
+
+		return result;
+	};
+	const onDragEnd = (result) => {
+		// dropped outside the list(리스트 밖으로 드랍한 경우)
+		if (!result.destination) {
+			return;
+		}
+		reorderMusicList(result.source.index, result.destination.index);
+	}
+	const onDragStart = (e) => {
+		//console.log(musicList);
+	}
+
 	return (
 		<div className="App">
 			<Testtset></Testtset>
 			<main>
 				{!isInited && <Spinner></Spinner>}
 				<div className={`playerwrapper`} ref={test} id={`player`}>
-
-					{/* {curMusic &&
-						<iframe title="player" id="ytplayer" type="text/html" width="640" height="360"
-							src={`https://www.youtube.com/embed/${curMusic}?autoplay=1`}
-							frameborder="0">
-						</iframe>
-					} */}
 				</div>
 				<div className={`side`}>
 					<textarea value={musicListRaw} onChange={handleTextAreaChange} />
 					<button onClick={musicListAppend}>append</button>
 					<button onClick={goPrevMusic} >이전 </button> <button onClick={goNextMusic}>다음 </button>
-					<ul>
-						{
-							musicList.map((ele, index) => <li key={index} className={(index === curMusicIdx) ? `curMusic` : ""} onClick={(e) => onChangeMusicIdx(index)}>{ele.q} <button onClick={(e) => deleteMusic(e, index)}>X </button></li>)
-						}
-					</ul>
+					<DragDropContext
+						onDragEnd={onDragEnd}
+						onDragStart={onDragStart}
+					>
+						<Droppable droppableId="droppable">
+							{(provided, snapshot) => (
+								<ul ref={provided.innerRef}>
+									{
+										musicList.map((ele, index) =>
+											<Draggable
+												key={ele.key}
+												draggableId={ele.key}
+												index={index}
+											>
+												{(provided, snapshot) =>
+													<li
+														ref={provided.innerRef}
+														{...provided.draggableProps}
+														{...provided.dragHandleProps}
+														onClick={(e) => { selectMusic(e, index) }}
+													>
+														{ele.q}<button onClick={(e) => deleteMusic(e, index)}>X </button>
+													</li>
+												}
+											</Draggable>
+										)
+									}
+								</ul>
+							)}
+						</Droppable>
+					</DragDropContext>
+
 				</div>
 
 			</main>
 
-		</div>
+		</div >
 	);
 }
 
