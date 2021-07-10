@@ -1,0 +1,56 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@200&display=swap");
+* {
+  margin: 0;
+  padding: 0;
+  font-family: "Poppins", sans-serif;
+  box-sizing: border-box;
+}
+body {
+  display: flex;
+  min-height: 100vh;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(30deg, #001039, #007cfb);
+}
+.dragbox {
+  width: 100%;
+  max-width: 350px;
+  background: #fff;
+  text-align: center;
+  border-radius: 8px;
+  padding: 20px;
+}
+.dragbox .listitem {
+  width: 100%;
+  background: linear-gradient(30deg, #001039, #007cfb);
+  display: flex;
+  justify-content: space-between;
+  border-radius: 8px;
+  margin: 5px 0;
+  cursor: pointer;
+  padding: 20px;
+  color: #fff;
+}
+.dragbox .listitem .text {
+  text-transform: capitalize;
+  letter-spacing: 1px;
+  font-weight: bold;
+  font-size: 20px;
+}
+.dragbox .listitem .fas {
+  font-size: 25px;
+}
+/*This is my youtube channel link*/
+a {
+  position: absolute;
+  bottom: 20px;
+  font-weight: 600;
+  text-decoration: none;
+  font-size: 20px;
+  font-family: sans-serif;
+  right: 20px;
+  color: #fff;
+}
+a:hover {
+  color: red;
+}

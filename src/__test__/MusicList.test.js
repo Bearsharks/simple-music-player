@@ -39,76 +39,97 @@ const useRecoilStateWithPromise = initialState => {
 
 
 describe('MusicList State Test', () => {
-
-    test("after goNext(), musicInfo will be nextinfo", () => {
+    let testComponent;
+    beforeEach(() => {
         const { result } = renderHook(
             () => {
                 const [musicList, setMusicList] = useRecoilStateWithPromise(musicListState);
                 const [curMusicInfo, setCurMusicInfo] = useRecoilStateWithPromise(curMusicInfoState);
                 const goNext = musicListStateManager.useGoNextMusic();
                 const goPrev = musicListStateManager.useGoPrevMusic();
-                const initState = (list, idx) => {
-                    setMusicList(list);
+                const reorderMusicList = musicListStateManager.useReorderMusicList();
+                const initState = (idx) => {
                     setCurMusicInfo({
-                        id: list[idx].id,
+                        id: musicList[idx].id,
                         idx: idx
                     });
                 }
                 useEffect(() => {
-                    initState(musicListFixture, 0);
-                }, [setMusicList, setCurMusicInfo]);
-                return { goNext, goPrev, curMusicInfo };
+                    setMusicList(musicListFixture);
+                }, [setMusicList])
+                return { goNext, goPrev, initState, reorderMusicList, curMusicInfo, musicList };
             },
             {
                 wrapper: RecoilRoot
             }
         );
+        testComponent = result;
+    })
+    test("at the last, after goNext(), musicInfo will not be change", () => {
         act(() => {
-            result.current.goNext();
+            testComponent.current.initState(musicListFixture.length - 1);
+            testComponent.current.goNext();
         });
 
-        expect(result.current.curMusicInfo).toEqual({
-            id: musicListFixture[1].id,
-            idx: 1
+        expect(testComponent.current.curMusicInfo).toEqual({
+            id: musicListFixture[musicListFixture.length - 1].id,
+            idx: musicListFixture.length - 1
         });
+    });
+    test("at the firat, after goPrev(), musicInfo will not be change", () => {
         act(() => {
-            result.current.goPrev();
+            testComponent.current.initState(0);
+            testComponent.current.goPrev();
         });
 
-        expect(result.current.curMusicInfo).toEqual({
+        expect(testComponent.current.curMusicInfo).toEqual({
             id: musicListFixture[0].id,
             idx: 0
         });
     });
-    test("마지막 노래라면 goNext()해도 변하지 않아야한다.", () => {
-        const { result } = renderHook(
-            () => {
-                const [musicList, setMusicList] = useRecoilState(musicListState);
-                const [curMusicInfo, setCurMusicInfo] = useRecoilState(curMusicInfoState);
-                const goNext = musicListStateManager.useGoNextMusic();
-                const initState = (list, idx) => {
-                    setMusicList(list);
-                    setCurMusicInfo({
-                        id: list[idx].id,
-                        idx: idx
-                    });
-                }
-                useEffect(() => {
-                    initState(musicListFixture, musicListFixture.length - 1);
-                }, [setMusicList, setCurMusicInfo]);
-                return { goNext, initState, curMusicInfo };
-            },
-            {
-                wrapper: RecoilRoot
-            }
-        );
+    test("after goNext(), musicInfo will be nextinfo", () => {
         act(() => {
-            result.current.goNext();
+            testComponent.current.initState(0);
+            testComponent.current.goNext();
         });
 
-        expect(result.current.curMusicInfo).toEqual({
-            id: musicListFixture[musicListFixture.length - 1].id,
-            idx: musicListFixture.length - 1
+        expect(testComponent.current.curMusicInfo).toEqual({
+            id: musicListFixture[1].id,
+            idx: 1
         });
+    });
+    test("after goPrev(), musicInfo will be previnfo", () => {
+
+        act(() => {
+            testComponent.current.initState(2);
+            testComponent.current.goPrev();
+        });
+
+        expect(testComponent.current.curMusicInfo).toEqual({
+            id: musicListFixture[1].id,
+            idx: 1
+        });
+    });
+
+    test("reorderMusicList(start,end), pop start, start will be inserted to after end", () => {
+
+        act(() => {
+            testComponent.current.reorderMusicList(0, 2);
+        });
+
+        expect(testComponent.current.musicList).toEqual([
+            {
+                q: `dynamite 방탄소년단 official audio`,
+                id: 2,
+            },
+            {
+                q: `coin 아이유 official audio`,
+                id: 3,
+            },
+            {
+                q: `소중한 사람 심규선 official audio`,
+                id: 1,
+            },
+        ]);
     });
 });
