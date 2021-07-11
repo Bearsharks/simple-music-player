@@ -4,7 +4,7 @@ import { useRecoilValue, RecoilRoot, useRecoilState, useSetRecoilState } from "r
 import { useEffect, useRef, useCallback } from 'react';
 import musicListStateManager from '../recoilStates/musicListStateManager';
 import { musicListState, curMusicInfoState } from "../recoilStates/atoms/musicListAtoms"
-import musicListFixture from './fixtures/MusicListFixture'
+import { musicListFixture, queryListFixture } from './fixtures/MusicListFixture'
 
 const useRecoilStateWithPromise = initialState => {
     const [state, setState] = useRecoilState(initialState);
@@ -43,11 +43,15 @@ describe('MusicList State Test', () => {
     beforeEach(() => {
         const { result } = renderHook(
             () => {
-                const [musicList, setMusicList] = useRecoilStateWithPromise(musicListState);
+                const [musicList, setMusicList] = useRecoilState(musicListState);
                 const [curMusicInfo, setCurMusicInfo] = useRecoilStateWithPromise(curMusicInfoState);
                 const goNext = musicListStateManager.useGoNextMusic();
                 const goPrev = musicListStateManager.useGoPrevMusic();
                 const reorderMusicList = musicListStateManager.useReorderMusicList();
+                const modMusicList = musicListStateManager.useModMusicList();
+                const doPlay = jest.fn();
+                const playMusic = musicListStateManager.usePlayMusic(doPlay);
+                const appendMusicList = musicListStateManager.useAppendMusicList();
                 const initState = (idx) => {
                     setCurMusicInfo({
                         id: musicList[idx].id,
@@ -57,7 +61,7 @@ describe('MusicList State Test', () => {
                 useEffect(() => {
                     setMusicList(musicListFixture);
                 }, [setMusicList])
-                return { goNext, goPrev, initState, reorderMusicList, curMusicInfo, musicList };
+                return { goNext, goPrev, initState, reorderMusicList, curMusicInfo, musicList, playMusic, doPlay, modMusicList, appendMusicList };
             },
             {
                 wrapper: RecoilRoot
@@ -111,7 +115,7 @@ describe('MusicList State Test', () => {
         });
     });
 
-    test("reorderMusicList(start,end), pop start, start will be inserted to after end", () => {
+    test("reorderMusicList(start,end), start value will be pop & inserted to after end", () => {
 
         act(() => {
             testComponent.current.reorderMusicList(0, 2);
@@ -120,16 +124,40 @@ describe('MusicList State Test', () => {
         expect(testComponent.current.musicList).toEqual([
             {
                 q: `dynamite 방탄소년단 official audio`,
-                id: 2,
+                id: null,
             },
             {
                 q: `coin 아이유 official audio`,
-                id: 3,
+                id: null,
             },
             {
                 q: `소중한 사람 심규선 official audio`,
-                id: 1,
+                id: null,
             },
         ]);
+    });
+
+    test("call playmusic, then playmusic callback will be called", () => {
+        act(() => {
+            testComponent.current.playMusic(2);
+        });
+        expect(testComponent.current.doPlay).toHaveBeenCalledWith(musicListStateManager.getMusicInfoByIdx(musicListFixture, 2));
+        act(() => {
+            testComponent.current.playMusic(1);
+        });
+        expect(testComponent.current.doPlay).toHaveBeenCalledWith(musicListStateManager.getMusicInfoByIdx(musicListFixture, 1));
+    });
+
+    test("modMusicList test, key is constant", () => {
+        act(() => {
+            testComponent.current.appendMusicList(queryListFixture);
+            testComponent.current.modMusicList(4, { id: "testval" });
+        });
+        expect(testComponent.current.musicList[4].id).toEqual("testval");
+        const originkey = testComponent.current.musicList[4].key;
+        act(() => {
+            testComponent.current.modMusicList(4, { key: "testkey" });
+        });
+        expect(testComponent.current.musicList[4].key).toEqual(originkey);
     });
 });
