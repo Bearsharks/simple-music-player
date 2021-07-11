@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { atom, useRecoilValue, useRecoilState, useSetRecoilState } from 'recoil';
 import { musicListState, curMusicInfoState } from "./atoms/musicListAtoms";
 import keyGenerator from '../refs/keyGenerator';
@@ -12,16 +12,16 @@ function getMusicInfoByIdx(musicList, idx) {
 export function usePlayMusic(playCallback, stopCallBack) {
     const musicList = useRecoilValue(musicListState);
     const [curMusicInfo, setCurMusicInfo] = useRecoilState(curMusicInfoState);
+    const prevKeyRef = useRef(NOT_VALID_MUSIC_INFO.key);
     useEffect(() => {
-        if (curMusicInfo.key !== NOT_VALID_MUSIC_INFO.key) {
-            playCallback({
-                idx: curMusicInfo.idx,
-                ...musicList[curMusicInfo.idx],
-            });
-        } else {
-            stopCallBack();
-        }
-    }, [curMusicInfo]);
+        if (curMusicInfo.key === prevKeyRef.current) return;
+        if (curMusicInfo.key === NOT_VALID_MUSIC_INFO.key) stopCallBack();
+        playCallback({
+            idx: curMusicInfo.idx,
+            ...musicList[curMusicInfo.idx],
+        });
+        prevKeyRef.current = curMusicInfo.key;
+    }, [curMusicInfo, musicList]);
     return (idx) => {
         if (idx < 0 || idx >= musicList.length) throw new Error(`musicList out of bound : length - ${musicList.length}, idx - ${idx}`)
         const musicInfo = getMusicInfoByIdx(musicList, idx);
@@ -66,13 +66,20 @@ export class musicListStateManager {
             return cur;
         })
     }
-    reorderMusicList() {
+    reorderMusicList(from, to) {
+        if (to === from) return;
         this.setMusicList(list => {
             const result = Array.from(list);
-            const [removed] = result.splice(this.from, 1);
-            result.splice(this.to, 0, removed);
+            const [removed] = result.splice(from, 1);
+            result.splice(to, 0, removed);
             return result;
         })
+        if (this.curMusicInfo.idx === from) {
+            this.setCurMusicInfo(cur => {
+                return { ...cur, idx: to };
+            })
+        }
+
     }
     deleteMusic(idx) {
         const musicInfo = { ...this.musicList[idx], idx: idx };
