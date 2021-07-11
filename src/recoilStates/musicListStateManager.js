@@ -1,8 +1,10 @@
 import { useEffect } from 'react';
 import { atom, useRecoilValue, useRecoilState, useSetRecoilState } from 'recoil';
 import { musicListState, curMusicInfoState } from "./atoms/musicListAtoms";
+import keyGenerator from '../refs/keyGenerator';
+import { NOT_VALID_MUSIC_INFO } from '../refs/constants';
 const musicListStateManager = {
-    NOT_VALID_MUSIC_INFO: { idx: -1, id: null, key: null },
+
     useGoNextMusic: () => {
         const musicList = useRecoilValue(musicListState);
         const [curMusicInfo, setCurMusicInfo] = useRecoilState(curMusicInfoState);
@@ -38,7 +40,6 @@ const musicListStateManager = {
     useReorderMusicList: () => {
         const setMusicList = useSetRecoilState(musicListState);
         return (from, to) => {
-            debugger;
             setMusicList(list => {
                 const result = Array.from(list);
                 const [removed] = result.splice(from, 1);
@@ -51,14 +52,17 @@ const musicListStateManager = {
         const [musicList, setMusicList] = useRecoilState(musicListState);
         const [curMusicInfo, setCurMusicInfo] = useRecoilState(curMusicInfoState);
 
-        return (musicInfo) => {
+        return (idx) => {
+            debugger;
+            const musicInfo = { ...musicList[idx], idx: idx };
             const isAlone = musicList.length === 1;
             if (isAlone) {
                 setMusicList([]);
-                setCurMusicInfo(this.NOT_VALID_MUSIC_INFO);
+                setCurMusicInfo(NOT_VALID_MUSIC_INFO);
+                return;
             }
             const isLast = musicInfo.idx === musicList.length - 1;
-            const isCurMusic = curMusicInfo === musicInfo;
+            const isCurMusic = curMusicInfo.key === musicInfo.key;
             const isPrevMusic = curMusicInfo.idx < musicInfo.idx;
             setMusicList(list => musicList.filter((item, index) => index !== musicInfo.idx));
             if (isLast) {
@@ -85,6 +89,62 @@ const musicListStateManager = {
                 }
                 setCurMusicInfo(() => musicInfo_update);
             }
+        }
+    },
+    useAppendMusicList: () => {
+        const setMusicList = useSetRecoilState(musicListState);
+        const [curMusicInfo, setCurMusicInfo] = useRecoilState(curMusicInfoState);
+        return (newMusicQueryList) => {
+            newMusicQueryList = newMusicQueryList.filter((element) => element !== "");
+            if (newMusicQueryList.length < 1) return;
+            const keys = keyGenerator(newMusicQueryList.length);
+            let newMusicList = newMusicQueryList.map((el, index) => { return { q: el, id: null, key: keys[index] } });
+            setMusicList(list => [...list, ...newMusicList]);
+            if (curMusicInfo.key === NOT_VALID_MUSIC_INFO.key) {
+                setCurMusicInfo(() => musicListStateManager.getMusicInfoByIdx(newMusicList, 0));
+            }
+        }
+    },
+    getMusicInfoByIdx: (musicList, idx) => {
+        return {
+            idx: idx,
+            key: musicList[idx].key,
+        };
+    },
+    usePlayMusic: (playCallback) => {
+        const musicList = useRecoilValue(musicListState);
+        const [curMusicInfo, setCurMusicInfo] = useRecoilState(curMusicInfoState);
+        useEffect(() => {
+            if (curMusicInfo.key !== NOT_VALID_MUSIC_INFO.key) {
+
+                playCallback({
+                    idx: curMusicInfo.idx,
+                    ...musicList[curMusicInfo.idx],
+                });
+            } else {
+                if (window.player) window.player.stopVideo();
+            }
+
+        }, [curMusicInfo]);
+        return (idx) => {
+            if (idx < 0 || idx >= musicList.length) throw new Error(`musicList out of bound : length - ${musicList.length}, idx - ${idx}`)
+            const musicInfo = musicListStateManager.getMusicInfoByIdx(musicList, idx);
+            if (curMusicInfo.key !== musicInfo.key)
+                setCurMusicInfo(() => musicListStateManager.getMusicInfoByIdx(musicList, idx));
+        }
+    },
+    useModMusicList: () => {
+        const setMusicList = useSetRecoilState(musicListState);
+        return (idx, value) => {
+            setMusicList(list => {
+                let curMusic_update = { ...list[idx], ...value, key: list[idx].key };
+                return list.map((item, i) => {
+                    if (idx === i) {
+                        return curMusic_update;
+                    }
+                    return item;
+                });
+            });
         }
     },
 }
