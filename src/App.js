@@ -1,22 +1,18 @@
 
 import './App.scss';
 import Spinner from './Spinner';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
-import musicListStateManager from "./recoilStates/musicListStateManager"
-import { useRecoilValue, useRecoilState, useSetRecoilState } from 'recoil';
+import { musicListStateManager, usePlayMusic } from "./recoilStates/musicListStateManager"
+import { useRecoilValue, useRecoilState } from 'recoil';
 import { musicListState, curMusicInfoState } from "./recoilStates/atoms/musicListAtoms";
 function App() {
 	const [musicListRaw, setMusicListRaw] = useState("");
-	const musicList = useRecoilValue(musicListState);
-	const curMusicInfo = useRecoilValue(curMusicInfoState);
 	const [isInited, setIsInited] = useState(false);
-	const appendMusicList = musicListStateManager.useAppendMusicList();
-	const reorderMusicList = musicListStateManager.useReorderMusicList();
-	const goPrevMusic = musicListStateManager.useGoPrevMusic();
-	const goNextMusic = musicListStateManager.useGoNextMusic();
-	const deleteMusic = musicListStateManager.useDeleteMusic();
-	const playMusic = musicListStateManager.usePlayMusic(
+	const musicList = useRecoilValue(musicListState)
+	const mlsm = new musicListStateManager(useRecoilState(musicListState), useRecoilState(curMusicInfoState));
+
+	const playMusic = usePlayMusic(
 
 		(musicInfo) => {
 			if (!window.player) return;
@@ -45,11 +41,13 @@ function App() {
 			}).then(json => {
 				let id = json.items[0].id.videoId;
 				window.player.loadVideoById({ videoId: id });
-				modMusicList(musicInfo.idx, { id: id });
+				mlsm.modMusicList(musicInfo.idx, { id: id });
 			}).catch();
+		},
+		() => {
+			if (window.player && window.player.stopVideo) window.player.stopVideo();
 		}
 	);
-	const modMusicList = musicListStateManager.useModMusicList();
 
 	const handleTextAreaChange = (e) => {
 		setMusicListRaw(e.target.value);
@@ -58,22 +56,21 @@ function App() {
 		if (musicListRaw === "") return;
 		let newMusicQueryList = musicListRaw.split("\n");
 		if (newMusicQueryList.length < 1) return;
-		appendMusicList(newMusicQueryList);
+		mlsm.appendMusicList(newMusicQueryList);
 		setMusicListRaw("");
 	}
+
+	const goNextMusicRef = useRef();
+	goNextMusicRef.current = mlsm.goNextMusic;
+
 	useEffect(() => {
+
 		if (!window.YT) { // If not, load the script asynchronously
 			const tag = document.createElement('script');
 			tag.src = 'https://www.youtube.com/iframe_api';
 
 			const firstScriptTag = document.getElementsByTagName('script')[0];
 			firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
-
-			const onStateChange = (event) => {
-				if (event.data === 0) {
-					goNextMusic();
-				}
-			}
 
 			window.player = null;
 
@@ -82,21 +79,25 @@ function App() {
 					height: '480',
 					width: '640',
 					events: {
-						'onStateChange': onStateChange
+						'onStateChange': (event) => {
+							if (event.data === 0) {
+								goNextMusicRef.current();
+							}
+						}
 					},
 				});
 				setIsInited(true);
 			}
 
 		}
-	}, [goNextMusic]);
+	}, []);
 
 	const onDragEnd = (result) => {
 		// dropped outside the list(리스트 밖으로 드랍한 경우)
 		if (!result.destination) {
 			return;
 		}
-		reorderMusicList(result.source.index, result.destination.index);
+		mlsm.reorderMusicList(result.source.index, result.destination.index);
 	}
 	const onDragStart = (e) => {
 		//console.log(musicList);
@@ -104,7 +105,7 @@ function App() {
 	const deleteMusicHandler = (e, index) => {
 		e.stopPropagation();
 		e.preventDefault();
-		deleteMusic(index);
+		mlsm.deleteMusic(index);
 	}
 
 	return (
@@ -116,7 +117,7 @@ function App() {
 				<div className={`side`}>
 					<textarea value={musicListRaw} onChange={handleTextAreaChange} />
 					<button onClick={musicListAppend}>append</button>
-					<button onClick={goPrevMusic} >이전 </button> <button onClick={goNextMusic}>다음 </button>
+					<button onClick={mlsm.goPrevMusic} >이전 </button> <button onClick={mlsm.goNextMusic}>다음 </button>
 					<DragDropContext
 						onDragEnd={onDragEnd}
 						onDragStart={onDragStart}
@@ -144,8 +145,10 @@ function App() {
 											</Draggable>
 										)
 									}
+									{provided.placeholder}
 								</ul>
 							)}
+
 						</Droppable>
 					</DragDropContext>
 
