@@ -22,6 +22,14 @@ function App() {
 				window.player.loadVideoById({ videoId: musicInfo.id });
 				return;
 			}
+			let storageData = localStorage[musicInfo.q];
+			if (storageData) {
+				storageData = JSON.parse(storageData);
+				let id = storageData.items[0].id.videoId;
+				mlsm.modMusicList(musicInfo.idx, { id: id });
+				window.player.loadVideoById({ videoId: id });
+				return;
+			}
 			let params = {
 				part: `id`,
 				maxResults: 5,
@@ -44,6 +52,7 @@ function App() {
 				let id = json.items[0].id.videoId;
 				window.player.loadVideoById({ videoId: id });
 				mlsm.modMusicList(musicInfo.idx, { id: id });
+				localStorage.setItem(musicInfo.q, JSON.stringify(json));
 			}).catch();
 		},
 		() => {
