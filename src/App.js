@@ -7,7 +7,6 @@ import { musicListStateManager, usePlayMusic } from "./recoilStates/musicListSta
 import { useRecoilValue, useRecoilState } from 'recoil';
 import { musicListState, curMusicInfoState } from "./recoilStates/atoms/musicListAtoms";
 import MusicListEle from './MusicList/MusicListEle';
-
 function App() {
 	const [musicListRaw, setMusicListRaw] = useState("");
 	const [isInited, setIsInited] = useState(false);
@@ -94,7 +93,6 @@ function App() {
 
 		}
 	}, []);
-	debugger;
 	const onDragEnd = (result) => {
 		// dropped outside the list(리스트 밖으로 드랍한 경우)
 		if (!result.destination) {
@@ -104,11 +102,6 @@ function App() {
 	}
 	const onDragStart = (e) => {
 		//console.log(musicList);
-	}
-	const deleteMusicHandler = (e, index) => {
-		e.stopPropagation();
-		e.preventDefault();
-		mlsm.deleteMusic(index);
 	}
 
 	return (
@@ -135,7 +128,7 @@ function App() {
 												ele={ele}
 												index={index}
 												playMusic={playMusic}
-												deleteMusic={deleteMusicHandler}
+												deleteMusic={mlsm.deleteMusic}
 											/>
 										)
 									}
