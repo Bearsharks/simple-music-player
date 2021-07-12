@@ -1,11 +1,12 @@
 import { Draggable } from "react-beautiful-dnd";
+import { memo } from 'react'
 // {
 //     ele,
 //     index,
 //     playMusic,
 //     deleteMusic
 // }
-function MusicListEle(props) {
+export default memo(function MusicListEle(props) {
     const deleteMusicHandler = (e, index) => {
         e.stopPropagation();
         e.preventDefault();
@@ -30,5 +31,4 @@ function MusicListEle(props) {
             }
         </Draggable>
     )
-}
-export default MusicListEle;
+});
