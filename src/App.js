@@ -6,6 +6,8 @@ import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import { musicListStateManager, usePlayMusic } from "./recoilStates/musicListStateManager"
 import { useRecoilValue, useRecoilState } from 'recoil';
 import { musicListState, curMusicInfoState } from "./recoilStates/atoms/musicListAtoms";
+import { storeState } from "./recoilStates/atoms/storeAtoms";
+import storeStateManager from './recoilStates/storeStateManager';
 import MusicListEle from './MusicList/MusicListEle';
 function App() {
 	const [musicListRaw, setMusicListRaw] = useState("");
@@ -13,7 +15,7 @@ function App() {
 	const a = useRecoilState(musicListState);
 	const musicList = a[0];
 	const mlsm = new musicListStateManager(a, useRecoilState(curMusicInfoState));
-
+	const ssm = new storeStateManager(useRecoilState(storeState));
 	const playMusic = usePlayMusic(
 
 		(musicInfo) => {
@@ -22,9 +24,9 @@ function App() {
 				window.player.loadVideoById({ videoId: musicInfo.id });
 				return;
 			}
-			let storageData = localStorage[musicInfo.q];
+			let storageData = ssm.get(musicInfo.q);
 			if (storageData) {
-				storageData = JSON.parse(storageData);
+				debugger;
 				let id = storageData.items[0].id.videoId;
 				mlsm.modMusicList(musicInfo.idx, { id: id });
 				window.player.loadVideoById({ videoId: id });
@@ -52,7 +54,8 @@ function App() {
 				let id = json.items[0].id.videoId;
 				window.player.loadVideoById({ videoId: id });
 				mlsm.modMusicList(musicInfo.idx, { id: id });
-				localStorage.setItem(musicInfo.q, JSON.stringify(json));
+				debugger;
+				ssm.store(musicInfo.q, json);
 			}).catch();
 		},
 		() => {
@@ -65,9 +68,12 @@ function App() {
 	}
 	const musicListAppend = () => {
 		if (musicListRaw === "") return;
-		let newMusicQueryList = musicListRaw.split("\n");
+		let newMusicQueryList = musicListRaw.split("\n").filter((element) => element !== "");
 		if (newMusicQueryList.length < 1) return;
 		mlsm.appendMusicList(newMusicQueryList);
+		for (let q of newMusicQueryList) {
+			ssm.store(q);
+		}
 		setMusicListRaw("");
 	}
 
@@ -112,7 +118,11 @@ function App() {
 	const onDragStart = (e) => {
 		//console.log(musicList);
 	}
-
+	const deleteMusic = (idx) => {
+		debugger;
+		ssm.delete(musicList[idx].q);
+		mlsm.deleteMusic(idx);
+	}
 	return (
 		<div className="App">
 			<main>
@@ -137,7 +147,7 @@ function App() {
 												ele={ele}
 												index={index}
 												playMusic={playMusic}
-												deleteMusic={mlsm.deleteMusic}
+												deleteMusic={deleteMusic}
 											/>
 										)
 									}
