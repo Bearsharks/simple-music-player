@@ -15,7 +15,10 @@ export function usePlayMusic(playCallback, stopCallBack) {
     const prevKeyRef = useRef(NOT_VALID_MUSIC_INFO.key);
     useEffect(() => {
         if (curMusicInfo.key === prevKeyRef.current) return;
-        if (curMusicInfo.key === NOT_VALID_MUSIC_INFO.key) stopCallBack();
+        if (curMusicInfo.key === NOT_VALID_MUSIC_INFO.key) {
+            stopCallBack();
+            return;
+        }
         playCallback({
             idx: curMusicInfo.idx,
             ...musicList[curMusicInfo.idx],
@@ -126,14 +129,7 @@ export class musicListStateManager {
     }
 
     modMusicList(idx, value) {
-        this.setMusicList(list => {
-            let curMusic_update = { ...list[idx], ...value, key: list[idx].key };
-            return list.map((item, i) => {
-                if (idx === i) {
-                    return curMusic_update;
-                }
-                return item;
-            });
-        });
+        let curMusic_update = { ...this.musicList[idx], ...value, key: this.musicList[idx].key };
+        this.setMusicList(this.musicList.map((item, i) => (idx === i) ? curMusic_update : item));
     }
 }
