@@ -1,16 +1,19 @@
 
 import './App.scss';
 import Spinner from './Spinner';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import { musicListStateManager, usePlayMusic } from "./recoilStates/musicListStateManager"
 import { useRecoilValue, useRecoilState } from 'recoil';
 import { musicListState, curMusicInfoState } from "./recoilStates/atoms/musicListAtoms";
+import MusicListEle from './MusicList/MusicListEle';
+
 function App() {
 	const [musicListRaw, setMusicListRaw] = useState("");
 	const [isInited, setIsInited] = useState(false);
-	const musicList = useRecoilValue(musicListState)
-	const mlsm = new musicListStateManager(useRecoilState(musicListState), useRecoilState(curMusicInfoState));
+	const a = useRecoilState(musicListState);
+	const musicList = a[0];
+	const mlsm = new musicListStateManager(a, useRecoilState(curMusicInfoState));
 
 	const playMusic = usePlayMusic(
 
@@ -91,7 +94,7 @@ function App() {
 
 		}
 	}, []);
-
+	debugger;
 	const onDragEnd = (result) => {
 		// dropped outside the list(리스트 밖으로 드랍한 경우)
 		if (!result.destination) {
@@ -127,22 +130,13 @@ function App() {
 								<ul ref={provided.innerRef}>
 									{
 										musicList.map((ele, index) =>
-											<Draggable
+											<MusicListEle
 												key={ele.key}
-												draggableId={ele.key}
+												ele={ele}
 												index={index}
-											>
-												{(provided, snapshot) =>
-													<li
-														ref={provided.innerRef}
-														{...provided.draggableProps}
-														{...provided.dragHandleProps}
-														onClick={(e) => { playMusic(index) }}
-													>
-														{ele.q}<button onClick={(e) => deleteMusicHandler(e, index)}>X </button>
-													</li>
-												}
-											</Draggable>
+												playMusic={playMusic}
+												deleteMusic={deleteMusicHandler}
+											/>
 										)
 									}
 									{provided.placeholder}
