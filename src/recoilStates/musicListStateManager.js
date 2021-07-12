@@ -1,9 +1,9 @@
 import { useEffect, useRef } from 'react';
-import { atom, useRecoilValue, useRecoilState, useSetRecoilState } from 'recoil';
+import { useRecoilValue, useRecoilState } from 'recoil';
 import { musicListState, curMusicInfoState } from "./atoms/musicListAtoms";
 import keyGenerator from '../refs/keyGenerator';
 import { NOT_VALID_MUSIC_INFO } from '../refs/constants';
-function getMusicInfoByIdx(musicList, idx) {
+export function getMusicInfoByIdx(musicList, idx) {
     return {
         idx: idx,
         key: musicList[idx].key,
@@ -15,7 +15,10 @@ export function usePlayMusic(playCallback, stopCallBack) {
     const prevKeyRef = useRef(NOT_VALID_MUSIC_INFO.key);
     useEffect(() => {
         if (curMusicInfo.key === prevKeyRef.current) return;
-        if (curMusicInfo.key === NOT_VALID_MUSIC_INFO.key) stopCallBack();
+        if (curMusicInfo.key === NOT_VALID_MUSIC_INFO.key) {
+            stopCallBack();
+            return;
+        }
         playCallback({
             idx: curMusicInfo.idx,
             ...musicList[curMusicInfo.idx],
@@ -68,16 +71,12 @@ export class musicListStateManager {
     }
     reorderMusicList(from, to) {
         if (to === from) return;
-        this.setMusicList(list => {
-            const result = Array.from(list);
-            const [removed] = result.splice(from, 1);
-            result.splice(to, 0, removed);
-            return result;
-        })
+        const result = Array.from(this.musicList);
+        const [removed] = result.splice(from, 1);
+        result.splice(to, 0, removed);
+        this.setMusicList(result)
         if (this.curMusicInfo.idx === from) {
-            this.setCurMusicInfo(cur => {
-                return { ...cur, idx: to };
-            })
+            this.setCurMusicInfo({ ...this.curMusicInfo, idx: to })
         }
 
     }
@@ -130,14 +129,7 @@ export class musicListStateManager {
     }
 
     modMusicList(idx, value) {
-        this.setMusicList(list => {
-            let curMusic_update = { ...list[idx], ...value, key: list[idx].key };
-            return list.map((item, i) => {
-                if (idx === i) {
-                    return curMusic_update;
-                }
-                return item;
-            });
-        });
+        let curMusic_update = { ...this.musicList[idx], ...value, key: this.musicList[idx].key };
+        this.setMusicList(this.musicList.map((item, i) => (idx === i) ? curMusic_update : item));
     }
 }

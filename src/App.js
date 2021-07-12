@@ -1,23 +1,35 @@
 
 import './App.scss';
 import Spinner from './Spinner';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import { musicListStateManager, usePlayMusic } from "./recoilStates/musicListStateManager"
 import { useRecoilValue, useRecoilState } from 'recoil';
 import { musicListState, curMusicInfoState } from "./recoilStates/atoms/musicListAtoms";
+import { storeState } from "./recoilStates/atoms/storeAtoms";
+import storeStateManager from './recoilStates/storeStateManager';
+import MusicListEle from './MusicList/MusicListEle';
 function App() {
 	const [musicListRaw, setMusicListRaw] = useState("");
 	const [isInited, setIsInited] = useState(false);
-	const musicList = useRecoilValue(musicListState)
-	const mlsm = new musicListStateManager(useRecoilState(musicListState), useRecoilState(curMusicInfoState));
-
+	const a = useRecoilState(musicListState);
+	const musicList = a[0];
+	const mlsm = new musicListStateManager(a, useRecoilState(curMusicInfoState));
+	const ssm = new storeStateManager(useRecoilState(storeState));
 	const playMusic = usePlayMusic(
 
 		(musicInfo) => {
 			if (!window.player) return;
 			if (musicInfo.id) {
 				window.player.loadVideoById({ videoId: musicInfo.id });
+				return;
+			}
+			let storageData = ssm.get(musicInfo.q);
+			if (storageData) {
+				debugger;
+				let id = storageData.items[0].id.videoId;
+				mlsm.modMusicList(musicInfo.idx, { id: id });
+				window.player.loadVideoById({ videoId: id });
 				return;
 			}
 			let params = {
@@ -42,6 +54,8 @@ function App() {
 				let id = json.items[0].id.videoId;
 				window.player.loadVideoById({ videoId: id });
 				mlsm.modMusicList(musicInfo.idx, { id: id });
+				debugger;
+				ssm.store(musicInfo.q, json);
 			}).catch();
 		},
 		() => {
@@ -54,9 +68,12 @@ function App() {
 	}
 	const musicListAppend = () => {
 		if (musicListRaw === "") return;
-		let newMusicQueryList = musicListRaw.split("\n");
+		let newMusicQueryList = musicListRaw.split("\n").filter((element) => element !== "");
 		if (newMusicQueryList.length < 1) return;
 		mlsm.appendMusicList(newMusicQueryList);
+		for (let q of newMusicQueryList) {
+			ssm.store(q);
+		}
 		setMusicListRaw("");
 	}
 
@@ -91,7 +108,6 @@ function App() {
 
 		}
 	}, []);
-
 	const onDragEnd = (result) => {
 		// dropped outside the list(리스트 밖으로 드랍한 경우)
 		if (!result.destination) {
@@ -102,12 +118,11 @@ function App() {
 	const onDragStart = (e) => {
 		//console.log(musicList);
 	}
-	const deleteMusicHandler = (e, index) => {
-		e.stopPropagation();
-		e.preventDefault();
-		mlsm.deleteMusic(index);
+	const deleteMusic = (idx) => {
+		debugger;
+		ssm.delete(musicList[idx].q);
+		mlsm.deleteMusic(idx);
 	}
-
 	return (
 		<div className="App">
 			<main>
@@ -127,22 +142,13 @@ function App() {
 								<ul ref={provided.innerRef}>
 									{
 										musicList.map((ele, index) =>
-											<Draggable
+											<MusicListEle
 												key={ele.key}
-												draggableId={ele.key}
+												ele={ele}
 												index={index}
-											>
-												{(provided, snapshot) =>
-													<li
-														ref={provided.innerRef}
-														{...provided.draggableProps}
-														{...provided.dragHandleProps}
-														onClick={(e) => { playMusic(index) }}
-													>
-														{ele.q}<button onClick={(e) => deleteMusicHandler(e, index)}>X </button>
-													</li>
-												}
-											</Draggable>
+												playMusic={playMusic}
+												deleteMusic={deleteMusic}
+											/>
 										)
 									}
 									{provided.placeholder}
