@@ -1,33 +1,24 @@
 import { render, fireEvent, waitFor, screen } from '@testing-library/react';
 import { renderHook, act } from "@testing-library/react-hooks";
-import { useRecoilValue, RecoilRoot, useRecoilState, useSetRecoilState } from "recoil";
-import { useEffect, useRef, useCallback } from 'react';
-import { musicListStateManager, usePlayMusic, getMusicInfoByIdx } from '../recoilStates/musicListStateManager';
-import { musicListState, curMusicInfoState } from "../recoilStates/atoms/musicListAtoms"
+import { useRecoilValue, RecoilRoot, useRecoilState, } from "recoil";
+import { musicListStateManager, useInitMusicPlayer } from '../recoilStates/musicListStateManager';
+import { musicListState, curMusicIndexState, curMusicInfoState } from "../recoilStates/atoms/musicListStates"
 import { musicListFixture, queryListFixture } from './fixtures/MusicListFixture'
-
-
-
-
-
+function sleep(ms) {
+    return new Promise((r) => setTimeout(r, ms));
+}
 describe('MusicList State Test', () => {
     let testComponent;
     beforeEach(() => {
         const { result } = renderHook(
             () => {
                 const [musicList, setMusicList] = useRecoilState(musicListState);
-                const [curMusicInfo, setCurMusicInfo] = useRecoilState(curMusicInfoState);
-                const mlsm = new musicListStateManager([musicList, setMusicList], [curMusicInfo, setCurMusicInfo]);
+                const [curMusicIndex, setCurMusicIndex] = useRecoilState(curMusicIndexState);
+                const curMusicInfo = useRecoilValue(curMusicInfoState);
+                const mlsm = new musicListStateManager([musicList, setMusicList], [curMusicIndex, setCurMusicIndex]);
                 const doPlay = jest.fn();
-                const playMusic = usePlayMusic(doPlay);
-                const initCurMusicInfo = (idx) => {
-                    setCurMusicInfo({
-                        id: musicList[idx].id,
-                        key: musicList[idx].key,
-                        idx: idx
-                    });
-                }
-                return { mlsm, initCurMusicInfo, setMusicList, curMusicInfo, musicList, playMusic, doPlay };
+                useInitMusicPlayer(doPlay);
+                return { mlsm, curMusicIndex, setCurMusicIndex, musicList, setMusicList, curMusicInfo, doPlay };
             },
             {
                 wrapper: RecoilRoot
@@ -38,21 +29,22 @@ describe('MusicList State Test', () => {
     test("at the last, after goNext(), musicInfo will not be change", () => {
         act(() => {
             testComponent.current.mlsm.appendMusicList(queryListFixture);
+
+            testComponent.current.setCurMusicIndex(queryListFixture.length - 1);
         })
         act(() => {
-            testComponent.current.initCurMusicInfo(queryListFixture.length - 1);
             testComponent.current.mlsm.goNextMusic();
         });
 
         expect(testComponent.current.curMusicInfo.idx).toEqual(musicListFixture.length - 1);
     });
-
-    test("at the firat, after goPrev(), musicInfo will not be change", () => {
+    test("at the first, after goPrev(), musicInfo will not be change", () => {
         act(() => {
             testComponent.current.mlsm.appendMusicList(queryListFixture);
+            testComponent.current.setCurMusicIndex(0);
         })
         act(() => {
-            testComponent.current.initCurMusicInfo(0);
+
             testComponent.current.mlsm.goPrevMusic();
         });
 
@@ -62,27 +54,29 @@ describe('MusicList State Test', () => {
     test("after goNext(), musicInfo will be nextinfo", () => {
         act(() => {
             testComponent.current.mlsm.appendMusicList(queryListFixture);
+            testComponent.current.setCurMusicIndex(1);
         })
         act(() => {
-            testComponent.current.initCurMusicInfo(0);
+
             testComponent.current.mlsm.goNextMusic();
         });
 
-        expect(testComponent.current.curMusicInfo.idx).toEqual(1);
+        expect(testComponent.current.curMusicInfo.idx).toEqual(2);
     });
+
 
     test("after goPrev(), musicInfo will be previnfo", () => {
         act(() => {
             testComponent.current.mlsm.appendMusicList(queryListFixture);
+            testComponent.current.setCurMusicIndex(2);
         })
         act(() => {
-            testComponent.current.initCurMusicInfo(1);
+
             testComponent.current.mlsm.goPrevMusic();
         });
 
-        expect(testComponent.current.curMusicInfo.idx).toEqual(0);
+        expect(testComponent.current.curMusicInfo.idx).toEqual(1);
     });
-
     test("reorderMusicList(start,end), start value will be pop & inserted to after end", () => {
         act(() => {
             testComponent.current.mlsm.appendMusicList(queryListFixture);
@@ -97,21 +91,19 @@ describe('MusicList State Test', () => {
             queryListFixture[0],
         ]);
     });
-
     test("call playmusic, then playmusic callback will be called", () => {
         act(() => {
             testComponent.current.mlsm.appendMusicList(queryListFixture);
         })
         act(() => {
-
-            testComponent.current.playMusic(2);
+            testComponent.current.mlsm.selectMusic(2);
         });
         expect(testComponent.current.doPlay).toHaveBeenCalledWith({
             idx: 2,
             ...testComponent.current.musicList[2],
         });
         act(() => {
-            testComponent.current.playMusic(1);
+            testComponent.current.mlsm.selectMusic(1);
         });
         expect(testComponent.current.doPlay).toHaveBeenCalledWith({
             idx: 1,
