@@ -1,67 +1,52 @@
-
 import './App.scss';
 import Spinner from './Spinner';
-import { useEffect, useRef, useState } from 'react';
-import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
-import { musicListStateManager, usePlayMusic } from "./recoilStates/musicListStateManager"
-import { useRecoilValue, useRecoilState } from 'recoil';
-import { musicListState, curMusicInfoState } from "./recoilStates/atoms/musicListAtoms";
-import { storeState } from "./recoilStates/atoms/storeAtoms";
-import storeStateManager from './recoilStates/storeStateManager';
+import { useEffect, useRef, useState, memo } from 'react';
+import { DragDropContext, Droppable } from "react-beautiful-dnd";
+import { musicListStateManager, useInitMusicPlayer } from "./recoilStates/musicListStateManager"
+import { useRecoilState } from 'recoil';
+import { musicListState, curMusicIndexState } from "./recoilStates/atoms/musicListStates";
 import MusicListEle from './MusicList/MusicListEle';
 function App() {
 	const [musicListRaw, setMusicListRaw] = useState("");
 	const [isInited, setIsInited] = useState(false);
-	const a = useRecoilState(musicListState);
-	const musicList = a[0];
-	const mlsm = new musicListStateManager(a, useRecoilState(curMusicInfoState));
-	const ssm = new storeStateManager(useRecoilState(storeState));
-	const playMusic = usePlayMusic(
-
-		(musicInfo) => {
-			if (!window.player) return;
-			if (musicInfo.id) {
-				window.player.loadVideoById({ videoId: musicInfo.id });
-				return;
-			}
-			let storageData = ssm.get(musicInfo.q);
-			if (storageData) {
-				debugger;
-				let id = storageData.items[0].id.videoId;
-				mlsm.modMusicList(musicInfo.idx, { id: id });
-				window.player.loadVideoById({ videoId: id });
-				return;
-			}
-			let params = {
-				part: `id`,
-				maxResults: 5,
-				type: `video`,
-				topic: `/m/04rlf`,
-				q: `${musicInfo.q} official audio`
-			}
-			let query = Object.keys(params).map(k => encodeURIComponent(k) + '=' + encodeURIComponent(params[k])).join('&');
-			const fields = `items(id,snippet(title,description,thumbnails))`;
-			//const key = `AIzaSyBhZ-w1w_g-YVg1Tkovnw7FGIGsEUZz4is`
-			const key = `AIzaSyBJwDMPWPGnzeDUqogskimWlGHLbqTQjcM`;
-			let url = `https://www.googleapis.com/youtube/v3/search?key=${key}&fields=${fields}&${query}`;
-			fetch(url, { method: 'GET' }).then(res => {
-				if (res.status === 200) {
-					return res.json();
-				} else {
-					throw new Error('request fail');
-				}
-			}).then(json => {
-				let id = json.items[0].id.videoId;
-				window.player.loadVideoById({ videoId: id });
-				mlsm.modMusicList(musicInfo.idx, { id: id });
-				debugger;
-				ssm.store(musicInfo.q, json);
-			}).catch();
-		},
-		() => {
-			if (window.player && window.player.stopVideo) window.player.stopVideo();
+	const musicListRecoilState = useRecoilState(musicListState);
+	const musicList = musicListRecoilState[0];
+	const mlsm = new musicListStateManager(musicListRecoilState, useRecoilState(curMusicIndexState));
+	const playMusic = (musicInfo) => {
+		if (!window.player) return;
+		if (musicInfo.id) {
+			window.player.loadVideoById({ videoId: musicInfo.id });
+			return;
 		}
-	);
+		let params = {
+			part: `id`,
+			maxResults: 5,
+			type: `video`,
+			topic: `/m/04rlf`,
+			q: `${musicInfo.q} official audio`
+		}
+		let query = Object.keys(params).map(k => encodeURIComponent(k) + '=' + encodeURIComponent(params[k])).join('&');
+		const fields = `items(id,snippet(title,description,thumbnails))`;
+		//const key = `AIzaSyBhZ-w1w_g-YVg1Tkovnw7FGIGsEUZz4is`
+		const key = `AIzaSyBJwDMPWPGnzeDUqogskimWlGHLbqTQjcM`;
+		let url = `https://www.googleapis.com/youtube/v3/search?key=${key}&fields=${fields}&${query}`;
+		fetch(url, { method: 'GET' }).then(res => {
+			if (res.status === 200) {
+				return res.json();
+			} else {
+				throw new Error('request fail');
+			}
+		}).then(json => {
+			let id = json.items[0].id.videoId;
+			window.player.loadVideoById({ videoId: id });
+			const data = { ...json, q: musicInfo.q };
+			mlsm.modMusicList(musicInfo.idx, data);
+		}).catch();
+	}
+	const stopMusic = () => {
+		if (window.player && window.player.stopVideo) window.player.stopVideo();
+	};
+	useInitMusicPlayer(playMusic, stopMusic);
 
 	const handleTextAreaChange = (e) => {
 		setMusicListRaw(e.target.value);
@@ -71,9 +56,6 @@ function App() {
 		let newMusicQueryList = musicListRaw.split("\n").filter((element) => element !== "");
 		if (newMusicQueryList.length < 1) return;
 		mlsm.appendMusicList(newMusicQueryList);
-		for (let q of newMusicQueryList) {
-			ssm.store(q);
-		}
 		setMusicListRaw("");
 	}
 
@@ -119,8 +101,6 @@ function App() {
 		//console.log(musicList);
 	}
 	const deleteMusic = (idx) => {
-		debugger;
-		ssm.delete(musicList[idx].q);
 		mlsm.deleteMusic(idx);
 	}
 	return (
@@ -146,7 +126,7 @@ function App() {
 												key={ele.key}
 												ele={ele}
 												index={index}
-												playMusic={playMusic}
+												selectMusic={mlsm.selectMusic}
 												deleteMusic={deleteMusic}
 											/>
 										)
@@ -166,4 +146,4 @@ function App() {
 	);
 }
 
-export default App;
+export default memo(App);

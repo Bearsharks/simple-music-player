@@ -24,7 +24,7 @@ export default memo(function MusicListEle(props) {
                     ref={provided.innerRef}
                     {...provided.draggableProps}
                     {...provided.dragHandleProps}
-                    onClick={(e) => { props.playMusic(props.index) }}
+                    onClick={(e) => { props.selectMusic(props.index) }}
                 >
                     {props.ele.q}<button onClick={(e) => deleteMusicHandler(e, props.index)}>X </button>
                 </li>
