@@ -5,32 +5,23 @@ import { DragDropContext, Droppable } from "react-beautiful-dnd";
 import { musicListStateManager, useInitMusicPlayer } from "./recoilStates/musicListStateManager"
 import { useRecoilState } from 'recoil';
 import { musicListState, curMusicIndexState } from "./recoilStates/atoms/musicListStates";
-import MusicListEle from './MusicList/MusicListEle';
+import MusicListDraggable from './MusicList/MusicListDraggable';
+import youtubeSearch from './refs/youtubeSearch';
 function App() {
 	const [musicListRaw, setMusicListRaw] = useState("");
 	const [isInited, setIsInited] = useState(false);
 	const musicListRecoilState = useRecoilState(musicListState);
 	const musicList = musicListRecoilState[0];
-	const mlsm = new musicListStateManager(musicListRecoilState, useRecoilState(curMusicIndexState));
+	const curMusicIndexRecoilState = useRecoilState(curMusicIndexState);
+	const curMusicIndex = curMusicIndexRecoilState[0];
+	const mlsm = new musicListStateManager(musicListRecoilState, curMusicIndexRecoilState);
 	const playMusic = (musicInfo) => {
 		if (!window.player) return;
 		if (musicInfo.id) {
 			window.player.loadVideoById({ videoId: musicInfo.id });
 			return;
 		}
-		let params = {
-			part: `id`,
-			maxResults: 5,
-			type: `video`,
-			topic: `/m/04rlf`,
-			q: `${musicInfo.q} official audio`
-		}
-		let query = Object.keys(params).map(k => encodeURIComponent(k) + '=' + encodeURIComponent(params[k])).join('&');
-		const fields = `items(id,snippet(title,description,thumbnails))`;
-		//const key = `AIzaSyBhZ-w1w_g-YVg1Tkovnw7FGIGsEUZz4is`
-		const key = `AIzaSyBJwDMPWPGnzeDUqogskimWlGHLbqTQjcM`;
-		let url = `https://www.googleapis.com/youtube/v3/search?key=${key}&fields=${fields}&${query}`;
-		fetch(url, { method: 'GET' }).then(res => {
+		youtubeSearch(musicInfo.q).then(res => {
 			if (res.status === 200) {
 				return res.json();
 			} else {
@@ -39,8 +30,7 @@ function App() {
 		}).then(json => {
 			let id = json.items[0].id.videoId;
 			window.player.loadVideoById({ videoId: id });
-			const data = { ...json, q: musicInfo.q };
-			mlsm.modMusicList(musicInfo.idx, data);
+			mlsm.initMusicInfo(musicInfo.idx, musicInfo.q, json.items);
 		}).catch();
 	}
 	const stopMusic = () => {
@@ -122,12 +112,14 @@ function App() {
 								<ul ref={provided.innerRef}>
 									{
 										musicList.map((ele, index) =>
-											<MusicListEle
+											<MusicListDraggable
 												key={ele.key}
 												ele={ele}
 												index={index}
 												selectMusic={mlsm.selectMusic}
 												deleteMusic={deleteMusic}
+												modMusicList={mlsm.modMusicList}
+												isCurMusic={(curMusicIndex == index)}
 											/>
 										)
 									}
