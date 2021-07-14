@@ -1,20 +1,20 @@
 {
   "files": {
     "main.css": "/simple-music-player/static/css/main.28348e38.chunk.css",
-    "main.js": "/simple-music-player/static/js/main.0f8c848b.chunk.js",
-    "main.js.map": "/simple-music-player/static/js/main.0f8c848b.chunk.js.map",
+    "main.js": "/simple-music-player/static/js/main.f5ac522e.chunk.js",
+    "main.js.map": "/simple-music-player/static/js/main.f5ac522e.chunk.js.map",
     "runtime-main.js": "/simple-music-player/static/js/runtime-main.afcaf7cb.js",
     "runtime-main.js.map": "/simple-music-player/static/js/runtime-main.afcaf7cb.js.map",
-    "static/js/2.831bdf12.chunk.js": "/simple-music-player/static/js/2.831bdf12.chunk.js",
-    "static/js/2.831bdf12.chunk.js.map": "/simple-music-player/static/js/2.831bdf12.chunk.js.map",
+    "static/js/2.9582e2e9.chunk.js": "/simple-music-player/static/js/2.9582e2e9.chunk.js",
+    "static/js/2.9582e2e9.chunk.js.map": "/simple-music-player/static/js/2.9582e2e9.chunk.js.map",
     "index.html": "/simple-music-player/index.html",
     "static/css/main.28348e38.chunk.css.map": "/simple-music-player/static/css/main.28348e38.chunk.css.map",
-    "static/js/2.831bdf12.chunk.js.LICENSE.txt": "/simple-music-player/static/js/2.831bdf12.chunk.js.LICENSE.txt"
+    "static/js/2.9582e2e9.chunk.js.LICENSE.txt": "/simple-music-player/static/js/2.9582e2e9.chunk.js.LICENSE.txt"
   },
   "entrypoints": [
     "static/js/runtime-main.afcaf7cb.js",
-    "static/js/2.831bdf12.chunk.js",
+    "static/js/2.9582e2e9.chunk.js",
     "static/css/main.28348e38.chunk.css",
-    "static/js/main.0f8c848b.chunk.js"
+    "static/js/main.f5ac522e.chunk.js"
   ]
 }
