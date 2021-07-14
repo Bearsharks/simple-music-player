@@ -1,30 +1,26 @@
 import { useEffect, useRef } from 'react';
-import { useRecoilValue, useRecoilState } from 'recoil';
-import { musicListState, curMusicIndexState, curMusicInfoState } from "./atoms/musicListStates";
+import { useRecoilState } from 'recoil';
+import { curMusicInfoState } from "./atoms/musicListStates";
 import keyGenerator from '../refs/keyGenerator';
 import { INVALID_MUSIC_INFO } from '../refs/constants';
-import storeStateManager from './storeStateManager';
-import { storeState } from './atoms/storeAtoms';
+import storeStateManager from '../refs/storeStateManager';
 
-const ssm = new storeStateManager();
 
 export function useInitMusicPlayer(playCallback, stopCallBack) {
     const [curMusicInfo, setCurMusicInfo] = useRecoilState(curMusicInfoState);
-    const prevKeyRef = useRef(INVALID_MUSIC_INFO.key);
-    const store = useRecoilState(storeState);
+    const prevInfoRef = useRef(INVALID_MUSIC_INFO.key);
     useEffect(() => {
-        if (curMusicInfo.key === prevKeyRef.current) return;
-        debugger;
+        if (!curMusicInfo.key || curMusicInfo.key + curMusicInfo.id === prevInfoRef.current) return;
         //새로운 음악 재생시마다 현재정보를 로컬스토리지에 저장
-        ssm.set('curMusicIndex', curMusicInfo.idx);
+        window.storeManager.set('curMusicIndex', curMusicInfo.idx);
         if (curMusicInfo.key === INVALID_MUSIC_INFO.key) {
             stopCallBack();
             return;
         }
-        prevKeyRef.current = curMusicInfo.key;
+        prevInfoRef.current = curMusicInfo.key + curMusicInfo.id;
         let info = curMusicInfo;
         if (!curMusicInfo.id) {
-            const items = ssm.get(curMusicInfo.q);
+            const items = window.storeManager.get(curMusicInfo.q);
             if (items) {
                 info = { ...info, id: items[0].id.videoId };
             }
@@ -33,11 +29,9 @@ export function useInitMusicPlayer(playCallback, stopCallBack) {
     }, [curMusicInfo]);
 
     useEffect(() => {
-        ssm.init(store);
-    }, [store])
-    useEffect(() => {
-        const cur = ssm.get('curMusicIndex');
-        const list = ssm.get('musicList');
+        if (!window.storeManager) window.storeManager = new storeStateManager();
+        const cur = window.storeManager.get('curMusicIndex');
+        const list = window.storeManager.get('musicList');
         setCurMusicInfo([cur, list]);
     }, []);
 }
@@ -55,6 +49,7 @@ export class musicListStateManager {
         this.deleteMusic = this.deleteMusic.bind(this);
         this.appendMusicList = this.appendMusicList.bind(this);
         this.modMusicList = this.modMusicList.bind(this);
+        this.initMusicInfo = this.initMusicInfo.bind(this);
         this.updateMusicList = this.updateMusicList.bind(this);
         this.selectMusic = this.selectMusic.bind(this);
     }
@@ -82,21 +77,19 @@ export class musicListStateManager {
     deleteMusic(idx) {
         const musicInfo = { ...this.musicList[idx], idx: idx };
         const isAlone = this.musicList.length === 1;
-        debugger;
-        ssm.delete(musicInfo.q);
+        window.storeManager.delete(musicInfo.q);
         if (isAlone) {
             this.updateMusicList([]);
             this.setCurMusicIndex(INVALID_MUSIC_INFO.idx);
             return;
         }
         const isLast = musicInfo.idx === this.musicList.length - 1;
-        const isPrevMusic = this.curMusicIndex < musicInfo.idx;
+        const isPrevMusic = this.curMusicIndex > musicInfo.idx;
+        const isCurMusic = this.curMusicIndex === musicInfo.idx;
         const result = this.musicList.filter((item, index) => index !== musicInfo.idx);
         this.updateMusicList(result);
-        if (isLast) {
-            this.setCurMusicIndex(musicInfo.idx - 1);
-        } else if (isPrevMusic) {
-            this.setCurMusicIndex(musicInfo.idx - 1);
+        if ((isCurMusic && isLast) || isPrevMusic) {
+            this.setCurMusicIndex(this.curMusicIndex - 1);
         }
     }
     appendMusicList(newMusicQueryList) {
@@ -105,7 +98,7 @@ export class musicListStateManager {
         const keys = keyGenerator(newMusicQueryList.length);
         const newMusicList = newMusicQueryList.map((el, index) => { return { q: el, id: null, key: keys[index] } });
         for (let info of newMusicList) {
-            ssm.store(info.q);
+            window.storeManager.store(info.q);
         }
         const newListStartIndex = this.musicList.length;
         const result = [...this.musicList, ...newMusicList];
@@ -117,16 +110,19 @@ export class musicListStateManager {
     }
     updateMusicList(list) {
         this.setMusicList(list);
-        ssm.set('musicList', list);
+        window.storeManager.set('musicList', list);
     }
-    modMusicList(idx, data, itemidx) {
-
-        if (!itemidx) itemidx = 0;
-        let curMusic_update = { ...this.musicList[idx], id: data.items[itemidx].id.videoId, key: this.musicList[idx].key };
-        const result = this.musicList.map((item, i) => (idx === i) ? curMusic_update : item);
+    modMusicList(idx, item) {
+        const musicInfo = { ...this.musicList[idx], id: item.id.videoId };
+        const result = this.musicList.map((item, i) => (idx === i) ? musicInfo : item);
         this.updateMusicList(result);
-        ssm.set(data.q, data.items);
     }
+    initMusicInfo(idx, query, items, itemIdx) {
+        if (!itemIdx) itemIdx = 0;
+        this.modMusicList(idx, items[itemIdx]);
+        window.storeManager.set(query, items);
+    }
+
     selectMusic(idx) {
         this.setCurMusicIndex(idx);
     }
