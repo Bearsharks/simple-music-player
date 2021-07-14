@@ -4,8 +4,8 @@ export default function youtubeSearch(q) {
         part: `snippet`,
         maxResults: 5,
         type: `video`,
-        //topic: `/m/04rlf`,
-        q: `${q} official audio`
+        topic: `/m/04rlf`,
+        q: `${q} audio`
     }
     let query = Object.keys(params).map(k => encodeURIComponent(k) + '=' + encodeURIComponent(params[k])).join('&');
     const fields = `items(id,snippet(title,description,thumbnails))`;
