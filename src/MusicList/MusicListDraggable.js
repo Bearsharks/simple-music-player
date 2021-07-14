@@ -14,15 +14,17 @@ export default memo(function MusicListDraggable(props) {
                     {...provided.draggableProps}
                     {...provided.dragHandleProps}
                     onClick={(e) => { props.selectMusic(props.index) }}
-                    style={(props.isCurMusic) ? { border: "1px solid black" } : {}}
                 >
-                    <MusicListEle
-                        ele={props.ele}
-                        index={props.index}
-                        deleteMusic={props.deleteMusic}
-                        modMusicList={props.modMusicList}
-                    >
-                    </MusicListEle>
+
+                    <div style={(props.isCurMusic) ? { border: "1px solid black" } : {}}>
+                        <MusicListEle
+                            ele={props.ele}
+                            index={props.index}
+                            deleteMusic={props.deleteMusic}
+                            modMusicList={props.modMusicList}
+                        >
+                        </MusicListEle>
+                    </div>
                 </li>
             }
         </Draggable>
