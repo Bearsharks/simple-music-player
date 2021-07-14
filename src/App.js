@@ -41,6 +41,10 @@ function App() {
 	const handleTextAreaChange = (e) => {
 		setMusicListRaw(e.target.value);
 	}
+	const handleChangeYoutubeKey = (e) => {
+		window.youtubeKey = e.target.value;
+		localStorage.setItem("youtubeKey", e.target.value);
+	}
 	const musicListAppend = () => {
 		if (musicListRaw === "") return;
 		let newMusicQueryList = musicListRaw.split("\n").filter((element) => element !== "");
@@ -100,6 +104,7 @@ function App() {
 				<div className={`playerwrapper`} id={`player`}>
 				</div>
 				<div className={`side`}>
+					<input type="text" onChange={handleChangeYoutubeKey} value={localStorage.getItem("youtubeKey")}></input>
 					<textarea value={musicListRaw} onChange={handleTextAreaChange} />
 					<button onClick={musicListAppend}>append</button>
 					<button onClick={mlsm.goPrevMusic} >이전 </button> <button onClick={mlsm.goNextMusic}>다음 </button>
