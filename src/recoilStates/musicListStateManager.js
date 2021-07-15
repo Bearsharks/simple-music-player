@@ -69,8 +69,15 @@ export class musicListStateManager {
         const [removed] = result.splice(from, 1);
         result.splice(to, 0, removed);
         this.updateMusicList(result);
-        if (this.curMusicIndex === from) {
-            this.setCurMusicIndex(to);
+        const isCurMusic = this.curMusicIndex === from;
+        const isGoToNextFromPrev = this.curMusicIndex > from && this.curMusicIndex <= to;
+        const isGoToPrevFromNext = this.curMusicIndex < from && this.curMusicIndex >= to;
+        if (isCurMusic) {
+            this.selectMusic(to);
+        } else if (isGoToNextFromPrev) {
+            this.goPrevMusic();
+        } else if (isGoToPrevFromNext) {
+            this.goNextMusic();
         }
 
     }
