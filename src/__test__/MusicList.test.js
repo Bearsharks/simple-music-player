@@ -25,6 +25,9 @@ describe('MusicList State Test', () => {
             }
         );
         testComponent = result;
+        act(() => {
+            testComponent.current.mlsm.setMusicList([]);
+        });
     })
     test("at the last, after goNext(), musicInfo will not be change", () => {
         act(() => {
@@ -92,6 +95,7 @@ describe('MusicList State Test', () => {
         ]);
     });
     test("call playmusic, then playmusic callback will be called", () => {
+
         act(() => {
             testComponent.current.mlsm.appendMusicList(queryListFixture);
         })
@@ -114,15 +118,14 @@ describe('MusicList State Test', () => {
     test("modMusicList test, key is constant", () => {
         act(() => {
             testComponent.current.mlsm.appendMusicList(queryListFixture);
-
         });
         act(() => {
-            testComponent.current.mlsm.modMusicList(2, { id: "testval" });
+            testComponent.current.mlsm.modMusicList(2, { id: { videoId: "testval" } });
         })
         expect(testComponent.current.musicList[2].id).toEqual("testval");
         const originkey = testComponent.current.musicList[2].key;
         act(() => {
-            testComponent.current.mlsm.modMusicList(2, { key: "testkey" });
+            testComponent.current.mlsm.modMusicList(2, { id: { videoId: "testval" }, key: "testkey" });
         });
         expect(testComponent.current.musicList[2].key).toEqual(originkey);
     });
