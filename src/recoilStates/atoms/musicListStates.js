@@ -13,6 +13,7 @@ export const curMusicInfoState = selector({
     get: ({ get }) => {
         const list = get(musicListState);
         const idx = get(curMusicIndexState);
+        debugger;
         if (idx === INVALID_MUSIC_INFO.idx || list.length === 0) {
             return INVALID_MUSIC_INFO;
         }
