@@ -21,17 +21,14 @@ function App() {
 			window.player.loadVideoById({ videoId: musicInfo.id });
 			return;
 		}
-		youtubeSearch(musicInfo.q).then(res => {
-			if (res.status === 200) {
-				return res.json();
-			} else {
-				throw new Error('request fail');
-			}
-		}).then(json => {
-			let id = json.items[0].id.videoId;
-			window.player.loadVideoById({ videoId: id });
-			mlsm.initMusicInfo(musicInfo.idx, musicInfo.q, json.items);
-		}).catch();
+		youtubeSearch(musicInfo.q)
+			.then(json => {
+				let id = json.items[0].id.videoId;
+				window.player.loadVideoById({ videoId: id });
+				mlsm.initMusicInfo(musicInfo.idx, musicInfo.q, json.items);
+			}).catch((err) => {
+				console.error(err);
+			});
 	}
 	const stopMusic = () => {
 		if (window.player && window.player.stopVideo) window.player.stopVideo();

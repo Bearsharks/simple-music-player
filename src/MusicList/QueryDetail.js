@@ -15,11 +15,14 @@ export default function QueryDetail({ query, selectQuery, curItemId, hide }) {
         }
 
         async function ytsearch(q) {
-            const res = await youtubeSearch(q);
-            if (res.status !== 200) throw new Error('request fail');
-            const data = await res.json();
-            window.storeManager.set(q, data.items);
-            setItems(data.items);
+            try {
+                const data = await youtubeSearch(q);
+                window.storeManager.set(q, data.items);
+                setItems(data.items);
+            } catch (err) {
+                console.error(err);
+            }
+
         }
         ytsearch(query);
     }, []);
