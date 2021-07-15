@@ -7,9 +7,9 @@ export default class storeManager {
         this.get = this.get.bind(this);
         this.set = this.set.bind(this);
     }
-    get(key) {
+    get(key, kind) {
         if (!key) throw new Error("store state error : invalid key");
-
+        if (kind) key = kind + '_' + key;
         let item = this._storage.get(key);
         if (item) return item;
 
@@ -20,22 +20,24 @@ export default class storeManager {
         }
         return undefined;
     }
-    set(key, item) {
+    set(key, item, kind) {
         if (!key) throw new Error("store state error : invalid key");
-        if (item !== 0 && !item) throw new Error("store state error : invalid item");
+        if (kind) key = kind + '_' + key;
         this._storage.set(key, item);
         localStorage.setItem(key, JSON.stringify(item));
         const cnt = this._storage_cnt.get(key);
         if (!cnt) this._storage_cnt.set(key, 1);
     }
 
-    store(key) {
+    store(key, kind) {
         if (!key) throw new Error("store state error : invalid key");
+        if (kind) key = kind + '_' + key;
         let cnt = this._storage_cnt.get(key);
         this._storage_cnt.set((cnt) ? cnt + 1 : 1);
     }
-    delete(key) {
+    delete(key, kind) {
         if (!key) throw new Error("store state error : invalid key");
+        if (kind) key = kind + '_' + key;
         let cnt = this._storage_cnt.get(key);
         if (cnt > 1) {
             this._storage_cnt.set(key, cnt - 1);

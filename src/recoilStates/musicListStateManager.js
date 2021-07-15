@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react';
 import { useRecoilState } from 'recoil';
 import { curMusicInfoState } from "./atoms/musicListStates";
 import keyGenerator from '../refs/keyGenerator';
-import { INVALID_MUSIC_INFO } from '../refs/constants';
+import { INVALID_MUSIC_INFO, DEFAULT_PLAYLIST_NAME, CUR_PLAYLIST_INDICATER } from '../refs/constants';
 import storeStateManager from '../refs/storeStateManager';
 
 
@@ -10,14 +10,16 @@ export function useInitMusicPlayer(playCallback, stopCallBack) {
     const [curMusicInfo, setCurMusicInfo] = useRecoilState(curMusicInfoState);
     const prevInfoRef = useRef(INVALID_MUSIC_INFO.key);
     useEffect(() => {
+        debugger;
         if (!curMusicInfo.key || curMusicInfo.key + curMusicInfo.id === prevInfoRef.current) return;
         //새로운 음악 재생시마다 현재정보를 로컬스토리지에 저장
         window.storeManager.set('curMusicIndex', curMusicInfo.idx);
+        prevInfoRef.current = curMusicInfo.key + curMusicInfo.id;
         if (curMusicInfo.key === INVALID_MUSIC_INFO.key) {
             stopCallBack();
             return;
         }
-        prevInfoRef.current = curMusicInfo.key + curMusicInfo.id;
+
         let info = curMusicInfo;
         if (!curMusicInfo.id) {
             const items = window.storeManager.get(curMusicInfo.q);
@@ -30,8 +32,11 @@ export function useInitMusicPlayer(playCallback, stopCallBack) {
 
     useEffect(() => {
         if (!window.storeManager) window.storeManager = new storeStateManager();
-        const cur = window.storeManager.get('curMusicIndex');
-        const list = window.storeManager.get('musicList');
+        let curListName = window.storeManager.get(CUR_PLAYLIST_INDICATER);
+        if (!curListName) curListName = DEFAULT_PLAYLIST_NAME;
+        const cur = window.storeManager.get(curListName, 'idx');
+        const list = window.storeManager.get(curListName, 'list');
+        if (!list) window.storeManager.set(curListName, [], 'list');
         setCurMusicInfo([cur, list]);
     }, []);
 }
@@ -43,6 +48,10 @@ export class musicListStateManager {
 
         this.curMusicIndex = ci[0];
         this.setCurMusicIndex = ci[1];
+        if (!window.storeManager) window.storeManager = new storeStateManager();
+        let curName = window.storeManager.get(CUR_PLAYLIST_INDICATER);
+        if (!curName) this.curPlayListName = DEFAULT_PLAYLIST_NAME;
+        else this.curPlayListName = curName;
         this.goNextMusic = this.goNextMusic.bind(this);
         this.goPrevMusic = this.goPrevMusic.bind(this);
         this.reorderMusicList = this.reorderMusicList.bind(this);
@@ -84,7 +93,7 @@ export class musicListStateManager {
     deleteMusic(idx) {
         const musicInfo = { ...this.musicList[idx], idx: idx };
         const isAlone = this.musicList.length === 1;
-        window.storeManager.delete(musicInfo.q);
+        window.storeManager.delete(musicInfo.q, 'query');
         if (isAlone) {
             this.updateMusicList([]);
             this.setCurMusicIndex(INVALID_MUSIC_INFO.idx);
@@ -105,7 +114,7 @@ export class musicListStateManager {
         const keys = keyGenerator(newMusicQueryList.length);
         const newMusicList = newMusicQueryList.map((el, index) => { return { q: el, id: null, key: keys[index] } });
         for (let info of newMusicList) {
-            window.storeManager.store(info.q);
+            window.storeManager.store(info.q, 'query');
         }
         const newListStartIndex = this.musicList.length;
         const result = [...this.musicList, ...newMusicList];
@@ -117,7 +126,7 @@ export class musicListStateManager {
     }
     updateMusicList(list) {
         this.setMusicList(list);
-        window.storeManager.set('musicList', list);
+        window.storeManager.set(this.curPlayListName, list, 'list');
     }
     modMusicList(idx, item) {
         const musicInfo = { ...this.musicList[idx], id: item.id.videoId };
@@ -127,7 +136,7 @@ export class musicListStateManager {
     initMusicInfo(idx, query, items, itemIdx) {
         if (!itemIdx) itemIdx = 0;
         this.modMusicList(idx, items[itemIdx]);
-        window.storeManager.set(query, items);
+        window.storeManager.set(query, items, 'query');
     }
 
     selectMusic(idx) {

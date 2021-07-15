@@ -7,6 +7,7 @@ import { useRecoilState } from 'recoil';
 import { musicListState, curMusicIndexState } from "./recoilStates/atoms/musicListStates";
 import MusicListDraggable from './MusicList/MusicListDraggable';
 import youtubeSearch from './refs/youtubeSearch';
+import Playlists from './Playlists';
 function App() {
 	const [musicListRaw, setMusicListRaw] = useState("");
 	const [isInited, setIsInited] = useState(false);
@@ -101,6 +102,7 @@ function App() {
 				<div className={`playerwrapper`} id={`player`}>
 				</div>
 				<div className={`side`}>
+					<label>유튜브 api 키</label>
 					<input type="text" onChange={handleChangeYoutubeKey} value={localStorage.getItem("youtubeKey")}></input>
 					<textarea value={musicListRaw} onChange={handleTextAreaChange} />
 					<button onClick={musicListAppend}>append</button>
@@ -134,8 +136,9 @@ function App() {
 
 				</div>
 
-			</main>
 
+			</main>
+			<Playlists>	</Playlists>
 		</div >
 	);
 }
