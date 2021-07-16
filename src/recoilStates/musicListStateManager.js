@@ -66,7 +66,6 @@ export function useInitMusicPlayer(playCallback, stopCallBack) {
 
         if (curMusicInfo.key === INVALID_MUSIC_INFO.key) {
             stopCallBack();
-            return;
         } else {
             let info = curMusicInfo;
             if (!curMusicInfo.id) {
