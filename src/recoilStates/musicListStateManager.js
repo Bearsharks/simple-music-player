@@ -12,6 +12,15 @@ function initPlaylists() {
         playlistorigin = [DEFAULT_PLAYLIST_NAME];
         window.storeManager.set('playlists', playlistorigin);
     }
+
+    for (let listName of playlistorigin) {
+        let list = window.storeManager.get(listName, 'list');
+        if (!list) {
+            list = [];
+            window.storeManager.set(listName, list, 'list');
+        }
+    }
+
     return playlistorigin;
 }
 function initQuerys(listname) {

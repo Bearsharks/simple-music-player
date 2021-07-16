@@ -34,7 +34,7 @@ function MusicList(props) {
 
     useEffect(() => {
         props.goNextRef.current = mlsm.goNextMusic;
-    }, []);
+    }, [mlsm.goNextMusic]);
 
     const handleTextAreaChange = (e) => {
         setMusicListRaw(e.target.value);
