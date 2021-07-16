@@ -23,7 +23,7 @@ export const curMusicInfoState = selector({
     },
     set: ({ set }, params) => {
         const [cur, list] = params;
-        if (cur) set(curMusicIndexState, cur);
+        if (cur === 0 || cur) set(curMusicIndexState, cur);
         if (list) set(musicListState, list);
     },
 });
