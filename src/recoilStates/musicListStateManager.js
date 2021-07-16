@@ -17,6 +17,7 @@ function initPlaylists() {
 function initQuerys(listname) {
     if (!window.storeManager) window.storeManager = new storeStateManager();
     const list = window.storeManager.get(listname, 'list');
+    if (list.length === 0) return;
     for (let item of list) {
         window.storeManager.store(item.q, 'query');
     }
