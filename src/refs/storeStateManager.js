@@ -33,7 +33,7 @@ export default class storeManager {
         if (!key) throw new Error("store state error : invalid key");
         if (kind) key = kind + '_' + key;
         let cnt = this._storage_cnt.get(key);
-        this._storage_cnt.set((cnt) ? cnt + 1 : 1);
+        this._storage_cnt.set(key, (cnt) ? cnt + 1 : 1);
     }
     delete(key, kind) {
         if (!key) throw new Error("store state error : invalid key");
