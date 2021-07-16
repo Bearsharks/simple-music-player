@@ -8,7 +8,7 @@ export default function QueryDetail({ query, selectQuery, curItemId, hide }) {
     useEffect(() => {
         if (items) return;
 
-        const storageValue = window.storeManager.get(query);
+        const storageValue = window.storeManager.get(query, 'query');
         if (storageValue) {
             setItems(storageValue);
             return;
@@ -17,7 +17,7 @@ export default function QueryDetail({ query, selectQuery, curItemId, hide }) {
         async function ytsearch(q) {
             try {
                 const data = await youtubeSearch(q);
-                window.storeManager.set(q, data.items);
+                window.storeManager.set(q, data.items, 'query');
                 setItems(data.items);
             } catch (err) {
                 console.error(err);
