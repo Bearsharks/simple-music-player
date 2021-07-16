@@ -5,40 +5,82 @@ import keyGenerator from '../refs/keyGenerator';
 import { INVALID_MUSIC_INFO, DEFAULT_PLAYLIST_NAME, CUR_PLAYLIST_INDICATER } from '../refs/constants';
 import storeStateManager from '../refs/storeStateManager';
 
+function initPlaylists() {
+    if (!window.storeManager) window.storeManager = new storeStateManager();
+    let playlistorigin = window.storeManager.get('playlists');
+    if (!playlistorigin) {
+        playlistorigin = [DEFAULT_PLAYLIST_NAME];
+        window.storeManager.set('playlists', playlistorigin);
+    }
+    return playlistorigin;
+}
+function initQuerys(listname) {
+    if (!window.storeManager) window.storeManager = new storeStateManager();
+    const list = window.storeManager.get(listname, 'list');
+    for (let item of list) {
+        window.storeManager.store(item.q, 'query');
+    }
+}
+function initCurMusicInfo(setCurMusicInfo) {
+    if (!window.storeManager) window.storeManager = new storeStateManager();
+    let curListName = window.storeManager.get(CUR_PLAYLIST_INDICATER);
+    if (!curListName) {
+        curListName = DEFAULT_PLAYLIST_NAME;
+        window.storeManager.set(CUR_PLAYLIST_INDICATER, curListName);
+    }
+    let cur = window.storeManager.get(curListName, 'idx');
+    let list = window.storeManager.get(curListName, 'list');
+    if (cur !== 0 && !cur) {
+        cur = INVALID_MUSIC_INFO.idx;
+        window.storeManager.set(curListName, cur, 'idx');
+    }
+    if (!list) {
+        list = [];
+        window.storeManager.set(curListName, list, 'list');
+    }
+    setCurMusicInfo([cur, list]);
+}
 
 export function useInitMusicPlayer(playCallback, stopCallBack) {
     const [curMusicInfo, setCurMusicInfo] = useRecoilState(curMusicInfoState);
-    const prevInfoRef = useRef(INVALID_MUSIC_INFO.key);
+    const prevInfoRef = useRef(INVALID_MUSIC_INFO);
     useEffect(() => {
-        debugger;
-        if (!curMusicInfo.key || curMusicInfo.key + curMusicInfo.id === prevInfoRef.current) return;
+
+        const playlists = initPlaylists();
+        for (let list of playlists) {
+            initQuerys(list);
+        }
+        initCurMusicInfo(setCurMusicInfo);
+    }, [setCurMusicInfo]);
+    useEffect(() => {
+        let isValid = curMusicInfo.key;
+        if (!isValid) return;
+        let isSameEle = curMusicInfo.key === prevInfoRef.current.key;
+        let isIdInit = prevInfoRef.current.id === INVALID_MUSIC_INFO.id && curMusicInfo.id !== INVALID_MUSIC_INFO.id;
+        let isSameId = prevInfoRef.current.id === curMusicInfo.id;
+        if (isSameEle && (isIdInit || isSameId)) return;
         //새로운 음악 재생시마다 현재정보를 로컬스토리지에 저장
-        window.storeManager.set('curMusicIndex', curMusicInfo.idx);
-        prevInfoRef.current = curMusicInfo.key + curMusicInfo.id;
+        let curListName = window.storeManager.get(CUR_PLAYLIST_INDICATER);
+        window.storeManager.set(curListName, curMusicInfo.idx, 'idx');
+
         if (curMusicInfo.key === INVALID_MUSIC_INFO.key) {
             stopCallBack();
             return;
-        }
-
-        let info = curMusicInfo;
-        if (!curMusicInfo.id) {
-            const items = window.storeManager.get(curMusicInfo.q);
-            if (items) {
-                info = { ...info, id: items[0].id.videoId };
+        } else {
+            let info = curMusicInfo;
+            if (!curMusicInfo.id) {
+                const items = window.storeManager.get(curMusicInfo.q, 'query');
+                if (items) {
+                    info = { ...info, id: items[0].id.videoId };
+                }
             }
+            playCallback(info);
         }
-        playCallback(info);
+        prevInfoRef.current = curMusicInfo;
+
     }, [curMusicInfo]);
 
-    useEffect(() => {
-        if (!window.storeManager) window.storeManager = new storeStateManager();
-        let curListName = window.storeManager.get(CUR_PLAYLIST_INDICATER);
-        if (!curListName) curListName = DEFAULT_PLAYLIST_NAME;
-        const cur = window.storeManager.get(curListName, 'idx');
-        const list = window.storeManager.get(curListName, 'list');
-        if (!list) window.storeManager.set(curListName, [], 'list');
-        setCurMusicInfo([cur, list]);
-    }, []);
+
 }
 
 export class musicListStateManager {
