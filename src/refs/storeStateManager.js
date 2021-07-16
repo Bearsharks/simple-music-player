@@ -12,9 +12,8 @@ export default class storeManager {
         if (kind) key = kind + '_' + key;
         let item = this._storage.get(key);
         if (item) return item;
-
         item = JSON.parse(localStorage.getItem(key));
-        if (item) {
+        if (item === 0 || item) {
             this._storage.set(key, item);
             return item;
         }
