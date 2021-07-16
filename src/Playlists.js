@@ -39,6 +39,15 @@ export default function Playlists() {
             textinput.current.value = "";
         }
     }
+    const deletePlaylist = (playlist) => {
+        const list = window.storeManager.get(playlist, 'list');
+        window.storeManager.delete(playlist, 'list');
+        window.storeManager.delete(playlist, 'idx');
+        for (let el of list) {
+            window.storeManager.delete(el.q, 'query');
+        }
+        changePlaylist(DEFAULT_PLAYLIST_NAME);
+    }
     return (
         <ul>
             <button onClick={makeNewPlaylist}>새로운 플레이리스트 만들기</button>
@@ -49,7 +58,7 @@ export default function Playlists() {
                         key={el}
                         onClick={() => { changePlaylist(el) }}
                     >
-                        {el}
+                        {el}{el !== DEFAULT_PLAYLIST_NAME && <button onClick={() => { deletePlaylist(el) }}>X</button>}
                     </li>
                 )
             }
