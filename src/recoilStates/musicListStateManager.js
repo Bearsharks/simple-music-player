@@ -4,6 +4,7 @@ import { curMusicInfoState } from "./atoms/musicListStates";
 import keyGenerator from '../refs/keyGenerator';
 import { INVALID_MUSIC_INFO, DEFAULT_PLAYLIST_NAME, CUR_PLAYLIST_INDICATER } from '../refs/constants';
 import storeStateManager from '../refs/storeStateManager';
+import youtubeSearch from '../refs/youtubeSearch';
 
 function initPlaylists() {
     if (!window.storeManager) window.storeManager = new storeStateManager();
@@ -108,6 +109,9 @@ export class musicListStateManager {
         this.reorderMusicList = this.reorderMusicList.bind(this);
         this.deleteMusic = this.deleteMusic.bind(this);
         this.appendMusicList = this.appendMusicList.bind(this);
+        this.appendPlaylist = this.appendPlaylist.bind(this);
+        this.appendMusic = this.appendMusic.bind(this);
+        this.appendQueryList = this.appendQueryList.bind(this);
         this.modMusicList = this.modMusicList.bind(this);
         this.initMusicInfo = this.initMusicInfo.bind(this);
         this.updateMusicList = this.updateMusicList.bind(this);
@@ -159,7 +163,67 @@ export class musicListStateManager {
             this.setCurMusicIndex(this.curMusicIndex - 1);
         }
     }
-    appendMusicList(newMusicQueryList) {
+    appendMusicList(newMusicList) {
+        newMusicList = newMusicList.filter((element) => element !== "");
+        let group = [];
+        let start = 0;
+        let end = 0;
+        for (let i = 0; i < newMusicList.length; i++) {
+            if (newMusicList[i].substr(0, 4) === 'http') {
+                if (start > 0) group.push({
+                    type: 'query',
+                    start: start,
+                    end: end
+                });
+                let result = {};
+                var qs = newMusicList[i].substring(newMusicList[i].indexOf('?') + 1).split('&');
+                for (let j = 0; j < qs.length; j++) {
+                    qs[j] = qs[j].split('=');
+                    result[qs[j][0]] = qs[j][1];
+                }
+                if (result.list) {
+                    group.push({
+                        type: 'list',
+                        id: result.list
+                    });
+                } else if (result.v) {
+                    group.push({
+                        type: 'music',
+                        id: result.v
+                    });
+                }
+                start = i + 1;
+            } else {
+                end = i;
+            }
+        }
+        if (start <= end) group.push({
+            type: 'query',
+            start: start,
+            end: end
+        });
+        console.log(group);
+
+        for (let g of group) {
+            if (g.type === "list") {
+                this.appendPlaylist(g.id);
+            } else if (g.type === "music") {
+                this.appendMusic(g.id);
+            } else if (g.type === 'query') {
+                debugger;
+                this.appendQueryList(newMusicList.slice(g.start, g.end + 1));
+            }
+        }
+    }
+    async appendMusic(videoId) {
+        const searchResult = await youtubeSearch(videoId, 'music');
+        console.log(searchResult);
+    }
+    async appendPlaylist(listId) {
+        const searchResult = await youtubeSearch(listId, 'list');
+        console.log(searchResult);
+    }
+    appendQueryList(newMusicQueryList) {
         newMusicQueryList = newMusicQueryList.filter((element) => element !== "");
         if (newMusicQueryList.length < 1) return;
         const keys = keyGenerator(newMusicQueryList.length);
