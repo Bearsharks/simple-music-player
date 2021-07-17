@@ -5,6 +5,7 @@ import keyGenerator from '../refs/keyGenerator';
 import { INVALID_MUSIC_INFO, DEFAULT_PLAYLIST_NAME, CUR_PLAYLIST_INDICATER } from '../refs/constants';
 import storeStateManager from '../refs/storeStateManager';
 import youtubeSearch from '../refs/youtubeSearch';
+import MusicList from '../MusicList/MusicList';
 
 function initPlaylists() {
     if (!window.storeManager) window.storeManager = new storeStateManager();
@@ -216,7 +217,7 @@ export class musicListStateManager {
             }
         }
 
-        this.updateMusicList(result);
+        this.updateMusicList([...this.musicList, ...result]);
         if (this.curMusicIndex === INVALID_MUSIC_INFO.idx) {
             this.setCurMusicIndex(newListStartIndex);
         }
