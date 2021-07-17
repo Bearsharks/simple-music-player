@@ -24,7 +24,7 @@ function initPlaylists() {
 
     return playlistorigin;
 }
-function initQuerys(listname) {
+function initQuery(listname) {
     if (!window.storeManager) window.storeManager = new storeStateManager();
     const list = window.storeManager.get(listname, 'list');
     if (list.length === 0) return;
@@ -59,7 +59,7 @@ export function useInitMusicPlayer(playCallback, stopCallBack) {
 
         const playlists = initPlaylists();
         for (let list of playlists) {
-            initQuerys(list);
+            initQuery(list);
         }
         initCurMusicInfo(setCurMusicInfo);
     }, [setCurMusicInfo]);
@@ -163,14 +163,15 @@ export class musicListStateManager {
             this.setCurMusicIndex(this.curMusicIndex - 1);
         }
     }
-    appendMusicList(newMusicList) {
+    async appendMusicList(newMusicList) {
+        const newListStartIndex = this.musicList.length;
         newMusicList = newMusicList.filter((element) => element !== "");
         let group = [];
         let start = 0;
         let end = 0;
         for (let i = 0; i < newMusicList.length; i++) {
             if (newMusicList[i].substr(0, 4) === 'http') {
-                if (start > 0) group.push({
+                if (end > 0) group.push({
                     type: 'query',
                     start: start,
                     end: end
@@ -194,7 +195,7 @@ export class musicListStateManager {
                 }
                 start = i + 1;
             } else {
-                end = i;
+                end = i + 1;
             }
         }
         if (start <= end) group.push({
@@ -204,47 +205,58 @@ export class musicListStateManager {
         });
         console.log(group);
 
+        let result = [];
         for (let g of group) {
             if (g.type === "list") {
-                this.appendPlaylist(g.id);
+                result.push(...await this.appendPlaylist(g.id));
             } else if (g.type === "music") {
-                this.appendMusic(g.id);
+                result.push(...await this.appendMusic(g.id));
             } else if (g.type === 'query') {
-                debugger;
-                this.appendQueryList(newMusicList.slice(g.start, g.end + 1));
+                result.push(...this.appendQueryList(newMusicList.slice(g.start, g.end)));
             }
+        }
+
+        this.updateMusicList(result);
+        if (this.curMusicIndex === INVALID_MUSIC_INFO.idx) {
+            this.setCurMusicIndex(newListStartIndex);
         }
     }
     async appendMusic(videoId) {
-        const searchResult = await youtubeSearch(videoId, 'music');
-        console.log(searchResult);
+        try {
+            const searchResult = await youtubeSearch(videoId, 'music');
+            const keys = keyGenerator(searchResult.length);
+            return searchResult.map((el, index) => { return { q: el.title, id: el.videoId, key: keys[index], type: 'music' } });
+
+        } catch (e) {
+
+        }
     }
     async appendPlaylist(listId) {
-        const searchResult = await youtubeSearch(listId, 'list');
-        console.log(searchResult);
+        try {
+            const searchResult = await youtubeSearch(listId, 'list');
+            const keys = keyGenerator(searchResult.length);
+            return searchResult.map((el, index) => { return { q: el.title, id: el.videoId, key: keys[index], type: 'music' } });
+        } catch (e) {
+
+        }
+
     }
     appendQueryList(newMusicQueryList) {
         newMusicQueryList = newMusicQueryList.filter((element) => element !== "");
         if (newMusicQueryList.length < 1) return;
         const keys = keyGenerator(newMusicQueryList.length);
-        const newMusicList = newMusicQueryList.map((el, index) => { return { q: el, id: null, key: keys[index] } });
+        const newMusicList = newMusicQueryList.map((el, index) => { return { q: el, id: null, key: keys[index], type: `query` } });
         for (let info of newMusicList) {
             window.storeManager.store(info.q, 'query');
         }
-        const newListStartIndex = this.musicList.length;
-        const result = [...this.musicList, ...newMusicList];
-        this.updateMusicList(result);
-
-        if (this.curMusicIndex === INVALID_MUSIC_INFO.idx) {
-            this.setCurMusicIndex(newListStartIndex);
-        }
+        return newMusicList;
     }
     updateMusicList(list) {
         this.setMusicList(list);
         window.storeManager.set(this.curPlayListName, list, 'list');
     }
     modMusicList(idx, item) {
-        const musicInfo = { ...this.musicList[idx], id: item.id.videoId };
+        const musicInfo = { ...this.musicList[idx], id: item.videoId };
         const result = this.musicList.map((item, i) => (idx === i) ? musicInfo : item);
         this.updateMusicList(result);
     }

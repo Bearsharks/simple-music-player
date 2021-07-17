@@ -18,8 +18,8 @@ export default function MusicListEle(props) {
     return (
         <div>
             {props.ele.q} <button onClick={(e) => deleteMusicHandler(e, props.index)}> X </button >
-            <button onClick={togleDetailOpen}>펼치기 </button >
-            {isDetailOpened &&
+            {props.ele.type === 'query' && <button onClick={togleDetailOpen}>펼치기 </button >}
+            {isDetailOpened && props.ele.type === 'query' &&
                 <QueryDetail query={props.ele.q} selectQuery={selectQuery} curItemId={props.ele.id} />
             }
         </div>

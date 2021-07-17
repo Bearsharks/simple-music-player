@@ -17,6 +17,7 @@ function toDataObject(data, type) {
         result.title = data.snippet.title;
         result.description = data.snippet.description;
     }
+    result.type = type
     return result;
 }
 
@@ -49,12 +50,12 @@ export default async function youtubeSearch(value, type, pageToken) {
             fields: `items(id,snippet(title,description))`
         }
     }
+
+    let query = Object.keys(params).map(k => encodeURIComponent(k) + '=' + encodeURIComponent(params[k])).join('&');
     const getUrl = (type, query) => {
         let path = type === 'list' ? 'playlistItems' : (type === 'music') ? 'videos' : 'search';
         return `https://www.googleapis.com/youtube/v3/${path}?${query}`;
     }
-    let query = Object.keys(params).map(k => encodeURIComponent(k) + '=' + encodeURIComponent(params[k])).join('&');
-    debugger;
     let res = await fetch(getUrl(type, query), { method: 'GET' });
     if (res.status === 200) {
         const data = await res.json();
