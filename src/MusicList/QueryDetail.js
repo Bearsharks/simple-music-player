@@ -7,18 +7,17 @@ export default function QueryDetail({ query, selectQuery, curItemId, hide }) {
     const [selectedQueryIdx, setSelectedQueryIdx] = useState(0);
     useEffect(() => {
         if (items) return;
-
         const storageValue = window.storeManager.get(query, 'query');
         if (storageValue) {
             setItems(storageValue);
             return;
         }
-
         async function ytsearch(q) {
             try {
                 const data = await youtubeSearch(q);
-                window.storeManager.set(q, data.items, 'query');
-                setItems(data.items);
+
+                window.storeManager.set(q, data, 'query');
+                setItems(data);
             } catch (err) {
                 console.error(err);
             }
@@ -28,7 +27,7 @@ export default function QueryDetail({ query, selectQuery, curItemId, hide }) {
     }, []);
     useEffect(() => {
         for (let idx in items) {
-            if (items[idx].id.videoId === curItemId) {
+            if (items[idx].videoId === curItemId) {
                 setSelectedQueryIdx(parseInt(idx));
                 break;
             }
@@ -46,12 +45,12 @@ export default function QueryDetail({ query, selectQuery, curItemId, hide }) {
                     items.map(
                         (item, index) => (
                             <li
-                                key={item.id.videoId}
+                                key={item.videoId}
                                 onClick={e => onCilckHandler(e, index)}
                                 style={(selectedQueryIdx === index) ? { color: "blue" } : {}}
                             >
-                                <img src={item.snippet.thumbnails.default.url} alt={item.snippet.title}></img>
-                                {item.snippet.title}
+                                <img src={item.thumbnail} alt={item.title}></img>
+                                {item.title}
                             </li>
                         )
                     )

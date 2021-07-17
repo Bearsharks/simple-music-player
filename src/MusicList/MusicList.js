@@ -20,10 +20,9 @@ function MusicList(props) {
             return;
         }
         youtubeSearch(musicInfo.q)
-            .then(json => {
-                let id = json.items[0].id.videoId;
-                window.player.loadVideoById({ videoId: id });
-                mlsm.initMusicInfo(musicInfo.idx, musicInfo.q, json.items);
+            .then(data => {
+                window.player.loadVideoById({ videoId: data[0].videoId });
+                mlsm.initMusicInfo(musicInfo.idx, musicInfo.q, data, 0);
             }).catch((err) => {
                 console.error(err);
             });
@@ -45,12 +44,12 @@ function MusicList(props) {
         setYoutubeKey(e.target.value);
         localStorage.setItem("youtubeKey", e.target.value);
     }
-    const musicListAppend = () => {
+    const musicListAppend = async () => {
         if (musicListRaw === "") return;
         let newMusicQueryList = musicListRaw.split("\n").filter((element) => element !== "");
         if (newMusicQueryList.length < 1) return;
         setMusicListRaw("");
-        mlsm.appendMusicList(newMusicQueryList);
+        await mlsm.appendMusicList(newMusicQueryList);
     }
 
 
