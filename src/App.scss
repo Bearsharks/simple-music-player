@@ -1,18 +1,22 @@
 .App {
   text-align: center;
+  
+}
+ul{
+  list-style:none;
+  padding: 10px;
 }
 main{
   display: flex;
-}
-.side{
-  width: 60%;
+  flex-direction: column;
+  width: 95vw;
+  margin: 0 auto;
+  list-style:none;
 }
 .playerwrapper{
-	width: 29%;
 	border: 1px solid black;
 
 }
 .curMusic{
   border: 1px solid black;
-
 }

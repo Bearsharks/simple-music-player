@@ -7,7 +7,6 @@ import MusicListDraggable from './MusicListDraggable';
 import youtubeSearch from '../refs/youtubeSearch';
 function MusicList(props) {
     const [musicListRaw, setMusicListRaw] = useState("");
-    const [youtubeKey, setYoutubeKey] = useState("");
     const musicListRecoilState = useRecoilState(musicListState);
     const musicList = musicListRecoilState[0];
     const curMusicIndexRecoilState = useRecoilState(curMusicIndexState);
@@ -34,16 +33,12 @@ function MusicList(props) {
 
     useEffect(() => {
         props.goNextRef.current = mlsm.goNextMusic;
-        setYoutubeKey(localStorage['youtubeKey']);
     }, [mlsm.goNextMusic]);
 
     const handleTextAreaChange = (e) => {
         setMusicListRaw(e.target.value);
     }
-    const handleChangeYoutubeKey = (e) => {
-        setYoutubeKey(e.target.value);
-        localStorage.setItem("youtubeKey", e.target.value);
-    }
+
     const musicListAppend = async () => {
         if (musicListRaw === "") return;
         let newMusicQueryList = musicListRaw.split("\n").filter((element) => element !== "");
@@ -68,10 +63,9 @@ function MusicList(props) {
     }
     return (
         <div className={`side`}>
-            <label>유튜브 api 키</label>
-            <input type="text" onChange={handleChangeYoutubeKey} value={youtubeKey}></input>
-            <textarea value={musicListRaw} onChange={handleTextAreaChange} />
-            <button onClick={musicListAppend}>append</button>
+
+            <textarea cols={30} rows={5} value={musicListRaw} onChange={handleTextAreaChange} />
+            <button onClick={musicListAppend}>append</button><br />
             <button onClick={mlsm.goPrevMusic} >이전 </button> <button onClick={mlsm.goNextMusic}>다음 </button>
             <DragDropContext
                 onDragEnd={onDragEnd}
