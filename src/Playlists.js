@@ -66,8 +66,9 @@ export default function Playlists() {
     }
     return (
         <ul>
-            <button onClick={makeNewPlaylist}>새로운 플레이리스트 만들기</button>
+            <h3>재생목록</h3>
             <input ref={textinput} type="text"></input>
+            <button onClick={makeNewPlaylist}>새로운 재생목록 추가</button>
             {
                 playlists.map((el, index) =>
                     <li

@@ -6,8 +6,14 @@ import Playlists from './Playlists';
 import MusicList from './MusicList/MusicList';
 function App() {
 	const [isInited, setIsInited] = useState(false);
+	const [youtubeKey, setYoutubeKey] = useState("");
 	const goNextMusicRef = useRef();
+	const handleChangeYoutubeKey = (e) => {
+		setYoutubeKey(e.target.value);
+		localStorage.setItem("youtubeKey", e.target.value);
+	}
 	useEffect(() => {
+		setYoutubeKey(localStorage['youtubeKey']);
 		if (!window.YT) { // If not, load the script asynchronously
 			const tag = document.createElement('script');
 			tag.src = 'https://www.youtube.com/iframe_api';
@@ -17,10 +23,11 @@ function App() {
 
 			window.player = null;
 
+			const widthsize = Math.min(640, window.innerWidth);
 			window.onYouTubeIframeAPIReady = function () {
 				window.player = new window.YT.Player('player', {
-					height: '480',
-					width: '640',
+					width: widthsize,
+					height: Math.round(widthsize * 10 / 16),
 					events: {
 						'onStateChange': (event) => {
 							if (event.data === 0) {
@@ -42,8 +49,11 @@ function App() {
 			{!isInited && <Spinner></Spinner>}
 			{isInited &&
 				<main>
-					<MusicList goNextRef={goNextMusicRef}></MusicList>
+					<label>유튜브 api 키</label>
+					<input type="text" onChange={handleChangeYoutubeKey} value={youtubeKey}></input>
 					<Playlists>	</Playlists>
+					<MusicList goNextRef={goNextMusicRef}></MusicList>
+
 				</main>
 			}
 		</div >

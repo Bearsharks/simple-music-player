@@ -43,11 +43,10 @@ describe('MusicList State Test', () => {
     });
     test("at the first, after goPrev(), musicInfo will not be change", () => {
         act(() => {
-            testComponent.current.mlsm.appendMusicList(queryListFixture);
             testComponent.current.setCurMusicIndex(0);
+            testComponent.current.mlsm.appendMusicList(queryListFixture);
         })
         act(() => {
-
             testComponent.current.mlsm.goPrevMusic();
         });
 
@@ -68,9 +67,9 @@ describe('MusicList State Test', () => {
     });
 
 
-    test("after goPrev(), musicInfo will be previnfo", () => {
-        act(() => {
-            testComponent.current.mlsm.appendMusicList(queryListFixture);
+    test("after goPrev(), musicInfo will be previnfo", async () => {
+        await act(async () => {
+            await testComponent.current.mlsm.appendMusicList(queryListFixture);
             testComponent.current.setCurMusicIndex(2);
         })
         act(() => {
@@ -80,9 +79,9 @@ describe('MusicList State Test', () => {
 
         expect(testComponent.current.curMusicInfo.idx).toEqual(1);
     });
-    test("reorderMusicList(start,end), start value will be pop & inserted to after end", () => {
-        act(() => {
-            testComponent.current.mlsm.appendMusicList(queryListFixture);
+    test("reorderMusicList(start,end), start value will be pop & inserted to after end", async () => {
+        await act(async () => {
+            await testComponent.current.mlsm.appendMusicList(queryListFixture);
         })
         act(() => {
             testComponent.current.mlsm.reorderMusicList(0, 2);
@@ -98,10 +97,8 @@ describe('MusicList State Test', () => {
 
         act(() => {
             testComponent.current.mlsm.appendMusicList(queryListFixture);
-        })
-        act(() => {
             testComponent.current.mlsm.selectMusic(2);
-        });
+        })
         expect(testComponent.current.doPlay).toHaveBeenCalledWith({
             idx: 2,
             ...testComponent.current.musicList[2],
@@ -120,12 +117,12 @@ describe('MusicList State Test', () => {
             testComponent.current.mlsm.appendMusicList(queryListFixture);
         });
         act(() => {
-            testComponent.current.mlsm.modMusicList(2, { id: { videoId: "testval" } });
+            testComponent.current.mlsm.modMusicList(2, { videoId: "testval" });
         })
         expect(testComponent.current.musicList[2].id).toEqual("testval");
         const originkey = testComponent.current.musicList[2].key;
         act(() => {
-            testComponent.current.mlsm.modMusicList(2, { id: { videoId: "testval" }, key: "testkey" });
+            testComponent.current.mlsm.modMusicList(2, { videoId: "testval", key: "testkey" });
         });
         expect(testComponent.current.musicList[2].key).toEqual(originkey);
     });
