@@ -64,7 +64,13 @@ function MusicList(props) {
     return (
         <div className={`side`}>
 
-            <textarea cols={30} rows={5} value={musicListRaw} onChange={handleTextAreaChange} />
+            <textarea
+                cols={30} rows={5}
+                value={musicListRaw}
+                onChange={handleTextAreaChange}
+                placeholder={`음악명 ex) next level aespa
+혹은 유튜브링크 복붙`}
+            />
             <button onClick={musicListAppend}>append</button><br />
             <button onClick={mlsm.goPrevMusic} >이전 </button> <button onClick={mlsm.goNextMusic}>다음 </button>
             <DragDropContext

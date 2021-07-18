@@ -66,7 +66,7 @@ export default function Playlists() {
     }
     return (
         <ul>
-            <h3>재생목록</h3>
+            재생목록<br />
             <input ref={textinput} type="text"></input>
             <button onClick={makeNewPlaylist}>새로운 재생목록 추가</button>
             {
