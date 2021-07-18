@@ -40,12 +40,28 @@ export default function Playlists() {
         }
     }
     const deletePlaylist = (playlist) => {
+        //저장소에서 삭제
         const list = window.storeManager.get(playlist, 'list');
         window.storeManager.delete(playlist, 'list');
         window.storeManager.delete(playlist, 'idx');
-        for (let el of list) {
-            window.storeManager.delete(el.q, 'query');
+
+        //저장소에서 쿼리항목 삭제        
+        for (let i = 0; i < list.length; i++) {
+            if (list[i].type === 'query') window.storeManager.delete(list[i].q, 'query');
         }
+
+        //해당 재생목록을 삭제한 새로운 목록 업데이트
+        let newPlayLists = playlists.slice();
+        for (let i = 0; i < playlists.length; i++) {
+            if (playlists[i] === playlist) {
+                newPlayLists.splice(i, 1);
+                break;
+            }
+        }
+        setPlaylists(newPlayLists);
+        window.storeManager.set('playlists', newPlayLists);
+
+        //기본목록으로 돌아감
         changePlaylist(DEFAULT_PLAYLIST_NAME);
     }
     return (
