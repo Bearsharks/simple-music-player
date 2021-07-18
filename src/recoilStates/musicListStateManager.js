@@ -82,7 +82,7 @@ export function useInitMusicPlayer(playCallback, stopCallBack) {
             if (!curMusicInfo.id) {
                 const items = window.storeManager.get(curMusicInfo.q, 'query');
                 if (items) {
-                    info = { ...info, id: items[0].id.videoId };
+                    info = { ...info, id: items[0].videoId };
                 }
             }
             playCallback(info);
