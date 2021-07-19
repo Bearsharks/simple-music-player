@@ -1,12 +1,13 @@
 import './App.scss';
 import Spinner from './Spinner';
 import { useEffect, useRef, useState } from 'react';
-
 import Playlists from './Playlists';
 import MusicList from './MusicList/MusicList';
+import HamburgerBtn from './components/HamburgerBtn';
 function App() {
 	const [isInited, setIsInited] = useState(false);
 	const [youtubeKey, setYoutubeKey] = useState("");
+	const [navActive, setNavActive] = useState(false);
 	const goNextMusicRef = useRef();
 	const handleChangeYoutubeKey = (e) => {
 		setYoutubeKey(e.target.value);
@@ -37,23 +38,38 @@ function App() {
 						'onReady': () => setIsInited(true)
 					},
 				});
-
 			}
-
 		}
 	}, []);
-
+	const navActiveBtnClickHandler = (e, value) => {
+		setNavActive(value);
+	}
 	return (
 		<div className="App">
+			<header>
+				<div className={'nav-btn'}>
+					<div className={'title'}>SimpleMusicPlayer</div>
+					<HamburgerBtn
+						initialValue={navActive}
+						clickHandler={navActiveBtnClickHandler}
+					></HamburgerBtn>
+				</div>
+
+				<nav className={`navigation ` + ((navActive) ? `` : `navigation--hide`)}>
+					<label>유튜브 api 키</label>
+					<input type="text" onChange={handleChangeYoutubeKey} value={youtubeKey}></input>
+
+					<Playlists>	</Playlists>
+				</nav>
+			</header>
 			<div className={`playerwrapper`} id={`player`}></div>
+
 			{!isInited && <Spinner></Spinner>}
 			{isInited &&
 				<main>
-					<label>유튜브 api 키</label>
-					<input type="text" onChange={handleChangeYoutubeKey} value={youtubeKey}></input>
-					<Playlists>	</Playlists>
-					<MusicList goNextRef={goNextMusicRef}></MusicList>
-
+					<div className={`musiclist-wrapper`}>
+						<MusicList goNextRef={goNextMusicRef}></MusicList>
+					</div>
 				</main>
 			}
 		</div >
