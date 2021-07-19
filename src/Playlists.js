@@ -28,7 +28,7 @@ export default function Playlists() {
         const newPlaylistName = textinput.current.value;
         if (newPlaylistName) {
             for (let name of playlists) {
-                if (name === newPlaylistName) return alert('이미 존재하는 플레이리스트');
+                if (name === newPlaylistName) return alert('이미 존재하는 플레이리스트 이름');
             }
 
             const newPlayLists = [...playlists, newPlaylistName];
@@ -40,6 +40,7 @@ export default function Playlists() {
         }
     }
     const deletePlaylist = (playlist) => {
+        if (!window.confirm(`삭제 - ${playlist} 정말로 삭제하시겠습니까?`)) return;
         //저장소에서 삭제
         const list = window.storeManager.get(playlist, 'list');
         window.storeManager.delete(playlist, 'list');
@@ -62,7 +63,10 @@ export default function Playlists() {
         window.storeManager.set('playlists', newPlayLists);
 
         //기본목록으로 돌아감
-        changePlaylist(DEFAULT_PLAYLIST_NAME);
+        if (playlist === window.storeManager.get(CUR_PLAYLIST_INDICATER)) {
+            changePlaylist(DEFAULT_PLAYLIST_NAME);
+        }
+
     }
     return (
         <ul>
