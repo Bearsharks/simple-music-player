@@ -29,6 +29,7 @@ function App() {
 				window.player = new window.YT.Player('player', {
 					width: widthsize,
 					height: Math.round(widthsize * 10 / 16),
+					playerVars: { playsinline: 1, autoplay: 1 },
 					events: {
 						'onStateChange': (event) => {
 							if (event.data === 0) {
