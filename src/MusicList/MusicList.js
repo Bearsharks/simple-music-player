@@ -1,16 +1,18 @@
-import { useEffect, useState, memo } from 'react';
+import { useEffect, useState, useRef, memo } from 'react';
 import { DragDropContext, Droppable } from "react-beautiful-dnd";
 import { musicListStateManager, useInitMusicPlayer } from "../recoilStates/musicListStateManager"
 import { useRecoilState } from 'recoil';
 import { musicListState, curMusicIndexState } from "../recoilStates/atoms/musicListStates";
 import MusicListDraggable from './MusicListDraggable';
 import youtubeSearch from '../refs/youtubeSearch';
+import styles from './MusicList.module.scss';
 function MusicList(props) {
     const [musicListRaw, setMusicListRaw] = useState("");
     const musicListRecoilState = useRecoilState(musicListState);
     const musicList = musicListRecoilState[0];
     const curMusicIndexRecoilState = useRecoilState(curMusicIndexState);
     const curMusicIndex = curMusicIndexRecoilState[0];
+    const musiclistWrapperRef = useRef();
     const mlsm = new musicListStateManager(musicListRecoilState, curMusicIndexRecoilState);
     const playMusic = (musicInfo) => {
         if (!window.player) return;
@@ -30,6 +32,20 @@ function MusicList(props) {
         if (window.player && window.player.stopVideo) window.player.stopVideo();
     };
     useInitMusicPlayer(playMusic, stopMusic);
+
+    useEffect(() => {
+        let musiclistWrapperTop = window.pageYOffset + musiclistWrapperRef.current.getBoundingClientRect().top;
+        let musiclistWrapperHeight = window.innerHeight - Math.ceil(musiclistWrapperTop);
+        musiclistWrapperRef.current.style.height = `${musiclistWrapperHeight}px`;
+    }, [])
+
+    useEffect(() => {
+        if (curMusicIndex >= 0) {
+            debugger;
+            let defaultOffset = parseInt(musiclistWrapperRef.current.style.height) / 3;
+            musiclistWrapperRef.current.scrollTop = -defaultOffset + musiclistWrapperRef.current.getElementsByClassName('musicListElement')[curMusicIndex].offsetTop - musiclistWrapperRef.current.offsetTop;
+        }
+    }, [curMusicIndex])
 
     useEffect(() => {
         props.goNextRef.current = mlsm.goNextMusic;
@@ -62,43 +78,56 @@ function MusicList(props) {
         mlsm.deleteMusic(idx);
     }
     return (
-        <div className={`side`}>
-
-            <textarea
-                cols={30} rows={5}
-                value={musicListRaw}
-                onChange={handleTextAreaChange}
-                placeholder={`음악명 ex) next level aespa
+        <div>
+            <div className={styles[`controller`]}>
+                <div className={styles[`controller-append`]}>
+                    <textarea
+                        cols={30} rows={5}
+                        value={musicListRaw}
+                        onChange={handleTextAreaChange}
+                        placeholder={`음악명 ex) next level aespa
 혹은 유튜브링크 복붙`}
-            />
-            <button onClick={musicListAppend}>append</button><br />
-            <button onClick={mlsm.goPrevMusic} >이전 </button> <button onClick={mlsm.goNextMusic}>다음 </button>
-            <DragDropContext
-                onDragEnd={onDragEnd}
-                onDragStart={onDragStart}
-            >
-                <Droppable droppableId="droppable">
-                    {(provided, snapshot) => (
-                        <ul ref={provided.innerRef}>
-                            {
-                                musicList.map((ele, index) =>
-                                    <MusicListDraggable
-                                        key={ele.key}
-                                        ele={ele}
-                                        index={index}
-                                        selectMusic={mlsm.selectMusic}
-                                        deleteMusic={deleteMusic}
-                                        modMusicList={mlsm.modMusicList}
-                                        isCurMusic={(curMusicIndex == index)}
-                                    />
-                                )
-                            }
-                            {provided.placeholder}
-                        </ul>
-                    )}
+                    />
+                    <button onClick={musicListAppend}>append</button>
+                </div>
+                <div>
+                    <button onClick={mlsm.goPrevMusic}>이전 </button>
+                    <button onClick={mlsm.goNextMusic}>다음 </button>
+                </div>
 
-                </Droppable>
-            </DragDropContext>
+            </div>
+            <div
+                className={styles['musiclist-wrapper']}
+                ref={musiclistWrapperRef}
+            >
+                <DragDropContext
+                    onDragEnd={onDragEnd}
+                    onDragStart={onDragStart}
+                >
+                    <Droppable droppableId="droppable">
+                        {(provided, snapshot) => (
+                            <ul ref={provided.innerRef}>
+                                {
+                                    musicList.map((ele, index) =>
+                                        <MusicListDraggable
+                                            key={ele.key}
+                                            ele={ele}
+                                            index={index}
+                                            selectMusic={mlsm.selectMusic}
+                                            deleteMusic={deleteMusic}
+                                            modMusicList={mlsm.modMusicList}
+                                            isCurMusic={(curMusicIndex == index)}
+                                        />
+                                    )
+                                }
+                                {provided.placeholder}
+                            </ul>
+                        )}
+
+                    </Droppable>
+                </DragDropContext>
+
+            </div>
 
         </div>
     )

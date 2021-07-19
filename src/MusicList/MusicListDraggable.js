@@ -3,6 +3,11 @@ import { memo } from 'react'
 import MusicListEle from "./MusicListEle";
 
 export default memo(function MusicListDraggable(props) {
+    const selectMusicHandler = (e, index) => {
+        e.stopPropagation();
+        props.selectMusic(index);
+        console.log(e.target.offsetTop);
+    }
     return (
         <Draggable
             draggableId={props.ele.key}
@@ -11,9 +16,10 @@ export default memo(function MusicListDraggable(props) {
             {(provided, snapshot) =>
                 <li
                     ref={provided.innerRef}
+                    className={'musicListElement'}
                     {...provided.draggableProps}
                     {...provided.dragHandleProps}
-                    onClick={(e) => { props.selectMusic(props.index) }}
+                    onClick={(e) => selectMusicHandler(e, props.index)}
                 >
 
                     <div style={(props.isCurMusic) ? { border: "1px solid black" } : {}}>

@@ -1,3 +1,15 @@
 .musicList{
     list-style-type: none;
 }
+.controller{
+    display: flex;
+    flex-direction: column;
+}
+.controller-append{
+    display: flex;
+    justify-content: center;
+}
+.musiclist-wrapper{
+    overflow-y: scroll;
+    overflow-x: hidden;
+}
