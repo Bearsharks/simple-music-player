@@ -41,8 +41,8 @@ function MusicList(props) {
 
     useEffect(() => {
         if (curMusicIndex >= 0) {
-            debugger;
             let defaultOffset = parseInt(musiclistWrapperRef.current.style.height) / 3;
+            if (!musiclistWrapperRef.current.getElementsByClassName('musicListElement')[curMusicIndex]) return;
             musiclistWrapperRef.current.scrollTop = -defaultOffset + musiclistWrapperRef.current.getElementsByClassName('musicListElement')[curMusicIndex].offsetTop - musiclistWrapperRef.current.offsetTop;
         }
     }, [curMusicIndex])

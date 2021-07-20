@@ -24,22 +24,42 @@ export default function Playlists() {
         setMusicInfo([cur, list]);
         window.storeManager.set(CUR_PLAYLIST_INDICATER, playlist);
     }
-    const makeNewPlaylist = () => {
+
+    const makeNewPlaylist = (newPlaylistName, newPlaylistData) => {
+        const isValid = newPlaylistName && newPlaylistData && ('length' in newPlaylistData);
+        if (!isValid) {
+            return;
+        }
+        for (let name of playlists) {
+            if (name === newPlaylistName) {
+                newPlaylistName = newPlaylistName + "_" + Date.now();
+                break;
+            }
+        }
+        const newPlayLists = [...playlists, newPlaylistName];
+        window.storeManager.set(newPlaylistName, newPlaylistData, 'list');
+        window.storeManager.set(newPlaylistName, (newPlaylistData.length ? 0 : INVALID_MUSIC_INFO.id), 'idx');
+        window.storeManager.set('playlists', newPlayLists);
+        setPlaylists(newPlayLists);
+        textinput.current.value = "";
+
+    }
+    const craeteBtnClickHandler = () => {
         const newPlaylistName = textinput.current.value;
         if (newPlaylistName) {
-            for (let name of playlists) {
-                if (name === newPlaylistName) return alert('이미 존재하는 플레이리스트 이름');
-            }
-
-            const newPlayLists = [...playlists, newPlaylistName];
-            window.storeManager.set(newPlaylistName, [], 'list');
-            window.storeManager.set(newPlaylistName, INVALID_MUSIC_INFO.id, 'idx');
-            window.storeManager.set('playlists', newPlayLists);
-            setPlaylists(newPlayLists);
-            textinput.current.value = "";
+            debugger;
+            makeNewPlaylist(newPlaylistName, []);
         }
     }
-    const deletePlaylist = (playlist) => {
+    const pastePlaylist = async () => {
+        const newPlaylistValue = await navigator.clipboard.readText();
+        if (newPlaylistValue[0] === '{' && newPlaylistValue[newPlaylistValue.length - 1] === '}') {
+            const playlistInfo = JSON.parse(newPlaylistValue);
+            makeNewPlaylist(playlistInfo.name, playlistInfo.data);
+        }
+    }
+    const deletePlaylist = (e, playlist) => {
+        e.stopPropagation();
         if (!window.confirm(`삭제 - ${playlist} 정말로 삭제하시겠습니까?`)) return;
         //저장소에서 삭제
         const list = window.storeManager.get(playlist, 'list');
@@ -68,18 +88,32 @@ export default function Playlists() {
         }
 
     }
+    const copyPlaylist = (e, playlist) => {
+        e.stopPropagation();
+        let copiedData = {
+            name: playlist,
+            data: window.storeManager.get(playlist, 'list')
+        };
+        // 쓰기 
+        navigator.clipboard.writeText(JSON.stringify(copiedData)).then(() => {
+            alert("복사되었습니다. 붙여넣기 버튼을 클릭하여 재생목록을 추가하세요.")
+        });
+    }
     return (
         <ul>
             재생목록<br />
             <input ref={textinput} type="text"></input>
-            <button onClick={makeNewPlaylist}>새로운 재생목록 추가</button>
+            <button onClick={craeteBtnClickHandler}>새로운 재생목록 추가</button>
+            <button onClick={pastePlaylist}>붙여넣기</button>
             {
                 playlists.map((el, index) =>
                     <li
                         key={el}
                         onClick={() => { changePlaylist(el) }}
                     >
-                        {el}{el !== DEFAULT_PLAYLIST_NAME && <button onClick={() => { deletePlaylist(el) }}>X</button>}
+                        {el}
+                        {el !== DEFAULT_PLAYLIST_NAME && <button onClick={(e) => { deletePlaylist(e, el) }}>X</button>}
+                        <button onClick={(e) => { copyPlaylist(e, el) }}>copy</button>
                     </li>
                 )
             }
