@@ -103,7 +103,7 @@ export default function Playlists() {
         <ul>
             재생목록<br />
             <input ref={textinput} type="text"></input>
-            <button onClick={craeteBtnClickHandler}>새로운 재생목록 추가</button>
+            <button onClick={craeteBtnClickHandler}>추가</button>
             <button onClick={pastePlaylist}>붙여넣기</button>
             {
                 playlists.map((el, index) =>

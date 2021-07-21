@@ -88,7 +88,7 @@ function MusicList(props) {
                         placeholder={`음악명 ex) next level aespa
 혹은 유튜브링크 복붙`}
                     />
-                    <button onClick={musicListAppend}>append</button>
+                    <button onClick={musicListAppend}>추가</button>
                 </div>
                 <div>
                     <button onClick={mlsm.goPrevMusic}>이전 </button>
