@@ -17,7 +17,8 @@ describe('MusicList State Test', () => {
                 const curMusicInfo = useRecoilValue(curMusicInfoState);
                 const mlsm = new musicListStateManager([musicList, setMusicList], [curMusicIndex, setCurMusicIndex]);
                 const doPlay = jest.fn();
-                useInitMusicPlayer(doPlay);
+                const stopPlay = jest.fn();
+                useInitMusicPlayer(doPlay, stopPlay);
                 return { mlsm, curMusicIndex, setCurMusicIndex, musicList, setMusicList, curMusicInfo, doPlay };
             },
             {
