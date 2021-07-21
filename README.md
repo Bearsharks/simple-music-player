@@ -1,6 +1,7 @@
 # 간단 노래 재생기
 유튜브 api와 리액트를 활용한 간단 노래 재생기
 
+https://bearsharks.github.io/simple-music-player
 # 간단 사용법
 1. 유튜브 api키를 얻는다. [키 얻는법](https://developers.google.com/youtube/v3/getting-started?hl=ko)
 2. 메뉴를 열어 유튜브 api키를 입력한다.
