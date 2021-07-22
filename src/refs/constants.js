@@ -10,3 +10,5 @@ export const MUSIC_INFO = {
 export const getThumbnail = function (id) {
     return `https://i.ytimg.com/vi/${id}/default.jpg`
 }
+export const PAUSED = "PAUSED";
+export const PLAYING = "PLAYING";

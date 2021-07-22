@@ -4,10 +4,15 @@ import { useEffect, useRef, useState } from 'react';
 import Playlists from './Playlists';
 import MusicList from './MusicList/MusicList';
 import HamburgerBtn from './components/HamburgerBtn';
+import { useSetRecoilState } from 'recoil';
+import { musicPlayState } from "./recoilStates/atoms/musicListStates";
+import { PLAYING, PAUSED } from './refs/constants';
+
 function App() {
 	const [isInited, setIsInited] = useState(false);
 	const [youtubeKey, setYoutubeKey] = useState("");
 	const [navActive, setNavActive] = useState(false);
+	const setPlayState = useSetRecoilState(musicPlayState);
 	const goNextMusicRef = useRef();
 	const handleChangeYoutubeKey = (e) => {
 		setYoutubeKey(e.target.value);
@@ -32,8 +37,12 @@ function App() {
 					playerVars: { playsinline: 1, autoplay: 1 },
 					events: {
 						'onStateChange': (event) => {
-							if (event.data === 0) {
+							if (event.data === window.YT.PlayerState.ENDED) {
 								goNextMusicRef.current();
+							} else if (event.data === window.YT.PlayerState.PLAYING) {
+								setPlayState(PLAYING)
+							} else if (event.data === window.YT.PlayerState.PAUSED) {
+								setPlayState(PAUSED)
 							}
 						},
 						'onReady': () => setIsInited(true)
