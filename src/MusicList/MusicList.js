@@ -1,11 +1,12 @@
 import { useEffect, useState, useRef, memo } from 'react';
 import { DragDropContext, Droppable } from "react-beautiful-dnd";
 import { musicListStateManager, useInitMusicPlayer } from "../recoilStates/musicListStateManager"
-import { useRecoilState } from 'recoil';
-import { musicListState, curMusicIndexState } from "../recoilStates/atoms/musicListStates";
+import { useRecoilValue, useRecoilState } from 'recoil';
+import { musicListState, curMusicIndexState, musicPlayState } from "../recoilStates/atoms/musicListStates";
 import MusicListDraggable from './MusicListDraggable';
 import youtubeSearch from '../refs/youtubeSearch';
 import styles from './MusicList.module.scss';
+import { PLAYING } from '../refs/constants';
 function MusicList(props) {
     const [musicListRaw, setMusicListRaw] = useState("");
     const musicListRecoilState = useRecoilState(musicListState);
@@ -13,6 +14,7 @@ function MusicList(props) {
     const curMusicIndexRecoilState = useRecoilState(curMusicIndexState);
     const curMusicIndex = curMusicIndexRecoilState[0];
     const musiclistWrapperRef = useRef();
+    const isPlaying = useRecoilValue(musicPlayState);
     const mlsm = new musicListStateManager(musicListRecoilState, curMusicIndexRecoilState);
     const playMusic = (musicInfo) => {
         if (!window.player) return;
@@ -77,6 +79,10 @@ function MusicList(props) {
     const deleteMusic = (idx) => {
         mlsm.deleteMusic(idx);
     }
+    const playBtnClickHandler = () => {
+        if (!window.player) return;
+        (isPlaying === PLAYING) ? window.player.pauseVideo() : window.player.playVideo();
+    }
     return (
         <div>
             <div className={styles[`controller`]}>
@@ -89,10 +95,20 @@ function MusicList(props) {
 혹은 유튜브링크 복붙`}
                     />
                     <button onClick={musicListAppend}>추가</button>
+
                 </div>
                 <div>
-                    <button onClick={mlsm.goPrevMusic}>이전 </button>
-                    <button onClick={mlsm.goNextMusic}>다음 </button>
+                    <button onClick={mlsm.goPrevMusic}>
+                        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="#000000"><path d="M0 0h24v24H0V0z" fill="none" opacity=".87" /><path d="M17.51 3.87L15.73 2.1 5.84 12l9.9 9.9 1.77-1.77L9.38 12l8.13-8.13z" /></svg>
+                    </button>
+                    <button onClick={playBtnClickHandler}>
+                        {(isPlaying === PLAYING) ?
+                            <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="#000000"><path d="M0 0h24v24H0V0z" fill="none" /><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" /></svg> :
+                            <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="#000000"><path d="M0 0h24v24H0V0z" fill="none" /><path d="M10 8.64L15.27 12 10 15.36V8.64M8 5v14l11-7L8 5z" /></svg>
+                        }
+                    </button>
+
+                    <button onClick={mlsm.goNextMusic}><svg xmlns="http://www.w3.org/2000/svg" enable-background="new 0 0 24 24" height="24px" viewBox="0 0 24 24" width="24px" fill="#000000"><g><path d="M0,0h24v24H0V0z" fill="none" /></g><g><polygon points="6.23,20.23 8,22 18,12 8,2 6.23,3.77 14.46,12" /></g></svg> </button>
                 </div>
 
             </div>

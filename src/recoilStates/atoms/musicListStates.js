@@ -1,5 +1,11 @@
 import { atom, selector } from 'recoil';
-import { INVALID_MUSIC_INFO } from '../../refs/constants';
+import { INVALID_MUSIC_INFO, PAUSED } from '../../refs/constants';
+
+export const musicPlayState = atom({
+    key: 'musicPlayState',
+    default: PAUSED
+})
+
 export const musicListState = atom({
     key: 'musicListState',
     default: []
