@@ -237,8 +237,8 @@ export class musicListStateManager {
             const searchResult = await youtubeSearch(listId, 'list');
             const keys = keyGenerator(searchResult.length);
             return searchResult.map((el, index) => { return { q: el.title, id: el.videoId, key: keys[index], type: 'music' } });
-        } catch (e) {
-
+        } catch (err) {
+            console.error(err);
         }
 
     }
