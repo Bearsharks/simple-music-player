@@ -1,25 +1,33 @@
+import { isJSDocNonNullableType } from "typescript";
+
 export default class storeManager {
+    _storage: Map<string, object>;
+    _storage_cnt: Map<string, number>;
+
     constructor() {
         this._storage = new Map();
         this._storage_cnt = new Map();
         this.store = this.store.bind(this);
         this.delete = this.delete.bind(this);
-        this.get = this.get.bind(this);
         this.set = this.set.bind(this);
+        this.get = this.get.bind(this);
     }
-    get(key, kind) {
+    get(key: string, kind: string): any {
         if (!key) throw new Error("store state error : invalid key");
         if (kind) key = kind + '_' + key;
-        let item = this._storage.get(key);
+        let item: object | undefined = this._storage.get(key);
         if (item) return item;
-        item = JSON.parse(localStorage.getItem(key));
-        if (item === 0 || item) {
-            this._storage.set(key, item);
-            return item;
+        let localItem = localStorage.getItem(key);
+        if (!localItem) return undefined;
+
+        let res: any = JSON.parse(localItem);
+        if (res === 0 || res) {
+            this._storage.set(key, res);
+            return res;
         }
         return undefined;
     }
-    set(key, item, kind) {
+    set(key: string, item: any, kind: string): void {
         if (!key) throw new Error("store state error : invalid key");
         if (kind) key = kind + '_' + key;
         this._storage.set(key, item);
@@ -28,16 +36,16 @@ export default class storeManager {
         if (!cnt) this._storage_cnt.set(key, 1);
     }
 
-    store(key, kind) {
+    store(key: string, kind: string): void {
         if (!key) throw new Error("store state error : invalid key");
         if (kind) key = kind + '_' + key;
         let cnt = this._storage_cnt.get(key);
         this._storage_cnt.set(key, (cnt) ? cnt + 1 : 1);
     }
-    delete(key, kind) {
+    delete(key: string, kind: string): void {
         if (!key) throw new Error("store state error : invalid key");
         if (kind) key = kind + '_' + key;
-        let cnt = this._storage_cnt.get(key);
+        let cnt: number = this._storage_cnt.get(key)!;
         if (cnt > 1) {
             this._storage_cnt.set(key, cnt - 1);
         } else if (cnt === 1) {
