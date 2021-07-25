@@ -86,7 +86,7 @@ export default async function youtubeSearch(value: string, type: string, pageTok
             result = result.concat(await youtubeSearch(value, type, data.nextPageToken));
         }
         return result;
-    } else if (res.status === 400) {
+    } else {
         alert('잘못된 키이거나 해당키의 api 할당량을 초과했습니다.');
     }
     throw new Error('request fail');
