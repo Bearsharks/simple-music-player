@@ -47,7 +47,6 @@ export default function Playlists() {
     const craeteBtnClickHandler = () => {
         const newPlaylistName = textinput.current.value;
         if (newPlaylistName) {
-            debugger;
             makeNewPlaylist(newPlaylistName, []);
         }
     }

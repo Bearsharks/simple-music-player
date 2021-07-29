@@ -15,6 +15,7 @@ function MusicList(props) {
     const curMusicIndex = curMusicIndexRecoilState[0];
     const musiclistWrapperRef = useRef();
     const isPlaying = useRecoilValue(musicPlayState);
+    const [isRoop, setRoop] = useState(false);
     const mlsm = new musicListStateManager(musicListRecoilState, curMusicIndexRecoilState);
     const playMusic = (musicInfo) => {
         if (!window.player) return;
@@ -50,8 +51,12 @@ function MusicList(props) {
     }, [curMusicIndex])
 
     useEffect(() => {
-        props.goNextRef.current = mlsm.goNextMusic;
-    }, [mlsm.goNextMusic]);
+        props.goNextRef.current = () => {
+            if (!window.player) return;
+            if (isRoop) window.player.seekTo(0);
+            else mlsm.goNextMusic();
+        }
+    }, [props.goNextRef, mlsm, isRoop]);
 
     const handleTextAreaChange = (e) => {
         setMusicListRaw(e.target.value);
@@ -83,6 +88,9 @@ function MusicList(props) {
         if (!window.player) return;
         (isPlaying === PLAYING) ? window.player.pauseVideo() : window.player.playVideo();
     }
+    const roopBtnChangeHandler = (e) => {
+        setRoop(e.target.checked ? true : false);
+    }
     return (
         <div>
             <div className={styles[`controller`]}>
@@ -109,6 +117,7 @@ function MusicList(props) {
                     </button>
 
                     <button onClick={mlsm.goNextMusic}><svg xmlns="http://www.w3.org/2000/svg" enable-background="new 0 0 24 24" height="24px" viewBox="0 0 24 24" width="24px" fill="#000000"><g><path d="M0,0h24v24H0V0z" fill="none" /></g><g><polygon points="6.23,20.23 8,22 18,12 8,2 6.23,3.77 14.46,12" /></g></svg> </button>
+
                 </div>
 
             </div>
@@ -116,6 +125,13 @@ function MusicList(props) {
                 className={styles['musiclist-wrapper']}
                 ref={musiclistWrapperRef}
             >
+                <div style={
+                    { float: 'right' }
+                }>
+                    <label>반복재생</label>
+                    <input type="checkbox" onChange={roopBtnChangeHandler} />
+                </div>
+
                 <DragDropContext
                     onDragEnd={onDragEnd}
                     onDragStart={onDragStart}
