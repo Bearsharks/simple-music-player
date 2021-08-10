@@ -204,7 +204,6 @@ export class musicListStateManager {
             start: start,
             end: end
         });
-        console.log(group);
 
         let result = [];
         for (let g of group) {
