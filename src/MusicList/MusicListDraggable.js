@@ -6,7 +6,6 @@ export default memo(function MusicListDraggable(props) {
     const selectMusicHandler = (e, index) => {
         e.stopPropagation();
         props.selectMusic(index);
-        console.log(e.target.offsetTop);
     }
     return (
         <Draggable
