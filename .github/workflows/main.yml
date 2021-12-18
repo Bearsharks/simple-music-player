@@ -17,13 +17,12 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-
-      - name: GCP Github Action
-        uses: google-github-actions/setup-gcloud@master
+        
+      - id: 'auth'
+        uses: 'google-github-actions/auth@v0'
         with:
-            service_account_key: ${{ secrets.SMP_KEY }}
-            project_id: ${{ secrets.SMP_PROJECT_ID }}
+          credentials_json: '${{ secrets.SMP_KEY }}'
       
-      - name: Connect GCE And execute docker ps
+      - name: Connect GCE And execute ls
         run: |-
           gcloud compute ssh "$GCE_INSTANCE" --zone "$GCE_INSTANCE_ZONE" -- 'ls -a'
