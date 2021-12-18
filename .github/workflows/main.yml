@@ -25,4 +25,4 @@ jobs:
       
       - name: Connect GCE And execute ls
         run: |-
-          gcloud compute ssh "$GCE_INSTANCE" --zone "$GCE_INSTANCE_ZONE" -- 'ls -a'
+          gcloud compute ssh smp-server --zone us-west1-b --command="ls -a"
