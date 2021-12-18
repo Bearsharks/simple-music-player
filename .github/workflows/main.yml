@@ -1,0 +1,29 @@
+name: GCE Connect And Execute Script
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+env:
+  PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+  GCE_INSTANCE: smp-server	  
+  GCE_INSTANCE_ZONE: us-west1-b	
+  
+jobs:
+  setup-pull-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: GCP Github Action
+        uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
+        with:
+            service_account_key: ${{ secrets.SMP_KEY }}
+            project_id: ${{ secrets.SMP_PROJECT_ID }}
+      
+      - name: Connect GCE And execute docker ps
+        run: |-
+          gcloud compute ssh "$GCE_INSTANCE" --zone "$GCE_INSTANCE_ZONE" -- 'ls -a'
