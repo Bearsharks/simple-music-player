@@ -1,4 +1,4 @@
-name: GCE Connect And Execute Script
+name: github pages deploy
 
 on:
   push:
@@ -6,23 +6,22 @@ on:
   pull_request:
     branches: [ master ]
 
-env:
-  PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
-  GCE_INSTANCE: smp-server	  
-  GCE_INSTANCE_ZONE: us-west1-b	
-  
 jobs:
-  setup-pull-deploy:
-    runs-on: ubuntu-latest
+  build: 
+    run-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [15.x]
+
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-        
-      - id: 'auth'
-        uses: 'google-github-actions/auth@v0'
+
+      - name: Install and build
+        run : npm install && npm run build
+
+       - name: Deploy 🚀
+        uses: JamesIves/github-pages-deploy-action@4.1.7
         with:
-          credentials_json: '${{ secrets.SMP_KEY }}'
-      
-      - name: Connect GCE And execute ls
-        run: |-
-          gcloud compute ssh smp-server --zone us-west1-b --command="ls -a"
+          branch: gh-pages # The branch the action should deploy to.
+          folder: build # The folder the action should deploy.
