@@ -1,5 +1,3 @@
-import { isJSDocNonNullableType } from "typescript";
-
 export default class storeManager {
     _storage: Map<string, object>;
     _storage_cnt: Map<string, number>;
