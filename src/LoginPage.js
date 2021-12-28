@@ -3,8 +3,11 @@ const imgSrc = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAMAAACdt4
 function SignInPage() {
     const doSignIn = (e) => {
         e.preventDefault();
-        const loginURL = `${process.env.REACT_APP_API_URL}/simple-music-player-319201/asia-northeast3/main/login`;
-        fetch(loginURL).then(res => {
+        const loginURL = `${process.env.REACT_APP_API_URL}/main/login`;
+        fetch(loginURL, {
+            credentials: 'include',
+            cache: 'no-cache'
+        }).then(res => {
             return res.text();
         }).then((url) => {
             window.location = url;
