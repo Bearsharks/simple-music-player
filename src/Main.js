@@ -55,16 +55,18 @@ function Main() {
 		setNavActive(value);
 	}
 	const logoutBtnClicked = (e) => {
-		debugger;
-		const logoutURL = `${process.env.REACT_APP_API_URL}/simple-music-player-319201/asia-northeast3/main/logout`;
-		fetch(logoutURL)
-			.then(res => {
-				return res.text();
-			}).then((url) => {
-				window.location = url;
-			}).catch((err) => {
-				console.log(err);
-			});
+		window.userInfo = undefined;
+		const logoutURL = `${process.env.REACT_APP_API_URL}/main/logout`;
+		fetch(logoutURL, {
+			credentials: 'include',
+			cache: 'no-cache'
+		}).then(res => {
+			return res.text();
+		}).then((url) => {
+			window.location = url;
+		}).catch((err) => {
+			console.log(err);
+		});
 	}
 	return (
 		<div className="App">
