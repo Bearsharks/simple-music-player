@@ -11,6 +11,7 @@ export interface MusicInfo {
     query: string,
     type: ListEleType
 }
+
 export const INVALID_MUSIC_INFO = {
     idx: -1,
     id: "",

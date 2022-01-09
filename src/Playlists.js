@@ -101,12 +101,68 @@ export default function Playlists() {
             alert("복사되었습니다. 붙여넣기 버튼을 클릭하여 재생목록을 추가하세요.")
         });
     }
+    const createPlaylist = (e, playlist) => {
+        e.stopPropagation();
+        let data = window.storeManager.get(playlist, 'list').map((el) => {
+            return {
+                id: el.key,
+                name: el.q,
+                videoID: el.id,
+                query: null
+            }
+        });
+        debugger;
+        const body = { playlist: data };
+        const url = `${process.env.REACT_APP_API_URL}/main/playlist/${playlist}`;
+        fetch(url, {
+            method: 'post',
+            credentials: 'include',
+            body: JSON.stringify(body),
+            headers: {
+                'Content-Type': 'application/json',
+
+            },
+        }).then(() => {
+            return console.log('good!');
+        }).catch((err) => {
+            return console.log('bad!');
+        });
+    }
+    const getPlaylist = (e) => {
+        e.stopPropagation();
+        const playlistID = textinput.current.value;
+        const url = `${process.env.REACT_APP_API_URL}/main/playlist/${playlistID}`;
+        fetch(url, {
+            credentials: 'include'
+        }).then((res) => {
+            return res.json();
+        }).then((data) => {
+            console.log(data);
+        }).catch((err) => {
+            return console.log('bad!');
+        });
+    }
+    const getPlaylists = (e) => {
+        e.stopPropagation();
+        const url = `${process.env.REACT_APP_API_URL}/main/playlist`;
+        fetch(url, {
+            credentials: 'include'
+        }).then((res) => {
+            return res.json();
+        }).then((data) => {
+            console.log(data);
+        }).catch((err) => {
+            return console.log('bad!');
+        });
+    }
     return (
         <ul>
             재생목록<br />
             <input ref={textinput} type="text"></input>
             <button onClick={craeteBtnClickHandler}>추가</button>
             <button onClick={pastePlaylist}>붙여넣기</button>
+            <button onClick={getPlaylist}>가져오기</button>
+            <button onClick={getPlaylists}>전부가져오기</button>
             {
                 playlists.map((el, index) =>
                     <li
@@ -116,6 +172,7 @@ export default function Playlists() {
                         {el}
                         {el !== DEFAULT_PLAYLIST_NAME && <button onClick={(e) => { deletePlaylist(e, el) }}>X</button>}
                         <button onClick={(e) => { copyPlaylist(e, el) }}>copy</button>
+                        <button onClick={(e) => { createPlaylist(e, el) }}>create</button>
                     </li>
                 )
             }

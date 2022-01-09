@@ -2,18 +2,21 @@ import { useNavigate } from "react-router-dom";
 import { useEffect } from "react"
 import Spinner from "./Spinner";
 
-const getProfileURL = `/main/profile`;
+const getProfileURL = `/main/hello`;
 function InitPage() {
     const navigate = useNavigate();
     useEffect(() => {
         fetch(process.env.REACT_APP_API_URL + getProfileURL, {
             credentials: 'include'
         }).then((res) => {
-            if (res.status === 403) throw new Error('403 is unacceptable for me!');
             return res.text();
-        }).then((hi) => {
-            window.userInfo = hi;
-            navigate('/main');
+        }).then((hello) => {
+            if (hello === 'hello') {
+                navigate('/login');
+            } else {
+                window.userInfo = hello;
+                navigate('/main');
+            }
         }).catch((e) => {
             navigate('/login');
         })
