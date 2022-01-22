@@ -108,10 +108,9 @@ export default function Playlists() {
                 id: el.key,
                 name: el.q,
                 videoID: el.id,
-                query: null
+                query: el.q
             }
         });
-        debugger;
         const body = { playlist: data };
         const url = `${process.env.REACT_APP_API_URL}/main/playlist/${playlist}`;
         fetch(url, {
@@ -122,7 +121,8 @@ export default function Playlists() {
                 'Content-Type': 'application/json',
 
             },
-        }).then(() => {
+        }).then((res) => {
+            if (res.status !== 200) throw new Error("잘못된요청!");
             return console.log('good!');
         }).catch((err) => {
             return console.log('bad!');

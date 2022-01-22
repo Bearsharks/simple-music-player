@@ -7,7 +7,7 @@ function SignInPage() {
     const inputRef = useRef();
     const doSignIn = (e) => {
         e.preventDefault();
-        const loginURL = `${process.env.REACT_APP_API_URL}/main/login?staySignedIn=${inputRef.current.checked}`;
+        const loginURL = `${process.env.REACT_APP_API_URL}/login?staySignedIn=${inputRef.current.checked}`;
         fetch(loginURL, {
             credentials: 'include',
             cache: 'no-cache'
