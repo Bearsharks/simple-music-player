@@ -1,4 +1,3 @@
-import { isPropertySignature } from "typescript";
 
 function FormBox(prop: any) {
     const createPlaylist = (e: React.FormEvent<HTMLFormElement>) => {
@@ -15,6 +14,7 @@ function FormBox(prop: any) {
             <label>설명</label>
             <input id='description' type={'text'}></input>
             <input type="submit" value="새로운재생목록생성" />
+            <button onClick={() => { }} value="취소" />
         </form>
     )
 }
