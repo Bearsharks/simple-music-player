@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { useEffect } from "react"
 import Spinner from "./Spinner";
 
-const getProfileURL = `/main/hello`;
+const getProfileURL = `/hello`;
 function InitPage() {
     const navigate = useNavigate();
     useEffect(() => {
