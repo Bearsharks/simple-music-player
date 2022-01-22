@@ -11,6 +11,42 @@ export interface MusicInfo {
     query: string,
     type: ListEleType
 }
+
+export interface MusicInfo_tmp {
+    videoID: string,
+    name: string,
+    query: string
+}
+export enum MusicInfoActionType {
+    NEXT, PREV, SET
+}
+export interface MusicInfoAction {
+    type: MusicInfoActionType
+    payload?: any
+}
+
+export enum MusicListActionType {
+    GET, APPEND_PLAYLIST, APPEND_ITEMS, DELETE, CHANGE_ORDER
+}
+export interface MusicListAction {
+    type: MusicListActionType
+    payload?: any
+}
+
+export enum PlaylistActionType {
+    CREATE, DELETE, UPDATE
+}
+export interface PlaylistAction {
+    type: PlaylistActionType
+    payload?: any
+}
+
+export interface PlaylistInfo {
+    id: string,
+    name: string,
+    description: string
+}
+
 export const INVALID_MUSIC_INFO = {
     idx: -1,
     id: "",
@@ -33,3 +69,8 @@ export const getThumbnail = function (id: string): string {
 }
 export const PAUSED = "PAUSED";
 export const PLAYING = "PLAYING";
+
+export enum playerState {
+    PAUSED,
+    PLAYING
+}
