@@ -7,6 +7,7 @@ import HamburgerBtn from './components/HamburgerBtn';
 import { useSetRecoilState } from 'recoil';
 import { musicPlayState } from "./recoilStates/atoms/musicListStates";
 import { PLAYING, PAUSED } from './refs/constants';
+
 function Main() {
 	const [isInited, setIsInited] = useState(false);
 	const [youtubeKey, setYoutubeKey] = useState("");
