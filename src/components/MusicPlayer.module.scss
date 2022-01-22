@@ -1,0 +1,15 @@
+.music-player{
+    border: 1px solid black;
+    height: 300px;
+}
+
+.player-detail{
+    z-index: 10;
+	transform: translateY(0px);
+	transition: all 0.6s ease;
+}
+.player-detail__hide{
+    transform: translateY(200%);
+    visibility: hidden;
+	transition: all 0.6s ease;
+}
