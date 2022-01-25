@@ -4,7 +4,7 @@ import styles from './PlayerController.module.scss';
 
 export interface PlayerControllerProps {
     musicInfo: MusicInfo;
-    openPopUpBox: () => void;
+    openOptionsPopup: (event: React.MouseEvent) => void;
     playerVisiblity: boolean;
     togglePlayerVisiblity: () => void;
 }
@@ -17,7 +17,7 @@ function PlayerController(props: PlayerControllerProps) {
                 <div>||</div>
                 <div>앞</div>
                 <div>{props.musicInfo.name}</div>
-                <button onClick={props.openPopUpBox}>버튼</button>
+                <button onClick={props.openOptionsPopup}>버튼</button>
                 <button onClick={props.togglePlayerVisiblity}>
                     {props.playerVisiblity ? `V` : `ㅅ`}
                 </button>

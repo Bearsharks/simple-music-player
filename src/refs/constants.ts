@@ -26,7 +26,7 @@ export interface MusicInfoAction {
 }
 
 export enum MusicListActionType {
-    GET, APPEND_PLAYLIST, APPEND_ITEMS, DELETE, CHANGE_ORDER
+    GET, APPEND_PLAYLIST, APPEND_ITEMS, DELETE, CHANGE_ORDER, ADD_TO_NEXT
 }
 export interface MusicListAction {
     type: MusicListActionType
