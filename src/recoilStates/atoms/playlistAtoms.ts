@@ -25,6 +25,7 @@ export const playlistIDsState = atom<string[]>({
     })
 })
 
+
 //리코일 콜백으로 정보와 아이템을 아우르는 수정하는 것을 만든다.
 export const usePlaylistManager = function () {
     //create, delete, update
@@ -97,7 +98,7 @@ export const musicListState = atom<MusicInfo[]>({
 export const useMusicListManager = function () {
     //create, delete, update
     return useRecoilCallback(({ set, reset, snapshot }) => async (action: MusicListAction) => {
-        const { GET, APPEND_PLAYLIST, APPEND_ITEMS, DELETE, CHANGE_ORDER } = MusicListActionType;
+        const { GET, APPEND_PLAYLIST, APPEND_ITEMS, DELETE, CHANGE_ORDER, ADD_TO_NEXT } = MusicListActionType;
         switch (action.type) {
             case GET: {
                 const playlistItems = await snapshot.getPromise(playlistItemsState(action.payload));
@@ -110,9 +111,18 @@ export const useMusicListManager = function () {
                 set(musicListState, musicList.concat(playlistItems));
                 break;
             }
-            case APPEND_ITEMS:
+            case APPEND_ITEMS: {
                 const musicList = await snapshot.getPromise(musicListState);
                 set(musicListState, musicList.concat(action.payload));
+            } break;
+            case ADD_TO_NEXT:
+                const musicList = await snapshot.getPromise(musicListState);
+                const curIdx = await snapshot.getPromise(curMusicIdxState);
+                set(musicListState, musicList.length > 0 ? [
+                    ...musicList.slice(0, curIdx + 1),
+                    ...action.payload,
+                    ...musicList.slice(curIdx + 1)
+                ] : action.payload);
                 break;
             case DELETE: {
                 const curIdx = await snapshot.getPromise(curMusicIdxState);
