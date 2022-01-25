@@ -8,7 +8,7 @@ import Login from './LoginPage';
 //import Main from './Main';
 import Main from './TestPage';
 
-import Spinner from './Spinner';
+import Spinner from './components/Spinner';
 import { Suspense } from 'react';
 function App() {
     return (

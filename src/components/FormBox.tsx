@@ -20,7 +20,6 @@ function FormBox(prop: FormBoxProps) {
             <input id='description' type={'text'}></input>
             <button onClick={(e) => { e.preventDefault() }}>취소</button>
             <input type="submit" value="새로운재생목록생성" />
-
         </form>
     )
 }
