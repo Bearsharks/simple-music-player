@@ -27,9 +27,9 @@ export const playlistInfosFixture: PlaylistInfo[] = [
 ]
 
 export const OptionsFixture: Options[] = [
-    { icon: "O", name: '1번선택지', onClick: () => { console.log("1번") } },
-    { icon: "O", name: '2번선택지', onClick: () => { console.log("2번") } },
-    { icon: "O", name: '3번선택지', onClick: () => { console.log("3번") } },
-    { icon: "O", name: '4번선택지', onClick: () => { console.log("4번") } },
-    { icon: "O", name: '5번선택지', onClick: () => { console.log("5번") } },
+    { icon: "O", name: '1번선택지', onClickHandler: () => { console.log("1번") } },
+    { icon: "O", name: '2번선택지', onClickHandler: () => { console.log("2번") } },
+    { icon: "O", name: '3번선택지', onClickHandler: () => { console.log("3번") } },
+    { icon: "O", name: '4번선택지', onClickHandler: () => { console.log("4번") } },
+    { icon: "O", name: '5번선택지', onClickHandler: () => { console.log("5번") } },
 ]

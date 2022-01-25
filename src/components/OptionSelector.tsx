@@ -4,9 +4,9 @@ import styles from './OptionSelector.module.scss';
 export interface Options {
     icon: any;
     name: string;
-    onClick: () => void;
+    onClickHandler: () => void;
 }
-interface OptionSelectorProps {
+export interface OptionSelectorProps {
     options: Options[]
 }
 function OptionSelector(props: OptionSelectorProps) {
@@ -14,7 +14,7 @@ function OptionSelector(props: OptionSelectorProps) {
         <div className={styles['wrapper']}>
             {
                 props.options.map((option) =>
-                    <div key={option.name} onClick={option.onClick}>{option.icon}{option.name}</div>
+                    <div key={option.name} onClick={option.onClickHandler}>{option.icon}{option.name}</div>
                 )
             }
         </div>
