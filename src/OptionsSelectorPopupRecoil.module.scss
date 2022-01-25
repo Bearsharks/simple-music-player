@@ -1,0 +1,12 @@
+.wrapper {
+  border: 1px solid black;
+  position:fixed;
+  top:0px;
+  left:0px;
+  background-color: beige;
+  z-index: 100;
+}
+
+.wrapper--hide {
+  visibility:hidden;
+}
