@@ -1,16 +1,8 @@
 import { useRecoilValue, useSetRecoilState } from 'recoil'
-import { FormPopupState, FormPopupOpenState } from './recoilStates/PopupStates';
+import { FormPopupState, FormPopupOpenState, FormItem } from './recoilStates/PopupStates';
 import styles from './FormPopup.module.scss'
 import React, { useState, useRef, useEffect } from 'react';
 
-export interface FormItems {
-    id: string,
-    name: string,
-}
-export interface FormPopupData {
-    items: FormItems[];
-    submit: (data: any) => void
-}
 
 function Popup() {
     const isOpen = useRecoilValue(FormPopupOpenState);
@@ -26,21 +18,6 @@ function FormPopup() {
     const curRef = useRef<HTMLDivElement>(null);
     const { items, submit } = useRecoilValue(FormPopupState);
     const setPopupOpen = useSetRecoilState(FormPopupOpenState);
-    useEffect(() => {
-        const onClickOutsideHandler = (event: MouseEvent | TouchEvent) => {
-            debugger;
-            if (curRef.current && curRef.current.contains(event.target as Node)) {
-                return;
-            }
-            setPopupOpen(false);
-        };
-        document.addEventListener('click', onClickOutsideHandler);
-        document.addEventListener('touchend', onClickOutsideHandler);
-        return () => {
-            document.removeEventListener('click', onClickOutsideHandler);
-            document.removeEventListener('touchend', onClickOutsideHandler);
-        };
-    }, []);
     const onClickHandler = () => {
         let data = {} as any;
         const arr = curRef.current?.getElementsByTagName('input');
@@ -57,7 +34,7 @@ function FormPopup() {
             className={`${styles['wrapper']}`}
             ref={curRef}
         >
-            {items?.map((item: FormItems) =>
+            {items?.map((item: FormItem) =>
                 <div key={item.id}>
                     <label>{item.name}</label>
                     <input id={item.id}></input>
