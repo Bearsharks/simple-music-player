@@ -45,10 +45,10 @@ function SearchBarRecoil() {
         return newMusicList;
     }
 
-    const addMusics = async (query: string, type?: MusicListActionType) => {
+    const addMusics = async (textarea: HTMLTextAreaElement, type?: MusicListActionType) => {
         type = type ? type : MusicListActionType.APPEND_PLAYLIST;
         try {
-            const searchResult: MusicInfo[] = await search(query);
+            const searchResult: MusicInfo[] = await search(textarea.value);
             if (searchResult.length <= 0) return;
 
             const action = {
@@ -60,20 +60,21 @@ function SearchBarRecoil() {
             console.error(e);
         } finally {
             setPopupOpen(false);
+            textarea.value = "";
         }
     }
-    const searchOptionPopupOpen = (event: React.MouseEvent, query: string) => {
+    const searchOptionPopupOpen = (event: React.MouseEvent, textarea: HTMLTextAreaElement) => {
         event.stopPropagation();
         const popupInitInfo: OptionSelectorInfo = {
             target: event.target as HTMLElement,
             items: [
                 {
                     icon: "O", name: "다음 음악으로 재생",
-                    onClickHandler: () => addMusics(query, MusicListActionType.ADD_TO_NEXT)
+                    onClickHandler: () => addMusics(textarea, MusicListActionType.ADD_TO_NEXT)
                 },
                 {
                     icon: "O", name: "목록에 추가",
-                    onClickHandler: () => addMusics(query, MusicListActionType.APPEND_ITEMS)
+                    onClickHandler: () => addMusics(textarea, MusicListActionType.APPEND_ITEMS)
                 }
             ]
         }
