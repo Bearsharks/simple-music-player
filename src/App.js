@@ -13,7 +13,6 @@ import { Suspense } from 'react';
 function App() {
     return (
         <BrowserRouter basename='/simple-music-player'>
-
             <Routes>
                 <Route path="/main" element={<Suspense fallback={<Spinner></Spinner>}><Main /></Suspense>}></Route>
                 <Route path="/login" element={<Login />}></Route>
