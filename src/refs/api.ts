@@ -57,6 +57,14 @@ export async function updatePlaylist(info: PlaylistInfo, items: MusicInfo): Prom
     return data === 'true';
 }
 
+export async function getToken() {
+    const res = await fetch(`${process.env.REACT_APP_API_URL}/token`, {
+        credentials: 'include',
+    });
+    if (res.status !== 200) throw "잘못된 요청";
+    return await res.text();
+}
+
 // const save = new Promise((resolve) => {
 //     fetch('http://localhost:5001/simple-music-player-319201/asia-northeast3/main/playlists', {
 //         credentials: 'include',
