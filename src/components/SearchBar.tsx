@@ -1,15 +1,14 @@
 import { useRef } from "react";
 
 export interface SearchBarProps {
-    search: (event: React.MouseEvent, query: string) => void
+    search: (event: React.MouseEvent, textarea: HTMLTextAreaElement) => void
 }
 function SearchBar(props: SearchBarProps) {
     const textInput = useRef<HTMLTextAreaElement>(null);
 
     const search = (event: React.MouseEvent) => {
         if (textInput.current !== null) {
-            props.search(event, textInput.current.value);
-            textInput.current.value = "";
+            props.search(event, textInput.current);
         }
 
     }
