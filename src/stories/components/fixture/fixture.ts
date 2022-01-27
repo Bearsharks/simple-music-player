@@ -1,5 +1,5 @@
 import { Options } from "../../../components/OptionSelector";
-import { MusicInfo_tmp as MusicInfo, PlaylistInfo } from "../../../refs/constants";
+import { MusicInfo, PlaylistInfo } from "../../../refs/constants";
 
 export const musicListFixture: MusicInfo[] = [
     {

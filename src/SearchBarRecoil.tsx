@@ -1,9 +1,8 @@
 import { useSetRecoilState } from 'recoil'
 import SearchBar from './components/SearchBar'
-import { Options } from "./components/OptionSelector";
 import { OptionSelectorInfo, OptionSelectorState, OptionSelectorOpenState } from './recoilStates/PopupStates'
 import { useMusicListManager } from './recoilStates/atoms/playlistAtoms';
-import { MusicInfo_tmp as MusicInfo, MusicListActionType } from './refs/constants';
+import { MusicInfo, MusicListActionType } from './refs/constants';
 import youtubeSearch from './refs/youtubeSearch';
 function SearchBarRecoil() {
     const setPopupOpen = useSetRecoilState(OptionSelectorOpenState);
