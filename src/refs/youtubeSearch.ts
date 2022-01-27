@@ -96,7 +96,8 @@ export default async function youtubeSearch(value: string, type: string, pageTok
             result = result.concat(await youtubeSearch(value, type, data.nextPageToken));
         }
         return result;
-    } else if (res.status === 403) {
+    } else if (res.status === 403 || res.status === 401) {
+        //유튜브 읽기 권한이 없다면 무한루프가 발생하기 때문에 없다면 확인후 권한을 달라고 하자
         sessionStorage.setItem("access_token", "");
         youtubeSearch(value, type, pageToken ? pageToken : undefined);
     }
