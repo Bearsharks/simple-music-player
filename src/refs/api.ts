@@ -1,5 +1,5 @@
 
-import { PlaylistInfo, MusicInfo_tmp as MusicInfo } from "./constants";
+import { PlaylistInfo, MusicInfo } from "./constants";
 
 export async function getPlaylistInfos(): Promise<PlaylistInfo[]> {
     const res = await fetch(`${process.env.REACT_APP_API_URL}/playlists`, {
@@ -41,7 +41,7 @@ export async function createPlaylist(info: PlaylistInfo, items: MusicInfo[]): Pr
 export async function deletePlaylist(id: string): Promise<boolean> {
     return true;
 }
-export async function updatePlaylist(info: PlaylistInfo, items: MusicInfo): Promise<boolean> {
+export async function updatePlaylist(info: PlaylistInfo, items: MusicInfo[]): Promise<boolean> {
     const body = {
         info, items
     }

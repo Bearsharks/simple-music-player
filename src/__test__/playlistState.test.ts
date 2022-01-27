@@ -2,7 +2,7 @@ import { atom, snapshot_UNSTABLE } from 'recoil'
 import { useState } from 'react'
 import { renderHook, act } from '@testing-library/react-hooks';
 import { playlistIDsState, usePlaylistManager, playlistInfosState, playlistItemsState } from '../recoilStates/atoms/playlistAtoms'
-import { PlaylistInfo, PlaylistAction, PlaylistActionType, MusicInfo_tmp as MusicInfo } from '../refs/constants'
+import { PlaylistInfo, PlaylistAction, PlaylistActionType, MusicInfo } from '../refs/constants'
 import { RecoilRoot, useRecoilValue, useRecoilCallback, useRecoilState } from 'recoil';
 
 describe('playlist atom', () => {
