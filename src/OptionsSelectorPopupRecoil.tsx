@@ -41,7 +41,7 @@ function OptionsSelectorPopupRecoil() {
             className={`${styles['wrapper']} ${!isOpen && styles['wrapper--hide']}`}
             ref={curRef}
         >
-            {info.items && <OptionSelector options={info.items}></OptionSelector>}
+            {info.items && <OptionSelector data={info.data} options={info.items}></OptionSelector>}
         </div>
     );
 }
