@@ -1,8 +1,8 @@
 import styles from './PlaylistsRecoil.module.scss';
 import { useRecoilValue, useSetRecoilState } from "recoil";
 import { useMusicListManager, usePlaylistManager, playlistIDsState } from "./recoilStates/atoms/playlistAtoms";
-import { FormPopupState, FormPopupOpenState, getFormInitData, OptionSelectorState, OptionSelectorOpenState } from './recoilStates/PopupStates';
-import { MusicListAction, MusicListActionType, PlaylistAction, PlaylistActionType, MusicInfo_tmp as MusicInfo, PlaylistInfo } from './refs/constants';
+import { FormPopupState, FormPopupOpenState, getFormInitData, OptionSelectorState, OptionSelectorOpenState, FormKind } from './recoilStates/PopupStates';
+import { MusicListAction, MusicListActionType, PlaylistAction, PlaylistActionType, MusicInfo, PlaylistInfo } from './refs/constants';
 function TestPage() {
     const ids = useRecoilValue(playlistIDsState);
     const playlistManager = usePlaylistManager();
@@ -73,8 +73,7 @@ function TestPage() {
         }
     }
     const openFormPopup = () => {
-
-        setFormPopupState(getFormInitData(onSubmitHandler));
+        setFormPopupState(getFormInitData(FormKind.CreatePlaylist, onSubmitHandler));
         setPopupOpen(true);
     }
 

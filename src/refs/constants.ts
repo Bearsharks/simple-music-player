@@ -4,19 +4,18 @@ export enum ListEleType {
     Query = "Query",
 }
 
-export interface MusicInfo {
-    id: string,
-    key: string,
-    title: string,
-    query: string,
-    type: ListEleType
-}
 
-export interface MusicInfo_tmp {
+export interface MusicInfo {
     videoID: string,
     name: string,
     query: string
 }
+
+export function MusicInfoCheck(params: unknown): params is MusicInfo {
+    const musicInfo: MusicInfo = params as MusicInfo;
+    return !!(musicInfo.name) && (!!musicInfo.query || !!musicInfo.videoID);
+}
+
 export enum MusicInfoActionType {
     NEXT, PREV, SET
 }
@@ -34,7 +33,7 @@ export interface MusicListAction {
 }
 
 export enum PlaylistActionType {
-    CREATE, DELETE, UPDATE
+    CREATE, DELETE, UPDATE, APPEND
 }
 export interface PlaylistAction {
     type: PlaylistActionType

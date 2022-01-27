@@ -1,6 +1,6 @@
 import { atom, atomFamily, selector, useRecoilCallback } from 'recoil';
 import { getPlaylistInfo, getPlaylistItems, getPlaylistInfos, updatePlaylist, deletePlaylist, createPlaylist } from '../../refs/api';
-import { INVALID_MUSIC_INFO, PlaylistAction, PlaylistActionType, MusicInfoAction, MusicInfoActionType, MusicListActionType, MusicListAction, PAUSED, PlaylistInfo, playerState, MusicInfo_tmp as MusicInfo } from '../../refs/constants';
+import { INVALID_MUSIC_INFO, PlaylistAction, PlaylistActionType, MusicInfoAction, MusicInfoActionType, MusicListActionType, MusicListAction, PAUSED, PlaylistInfo, playerState, MusicInfo } from '../../refs/constants';
 
 export const musicPlayerState = atom({
     key: 'musicPlayerState',
@@ -25,12 +25,11 @@ export const playlistIDsState = atom<string[]>({
     })
 })
 
-
 //리코일 콜백으로 정보와 아이템을 아우르는 수정하는 것을 만든다.
 export const usePlaylistManager = function () {
     //create, delete, update
     return useRecoilCallback(({ set, reset, snapshot }) => async (action: PlaylistAction) => {
-        const { CREATE, DELETE, UPDATE } = PlaylistActionType;
+        const { CREATE, DELETE, UPDATE, APPEND } = PlaylistActionType;
         switch (action.type) {
             case CREATE: {
                 const playlistIDs: string[] = snapshot.getLoadable(playlistIDsState).contents;
@@ -57,6 +56,16 @@ export const usePlaylistManager = function () {
                 if (result) {
                     set(playlistInfosState(tgt), action.payload.info);
                     set(playlistItemsState(tgt), action.payload.items);
+                }
+            } break;
+            case APPEND: {
+                if (!action.payload.info || !action.payload.info.id || !action.payload.items) return;
+                const tgt: string = action.payload.info.id;
+                const playlistItems: MusicInfo[] = await snapshot.getPromise(playlistItemsState(tgt));
+                const newList = playlistItems.concat(action.payload.items);
+                const result = await updatePlaylist(action.payload.info, newList);
+                if (result) {
+                    set(playlistItemsState(tgt), newList);
                 }
             } break;
         }
