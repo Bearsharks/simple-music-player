@@ -1,14 +1,14 @@
 import styles from './PlaylistsRecoil.module.scss';
 import { useRecoilValue, useSetRecoilState } from "recoil";
-import { useMusicListManager, usePlaylistManager, playlistIDsState } from "./recoilStates/atoms/playlistAtoms";
-import { FormPopupState, FormPopupOpenState, getFormInitData, OptionSelectorState, OptionSelectorOpenState, FormKind } from './recoilStates/PopupStates';
-import { MusicListAction, MusicListActionType, PlaylistAction, PlaylistActionType, MusicInfo, PlaylistInfo } from './refs/constants';
+import { useMusicListManager, usePlaylistManager, playlistInfosState } from "./recoilStates/atoms/playlistAtoms";
+import { useFormPopupManager, OptionSelectorState, OptionSelectorOpenState, FormKind } from './recoilStates/PopupStates';
+import { MusicListAction, MusicListActionType, PlaylistAction, PlaylistActionType, MusicInfo, PlaylistInfo, MusicInfoActionType } from './refs/constants';
+import Playlists from './components/Playlists';
 function TestPage() {
-    const ids = useRecoilValue(playlistIDsState);
+    const playlistInfos = useRecoilValue(playlistInfosState);
     const playlistManager = usePlaylistManager();
     const musicListManager = useMusicListManager();
-    const setFormPopupState = useSetRecoilState(FormPopupState);
-    const setPopupOpen = useSetRecoilState(FormPopupOpenState);
+    const formPopupManager = useFormPopupManager();
     const setOptionSelectorState = useSetRecoilState(OptionSelectorState);
     const setOptionSelectorOpen = useSetRecoilState(OptionSelectorOpenState);
 
@@ -38,13 +38,9 @@ function TestPage() {
         playlistManager(action);
     }
 
-    const selectPlaylist: React.MouseEventHandler<HTMLDivElement> = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-        const tgt: any = e.target;
-    }
-
     const setMusiclist = (playlistid: string) => {
         const action: MusicListAction = {
-            type: MusicListActionType.GET,
+            type: MusicListActionType.SET,
             payload: playlistid
         }
         musicListManager(action);
@@ -57,24 +53,9 @@ function TestPage() {
         musicListManager(action);
     }
 
-    const onSubmitHandler = (data: unknown) => {
-        const playListInfo: PlaylistInfo = data as PlaylistInfo;
-        if (playListInfo && playListInfo.name && playListInfo.description) {
-            console.log(playListInfo);
-            const createAction: PlaylistAction = {
-                type: PlaylistActionType.CREATE,
-                payload: {
-                    info: playListInfo,
-                    items: []
-                }
-            }
-            playlistManager(createAction);
-            setPopupOpen(false);
-        }
-    }
-    const openFormPopup = () => {
-        setFormPopupState(getFormInitData(FormKind.CreatePlaylist, onSubmitHandler));
-        setPopupOpen(true);
+    
+    const openCreatePlaylistPopup = () => {
+        formPopupManager(FormKind.CreatePlaylist);
     }
 
     const openOptionsSelector = (e: React.MouseEvent<HTMLElement>) => {
@@ -93,18 +74,15 @@ function TestPage() {
         });
         setOptionSelectorOpen(true);
     }
+
     return (
         <div>플레이리스트
-            <button onClick={openFormPopup}>팝업열기</button>
-            <div className="playlistids"
-                onClick={selectPlaylist}
-            >{
-                    ids.map((el: string) => <div key={el}>
-                        {el}
-                        <button onClick={openOptionsSelector}>::</button>
-                    </div>)
-                }
-            </div>
+            <button onClick={openCreatePlaylistPopup}>새 재생목록</button>
+            <Playlists
+                playlistInfos={playlistInfos}
+                playPlaylist={setMusiclist}
+                openOptionsSelector={openOptionsSelector}
+            ></Playlists>
         </div>
     );
 }

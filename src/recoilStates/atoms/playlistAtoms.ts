@@ -25,6 +25,8 @@ export const playlistIDsState = atom<string[]>({
     })
 })
 
+
+
 //리코일 콜백으로 정보와 아이템을 아우르는 수정하는 것을 만든다.
 export const usePlaylistManager = function () {
     //create, delete, update
@@ -46,7 +48,7 @@ export const usePlaylistManager = function () {
                     const newOne: string[] = playlistIDs.filter((item) => item !== tgt);
                     set(playlistIDsState, newOne);
                     reset(playlistItemsState(tgt));
-                    reset(playlistInfosState(tgt));
+                    reset(playlistInfoStateFamily(tgt));
                 }
             } break;
             case UPDATE: {
@@ -54,7 +56,7 @@ export const usePlaylistManager = function () {
                 const tgt: string = action.payload.info.id;
                 const result = await updatePlaylist(action.payload.info, action.payload.items);
                 if (result) {
-                    set(playlistInfosState(tgt), action.payload.info);
+                    set(playlistInfoStateFamily(tgt), action.payload.info);
                     set(playlistItemsState(tgt), action.payload.items);
                 }
             } break;
@@ -73,8 +75,8 @@ export const usePlaylistManager = function () {
 }
 
 
-export const playlistInfosState = atomFamily<PlaylistInfo, string>({
-    key: 'playlistInfos',
+export const playlistInfoStateFamily= atomFamily<PlaylistInfo, string>({
+    key: 'playlistInfoFamily',
     default: async (id): Promise<PlaylistInfo> => {
         try {
             return await getPlaylistInfo(id);
@@ -84,6 +86,14 @@ export const playlistInfosState = atomFamily<PlaylistInfo, string>({
         return {} as PlaylistInfo;
     },
 });
+export const playlistInfosState = selector<PlaylistInfo[]>({
+    key:'playlistInfos',
+    get: async ({get}):Promise<PlaylistInfo[]>=> {
+        const playlistIDs: string[] = get(playlistIDsState);
+        const playlistInfos = playlistIDs.map((id) =>get(playlistInfoStateFamily(id)));
+        return playlistInfos;
+    },
+})
 
 export const playlistItemsState = atomFamily<MusicInfo[], string>({
     key: "playlistItems",
@@ -107,9 +117,9 @@ export const musicListState = atom<MusicInfo[]>({
 export const useMusicListManager = function () {
     //create, delete, update
     return useRecoilCallback(({ set, reset, snapshot }) => async (action: MusicListAction) => {
-        const { GET, APPEND_PLAYLIST, APPEND_ITEMS, DELETE, CHANGE_ORDER, ADD_TO_NEXT } = MusicListActionType;
+        const { SET, APPEND_PLAYLIST, APPEND_ITEMS, DELETE, CHANGE_ORDER, ADD_TO_NEXT } = MusicListActionType;
         switch (action.type) {
-            case GET: {
+            case SET: {
                 const playlistItems = await snapshot.getPromise(playlistItemsState(action.payload));
                 set(musicListState, playlistItems);
                 break;

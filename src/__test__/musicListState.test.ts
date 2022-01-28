@@ -7,7 +7,7 @@ import { RecoilRoot, useRecoilCallback } from 'recoil';
 describe('music list state', () => {
     it('get music list of a playlist', async () => {
         const action: MusicListAction = {
-            type: MusicListActionType.GET,
+            type: MusicListActionType.SET,
             payload: "4"
         }
         const { result, waitForNextUpdate } = renderHook(useMusiclistTest, { wrapper: RecoilRoot });
