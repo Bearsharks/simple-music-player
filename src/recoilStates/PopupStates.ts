@@ -1,15 +1,11 @@
 import { atom, useRecoilCallback } from "recoil";
 import { Options } from "../components/OptionSelector";
-import { playlistIDsState, playlistInfosState, usePlaylistManager } from './atoms/playlistAtoms'
-import { MusicInfoCheck, PlaylistAction, PlaylistActionType, PlaylistInfo } from "../refs/constants";
+import {  playlistIDsState,  playlistInfoStateFamily, usePlaylistManager } from './atoms/playlistAtoms'
+import {  PlaylistAction, PlaylistActionType, PlaylistInfo } from "../refs/constants";
 export interface FormItem {
     id: string,
     name: string,
 }
-
-
-
-
 
 export const FormPopupOpenState = atom<boolean>({
     key: "formPopupOpen",
@@ -45,8 +41,6 @@ export interface FormPopupData {
 export enum FormKind {
     CreatePlaylist, YoutubeLink, YoutubePlaylist, SelectPlaylist, AppendPlaylist
 }
-//리코일 콜백으로 정보와 아이템을 아우르는 수정하는 것을 만든다.
-
 export function getFormInitData(formKind: FormKind, onSubmitHandler: (data: unknown) => void): FormPopupData {
     return {
         items: [
@@ -90,7 +84,7 @@ export const useFormPopupManager = function () {
             case FormKind.AppendPlaylist: {
                 const playlistIDs: string[] = snapshot.getLoadable(playlistIDsState).contents;
                 const playlistInfos = await Promise.all(playlistIDs.map(async (id) => {
-                    return await snapshot.getPromise(playlistInfosState(id));
+                    return await snapshot.getPromise(playlistInfoStateFamily(id));
                 }));
                 const popupData: FormPopupData = {
                     items: playlistInfos,
