@@ -145,15 +145,28 @@ export const useMusicListManager = function () {
                 break;
             case DELETE: {
                 const curIdx = await snapshot.getPromise(curMusicIdxState);
-                const tgt = action.payload;
-                const list = await snapshot.getPromise(musicListState);
-                const items = list.filter((item, index) => index !== tgt);
+                const tgtInfos:MusicInfo[] = action.payload;
+                let list = (await snapshot.getPromise(musicListState)).slice();
 
-                const isLast = tgt === list.length - 1;
-                const isPrevMusic = curIdx > tgt;
-                const isCurMusic = curIdx === tgt;
-                if ((isCurMusic && isLast) || isPrevMusic) set(curMusicIdxState, curIdx - 1);
-                set(musicListState, items);
+                let curMusicDeleted = false;
+                for(let i = 0 ; i < tgtInfos.length;i++){
+                    const idx = tgtInfos[i].idx;
+                    if(idx !== undefined){
+                        list[idx] = {} as MusicInfo;
+                        if(idx === curIdx) curMusicDeleted = false;
+                    } 
+                }
+
+                let emptyIdx = 0;
+                let nextIdx = -1;                
+                for(let i = 0 ; i < list.length;i++){ 
+                    if(i === curIdx) nextIdx = emptyIdx;
+                    if(list[i].name) list[emptyIdx++] = list[i];     
+                }                
+                for(let i = 0 ; i < tgtInfos.length;i++) list.pop();
+
+                if( curIdx !==  nextIdx) set(curMusicIdxState, nextIdx);
+                set(musicListState, list);
                 break;
             }
             case CHANGE_ORDER: {
@@ -219,11 +232,9 @@ export const useCurMusicManager = function () {
 export const curMusicInfoState = selector<MusicInfo>({
     key: 'curMusicInfoState',
     get: ({ get }) => {
-        const list = get(musicListState);
+        let list = get(musicListState);
         const idx = get(curMusicIdxState);
-        if (idx === INVALID_MUSIC_INFO.idx || list.length <= 0) {
-            return {} as MusicInfo;
-        }
-        return list[idx];
+        if(list.length === 0 || !list[idx]) return {} as MusicInfo;
+        return {...list[idx], idx: idx};
     }
 });
