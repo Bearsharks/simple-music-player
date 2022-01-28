@@ -8,7 +8,8 @@ export enum ListEleType {
 export interface MusicInfo {
     videoID: string,
     name: string,
-    query: string
+    query: string,
+    idx? : number
 }
 
 export function MusicInfoCheck(params: unknown): params is MusicInfo {
