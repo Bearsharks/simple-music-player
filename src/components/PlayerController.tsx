@@ -4,13 +4,13 @@ import styles from './PlayerController.module.scss';
 
 export interface PlayerControllerProps {
     musicInfo: MusicInfo;
-    openOptionsPopup: (event: React.MouseEvent, musicInfo: MusicInfo) => void;
+    openOptionsPopup: (event: React.MouseEvent, musicInfos: MusicInfo[]) => void;
     playerVisiblity: boolean;
     togglePlayerVisiblity: () => void;
 }
 function PlayerController(props: PlayerControllerProps) {
     const popupOpen = (event: React.MouseEvent) => {
-        props.openOptionsPopup(event, props.musicInfo);
+        props.openOptionsPopup(event, [props.musicInfo]);
     }
     return (
         <div className={styles[`wrapper`]} >
