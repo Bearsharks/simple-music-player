@@ -116,7 +116,6 @@ export const musicListState = atom<MusicInfo[]>({
 export const useMusicListManager = function () {
     //create, delete, update
     return useRecoilCallback(({ set, reset, snapshot }) => async (action: MusicListAction) => {
-        debugger;
         switch (action.type) {
             case MusicListActionType.SET: {
                 const playlistItems = await snapshot.getPromise(playlistItemStateFamily(action.payload));
@@ -164,7 +163,9 @@ export const useMusicListManager = function () {
                     if(idx !== undefined){
                         list[idx] = {} as MusicInfo;
                         if(idx === curIdx) curMusicDeleted = false;
-                    } 
+                    }else{
+                        throw "목록에서 삭제대상의 idx가 없음"
+                    }
                 }
 
                 let emptyIdx = 0;
