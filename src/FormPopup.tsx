@@ -17,15 +17,15 @@ function Popup() {
 }
 
 function FormPopup() {
-    const { items, submit, kind } = useRecoilValue(FormPopupState);
+    const { items, submit, kind, data } = useRecoilValue(FormPopupState);
     const setPopupOpen = useSetRecoilState(FormPopupOpenState);
     const closePopup = () => {
         setPopupOpen(false);
     }
     return (
         <div>
-            {(kind === FormKind.CreatePlaylist) ?
-                <CreatePlaylistPopup items={items as FormItem[]} submit={submit} closePopup={closePopup} /> :
+            {(kind === FormKind.CreatePlaylist || kind === FormKind.UpdatePlaylist) ?
+                <PlaylistForm items={items as FormItem[]} submit={submit} closePopup={closePopup} playlistInfo={data} /> :
                 (kind === FormKind.AppendPlaylist) ?
                     <AppendPlaylistPopup items={items as PlaylistInfo[]} submit={submit} closePopup={closePopup} /> :
                     ""
@@ -34,12 +34,14 @@ function FormPopup() {
     );
 }
 
-interface CreatePlaylistPopupProps {
+interface PlaylistFormProps {
     items: FormItem[];
     submit: (data: unknown) => void;
-    closePopup: () => void;
+    closePopup: () => void; 
+    playlistInfo? :PlaylistInfo;
+
 }
-function CreatePlaylistPopup({ items, submit, closePopup }: CreatePlaylistPopupProps) {
+function PlaylistForm({ items, submit, closePopup,playlistInfo }: PlaylistFormProps) {
     const curRef = useRef<HTMLDivElement>(null);
     const onClickHandler = () => {
         let data = {} as any;
@@ -48,6 +50,9 @@ function CreatePlaylistPopup({ items, submit, closePopup }: CreatePlaylistPopupP
             for (let i = 0; i < arr.length; i++) {
                 data[items[i].id] = arr[i].value;
             }
+            if(playlistInfo){
+                data.id = playlistInfo.id;
+            }            
         }
         submit(data);
     }
@@ -59,7 +64,7 @@ function CreatePlaylistPopup({ items, submit, closePopup }: CreatePlaylistPopupP
             {items?.map((item: FormItem) =>
                 <div key={item.id}>
                     <label>{item.name}</label>
-                    <input id={item.id}></input>
+                    <input id={item.id} defaultValue={item.value}></input>
                 </div>
             )}
             <div>

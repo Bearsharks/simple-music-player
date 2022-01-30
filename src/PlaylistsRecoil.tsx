@@ -52,25 +52,44 @@ function TestPage() {
         }
         musicListManager(action);
     }
-
+    const addToNextMusic = (playlistid: string) => {
+        const action: MusicListAction = {
+            type: MusicListActionType.ADD_TO_NEXT_PLAYLIST,
+            payload: playlistid
+        }
+        musicListManager(action);
+    }
     
     const openCreatePlaylistPopup = () => {
         formPopupManager(FormKind.CreatePlaylist);
     }
+    const updatePlaylistInfo = (playlistid: string)=>{
+        formPopupManager(FormKind.UpdatePlaylist, playlistid);
+    }
+    const deletePlaylist = (playlistid: string)=>{
+        playlistManager({
+            type:PlaylistActionType.DELETE,
+            payload:playlistid
+        });
+    }
 
-    const openOptionsSelector = (e: React.MouseEvent<HTMLElement>) => {
-        e.stopPropagation();
-        setOptionSelectorOpen(false);
-        const test = (e?: any) => {
-            console.log("test");
+    const openOptionsSelector = (e: React.MouseEvent<HTMLElement>,playlistid:string) => {
+        e.stopPropagation();        
+        const onClickHandlerWrapper = (callback: (data: any) => void) => {
+            return (data: any) => {
+                callback(data);
+                setOptionSelectorOpen(false);     
+            }
         }
         setOptionSelectorState({
-            target: e.target as HTMLElement, items: [
-                { icon: "S", name: "재생목록에 추가", onClickHandler: test },
-                { icon: "A", name: "다음 음악으로 추가", onClickHandler: test },
-                { icon: "U", name: "재생목록 수정", onClickHandler: test },
-                { icon: "X", name: "재생목록 삭제", onClickHandler: test },
-            ]
+            target: e.target as HTMLElement,
+            items: [
+                { icon: "S", name: "재생목록에 추가", onClickHandler: onClickHandlerWrapper(appendMusiclist) },
+                { icon: "A", name: "다음 음악으로 추가", onClickHandler: onClickHandlerWrapper(addToNextMusic) },
+                { icon: "U", name: "재생목록 수정", onClickHandler: onClickHandlerWrapper(updatePlaylistInfo)},
+                { icon: "X", name: "재생목록 삭제", onClickHandler:  onClickHandlerWrapper(deletePlaylist) },
+            ],
+            data:playlistid
         });
         setOptionSelectorOpen(true);
     }
