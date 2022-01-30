@@ -38,9 +38,13 @@ function MusicPlayer() {
     const addToPlaylist = (items: MusicInfo[]) => {
         formPopupManager(FormKind.AppendPlaylist, items);
     }
-
+    const changeOrder = (src:number,dst:number)=>{
+        musicListManager({
+            type:MusicListActionType.CHANGE_ORDER,
+            payload : { to:dst, from:src }
+        });
+    }
     const deleteMusic = (items:MusicInfo[])=>{
-        debugger;
         const delAction:MusicListAction = {
             type:MusicListActionType.DELETE,
             payload:items
@@ -69,11 +73,12 @@ function MusicPlayer() {
         setPopupOpen(true);
     }
     return (
-        <div className={styles['wrapper']}>
+        <div>
             <div className={`${styles['player-detail']} ${(!playerVisiblity) && styles['player-detail__hide']}`}>
                 <MusicList items={musicList}
                     addToPlaylist={addToPlaylist}
-                    openOptionsPopup={openPopup} />
+                    openOptionsPopup={openPopup}
+                    changeOrder={changeOrder} />
             </div>
             <PlayerController
                 musicInfo={curMusicInfo}
