@@ -31,7 +31,7 @@ export const playlistIDsState = atom<string[]>({
 export const usePlaylistManager = function () {
     //create, delete, update
     return useRecoilCallback(({ set, reset, snapshot }) => async (action: PlaylistAction) => {
-        const { CREATE, DELETE, UPDATE, APPEND } = PlaylistActionType;
+        const { CREATE, DELETE, UPDATE, APPEND} = PlaylistActionType;
         switch (action.type) {
             case CREATE: {
                 const playlistIDs: string[] = snapshot.getLoadable(playlistIDsState).contents;
@@ -47,27 +47,27 @@ export const usePlaylistManager = function () {
                 if (isSuccess) {
                     const newOne: string[] = playlistIDs.filter((item) => item !== tgt);
                     set(playlistIDsState, newOne);
-                    reset(playlistItemsState(tgt));
+                    reset(playlistItemStateFamily(tgt));
                     reset(playlistInfoStateFamily(tgt));
                 }
             } break;
             case UPDATE: {
                 if (!action.payload.info || !action.payload.info.id) return;
                 const tgt: string = action.payload.info.id;
-                const result = await updatePlaylist(action.payload.info, action.payload.items);
+                const result = await updatePlaylist(action.payload);
                 if (result) {
                     set(playlistInfoStateFamily(tgt), action.payload.info);
-                    set(playlistItemsState(tgt), action.payload.items);
+                    set(playlistItemStateFamily(tgt), action.payload.items);
                 }
             } break;
             case APPEND: {
                 if (!action.payload.info || !action.payload.info.id || !action.payload.items) return;
                 const tgt: string = action.payload.info.id;
-                const playlistItems: MusicInfo[] = await snapshot.getPromise(playlistItemsState(tgt));
+                const playlistItems: MusicInfo[] = await snapshot.getPromise(playlistItemStateFamily(tgt));
                 const newList = playlistItems.concat(action.payload.items);
-                const result = await updatePlaylist(action.payload.info, newList);
+                const result = await updatePlaylist({info:action.payload.info, items:newList});
                 if (result) {
-                    set(playlistItemsState(tgt), newList);
+                    set(playlistItemStateFamily(tgt), newList);
                 }
             } break;
         }
@@ -95,7 +95,7 @@ export const playlistInfosState = selector<PlaylistInfo[]>({
     },
 })
 
-export const playlistItemsState = atomFamily<MusicInfo[], string>({
+export const playlistItemStateFamily = atomFamily<MusicInfo[], string>({
     key: "playlistItems",
     default: async (id): Promise<MusicInfo[]> => {
         try {
@@ -113,28 +113,38 @@ export const musicListState = atom<MusicInfo[]>({
     default: []
 })
 
-//리코일 콜백으로 정보와 아이템을 아우르는 수정하는 것을 만든다.
 export const useMusicListManager = function () {
     //create, delete, update
     return useRecoilCallback(({ set, reset, snapshot }) => async (action: MusicListAction) => {
-        const { SET, APPEND_PLAYLIST, APPEND_ITEMS, DELETE, CHANGE_ORDER, ADD_TO_NEXT } = MusicListActionType;
+        debugger;
         switch (action.type) {
-            case SET: {
-                const playlistItems = await snapshot.getPromise(playlistItemsState(action.payload));
+            case MusicListActionType.SET: {
+                const playlistItems = await snapshot.getPromise(playlistItemStateFamily(action.payload));
                 set(musicListState, playlistItems);
                 break;
             }
-            case APPEND_PLAYLIST: {
+            case MusicListActionType.APPEND_PLAYLIST: {
                 const musicList = await snapshot.getPromise(musicListState);
-                const playlistItems = await snapshot.getPromise(playlistItemsState(action.payload));
+                const playlistItems = await snapshot.getPromise(playlistItemStateFamily(action.payload));
                 set(musicListState, musicList.concat(playlistItems));
                 break;
             }
-            case APPEND_ITEMS: {
+            case MusicListActionType.ADD_TO_NEXT_PLAYLIST: {
+                const musicList = await snapshot.getPromise(musicListState);
+                const playlistItems = await snapshot.getPromise(playlistItemStateFamily(action.payload));
+                const curIdx = await snapshot.getPromise(curMusicIdxState);
+                set(musicListState, musicList.length > 0 ? [
+                    ...musicList.slice(0, curIdx + 1),
+                    ...playlistItems,
+                    ...musicList.slice(curIdx + 1)
+                ] : action.payload);
+                break;
+            }
+            case MusicListActionType.APPEND_ITEMS: {
                 const musicList = await snapshot.getPromise(musicListState);
                 set(musicListState, musicList.concat(action.payload));
             } break;
-            case ADD_TO_NEXT:
+            case MusicListActionType.ADD_TO_NEXT:
                 const musicList = await snapshot.getPromise(musicListState);
                 const curIdx = await snapshot.getPromise(curMusicIdxState);
                 set(musicListState, musicList.length > 0 ? [
@@ -143,7 +153,7 @@ export const useMusicListManager = function () {
                     ...musicList.slice(curIdx + 1)
                 ] : action.payload);
                 break;
-            case DELETE: {
+            case MusicListActionType.DELETE: {
                 const curIdx = await snapshot.getPromise(curMusicIdxState);
                 const tgtInfos:MusicInfo[] = action.payload;
                 let list = (await snapshot.getPromise(musicListState)).slice();
@@ -169,7 +179,7 @@ export const useMusicListManager = function () {
                 set(musicListState, list);
                 break;
             }
-            case CHANGE_ORDER: {
+            case MusicListActionType.CHANGE_ORDER: {
                 const list = await snapshot.getPromise(musicListState);
                 const curIdx = await snapshot.getPromise(curMusicIdxState);
                 const { to, from } = action.payload;

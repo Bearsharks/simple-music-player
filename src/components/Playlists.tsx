@@ -5,7 +5,7 @@ import styles from './Playlists.module.scss';
 export interface PlaylistsProps {
     playlistInfos: PlaylistInfo[],
     playPlaylist: (id: string) => void,
-    openOptionsSelector: (e: React.MouseEvent<HTMLElement>) => void
+    openOptionsSelector: (e: React.MouseEvent<HTMLElement>, playlistID:string) => void
 }
 export default function Playlists(props: PlaylistsProps) {
     return (
@@ -20,7 +20,7 @@ export default function Playlists(props: PlaylistsProps) {
                             onClick={() => props.playPlaylist(el.id)}
                         > 재생 | </div>
                         {el.name}
-                        <button onClick={props.openOptionsSelector}>::</button>
+                        <button onClick={(e)=>{props.openOptionsSelector(e,el.id)}}>::</button>
                     </li>)
             } 
             </ul>

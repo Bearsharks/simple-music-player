@@ -39,16 +39,19 @@ export async function createPlaylist(info: PlaylistInfo, items: MusicInfo[]): Pr
     return data;
 }
 export async function deletePlaylist(id: string): Promise<boolean> {
-    return true;
+    const res = await fetch(`${process.env.REACT_APP_API_URL}/playlist/${id}`, {
+        method: 'DELETE',
+        credentials: 'include',
+    });
+    const data: string = await res.text();
+    return data === 'true';
 }
-export async function updatePlaylist(info: PlaylistInfo, items: MusicInfo[]): Promise<boolean> {
-    const body = {
-        info, items
-    }
-    const res = await fetch(`${process.env.REACT_APP_API_URL}/playlist/${info.id}`, {
+export async function updatePlaylist(playlist: {info:PlaylistInfo, items?:MusicInfo[]}): Promise<boolean> {
+
+    const res = await fetch(`${process.env.REACT_APP_API_URL}/playlist/${playlist.info.id}`, {
         method: 'PATCH',
         credentials: 'include',
-        body: JSON.stringify(body),
+        body: JSON.stringify(playlist),
         headers: {
             'Content-Type': 'application/json',
         },
@@ -56,7 +59,6 @@ export async function updatePlaylist(info: PlaylistInfo, items: MusicInfo[]): Pr
     const data: string = await res.text();
     return data === 'true';
 }
-
 export async function getToken() {
     const res = await fetch(`${process.env.REACT_APP_API_URL}/token`, {
         credentials: 'include',

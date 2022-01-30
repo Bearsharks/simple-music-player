@@ -5,6 +5,7 @@ import {  PlaylistAction, PlaylistActionType, PlaylistInfo } from "../refs/const
 export interface FormItem {
     id: string,
     name: string,
+    value?: string
 }
 
 export const FormPopupOpenState = atom<boolean>({
@@ -39,7 +40,8 @@ export interface FormPopupData {
 }
 
 export enum FormKind {
-    CreatePlaylist, YoutubeLink, YoutubePlaylist, SelectPlaylist, AppendPlaylist
+    CreatePlaylist, YoutubeLink, YoutubePlaylist, SelectPlaylist, AppendPlaylist,
+    UpdatePlaylist
 }
 export function getFormInitData(formKind: FormKind, onSubmitHandler: (data: unknown) => void): FormPopupData {
     return {
@@ -104,6 +106,35 @@ export const useFormPopupManager = function () {
                         set(FormPopupOpenState, false);
                     },
                     kind: FormKind.AppendPlaylist
+                }
+                set(FormPopupState, popupData);
+                set(FormPopupOpenState, true);
+            } break;
+            case FormKind.UpdatePlaylist: {
+                if(typeof data !== "string"){
+                    throw "playlist id is not string";
+                }
+                const playlistInfo = await snapshot.getPromise(playlistInfoStateFamily(data));
+                const popupData: FormPopupData = {
+                    items: [
+                        { id: "name", name: "이름", value: playlistInfo.name},
+                        { id: "description", name: "설명", value: playlistInfo.description },
+                    ],
+                    submit: (data: unknown) => {
+                        const playListInfo: PlaylistInfo = data as PlaylistInfo;
+                        if (playListInfo && playListInfo.name && playListInfo.description) {
+                            const updateAction: PlaylistAction = {
+                                type: PlaylistActionType.UPDATE,
+                                payload: {
+                                    info: playListInfo
+                                }
+                            }
+                            playlistManager(updateAction);
+                            set(FormPopupOpenState, false);
+                        }
+                    },
+                    kind: FormKind.UpdatePlaylist,
+                    data: playlistInfo
                 }
                 set(FormPopupState, popupData);
                 set(FormPopupOpenState, true);
