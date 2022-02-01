@@ -9,8 +9,7 @@ function SignInPage() {
         e.preventDefault();
         const loginURL = `${process.env.REACT_APP_API_URL}/login?staySignedIn=${inputRef.current.checked}`;
         fetch(loginURL, {
-            credentials: 'include',
-            cache: 'no-cache'
+            credentials: 'include'
         }).then(res => {
             return res.text();
         }).then((url) => {

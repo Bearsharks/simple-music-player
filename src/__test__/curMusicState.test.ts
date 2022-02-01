@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { renderHook, act } from '@testing-library/react-hooks';
 import { curMusicInfoState, useCurMusicManager, useMusicListManager, musicListState, curMusicIdxState } from '../recoilStates/atoms/playlistAtoms'
-import { MusicInfoAction, MusicInfoActionType, MusicInfo_tmp as MusicInfo } from '../refs/constants'
+import { MusicInfoAction, MusicInfoActionType, MusicInfo } from '../refs/constants'
 import { RecoilRoot, useRecoilCallback } from 'recoil';
 
 describe('current music info', () => {

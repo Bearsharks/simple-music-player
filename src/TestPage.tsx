@@ -1,98 +1,45 @@
 import './Test.scss';
-import { useRecoilValue } from "recoil";
-import { useCurMusicManager, useMusicListManager, usePlaylistManager, playlistIDsState, musicListState } from "./recoilStates/atoms/playlistAtoms";
-import FormBox from './components/FormBox';
-import { useState } from 'react';
-import { MusicListAction, MusicListActionType, PlaylistAction, PlaylistActionType, MusicInfo_tmp as MusicInfo } from './refs/constants';
+import PlaylistsRecoil from './PlaylistsRecoil'
+import FormPopup from './FormPopup';
+import OptionsSelectorPopupRecoil from './OptionsSelectorPopupRecoil';
+import SearchBarRecoil from './SearchBarRecoil';
+import MusicPlayer from './MusicPlayer';
+import { useNavigate } from 'react-router-dom';
 function TestPage() {
-    const musicList = useRecoilValue(musicListState);
-    const ids = useRecoilValue(playlistIDsState);
-    const [selectedPlaylist, setPlaylist] = useState("");
-    const playlistManager = usePlaylistManager();
-    const curMusicInfo = useCurMusicManager();
-    const musicListManager = useMusicListManager();
+    const navigate = useNavigate();
+    //
+    //1
+    /**todo
+     * 
+     * 2. 검색바를 통해 음악 목록을 추가할수 있다.
+     * 2.1 추가시 팝업창을 띄우고 다음으로 재생하거나 마지막에 추가를 선택할수 있는 옵션선택팝업을 띄운다
+     * 2.2.선택하면 그 동작대로 현재 재생목록에 추가한다.
+     * 
+     * 3. 현재재생목록에서 현재 재생목록을 전체를 저장 할 수 있다. 팝업으로 정보를 전달한다.
+     * 3.1. 음악에서 생성버튼을 누르면 그 음악만을 포함해서 재생목록을 만들 수 있다
+     * 3.2. 재생목록생성버튼을 누르면 팝업으로 빈 재생목록, 나의 유튜브보관함에서 가져오기, 유튜브 링크로 가져오기중 선택할수있다.
 
-    const selectPlaylist: React.MouseEventHandler<HTMLDivElement> = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-        e.stopPropagation();
-        const tgt: any = e.target;
-        setPlaylist(tgt.firstChild.textContent);
+     */
+    const logoutBtnClicked = () => {
+        const logoutURL = `${process.env.REACT_APP_API_URL}/logout`;
+        fetch(logoutURL, {
+            credentials: 'include',
+            cache: 'no-cache'
+        }).then(() => {
+            navigate('/login');
+        }).catch((err) => {
+            console.log(err);
+        });
     }
-    const addItems: React.MouseEventHandler<HTMLButtonElement> = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-        e.stopPropagation();
-        e.preventDefault();
-
-        const action: PlaylistAction = {
-            type: PlaylistActionType.UPDATE,
-            payload: {
-                info: {
-                    id: selectedPlaylist
-                },
-                items: [
-                    {
-                        videoID: "11",
-                        name: "노래1",
-                        query: selectedPlaylist
-                    },
-                    {
-                        videoID: "22",
-                        name: "노래2",
-                        query: selectedPlaylist
-                    }]
-            }
-        };
-        playlistManager(action);
-    }
-
-    const setMusiclist = (playlistid: string) => {
-        const action: MusicListAction = {
-            type: MusicListActionType.GET,
-            payload: playlistid
-        }
-        musicListManager(action);
-    }
-    const appendMusiclist = (playlistid: string) => {
-        const action: MusicListAction = {
-            type: MusicListActionType.APPEND_PLAYLIST,
-            payload: playlistid
-        }
-        musicListManager(action);
-    }
-    const createPlaylist = (form: HTMLFormElement) => {
-        const inputs = form.getElementsByTagName("input");
-        const info = {
-            name: inputs[0].value,
-            description: inputs[0].value
-        }
-        const createAction: PlaylistAction = {
-            type: PlaylistActionType.CREATE,
-            payload: {
-                info: info,
-                items: []
-            }
-        }
-        playlistManager(createAction);
-    }
-
     return (
-        <div>테스트 페이지입니다.
-            <button onClick={addItems}>기본추가</button>
-            <div className="playlistids"
-                onClick={selectPlaylist}
-            >{
-                    ids.map((el: string) => <div key={el}>
-                        {el}
-                        <button onClick={() => setMusiclist(el)}>재생</button>
-                        <button onClick={() => appendMusiclist(el)}>추가</button>
-                    </div>)
-                }
-            </div>
-            <div>
-                <FormBox submit={createPlaylist}></FormBox>
-            </div>
-            <div className="musiclists">{
-                musicList.map((el: MusicInfo, idx: number) => <div key={idx}>{JSON.stringify(el)}</div>)
-            }
-            </div>
+        <div>
+            <SearchBarRecoil></SearchBarRecoil>
+            <button onClick={logoutBtnClicked}>로그아웃</button><br />
+            테스트 페이지입니다.
+            <FormPopup></FormPopup>
+            <OptionsSelectorPopupRecoil />
+            <PlaylistsRecoil></PlaylistsRecoil>
+            <MusicPlayer></MusicPlayer>
         </div>
     );
 }

@@ -8,12 +8,11 @@ import Login from './LoginPage';
 //import Main from './Main';
 import Main from './TestPage';
 
-import Spinner from './Spinner';
+import Spinner from './components/Spinner';
 import { Suspense } from 'react';
 function App() {
     return (
         <BrowserRouter basename='/simple-music-player'>
-
             <Routes>
                 <Route path="/main" element={<Suspense fallback={<Spinner></Spinner>}><Main /></Suspense>}></Route>
                 <Route path="/login" element={<Login />}></Route>

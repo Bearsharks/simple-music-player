@@ -1,8 +1,8 @@
 import { useEffect, useState, useRef } from "react";
 import { useRecoilState } from "recoil";
-import { curMusicInfoState } from "./recoilStates/atoms/musicListStates";
-import { INVALID_MUSIC_INFO, DEFAULT_PLAYLIST_NAME, CUR_PLAYLIST_INDICATER } from "./refs/constants";
-import storeManager from "./refs/storeStateManager";
+import { curMusicInfoState } from "../recoilStates/atoms/musicListStates";
+import { INVALID_MUSIC_INFO, DEFAULT_PLAYLIST_NAME, CUR_PLAYLIST_INDICATER } from "../refs/constants";
+import storeManager from "../refs/storeStateManager";
 
 export default function Playlists() {
     const [playlists, setPlaylists] = useState([DEFAULT_PLAYLIST_NAME]);
