@@ -1,3 +1,5 @@
+import { getToken } from "./api";
+
 class MusicInfo {
     videoId: string;
     title: string;
@@ -41,10 +43,19 @@ function toDataObject(data: any, type: string): MusicInfo {
 }
 
 export default async function youtubeSearch(value: string, type: string, pageToken?: string): Promise<MusicInfo[]> {
+    if (!sessionStorage.getItem("access_token")) {
+        try {
+            const token = await getToken();
+            sessionStorage.setItem("access_token", token);
+        } catch (e) {
+            console.error(e);
+            return [];
+        }
+    }
     let params: any;
     if (type === 'list') {
         params = {
-            key: localStorage.getItem("youtubeKey"),
+            access_token: sessionStorage.getItem("access_token"),
             part: `snippet`,
             playlistId: value,
             maxResults: 50,
@@ -53,14 +64,14 @@ export default async function youtubeSearch(value: string, type: string, pageTok
         if (pageToken) params.pageToken = pageToken;
     } else if (type === 'music') {
         params = {
-            key: localStorage.getItem("youtubeKey"),
+            access_token: sessionStorage.getItem("access_token"),
             part: `snippet`,
             id: value,
             fields: `items(id,snippet(title,description))`
         };
     } else {
         params = {
-            key: localStorage.getItem("youtubeKey"),
+            access_token: sessionStorage.getItem("access_token"),
             part: `snippet`,
             maxResults: 5,
             type: `video`,
@@ -69,7 +80,6 @@ export default async function youtubeSearch(value: string, type: string, pageTok
             fields: `items(id,snippet(title,description))`
         }
     }
-
     let query: string = Object.keys(params).map(k => encodeURIComponent(k) + '=' + encodeURIComponent(params[k])).join('&');
     const getUrl = (type: string, query: string) => {
         let path = type === 'list' ? 'playlistItems' : (type === 'music') ? 'videos' : 'search';
@@ -86,7 +96,12 @@ export default async function youtubeSearch(value: string, type: string, pageTok
             result = result.concat(await youtubeSearch(value, type, data.nextPageToken));
         }
         return result;
-    } else {
+    } else if (res.status === 403 || res.status === 401) {
+        //유튜브 읽기 권한이 없다면 무한루프가 발생하기 때문에 없다면 확인후 권한을 달라고 하자
+        sessionStorage.setItem("access_token", "");
+        youtubeSearch(value, type, pageToken ? pageToken : undefined);
+    }
+    else {
         alert('잘못된 키이거나 해당키의 api 할당량을 초과했습니다.');
     }
     throw new Error('request fail');
