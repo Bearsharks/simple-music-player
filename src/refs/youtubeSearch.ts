@@ -1,48 +1,34 @@
 import { getToken } from "./api";
+import { MusicInfo } from "./constants";
 
-class MusicInfo {
-    videoId: string;
-    title: string;
-    description: string;
-    thumbnail: string;
-    type: string;
-
-    constructor(videoId: string, title: string, description: string, type: string) {
-        // 클래스 프로퍼티수에 값을 할당
-        this.videoId = videoId;
-        this.title = title;
-        this.description = description;
-        this.thumbnail = `https://i.ytimg.com/vi/${this.videoId}/default.jpg`;
-        this.type = type;
-    }
-};
-
-function toDataObject(data: any, type: string): MusicInfo {
-    if (type === "list") {
-        return new MusicInfo(
-            data.snippet.resourceId.videoId,
-            data.snippet.title,
-            data.snippet.description,
-            type
-        );
-    } else if (type === "music") {
-        return new MusicInfo(
-            data.id,
-            data.snippet.title,
-            data.snippet.description,
-            type
-        );
+function toMusicInfo(data: any, type: SearchType): MusicInfo {
+    if (type === SearchType.List) {
+        return {
+            videoID : data.snippet.resourceId.videoId,
+            name : data.snippet.title,
+            //data.snippet.description,
+            query : "",
+        }
+    } else if (type === SearchType.Music) {
+        return{
+            videoID : data.id,
+            name : data.snippet.title,
+            //data.snippet.description,
+            query : "",
+        };
     } else {
-        return new MusicInfo(
-            data.id.videoId,
-            data.snippet.title,
-            data.snippet.description,
-            type
-        );
+        return {
+            videoID : data.id.videoId,
+            name : data.snippet.title,
+            // data.snippet.description,
+            query : "",
+        };
     }
 }
-
-export default async function youtubeSearch(value: string, type: string, pageToken?: string): Promise<MusicInfo[]> {
+export enum SearchType{
+    List, Music, Search
+}
+export default async function youtubeSearch(value: string, type: SearchType, pageToken?: string): Promise<MusicInfo[]> {
     if (!sessionStorage.getItem("access_token")) {
         try {
             const token = await getToken();
@@ -53,7 +39,7 @@ export default async function youtubeSearch(value: string, type: string, pageTok
         }
     }
     let params: any;
-    if (type === 'list') {
+    if (type === SearchType.List) {
         params = {
             access_token: sessionStorage.getItem("access_token"),
             part: `snippet`,
@@ -62,14 +48,14 @@ export default async function youtubeSearch(value: string, type: string, pageTok
             fields: `nextPageToken,pageInfo,items(snippet(title,description,resourceId))`
         };
         if (pageToken) params.pageToken = pageToken;
-    } else if (type === 'music') {
+    } else if (type === SearchType.Music) {
         params = {
             access_token: sessionStorage.getItem("access_token"),
             part: `snippet`,
             id: value,
             fields: `items(id,snippet(title,description))`
         };
-    } else {
+    } else if (type === SearchType.Search) {
         params = {
             access_token: sessionStorage.getItem("access_token"),
             part: `snippet`,
@@ -81,8 +67,8 @@ export default async function youtubeSearch(value: string, type: string, pageTok
         }
     }
     let query: string = Object.keys(params).map(k => encodeURIComponent(k) + '=' + encodeURIComponent(params[k])).join('&');
-    const getUrl = (type: string, query: string) => {
-        let path = type === 'list' ? 'playlistItems' : (type === 'music') ? 'videos' : 'search';
+    const getUrl = (type: SearchType, query: string) => {
+        let path = type === SearchType.List ? 'playlistItems' : (type === SearchType.Music) ? 'videos' : 'search';
         return `https://www.googleapis.com/youtube/v3/${path}?${query}`;
     }
     let res = await fetch(getUrl(type, query), { method: 'GET' });
@@ -90,9 +76,9 @@ export default async function youtubeSearch(value: string, type: string, pageTok
         const data = await res.json();
         let result = [];
         for (let item of data.items) {
-            result.push(toDataObject(item, type));
+            result.push(toMusicInfo(item, type));
         }
-        if (type === "list" && data.nextPageToken) {
+        if (type === SearchType.List && data.nextPageToken) {
             result = result.concat(await youtubeSearch(value, type, data.nextPageToken));
         }
         return result;

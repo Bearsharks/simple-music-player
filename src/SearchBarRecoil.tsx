@@ -3,7 +3,7 @@ import SearchBar from './components/SearchBar'
 import { OptionSelectorInfo, OptionSelectorState, OptionSelectorOpenState } from './recoilStates/PopupStates'
 import { useMusicListManager } from './recoilStates/atoms/playlistAtoms';
 import { MusicInfo, MusicListActionType } from './refs/constants';
-import youtubeSearch from './refs/youtubeSearch';
+import youtubeSearch, { SearchType } from './refs/youtubeSearch';
 function SearchBarRecoil() {
     const setPopupOpen = useSetRecoilState(OptionSelectorOpenState);
     const setPopupInfo = useSetRecoilState(OptionSelectorState);
@@ -22,14 +22,12 @@ function SearchBarRecoil() {
                     result[kind] = value;
                 }
                 if (result['list']) {
-                    const searchResult: any = await youtubeSearch(result['list'], 'list');
-                    const musicInfos: MusicInfo[] = searchResult.map((el: any): MusicInfo => { return { name: el.title, videoID: el.videoId, query: "" } });
-                    newMusicList.push(...musicInfos);
+                    const searchResult: MusicInfo[] = await youtubeSearch(result['list'], SearchType.List);
+                    newMusicList.push(...searchResult);
                 } else if (result['v']) {
                     //result.push(...await this.appendMusic(g.id));
-                    const searchResult: any = await youtubeSearch(result['v'], 'music');
-                    const musicInfos: MusicInfo[] = searchResult.map((el: any): MusicInfo => { return { name: el.title, videoID: el.videoId, query: "" } });
-                    newMusicList.push(...musicInfos);
+                    const searchResult: MusicInfo[] = await youtubeSearch(result['v'], SearchType.Music);
+                    newMusicList.push(...searchResult);
                 } else {
                     console.log(`${i}번째 검색어 잘 못된 url`);
                 }
