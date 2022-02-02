@@ -75,9 +75,7 @@ function MusicPlayer() {
         setPopupInitData(initData)
         setPopupOpen(true);
     }
-    const createPlaylistByMusicList = (event: React.MouseEvent, items: MusicInfo[]) => {
-        formPopupManager(FormKind.AppendPlaylist, items);
-    }
+    
     const goNext = ()=>{
         curMusicManager({type: MusicInfoActionType.NEXT})
     }
@@ -109,8 +107,9 @@ function MusicPlayer() {
             <div className={`${styles['player-detail']} ${(!playerVisiblity) && styles['player-detail__hide']}`}>
                 <YoutubePlayer></YoutubePlayer>
                 <MusicList items={musicList}
-                    createPlaylistByMusicList={createPlaylistByMusicList}
-                    openOptionsPopup={openPopup} />
+                    addToPlaylist={addToPlaylist}
+                    openOptionsPopup={openPopup} 
+                    changeOrder={changeOrder}/>
             </div>            
         </div >
     )

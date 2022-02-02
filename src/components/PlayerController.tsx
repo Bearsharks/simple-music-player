@@ -5,7 +5,7 @@ import styles from './PlayerController.module.scss';
 
 export interface PlayerControllerProps {
     musicInfo: MusicInfo;
-    openOptionsPopup: (event: React.MouseEvent, musicInfo: MusicInfo) => void;
+    openOptionsPopup: (event: React.MouseEvent, musicInfo: MusicInfo[]) => void;
     isPlaying:boolean;
     goNext:()=>void;
     goPrev:()=>void;
