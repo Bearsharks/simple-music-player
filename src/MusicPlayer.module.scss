@@ -1,14 +1,17 @@
-.music-player{
-    border: 1px solid black;
-    height: 300px;
-}
 
+.wrapper{
+    height: 100vh;
+    display: flex;
+    align-items: flex-end;
+    position: fixed;
+    top: 0px;
+}
 .player-detail{
     z-index: 10;
-	transform: translateY(0px);
+    position: fixed;
 	transition: all 0.6s ease;
 }
-.player-detail__hide{
+.player-detail__hide{   
     transform: translateY(100%);
     visibility: hidden;
 	transition: all 0.6s ease;
