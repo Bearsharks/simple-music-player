@@ -24,29 +24,42 @@ function MusicPlayer() {
         playerVisiblity ? setPlayerVisiblity(false) : setPlayerVisiblity(true);
     }
 
-    const addToNextMusic = (musicInfo: MusicInfo) => {
+    const addToNextMusic = (musicInfos: MusicInfo[]) => {
         const action: MusicListAction = {
             type: MusicListActionType.ADD_TO_NEXT,
-            payload: [musicInfo]
+            payload: musicInfos
         }
         musicListManager(action);
     }
-    const appendMusic = (musicInfo: MusicInfo) => {
+    const appendMusic = (musicInfos: MusicInfo[]) => {
         const action: MusicListAction = {
             type: MusicListActionType.APPEND_ITEMS,
-            payload: [musicInfo]
+            payload: musicInfos
         }
         musicListManager(action);
     }
-    const appendToPlaylist = (musicInfo: MusicInfo) => {
-        //open playlist form popup <- 데이터로 [musicInfo] 를 넣어줌
+    const addToPlaylist = (items: MusicInfo[]) => {
+        formPopupManager(FormKind.AppendPlaylist, items);
     }
-    const openPopup = (event: React.MouseEvent, musicInfo: MusicInfo) => {
+    const changeOrder = (src:number,dst:number)=>{
+        musicListManager({
+            type:MusicListActionType.CHANGE_ORDER,
+            payload : { to:dst, from:src }
+        });
+    }
+    const deleteMusic = (items:MusicInfo[])=>{
+        const delAction:MusicListAction = {
+            type:MusicListActionType.DELETE,
+            payload:items
+        }
+        musicListManager(delAction);
+    }
+    const openPopup = (event: React.MouseEvent, musicInfos: MusicInfo[]) => {
         event.stopPropagation();
-        const onClickHandlerWrapper = (callback: (musicInfo: MusicInfo) => void) => {
-            return (musicInfo: unknown) => {
-                MusicInfoCheck(musicInfo) && callback(musicInfo);
-                setPopupOpen(false);
+        const onClickHandlerWrapper = (callback: (data: any) => void) => {
+            return (data: any) => {
+                callback(data);
+                setPopupOpen(false);                
             }
         }
         const initData: OptionSelectorInfo = {
@@ -54,10 +67,10 @@ function MusicPlayer() {
             items: [
                 { icon: "O", name: "다음 음악으로 재생", onClickHandler: onClickHandlerWrapper(addToNextMusic) },
                 { icon: "O", name: "목록에 추가", onClickHandler: onClickHandlerWrapper(appendMusic) },
-                { icon: "O", name: "재생목록에 추가", onClickHandler: onClickHandlerWrapper(appendToPlaylist) },
-                { icon: "O", name: "목록에서 삭제", onClickHandler: () => { } }
+                { icon: "O", name: "재생목록에 추가", onClickHandler: onClickHandlerWrapper(addToPlaylist) },
+                { icon: "O", name: "목록에서 삭제", onClickHandler: onClickHandlerWrapper(deleteMusic) }
             ],
-            data: musicInfo
+            data: musicInfos
         }
         setPopupInitData(initData)
         setPopupOpen(true);

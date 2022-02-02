@@ -15,7 +15,7 @@ export interface PlayerControllerProps {
 }
 function PlayerController(props: PlayerControllerProps) {
     const popupOpen = (event: React.MouseEvent) => {
-        props.openOptionsPopup(event, props.musicInfo);
+        props.openOptionsPopup(event, [props.musicInfo]);
     }
     return (
         <div className={styles[`wrapper`]} >

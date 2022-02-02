@@ -1,15 +1,12 @@
 import { atom, useRecoilCallback } from "recoil";
 import { Options } from "../components/OptionSelector";
-import { playlistIDsState, playlistInfosState, usePlaylistManager } from './atoms/playlistAtoms'
-import { MusicInfoCheck, PlaylistAction, PlaylistActionType, PlaylistInfo } from "../refs/constants";
+import {  playlistIDsState,  playlistInfoStateFamily, usePlaylistManager } from './atoms/playlistAtoms'
+import {  PlaylistAction, PlaylistActionType, PlaylistInfo } from "../refs/constants";
 export interface FormItem {
     id: string,
     name: string,
+    value?: string
 }
-
-
-
-
 
 export const FormPopupOpenState = atom<boolean>({
     key: "formPopupOpen",
@@ -43,10 +40,9 @@ export interface FormPopupData {
 }
 
 export enum FormKind {
-    CreatePlaylist, YoutubeLink, YoutubePlaylist, SelectPlaylist, AppendPlaylist
+    CreatePlaylist, YoutubeLink, YoutubePlaylist, SelectPlaylist, AppendPlaylist,
+    UpdatePlaylist
 }
-//리코일 콜백으로 정보와 아이템을 아우르는 수정하는 것을 만든다.
-
 export function getFormInitData(formKind: FormKind, onSubmitHandler: (data: unknown) => void): FormPopupData {
     return {
         items: [
@@ -90,7 +86,7 @@ export const useFormPopupManager = function () {
             case FormKind.AppendPlaylist: {
                 const playlistIDs: string[] = snapshot.getLoadable(playlistIDsState).contents;
                 const playlistInfos = await Promise.all(playlistIDs.map(async (id) => {
-                    return await snapshot.getPromise(playlistInfosState(id));
+                    return await snapshot.getPromise(playlistInfoStateFamily(id));
                 }));
                 const popupData: FormPopupData = {
                     items: playlistInfos,
@@ -110,6 +106,35 @@ export const useFormPopupManager = function () {
                         set(FormPopupOpenState, false);
                     },
                     kind: FormKind.AppendPlaylist
+                }
+                set(FormPopupState, popupData);
+                set(FormPopupOpenState, true);
+            } break;
+            case FormKind.UpdatePlaylist: {
+                if(typeof data !== "string"){
+                    throw "playlist id is not string";
+                }
+                const playlistInfo = await snapshot.getPromise(playlistInfoStateFamily(data));
+                const popupData: FormPopupData = {
+                    items: [
+                        { id: "name", name: "이름", value: playlistInfo.name},
+                        { id: "description", name: "설명", value: playlistInfo.description },
+                    ],
+                    submit: (data: unknown) => {
+                        const playListInfo: PlaylistInfo = data as PlaylistInfo;
+                        if (playListInfo && playListInfo.name && playListInfo.description) {
+                            const updateAction: PlaylistAction = {
+                                type: PlaylistActionType.UPDATE,
+                                payload: {
+                                    info: playListInfo
+                                }
+                            }
+                            playlistManager(updateAction);
+                            set(FormPopupOpenState, false);
+                        }
+                    },
+                    kind: FormKind.UpdatePlaylist,
+                    data: playlistInfo
                 }
                 set(FormPopupState, popupData);
                 set(FormPopupOpenState, true);
