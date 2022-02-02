@@ -1,12 +1,12 @@
-import Spinner from './components/Spinner';
+import Spinner from '../components/Spinner';
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from "react-router-dom";
 import Playlists from './Playlists';
-import MusicList from './MusicList/MusicList';
-import HamburgerBtn from './components/HamburgerBtn';
+import MusicList from '../MusicList/MusicList';
+import HamburgerBtn from '../components/HamburgerBtn';
 import { useSetRecoilState } from 'recoil';
-import { musicPlayState } from "./recoilStates/atoms/musicListStates";
-import { PLAYING, PAUSED } from './refs/constants';
+import { musicPlayState } from "../recoilStates/atoms/musicListStates";
+import { PLAYING, PAUSED } from '../refs/constants';
 
 function Main() {
 	const [isInited, setIsInited] = useState(false);

@@ -1,7 +1,7 @@
 import { atom, snapshot_UNSTABLE } from 'recoil'
 import { useState } from 'react'
 import { renderHook, act } from '@testing-library/react-hooks';
-import { playlistIDsState, usePlaylistManager, playlistInfosState, playlistItemsState } from '../recoilStates/atoms/playlistAtoms'
+import { playlistIDsState, usePlaylistManager, playlistInfoStateFamily, playlistItemStateFamily } from '../recoilStates/atoms/playlistAtoms'
 import { PlaylistInfo, PlaylistAction, PlaylistActionType, MusicInfo } from '../refs/constants'
 import { RecoilRoot, useRecoilValue, useRecoilCallback, useRecoilState } from 'recoil';
 
@@ -32,9 +32,9 @@ describe('playlist atom', () => {
             timeout: 2000
         });
         expect(result.current.ids.length).toBe(5);
-        const info = await result.current.getRecoilState(playlistInfosState, action.payload.info.id);
+        const info = await result.current.getRecoilState(playlistInfoStateFamily, action.payload.info.id);
         expect(info).toEqual(action.payload.info);
-        const items = await result.current.getRecoilState(playlistItemsState, action.payload.info.id);
+        const items = await result.current.getRecoilState(playlistItemStateFamily, action.payload.info.id);
         expect(items.length).toEqual(5);
     });
 
@@ -68,9 +68,9 @@ describe('playlist atom', () => {
             result.current.manager(action);
         })
         await waitForNextUpdate();
-        const info = await result.current.getRecoilState(playlistInfosState, action.payload.info.id);
+        const info = await result.current.getRecoilState(playlistInfoStateFamily, action.payload.info.id);
         expect(info).toEqual(action.payload.info);
-        const items = await result.current.getRecoilState(playlistItemsState, action.payload.info.id);
+        const items = await result.current.getRecoilState(playlistItemStateFamily, action.payload.info.id);
         expect(items).toEqual(action.payload.items);
     });
 });

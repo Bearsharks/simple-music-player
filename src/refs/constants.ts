@@ -8,7 +8,8 @@ export enum ListEleType {
 export interface MusicInfo {
     videoID: string,
     name: string,
-    query: string
+    query: string,
+    idx? : number
 }
 
 export function MusicInfoCheck(params: unknown): params is MusicInfo {
@@ -25,7 +26,7 @@ export interface MusicInfoAction {
 }
 
 export enum MusicListActionType {
-    GET, APPEND_PLAYLIST, APPEND_ITEMS, DELETE, CHANGE_ORDER, ADD_TO_NEXT
+    SET, APPEND_PLAYLIST, APPEND_ITEMS, DELETE, CHANGE_ORDER, ADD_TO_NEXT,ADD_TO_NEXT_PLAYLIST
 }
 export interface MusicListAction {
     type: MusicListActionType
