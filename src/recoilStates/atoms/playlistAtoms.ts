@@ -1,12 +1,16 @@
-import { atom, atomFamily, selector, useRecoilCallback } from 'recoil';
+import { atom, atomFamily, DefaultValue, selector, useRecoilCallback } from 'recoil';
 import { getPlaylistInfo, getPlaylistItems, getPlaylistInfos, updatePlaylist, deletePlaylist, createPlaylist } from '../../refs/api';
-import { INVALID_MUSIC_INFO, PlaylistAction, PlaylistActionType, MusicInfoAction, MusicInfoActionType, MusicListActionType, MusicListAction, PAUSED, PlaylistInfo, playerState, MusicInfo } from '../../refs/constants';
+import { INVALID_MUSIC_INFO, PlaylistAction, PlaylistActionType, MusicInfoAction, MusicInfoActionType, MusicListActionType, MusicListAction, PlaylistInfo, playerState, MusicInfo } from '../../refs/constants';
 
-export const musicPlayerState = atom({
+export const musicPlayerState = atom<playerState>({
     key: 'musicPlayerState',
-    default: playerState.PAUSED
+    default: playerState.ENDED
 });
 
+export const musicPlayerProgressState = atom<{duration:number, currentTime:number}>({
+    key:"musicPlayerProgress",
+    default :{duration:1, currentTime:0}
+})
 export const curMusicIdxState = atom({
     key: 'curMusicIdx',
     default: 0
@@ -141,7 +145,12 @@ export const useMusicListManager = function () {
             }
             case MusicListActionType.APPEND_ITEMS: {
                 const musicList = await snapshot.getPromise(musicListState);
+                
                 set(musicListState, musicList.concat(action.payload));
+                if(musicList.length === 0){
+                    set(curMusicIdxState,0);
+                }                
+
             } break;
             case MusicListActionType.ADD_TO_NEXT:
                 const musicList = await snapshot.getPromise(musicListState);
@@ -151,6 +160,9 @@ export const useMusicListManager = function () {
                     ...action.payload,
                     ...musicList.slice(curIdx + 1)
                 ] : action.payload);
+                if(musicList.length === 0){
+                    set(curMusicIdxState,0);
+                }
                 break;
             case MusicListActionType.DELETE: {
                 const curIdx = await snapshot.getPromise(curMusicIdxState);

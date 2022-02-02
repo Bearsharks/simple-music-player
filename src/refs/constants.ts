@@ -67,10 +67,12 @@ export const MUSIC_INFO = {
 export const getThumbnail = function (id: string): string {
     return `https://i.ytimg.com/vi/${id}/default.jpg`
 }
-export const PAUSED = "PAUSED";
-export const PLAYING = "PLAYING";
 
 export enum playerState {
-    PAUSED,
-    PLAYING
+    UNSTARTED=-1,
+    ENDED=0,
+    PLAYING=1,
+    PAUSED=2,
+    BUFFERING=3,
+    CUED=5
 }
