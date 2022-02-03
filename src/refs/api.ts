@@ -67,6 +67,8 @@ export async function getToken() {
     return await res.text();
 }
 
+
+
 // const save = new Promise((resolve) => {
 //     fetch('http://localhost:5001/simple-music-player-319201/asia-northeast3/main/playlists', {
 //         credentials: 'include',

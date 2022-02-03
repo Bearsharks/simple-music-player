@@ -1,6 +1,7 @@
 import React from "react";
 import ProgressBar from "../ProgressBar";
 import { MusicInfo } from "../refs/constants";
+import SoundController from "../SoundController";
 import styles from './PlayerController.module.scss';
 
 export interface PlayerControllerProps {
@@ -34,6 +35,7 @@ function PlayerController(props: PlayerControllerProps) {
                         </div>
                         <div onClick={props.goNext}>앞</div>
                         <div>{props.musicInfo.name}</div>
+                        <SoundController></SoundController>
                         <button onClick={popupOpen}>버튼</button>
                         <button onClick={props.togglePlayerVisiblity}>
                             {props.playerVisiblity ? `V` : `ㅅ`}

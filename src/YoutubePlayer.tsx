@@ -1,6 +1,6 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect,} from 'react';
 import { useRecoilValue, useSetRecoilState ,useRecoilState} from 'recoil';
-import { MusicInfoActionType, playerState } from './refs/constants';
+import { MusicInfoActionType, PlayerState } from './refs/constants';
 import {ytPlayerInitedState} from './recoilStates/atoms/ytplayerStates'
 import youtubeSearch, { SearchType } from './refs/youtubeSearch';
 import { musicPlayerState, useCurMusicManager, useMusicListManager,curMusicInfoState, musicPlayerProgressState } from './recoilStates/atoms/playlistAtoms';
@@ -33,11 +33,11 @@ function YoutubePlayer() {
 								const progress= {duration:1, currentTime:0};
 								setProgress(progress);
 							} else if (event.data === (window as any).YT.PlayerState.PLAYING) {
-								setPlayState(playerState.PLAYING);
+								setPlayState(PlayerState.PLAYING);
 								const progress= {duration:(window as any).player.getDuration(), currentTime:(window as any).player.getCurrentTime()};
 								setProgress(progress);
 							} else if (event.data === (window as any).YT.PlayerState.PAUSED) {
-								setPlayState(playerState.PAUSED);							
+								setPlayState(PlayerState.PAUSED);							
 							}							
 						},
 						'onReady': () => setYTPlayerInited(true)
@@ -48,13 +48,16 @@ function YoutubePlayer() {
 	}, []);
     useEffect(()=>{
         if(!ytPlayerInited || (!curMusic.query && !curMusic.videoID)) return;
+		const player =(window as any).player;
+		if(player.getVideoData().video_id === curMusic.videoID && player.getPlayerState() !== PlayerState.ENDED ) return;
+
         if(curMusic.videoID){
-            (window as any).player.loadVideoById({ videoId: curMusic.videoID });
+            player.loadVideoById({ videoId: curMusic.videoID });
         }else{
             youtubeSearch(curMusic.query, SearchType.Search)
             .then(data => {
                 curMusicManager({
-                    type: MusicInfoActionType.SET,
+                    type: MusicInfoActionType.SET_INFO,
                     payload:data[0]
                 })
             }).catch((err) => {
