@@ -5,7 +5,7 @@ import { useState } from 'react'
 import { useRecoilValue, useSetRecoilState, useRecoilState } from 'recoil';
 import { FormKind, OptionSelectorInfo, OptionSelectorOpenState, OptionSelectorState, useFormPopupManager } from './recoilStates/PopupStates';
 import { curMusicInfoState, musicListState, musicPlayerState, useCurMusicManager, useMusicListManager, usePlaylistManager } from './recoilStates/atoms/playlistAtoms';
-import { MusicInfo, MusicInfoActionType, MusicInfoCheck, MusicListAction, MusicListActionType, playerState, PlaylistAction, PlaylistActionType } from './refs/constants';
+import { MusicInfo, MusicInfoActionType, MusicInfoCheck, MusicListAction, MusicListActionType, PlayerState, PlaylistAction, PlaylistActionType } from './refs/constants';
 import YoutubePlayer from './YoutubePlayer';
 
 function MusicPlayer() {
@@ -83,15 +83,21 @@ function MusicPlayer() {
         curMusicManager({type: MusicInfoActionType.PREV})
     }
     const togglePlayState = ()=>{
-        const nextState:playerState = playState === playerState.PLAYING ? 
-        playerState.PAUSED : playerState.PLAYING;
-        if(nextState === playerState.PLAYING){
+        const nextState:PlayerState = playState === PlayerState.PLAYING ? 
+        PlayerState.PAUSED : PlayerState.PLAYING;
+        if(nextState === PlayerState.PLAYING){
             (window as any).player.playVideo();
         }
         else{
             (window as any).player.pauseVideo();
         }
-    }       
+    }
+    const playMusic = (idx : number|undefined)=>{
+        curMusicManager({
+            type:MusicInfoActionType.SET_IDX,
+            payload:idx
+        });
+    }
     return (
         <div className={styles['wrapper']}>
             <PlayerController
@@ -99,7 +105,7 @@ function MusicPlayer() {
                 openOptionsPopup={openPopup}
                 playerVisiblity={playerVisiblity}
                 togglePlayerVisiblity={togglePlayerVisiblity}
-                isPlaying={playState === playerState.PLAYING}
+                isPlaying={playState === PlayerState.PLAYING}
                 goNext={goNext}
                 goPrev={goPrev}
                 togglePlayState={togglePlayState}
@@ -108,6 +114,7 @@ function MusicPlayer() {
                 <YoutubePlayer></YoutubePlayer>
                 <MusicList items={musicList}
                     addToPlaylist={addToPlaylist}
+                    playMusic={playMusic}
                     openOptionsPopup={openPopup} 
                     changeOrder={changeOrder}/>
             </div>            

@@ -9,7 +9,7 @@ export interface MusicInfo {
     videoID: string,
     name: string,
     query: string,
-    idx? : number
+    idx?:number
 }
 
 export function MusicInfoCheck(params: unknown): params is MusicInfo {
@@ -18,7 +18,7 @@ export function MusicInfoCheck(params: unknown): params is MusicInfo {
 }
 
 export enum MusicInfoActionType {
-    NEXT, PREV, SET
+    NEXT, PREV, SET_IDX,SET_INFO
 }
 export interface MusicInfoAction {
     type: MusicInfoActionType
@@ -68,7 +68,7 @@ export const getThumbnail = function (id: string): string {
     return `https://i.ytimg.com/vi/${id}/default.jpg`
 }
 
-export enum playerState {
+export enum PlayerState {
     UNSTARTED=-1,
     ENDED=0,
     PLAYING=1,

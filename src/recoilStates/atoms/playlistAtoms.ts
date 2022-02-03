@@ -1,10 +1,11 @@
-import { atom, atomFamily, DefaultValue, selector, useRecoilCallback } from 'recoil';
+import { atom, atomFamily, selector, useRecoilCallback, useRecoilTransaction_UNSTABLE } from 'recoil';
 import { getPlaylistInfo, getPlaylistItems, getPlaylistInfos, updatePlaylist, deletePlaylist, createPlaylist } from '../../refs/api';
-import { INVALID_MUSIC_INFO, PlaylistAction, PlaylistActionType, MusicInfoAction, MusicInfoActionType, MusicListActionType, MusicListAction, PlaylistInfo, playerState, MusicInfo } from '../../refs/constants';
+import {  PlaylistAction, PlaylistActionType, MusicInfoAction, MusicInfoActionType, MusicListActionType, MusicListAction, PlaylistInfo, PlayerState, MusicInfo } from '../../refs/constants';
 
-export const musicPlayerState = atom<playerState>({
+
+export const musicPlayerState = atom<PlayerState>({
     key: 'musicPlayerState',
-    default: playerState.ENDED
+    default: PlayerState.ENDED
 });
 
 export const musicPlayerProgressState = atom<{duration:number, currentTime:number}>({
@@ -117,7 +118,12 @@ export const musicListState = atom<MusicInfo[]>({
     default: []
 })
 
+  
 export const useMusicListManager = function () {
+    const setListCurIdx = useRecoilTransaction_UNSTABLE(({set}) => (list: MusicInfo[], idx:number) => {
+        set(musicListState, list);
+        set(curMusicIdxState, idx);
+    });
     //create, delete, update
     return useRecoilCallback(({ set, reset, snapshot }) => async (action: MusicListAction) => {
         switch (action.type) {
@@ -174,7 +180,7 @@ export const useMusicListManager = function () {
                     const idx = tgtInfos[i].idx;
                     if(idx !== undefined){
                         list[idx] = {} as MusicInfo;
-                        if(idx === curIdx) curMusicDeleted = false;
+                        if(idx === curIdx) curMusicDeleted = true;
                     }else{
                         throw "목록에서 삭제대상의 idx가 없음"
                     }
@@ -199,17 +205,19 @@ export const useMusicListManager = function () {
                 const result = Array.from(list);
                 const [removed] = result.splice(from, 1);
                 result.splice(to, 0, removed);
-                set(musicListState, result);
+                
 
                 const isCurMusic = curIdx === from;
                 const isGoToNextFromPrev = curIdx > from && curIdx <= to;
                 const isGoToPrevFromNext = curIdx < from && curIdx >= to;
                 if (isCurMusic)
-                    set(curMusicIdxState, to);
+                    setListCurIdx(result,to)
                 else if (isGoToNextFromPrev && curIdx - 1 >= 0)
-                    set(curMusicIdxState, curIdx - 1);
+                setListCurIdx(result,curIdx - 1)
                 else if (isGoToPrevFromNext && curIdx + 1 < list.length)
-                    set(curMusicIdxState, curIdx + 1);
+                setListCurIdx(result,curIdx + 1)
+                else 
+                    set(musicListState, result);
                 break;
             }
             default:
@@ -226,7 +234,7 @@ export const useCurMusicManager = function () {
     return useRecoilCallback(({ set, snapshot }) => async (action: MusicInfoAction) => {
         const list: MusicInfo[] = snapshot.getLoadable(musicListState).contents;
         const idx: number = snapshot.getLoadable(curMusicIdxState).contents;
-        const { NEXT, PREV, SET } = MusicInfoActionType;
+        const { NEXT, PREV, SET_INFO, SET_IDX} = MusicInfoActionType;
         switch (action.type) {
             case NEXT:
                 if (idx + 1 < list.length) set(curMusicIdxState, idx + 1);
@@ -234,7 +242,12 @@ export const useCurMusicManager = function () {
             case PREV:
                 if (idx - 1 >= 0) set(curMusicIdxState, idx - 1);
                 break;
-            case SET:
+            case SET_IDX :      
+                if(typeof action.payload !== 'number') break;
+                const next:number =      action.payload ;             
+                if(0 <= next && next < list.length) set(curMusicIdxState, action.payload);
+                break;
+            case SET_INFO:
                 const { name, videoID, query } = action.payload;
                 const musicInfo = {} as MusicInfo;
                 musicInfo.name = name ? name : list[idx].name;
