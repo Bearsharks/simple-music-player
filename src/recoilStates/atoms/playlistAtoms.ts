@@ -1,6 +1,7 @@
-import { atom, atomFamily, selector, useRecoilCallback, useRecoilTransaction_UNSTABLE } from 'recoil';
+import { atom, atomFamily, selector, selectorFamily, useRecoilCallback, useRecoilTransaction_UNSTABLE } from 'recoil';
 import { getPlaylistInfo, getPlaylistItems, getPlaylistInfos, updatePlaylist, deletePlaylist, createPlaylist } from '../../refs/api';
-import {  PlaylistAction, PlaylistActionType, MusicInfoAction, MusicInfoActionType, MusicListActionType, MusicListAction, PlaylistInfo, PlayerState, MusicInfo } from '../../refs/constants';
+import { PlaylistAction, PlaylistActionType, MusicInfoAction, MusicInfoActionType, MusicListActionType, MusicListAction, PlaylistInfo, PlayerState, MusicInfo, MusicInfoItem } from '../../refs/constants';
+import keyGenerator from '../../refs/keyGenerator';
 
 
 export const musicPlayerState = atom<PlayerState>({
@@ -8,9 +9,9 @@ export const musicPlayerState = atom<PlayerState>({
     default: PlayerState.ENDED
 });
 
-export const musicPlayerProgressState = atom<{duration:number, currentTime:number}>({
-    key:"musicPlayerProgress",
-    default :{duration:1, currentTime:0}
+export const musicPlayerProgressState = atom<{ duration: number, currentTime: number }>({
+    key: "musicPlayerProgress",
+    default: { duration: 1, currentTime: 0 }
 })
 export const curMusicIdxState = atom({
     key: 'curMusicIdx',
@@ -36,7 +37,7 @@ export const playlistIDsState = atom<string[]>({
 export const usePlaylistManager = function () {
     //create, delete, update
     return useRecoilCallback(({ set, reset, snapshot }) => async (action: PlaylistAction) => {
-        const { CREATE, DELETE, UPDATE, APPEND} = PlaylistActionType;
+        const { CREATE, DELETE, UPDATE, APPEND } = PlaylistActionType;
         switch (action.type) {
             case CREATE: {
                 const playlistIDs: string[] = snapshot.getLoadable(playlistIDsState).contents;
@@ -68,9 +69,9 @@ export const usePlaylistManager = function () {
             case APPEND: {
                 if (!action.payload.info || !action.payload.info.id || !action.payload.items) return;
                 const tgt: string = action.payload.info.id;
-                const playlistItems: MusicInfo[] = await snapshot.getPromise(playlistItemStateFamily(tgt));
+                const playlistItems: MusicInfoItem[] = await snapshot.getPromise(playlistItemStateFamily(tgt));
                 const newList = playlistItems.concat(action.payload.items);
-                const result = await updatePlaylist({info:action.payload.info, items:newList});
+                const result = await updatePlaylist({ info: action.payload.info, items: newList });
                 if (result) {
                     set(playlistItemStateFamily(tgt), newList);
                 }
@@ -80,7 +81,7 @@ export const usePlaylistManager = function () {
 }
 
 
-export const playlistInfoStateFamily= atomFamily<PlaylistInfo, string>({
+export const playlistInfoStateFamily = atomFamily<PlaylistInfo, string>({
     key: 'playlistInfoFamily',
     default: async (id): Promise<PlaylistInfo> => {
         try {
@@ -92,35 +93,42 @@ export const playlistInfoStateFamily= atomFamily<PlaylistInfo, string>({
     },
 });
 export const playlistInfosState = selector<PlaylistInfo[]>({
-    key:'playlistInfos',
-    get: async ({get}):Promise<PlaylistInfo[]>=> {
+    key: 'playlistInfos',
+    get: async ({ get }): Promise<PlaylistInfo[]> => {
         const playlistIDs: string[] = get(playlistIDsState);
-        const playlistInfos = playlistIDs.map((id) =>get(playlistInfoStateFamily(id)));
+        const playlistInfos = playlistIDs.map((id) => get(playlistInfoStateFamily(id)));
         return playlistInfos;
     },
 })
 
-export const playlistItemStateFamily = atomFamily<MusicInfo[], string>({
+const createMusicItem = (musicInfos: MusicInfo[]): MusicInfoItem[] => {
+    const keys = keyGenerator(musicInfos.length);
+    return musicInfos.map((info, idx): MusicInfoItem => {
+        return { ...info, key: keys[idx] }
+    });
+}
+export const playlistItemStateFamily = atomFamily<MusicInfoItem[], string>({
     key: "playlistItems",
-    default: async (id): Promise<MusicInfo[]> => {
+    default: async (id): Promise<MusicInfoItem[]> => {
         try {
-            return await getPlaylistItems(id);
+            const musicInfos: MusicInfo[] = await getPlaylistItems(id);
+            return createMusicItem(musicInfos);
         } catch (err) {
             console.error(err);
         }
-        return {} as MusicInfo[];
+        return {} as MusicInfoItem[];
     },
 });
 
 //훅으로 셔플일때 정상일때 처리를 하게
-export const musicListState = atom<MusicInfo[]>({
+export const musicListState = atom<MusicInfoItem[]>({
     key: "musicList_",
     default: []
 })
 
-  
+
 export const useMusicListManager = function () {
-    const setListCurIdx = useRecoilTransaction_UNSTABLE(({set}) => (list: MusicInfo[], idx:number) => {
+    const setListCurIdx = useRecoilTransaction_UNSTABLE(({ set }) => (list: MusicInfoItem[], idx: number) => {
         set(musicListState, list);
         set(curMusicIdxState, idx);
     });
@@ -129,10 +137,11 @@ export const useMusicListManager = function () {
         switch (action.type) {
             case MusicListActionType.SET: {
                 const playlistItems = await snapshot.getPromise(playlistItemStateFamily(action.payload));
-                set(musicListState, playlistItems);
+                setListCurIdx(playlistItems, 0);
                 break;
             }
             case MusicListActionType.APPEND_PLAYLIST: {
+
                 const musicList = await snapshot.getPromise(musicListState);
                 const playlistItems = await snapshot.getPromise(playlistItemStateFamily(action.payload));
                 set(musicListState, musicList.concat(playlistItems));
@@ -151,50 +160,51 @@ export const useMusicListManager = function () {
             }
             case MusicListActionType.APPEND_ITEMS: {
                 const musicList = await snapshot.getPromise(musicListState);
-                
-                set(musicListState, musicList.concat(action.payload));
-                if(musicList.length === 0){
-                    set(curMusicIdxState,0);
-                }                
+
+                set(musicListState, musicList.concat(createMusicItem(action.payload)));
+
+                if (musicList.length === 0) {
+                    set(curMusicIdxState, 0);
+                }
 
             } break;
             case MusicListActionType.ADD_TO_NEXT:
                 const musicList = await snapshot.getPromise(musicListState);
                 const curIdx = await snapshot.getPromise(curMusicIdxState);
+                const newItems = createMusicItem(action.payload);
                 set(musicListState, musicList.length > 0 ? [
                     ...musicList.slice(0, curIdx + 1),
-                    ...action.payload,
+                    ...newItems,
                     ...musicList.slice(curIdx + 1)
-                ] : action.payload);
-                if(musicList.length === 0){
-                    set(curMusicIdxState,0);
+                ] : newItems);
+                if (musicList.length === 0) {
+                    set(curMusicIdxState, 0);
                 }
                 break;
             case MusicListActionType.DELETE: {
                 const curIdx = await snapshot.getPromise(curMusicIdxState);
-                const tgtInfos:MusicInfo[] = action.payload;
+                let tgtInfos: MusicInfoItem[] = (action.payload).reverse();
                 let list = (await snapshot.getPromise(musicListState)).slice();
-
-                let curMusicDeleted = false;
-                for(let i = 0 ; i < tgtInfos.length;i++){
-                    const idx = tgtInfos[i].idx;
-                    if(idx !== undefined){
-                        list[idx] = {} as MusicInfo;
-                        if(idx === curIdx) curMusicDeleted = true;
-                    }else{
-                        throw "목록에서 삭제대상의 idx가 없음"
+                let tgtIdxs = [];
+                for (let i = 0; i < list.length; i++) {
+                    if (list[i].key === tgtInfos[tgtInfos.length - 1].key) {
+                        tgtIdxs.push(i);
+                        if (tgtInfos.length === 1) break;
+                        tgtInfos.pop();
                     }
                 }
-
+                for (let idx of tgtIdxs) {
+                    list[idx] = {} as MusicInfoItem;
+                }
                 let emptyIdx = 0;
-                let nextIdx = -1;                
-                for(let i = 0 ; i < list.length;i++){ 
-                    if(i === curIdx) nextIdx = emptyIdx;
-                    if(list[i].name) list[emptyIdx++] = list[i];     
-                }                
-                for(let i = 0 ; i < tgtInfos.length;i++) list.pop();
+                let nextIdx = -1;
+                for (let i = 0; i < list.length; i++) {
+                    if (i === curIdx) nextIdx = emptyIdx;
+                    if (list[i].key) list[emptyIdx++] = list[i];
+                }
+                for (let i = 0; i < tgtInfos.length; i++) list.pop();
 
-                if( curIdx !==  nextIdx) set(curMusicIdxState, nextIdx);
+                if (curIdx !== nextIdx) set(curMusicIdxState, nextIdx);
                 set(musicListState, list);
                 break;
             }
@@ -205,18 +215,18 @@ export const useMusicListManager = function () {
                 const result = Array.from(list);
                 const [removed] = result.splice(from, 1);
                 result.splice(to, 0, removed);
-                
+
 
                 const isCurMusic = curIdx === from;
                 const isGoToNextFromPrev = curIdx > from && curIdx <= to;
                 const isGoToPrevFromNext = curIdx < from && curIdx >= to;
                 if (isCurMusic)
-                    setListCurIdx(result,to)
+                    setListCurIdx(result, to)
                 else if (isGoToNextFromPrev && curIdx - 1 >= 0)
-                setListCurIdx(result,curIdx - 1)
+                    setListCurIdx(result, curIdx - 1)
                 else if (isGoToPrevFromNext && curIdx + 1 < list.length)
-                setListCurIdx(result,curIdx + 1)
-                else 
+                    setListCurIdx(result, curIdx + 1)
+                else
                     set(musicListState, result);
                 break;
             }
@@ -232,9 +242,9 @@ function MusicInfoActionCheck(params: unknown): params is MusicInfoAction {
 
 export const useCurMusicManager = function () {
     return useRecoilCallback(({ set, snapshot }) => async (action: MusicInfoAction) => {
-        const list: MusicInfo[] = snapshot.getLoadable(musicListState).contents;
+        const list: MusicInfoItem[] = snapshot.getLoadable(musicListState).contents;
         const idx: number = snapshot.getLoadable(curMusicIdxState).contents;
-        const { NEXT, PREV, SET_INFO, SET_IDX} = MusicInfoActionType;
+        const { NEXT, PREV, SET_INFO, SET_IDX } = MusicInfoActionType;
         switch (action.type) {
             case NEXT:
                 if (idx + 1 < list.length) set(curMusicIdxState, idx + 1);
@@ -242,20 +252,16 @@ export const useCurMusicManager = function () {
             case PREV:
                 if (idx - 1 >= 0) set(curMusicIdxState, idx - 1);
                 break;
-            case SET_IDX :      
-                if(typeof action.payload !== 'number') break;
-                const next:number =      action.payload ;             
-                if(0 <= next && next < list.length) set(curMusicIdxState, action.payload);
+            case SET_IDX:
+                if (typeof action.payload !== 'number') break;
+                const next: number = action.payload;
+                if (0 <= next && next < list.length) set(curMusicIdxState, action.payload);
                 break;
             case SET_INFO:
-                const { name, videoID, query } = action.payload;
-                const musicInfo = {} as MusicInfo;
-                musicInfo.name = name ? name : list[idx].name;
-                musicInfo.videoID = videoID ? videoID : list[idx].videoID;
-                musicInfo.query = query ? query : list[idx].query;
+                let musicInfo: MusicInfo = action.payload;
                 set(musicListState, [
                     ...list.slice(0, idx), // everything before current post
-                    musicInfo,
+                    { ...list[idx], ...musicInfo },
                     ...list.slice(idx + 1)]
                 );
                 break;
@@ -265,12 +271,12 @@ export const useCurMusicManager = function () {
     });
 }
 
-export const curMusicInfoState = selector<MusicInfo>({
+export const curMusicInfoState = selector<MusicInfoItem>({
     key: 'curMusicInfoState',
     get: ({ get }) => {
         let list = get(musicListState);
         const idx = get(curMusicIdxState);
-        if(list.length === 0 || !list[idx]) return {} as MusicInfo;
-        return {...list[idx], idx: idx};
+        if (list.length === 0 || !list[idx]) return {} as MusicInfoItem;
+        return list[idx];
     }
 });

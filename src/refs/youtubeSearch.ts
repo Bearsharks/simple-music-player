@@ -1,31 +1,31 @@
 import { getToken } from "./api";
 import { MusicInfo } from "./constants";
 
-function toMusicInfo(data: any, type: SearchType): MusicInfo {
+function toMusicInfo(data: any, type: SearchType, query: string): MusicInfo {
     if (type === SearchType.List) {
         return {
-            videoID : data.snippet.resourceId.videoId,
-            name : data.snippet.title,
+            videoID: data.snippet.resourceId.videoId,
+            name: data.snippet.title,
             //data.snippet.description,
-            query : "",
+            query: query,
         }
     } else if (type === SearchType.Music) {
-        return{
-            videoID : data.id,
-            name : data.snippet.title,
+        return {
+            videoID: data.id,
+            name: data.snippet.title,
             //data.snippet.description,
-            query : "",
+            query: query,
         };
     } else {
         return {
-            videoID : data.id.videoId,
-            name : data.snippet.title,
+            videoID: data.id.videoId,
+            name: data.snippet.title,
             // data.snippet.description,
-            query : "",
+            query: query,
         };
     }
 }
-export enum SearchType{
+export enum SearchType {
     List, Music, Search
 }
 export default async function youtubeSearch(value: string, type: SearchType, pageToken?: string): Promise<MusicInfo[]> {
@@ -76,7 +76,7 @@ export default async function youtubeSearch(value: string, type: SearchType, pag
         const data = await res.json();
         let result = [];
         for (let item of data.items) {
-            result.push(toMusicInfo(item, type));
+            result.push(toMusicInfo(item, type, value));
         }
         if (type === SearchType.List && data.nextPageToken) {
             result = result.concat(await youtubeSearch(value, type, data.nextPageToken));

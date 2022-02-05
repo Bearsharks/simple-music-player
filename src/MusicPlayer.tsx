@@ -13,7 +13,7 @@ function MusicPlayer() {
     const musicList = useRecoilValue(musicListState);
     const curMusicInfo = useRecoilValue(curMusicInfoState);
     const curMusicManager = useCurMusicManager();
-    const [playState,setPlayState]  = useRecoilState(musicPlayerState);
+    const [playState, setPlayState] = useRecoilState(musicPlayerState);
     const musicListManager = useMusicListManager();
     const playlistManager = usePlaylistManager();
     //팝업관련
@@ -41,16 +41,16 @@ function MusicPlayer() {
     const addToPlaylist = (items: MusicInfo[]) => {
         formPopupManager(FormKind.AppendPlaylist, items);
     }
-    const changeOrder = (src:number,dst:number)=>{
+    const changeOrder = (src: number, dst: number) => {
         musicListManager({
-            type:MusicListActionType.CHANGE_ORDER,
-            payload : { to:dst, from:src }
+            type: MusicListActionType.CHANGE_ORDER,
+            payload: { to: dst, from: src }
         });
     }
-    const deleteMusic = (items:MusicInfo[])=>{
-        const delAction:MusicListAction = {
-            type:MusicListActionType.DELETE,
-            payload:items
+    const deleteMusic = (items: MusicInfo[]) => {
+        const delAction: MusicListAction = {
+            type: MusicListActionType.DELETE,
+            payload: items
         }
         musicListManager(delAction);
     }
@@ -59,7 +59,7 @@ function MusicPlayer() {
         const onClickHandlerWrapper = (callback: (data: any) => void) => {
             return (data: any) => {
                 callback(data);
-                setPopupOpen(false);                
+                setPopupOpen(false);
             }
         }
         const initData: OptionSelectorInfo = {
@@ -75,27 +75,27 @@ function MusicPlayer() {
         setPopupInitData(initData)
         setPopupOpen(true);
     }
-    
-    const goNext = ()=>{
-        curMusicManager({type: MusicInfoActionType.NEXT})
+
+    const goNext = () => {
+        curMusicManager({ type: MusicInfoActionType.NEXT })
     }
-    const goPrev = ()=>{
-        curMusicManager({type: MusicInfoActionType.PREV})
+    const goPrev = () => {
+        curMusicManager({ type: MusicInfoActionType.PREV })
     }
-    const togglePlayState = ()=>{
-        const nextState:PlayerState = playState === PlayerState.PLAYING ? 
-        PlayerState.PAUSED : PlayerState.PLAYING;
-        if(nextState === PlayerState.PLAYING){
+    const togglePlayState = () => {
+        const nextState: PlayerState = playState === PlayerState.PLAYING ?
+            PlayerState.PAUSED : PlayerState.PLAYING;
+        if (nextState === PlayerState.PLAYING) {
             (window as any).player.playVideo();
         }
-        else{
+        else {
             (window as any).player.pauseVideo();
         }
     }
-    const playMusic = (idx : number|undefined)=>{
+    const playMusic = (idx: number | undefined) => {
         curMusicManager({
-            type:MusicInfoActionType.SET_IDX,
-            payload:idx
+            type: MusicInfoActionType.SET_IDX,
+            payload: idx
         });
     }
     return (
@@ -112,12 +112,13 @@ function MusicPlayer() {
             />
             <div className={`${styles['player-detail']} ${(!playerVisiblity) && styles['player-detail__hide']}`}>
                 <YoutubePlayer></YoutubePlayer>
-                <MusicList items={musicList}
+                <MusicList
+                    items={musicList}
                     addToPlaylist={addToPlaylist}
                     playMusic={playMusic}
-                    openOptionsPopup={openPopup} 
-                    changeOrder={changeOrder}/>
-            </div>            
+                    openOptionsPopup={openPopup}
+                    changeOrder={changeOrder} />
+            </div>
         </div >
     )
 }
