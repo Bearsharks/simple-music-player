@@ -1,18 +1,21 @@
 import { Options } from "../../../components/OptionSelector";
-import { MusicInfo, PlaylistInfo } from "../../../refs/constants";
+import { MusicInfo, MusicInfoItem, PlaylistInfo } from "../../../refs/constants";
 
-export const musicListFixture: MusicInfo[] = [
+export const musicListFixture: MusicInfoItem[] = [
     {
+        key: '1',
         videoID: "11",
         name: "노래1",
         query: "노래1"
     },
     {
+        key: '2',
         videoID: "22",
         name: "노래2",
         query: "노래2"
     },
     {
+        key: '3',
         videoID: "33",
         name: "노래3",
         query: "노래3"

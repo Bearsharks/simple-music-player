@@ -4,12 +4,13 @@ export enum ListEleType {
     Query = "Query",
 }
 
-
+export interface MusicInfoItem extends MusicInfo {
+    key: string;
+}
 export interface MusicInfo {
     videoID: string,
     name: string,
-    query: string,
-    idx?:number
+    query: string
 }
 
 export function MusicInfoCheck(params: unknown): params is MusicInfo {
@@ -18,7 +19,7 @@ export function MusicInfoCheck(params: unknown): params is MusicInfo {
 }
 
 export enum MusicInfoActionType {
-    NEXT, PREV, SET_IDX,SET_INFO
+    NEXT, PREV, SET_IDX, SET_INFO
 }
 export interface MusicInfoAction {
     type: MusicInfoActionType
@@ -26,7 +27,7 @@ export interface MusicInfoAction {
 }
 
 export enum MusicListActionType {
-    SET, APPEND_PLAYLIST, APPEND_ITEMS, DELETE, CHANGE_ORDER, ADD_TO_NEXT,ADD_TO_NEXT_PLAYLIST
+    SET, APPEND_PLAYLIST, APPEND_ITEMS, DELETE, CHANGE_ORDER, ADD_TO_NEXT, ADD_TO_NEXT_PLAYLIST
 }
 export interface MusicListAction {
     type: MusicListActionType
@@ -69,10 +70,10 @@ export const getThumbnail = function (id: string): string {
 }
 
 export enum PlayerState {
-    UNSTARTED=-1,
-    ENDED=0,
-    PLAYING=1,
-    PAUSED=2,
-    BUFFERING=3,
-    CUED=5
+    UNSTARTED = -1,
+    ENDED = 0,
+    PLAYING = 1,
+    PAUSED = 2,
+    BUFFERING = 3,
+    CUED = 5
 }
