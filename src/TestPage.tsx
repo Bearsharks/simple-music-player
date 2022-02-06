@@ -5,6 +5,8 @@ import OptionsSelectorPopupRecoil from './OptionsSelectorPopupRecoil';
 import SearchBarRecoil from './SearchBarRecoil';
 import MusicPlayer from './MusicPlayer';
 import { useNavigate } from 'react-router-dom';
+import { Suspense } from 'react';
+import Spinner from './components/Spinner';
 function TestPage() {
     const navigate = useNavigate();
     //
@@ -33,13 +35,15 @@ function TestPage() {
     }
     return (
         <div>
-            <SearchBarRecoil></SearchBarRecoil>
-            <button onClick={logoutBtnClicked}>로그아웃</button><br />
-            테스트 페이지입니다.
-            <FormPopup></FormPopup>
-            <OptionsSelectorPopupRecoil />
-            <PlaylistsRecoil></PlaylistsRecoil>
-            <MusicPlayer></MusicPlayer>
+            <Suspense fallback={<Spinner></Spinner>}>
+                <SearchBarRecoil></SearchBarRecoil>
+                <button onClick={logoutBtnClicked}>로그아웃</button><br />
+                테스트 페이지입니다.
+                <FormPopup></FormPopup>
+                <OptionsSelectorPopupRecoil />
+                <PlaylistsRecoil></PlaylistsRecoil>
+                <MusicPlayer></MusicPlayer>
+            </Suspense>
         </div>
     );
 }
