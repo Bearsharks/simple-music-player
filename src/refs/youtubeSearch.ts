@@ -1,8 +1,8 @@
 import { getToken } from "./api";
-import { MusicInfo } from "./constants";
+import { MusicInfo, PlaylistInfo } from "./constants";
 
 export enum SearchType {
-    List, Music, Search, Playlist
+    List, Music, Search
 }
 function toMusicInfo(data: any, type: SearchType, query: string): MusicInfo {
     if (type === SearchType.List) {
@@ -33,7 +33,6 @@ export default async function youtubeSearch(value: string, type: SearchType, pag
     let params: any;
     if (type === SearchType.List) {
         params = {
-            access_token: sessionStorage.getItem("access_token"),
             part: `snippet`,
             playlistId: value,
             maxResults: 50,
@@ -42,14 +41,13 @@ export default async function youtubeSearch(value: string, type: SearchType, pag
         if (pageToken) params.pageToken = pageToken;
     } else if (type === SearchType.Music) {
         params = {
-            access_token: sessionStorage.getItem("access_token"),
+
             part: `snippet`,
             id: value,
             fields: `items(id,snippet(title,description))`
         };
     } else if (type === SearchType.Search) {
         params = {
-            access_token: sessionStorage.getItem("access_token"),
             part: `snippet`,
             maxResults: 5,
             type: `video`,
@@ -83,7 +81,7 @@ const YTFetch = async (url: string, pageToken?: string): Promise<any> => {
             return [];
         }
     }
-
+    url += `&access_token=${sessionStorage.getItem("access_token")}`;
     let res = await fetch(url);
     if (res.status === 200) {
         const data = await res.json();
@@ -102,14 +100,21 @@ const YTFetch = async (url: string, pageToken?: string): Promise<any> => {
     throw new Error('request fail');
 }
 
-export const getMyYTPlaylist = async () => {
+export const getMyYTPlaylistInfos = async (): Promise<PlaylistInfo[]> => {
     const params: any = {
-        access_token: sessionStorage.getItem("access_token"),
+        part: `snippet,contentDetails`,
         mine: true,
         maxResults: 50,
-        fields: `nextPageToken,items(id,snippet(title,description,thumbnails,contentDetails))`
+        //fields: `nextPageToken,items(id,snippet(title,description,thumbnails,contentDetails))`
     };
     let query: string = Object.keys(params).map(k => encodeURIComponent(k) + '=' + encodeURIComponent(params[k])).join('&');
     let items = await YTFetch(`https://www.googleapis.com/youtube/v3/playlists?${query}`);
-    return items;
+    return items.map((info: any): PlaylistInfo => {
+        return {
+            id: info.id,
+            name: info.snippet.title,
+            description: info.snippet.description,
+            //info.snippet.thumbnails.default
+        }
+    })
 }

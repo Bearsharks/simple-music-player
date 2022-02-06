@@ -25,7 +25,7 @@ export async function getPlaylistItems(id: string): Promise<MusicInfo[]> {
 }
 
 export async function createPlaylist(info: PlaylistInfo, items: MusicInfo[]): Promise<string> {
-    const body = { info: info, items: items };
+    const body = { info: { ...info, id: null }, items: items };
     console.log(`${process.env.REACT_APP_API_URL}/playlist`);
     const res = await fetch(`${process.env.REACT_APP_API_URL}/playlist`, {
         method: 'POST',
@@ -46,7 +46,7 @@ export async function deletePlaylist(id: string): Promise<boolean> {
     const data: string = await res.text();
     return data === 'true';
 }
-export async function updatePlaylist(playlist: {info:PlaylistInfo, items?:MusicInfo[]}): Promise<boolean> {
+export async function updatePlaylist(playlist: { info: PlaylistInfo, items?: MusicInfo[] }): Promise<boolean> {
 
     const res = await fetch(`${process.env.REACT_APP_API_URL}/playlist/${playlist.info.id}`, {
         method: 'PATCH',

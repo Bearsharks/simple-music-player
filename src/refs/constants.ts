@@ -12,7 +12,10 @@ export interface MusicInfo {
     name: string,
     query: string
 }
-
+export interface Playlist {
+    info: PlaylistInfo,
+    items: MusicInfo[]
+}
 export function MusicInfoCheck(params: unknown): params is MusicInfo {
     const musicInfo: MusicInfo = params as MusicInfo;
     return !!(musicInfo.name) && (!!musicInfo.query || !!musicInfo.videoID);

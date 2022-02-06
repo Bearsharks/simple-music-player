@@ -1,7 +1,7 @@
 import { atom, useRecoilCallback } from "recoil";
 import { Options } from "../components/OptionSelector";
-import {  playlistIDsState,  playlistInfoStateFamily, usePlaylistManager } from './atoms/playlistAtoms'
-import {  PlaylistAction, PlaylistActionType, PlaylistInfo } from "../refs/constants";
+import { playlistIDsState, playlistInfoStateFamily, usePlaylistManager } from './atoms/playlistAtoms'
+import { Playlist, PlaylistAction, PlaylistActionType, PlaylistInfo } from "../refs/constants";
 export interface FormItem {
     id: string,
     name: string,
@@ -40,7 +40,7 @@ export interface FormPopupData {
 }
 
 export enum FormKind {
-    CreatePlaylist, YoutubeLink, YoutubePlaylist, SelectPlaylist, AppendPlaylist,
+    CreatePlaylist, YoutubeLink, ImportYTPlaylist, SelectPlaylist, AppendPlaylist,
     UpdatePlaylist
 }
 export function getFormInitData(formKind: FormKind, onSubmitHandler: (data: unknown) => void): FormPopupData {
@@ -53,6 +53,8 @@ export function getFormInitData(formKind: FormKind, onSubmitHandler: (data: unkn
         kind: FormKind.CreatePlaylist
     }
 }
+
+
 
 export const useFormPopupManager = function () {
     const playlistManager = usePlaylistManager();
@@ -111,13 +113,13 @@ export const useFormPopupManager = function () {
                 set(FormPopupOpenState, true);
             } break;
             case FormKind.UpdatePlaylist: {
-                if(typeof data !== "string"){
+                if (typeof data !== "string") {
                     throw "playlist id is not string";
                 }
                 const playlistInfo = await snapshot.getPromise(playlistInfoStateFamily(data));
                 const popupData: FormPopupData = {
                     items: [
-                        { id: "name", name: "이름", value: playlistInfo.name},
+                        { id: "name", name: "이름", value: playlistInfo.name },
                         { id: "description", name: "설명", value: playlistInfo.description },
                     ],
                     submit: (data: unknown) => {
@@ -139,6 +141,28 @@ export const useFormPopupManager = function () {
                 set(FormPopupState, popupData);
                 set(FormPopupOpenState, true);
             } break;
+            case FormKind.ImportYTPlaylist: {
+                const popupData: FormPopupData = {
+                    items: [],
+                    submit: (data: unknown) => {
+                        const playlist: Playlist = data as Playlist;
+                        if (!playlist.info.name) throw 'invalid playlist info';
+                        for (let item of playlist.items) {
+                            if (!item.videoID) throw 'invalid playlist item';
+                        }
+                        const createAction: PlaylistAction = {
+                            type: PlaylistActionType.CREATE,
+                            payload: playlist
+                        }
+                        playlistManager(createAction);
+                        set(FormPopupOpenState, false);
+                    },
+                    kind: FormKind.ImportYTPlaylist
+                }
+                set(FormPopupState, popupData);
+                set(FormPopupOpenState, true);
+            } break;
+
         }
     });
 }
