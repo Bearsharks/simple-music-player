@@ -12,32 +12,6 @@ function TestPage() {
     const setOptionSelectorState = useSetRecoilState(OptionSelectorState);
     const setOptionSelectorOpen = useSetRecoilState(OptionSelectorOpenState);
 
-    const addItems: React.MouseEventHandler<HTMLButtonElement> = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-        e.stopPropagation();
-        e.preventDefault();
-        const selectedPlaylist = "";
-        const action: PlaylistAction = {
-            type: PlaylistActionType.UPDATE,
-            payload: {
-                info: {
-                    id: selectedPlaylist
-                },
-                items: [
-                    {
-                        videoID: "11",
-                        name: "노래1",
-                        query: selectedPlaylist
-                    },
-                    {
-                        videoID: "22",
-                        name: "노래2",
-                        query: selectedPlaylist
-                    }]
-            }
-        };
-        playlistManager(action);
-    }
-
     const setMusiclist = (playlistid: string) => {
         const action: MusicListAction = {
             type: MusicListActionType.SET,
@@ -59,26 +33,26 @@ function TestPage() {
         }
         musicListManager(action);
     }
-    
+
     const openCreatePlaylistPopup = () => {
         formPopupManager(FormKind.CreatePlaylist);
     }
-    const updatePlaylistInfo = (playlistid: string)=>{
+    const updatePlaylistInfo = (playlistid: string) => {
         formPopupManager(FormKind.UpdatePlaylist, playlistid);
     }
-    const deletePlaylist = (playlistid: string)=>{
+    const deletePlaylist = (playlistid: string) => {
         playlistManager({
-            type:PlaylistActionType.DELETE,
-            payload:playlistid
+            type: PlaylistActionType.DELETE,
+            payload: playlistid
         });
     }
 
-    const openOptionsSelector = (e: React.MouseEvent<HTMLElement>,playlistid:string) => {
-        e.stopPropagation();        
+    const openOptionsSelector = (e: React.MouseEvent<HTMLElement>, playlistid: string) => {
+        e.stopPropagation();
         const onClickHandlerWrapper = (callback: (data: any) => void) => {
             return (data: any) => {
                 callback(data);
-                setOptionSelectorOpen(false);     
+                setOptionSelectorOpen(false);
             }
         }
         setOptionSelectorState({
@@ -86,17 +60,20 @@ function TestPage() {
             items: [
                 { icon: "S", name: "재생목록에 추가", onClickHandler: onClickHandlerWrapper(appendMusiclist) },
                 { icon: "A", name: "다음 음악으로 추가", onClickHandler: onClickHandlerWrapper(addToNextMusic) },
-                { icon: "U", name: "재생목록 수정", onClickHandler: onClickHandlerWrapper(updatePlaylistInfo)},
-                { icon: "X", name: "재생목록 삭제", onClickHandler:  onClickHandlerWrapper(deletePlaylist) },
+                { icon: "U", name: "재생목록 수정", onClickHandler: onClickHandlerWrapper(updatePlaylistInfo) },
+                { icon: "X", name: "재생목록 삭제", onClickHandler: onClickHandlerWrapper(deletePlaylist) },
             ],
-            data:playlistid
+            data: playlistid
         });
         setOptionSelectorOpen(true);
     }
-
+    const openYTPlaylistPopup = () => {
+        formPopupManager(FormKind.ImportYTPlaylist);
+    }
     return (
         <div>플레이리스트
             <button onClick={openCreatePlaylistPopup}>새 재생목록</button>
+            <button onClick={openYTPlaylistPopup}>유튜브</button>
             <Playlists
                 playlistInfos={playlistInfos}
                 playPlaylist={setMusiclist}
