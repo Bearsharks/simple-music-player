@@ -67,6 +67,12 @@ export async function getToken() {
     return await res.text();
 }
 
+export async function checkAuth() {
+    const res = await fetch(`${process.env.REACT_APP_API_URL}/isAuthed`, {
+        credentials: 'include',
+    });
+    return (res.status === 200) && 'true' === await res.text();
+}
 
 
 // const save = new Promise((resolve) => {
