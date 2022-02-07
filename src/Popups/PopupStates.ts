@@ -1,6 +1,5 @@
 import { atom, useRecoilCallback } from "recoil";
-import { Options } from "../components/OptionSelector";
-import { playlistIDsState, playlistInfoStateFamily, usePlaylistManager } from './atoms/playlistAtoms'
+import { playlistIDsState, playlistInfoStateFamily, usePlaylistManager } from '../recoilStates/atoms/playlistAtoms'
 import { Playlist, PlaylistAction, PlaylistActionType, PlaylistInfo } from "../refs/constants";
 export interface FormItem {
     id: string,
@@ -26,11 +25,24 @@ export const OptionSelectorOpenState = atom<boolean>({
     default: false
 })
 
-export interface OptionSelectorInfo { target: HTMLElement, items: Options[], data?: unknown };
-export const OptionSelectorState = atom<OptionSelectorInfo>({
+export enum PopupKind {
+    PlaylistOptions, MusicOptions, SelectPlaylist, SearchOptions
+}
+export interface PopupInfo {
+    target: HTMLElement,
+    kind: PopupKind,
+    data?: unknown
+};
+
+export const PopupInfoState = atom<PopupInfo>({
     key: "optionSelector",
-    default: {} as OptionSelectorInfo
+    default: {} as PopupInfo
 })
+export const popupOpenState = atom<boolean>({
+    key: "popupOpen",
+    default: false
+})
+
 
 export interface FormPopupData {
     items: FormItem[] | PlaylistInfo[];
