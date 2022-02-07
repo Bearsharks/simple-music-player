@@ -1,11 +1,11 @@
 import { useRecoilValue, useSetRecoilState } from 'recoil'
-import { FormPopupState, FormPopupOpenState, FormItem, FormKind } from './recoilStates/PopupStates';
+import { FormPopupState, FormPopupOpenState, FormItem, FormKind } from './PopupStates';
 import styles from './FormPopup.module.scss'
 import React, { useState, useRef, Suspense } from 'react';
-import { Playlist, PlaylistInfo } from './refs/constants';
-import youtubeSearch, { SearchType } from './refs/youtubeSearch';
-import Spinner from './components/Spinner';
-import { myYTPlaylistInfosState } from './recoilStates/YTPlaylistState';
+import { Playlist, PlaylistInfo } from '../refs/constants';
+import youtubeSearch, { SearchType } from '../refs/youtubeSearch';
+import Spinner from '../components/Spinner';
+import { myYTPlaylistInfosState } from '../recoilStates/YTPlaylistState';
 
 
 function Popup() {
