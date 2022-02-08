@@ -64,11 +64,28 @@ export async function getToken() {
         credentials: 'include',
     });
     if (res.status !== 200) throw "잘못된 요청";
-    return await res.text();
+    const token = await res.text();
+    if (!token) {
+        alert('유튜브 권한이 필요합니다.')
+        await doSignIn();
+    }
+    return token;
+
 }
 
 
+export const doSignIn = async (staySignedIn?: boolean) => {
+    debugger;
+    const loginURL = `${process.env.REACT_APP_API_URL}/login?staySignedIn=${staySignedIn}`;
+    try {
+        const res = await fetch(loginURL, { credentials: 'include' });
+        const url = await res.text();
+        (window as any).location = url;
+    } catch (err) {
+        console.error(err);
+    }
 
+}
 // const save = new Promise((resolve) => {
 //     fetch('http://localhost:5001/simple-music-player-319201/asia-northeast3/main/playlists', {
 //         credentials: 'include',

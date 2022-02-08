@@ -75,6 +75,7 @@ const YTFetch = async (url: string, pageToken?: string): Promise<any> => {
     if (!sessionStorage.getItem("access_token")) {
         try {
             const token = await getToken();
+            if (token === "") return;
             sessionStorage.setItem("access_token", token);
         } catch (e) {
             console.error(e);
