@@ -1,5 +1,5 @@
-import { Options } from "../../../components/OptionSelector";
-import { MusicInfo, MusicInfoItem, PlaylistInfo } from "../../../refs/constants";
+import { OptionInfo } from "../../../components/OptionSelector";
+import { MusicInfoItem, PlaylistInfo } from "../../../refs/constants";
 
 export const musicListFixture: MusicInfoItem[] = [
     {
@@ -29,7 +29,7 @@ export const playlistInfosFixture: PlaylistInfo[] = [
     { id: "4", name: "4번", description: "4번 설명" }
 ]
 
-export const OptionsFixture: Options[] = [
+export const OptionsFixture: OptionInfo[] = [
     { icon: "O", name: '1번선택지', onClickHandler: () => { console.log("1번") } },
     { icon: "O", name: '2번선택지', onClickHandler: () => { console.log("2번") } },
     { icon: "O", name: '3번선택지', onClickHandler: () => { console.log("3번") } },
