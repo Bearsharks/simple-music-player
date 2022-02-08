@@ -1,12 +1,12 @@
 import './Test.scss';
 import PlaylistsRecoil from './PlaylistsRecoil'
-import FormPopup from './FormPopup';
-import OptionsSelectorPopupRecoil from './OptionsSelectorPopupRecoil';
+import FormPopup from './Popups/Modal';
 import SearchBarRecoil from './SearchBarRecoil';
 import MusicPlayer from './MusicPlayer';
 import { useNavigate } from 'react-router-dom';
 import { Suspense } from 'react';
 import Spinner from './components/Spinner';
+import Popup from './Popups/Popup';
 function TestPage() {
     const navigate = useNavigate();
     //
@@ -40,7 +40,7 @@ function TestPage() {
                 <button onClick={logoutBtnClicked}>로그아웃</button><br />
                 테스트 페이지입니다.
                 <FormPopup></FormPopup>
-                <OptionsSelectorPopupRecoil />
+                <Popup></Popup>
                 <PlaylistsRecoil></PlaylistsRecoil>
                 <MusicPlayer></MusicPlayer>
             </Suspense>

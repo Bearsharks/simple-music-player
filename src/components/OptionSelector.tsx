@@ -1,23 +1,26 @@
 
-import { MusicInfo } from '../refs/constants';
 import styles from './OptionSelector.module.scss';
 
-export interface Options {
+
+export interface OptionInfo {
     icon: any;
     name: string;
-    onClickHandler: (data: unknown) => void;
+    onClickHandler: () => void;
 }
-export interface OptionSelectorProps {
-    options: Options[],
-    data?: unknown
+interface OptionSelectorProps {
+    options: OptionInfo[],
 }
-function OptionSelector(props: OptionSelectorProps) {
-
+function OptionSelector({ options }: OptionSelectorProps) {
     return (
-        <div className={styles['wrapper']}>
+        <div>
             {
-                props.options.map((option) =>
-                    <div key={option.name} onClick={() => option.onClickHandler(props.data)}>{option.icon}{option.name}</div>
+                options.map((option) =>
+                    <div
+                        key={option.name}
+                        onClick={option.onClickHandler}
+                    >
+                        {option.icon}{option.name}
+                    </div>
                 )
             }
         </div>
