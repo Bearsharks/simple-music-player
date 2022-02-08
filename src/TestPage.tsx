@@ -1,6 +1,6 @@
 import './Test.scss';
 import PlaylistsRecoil from './PlaylistsRecoil'
-import FormPopup from './Popups/FormPopup';
+import FormPopup from './Popups/Modal';
 import SearchBarRecoil from './SearchBarRecoil';
 import MusicPlayer from './MusicPlayer';
 import { useNavigate } from 'react-router-dom';

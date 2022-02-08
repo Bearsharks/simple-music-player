@@ -6,14 +6,14 @@ import { DragDropContext, Droppable, DropResult, Draggable } from "react-beautif
 export interface MusicListProps {
     items: MusicInfoItem[];
     openOptionsPopup: (event: React.MouseEvent, musicInfos: MusicInfo[]) => void;
-    addToPlaylist: (items: MusicInfo[]) => void;
+    addToPlaylist: (event: React.MouseEvent<Element, MouseEvent>, items: MusicInfo[]) => void;
     playMusic: (idx: number | undefined) => void;
     changeOrder: (src: number, dst: number) => void;
 }
 
 function MusicList(props: MusicListProps) {
-    const addToPlaylist = (event: React.MouseEvent) => {
-        props.addToPlaylist(props.items);
+    const addToPlaylist = (event: React.MouseEvent<Element, MouseEvent>) => {
+        props.addToPlaylist(event, props.items);
     }
 
     const onDragEnd = (result: DropResult) => {

@@ -75,10 +75,11 @@ export const usePlaylistManager = function () {
                 if (!action.payload.info || !action.payload.info.id || !action.payload.items) return;
                 const tgt: string = action.payload.info.id;
                 const playlistItems: MusicInfoItem[] = await snapshot.getPromise(playlistItemStateFamily(tgt));
-                const newList = playlistItems.concat(action.payload.items);
+                const newList = playlistItems.concat(createMusicItem(action.payload.items));
                 const result = await updatePlaylist({ info: action.payload.info, items: newList });
                 if (result) {
                     set(playlistItemStateFamily(tgt), newList);
+                    alert("추가 성공!")
                 }
             } break;
         }
