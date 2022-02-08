@@ -2,8 +2,8 @@ import styles from './MusicPlayer.module.scss'
 import PlayerController from './components/PlayerController';
 import MusicList from './components/MusicList';
 import { useState } from 'react'
-import { useRecoilValue, useSetRecoilState, useRecoilState } from 'recoil';
-import { FormKind, PopupInfoState, PopupKind, useFormPopupManager } from './Popups/PopupStates';
+import { useRecoilValue, useSetRecoilState } from 'recoil';
+import { PopupInfo, PopupInfoState, PopupKind } from './Popups/PopupStates';
 import { curMusicInfoState, musicListState, musicPlayerState, useCurMusicManager, useMusicListManager } from './recoilStates/atoms/playlistAtoms';
 import { MusicInfo, MusicInfoActionType, MusicListActionType, PlayerState } from './refs/constants';
 import YoutubePlayer from './YoutubePlayer';
@@ -13,16 +13,20 @@ function MusicPlayer() {
     const musicList = useRecoilValue(musicListState);
     const curMusicInfo = useRecoilValue(curMusicInfoState);
     const curMusicManager = useCurMusicManager();
-    const [playState, setPlayState] = useRecoilState(musicPlayerState);
+    const playState = useRecoilValue(musicPlayerState);
     const musicListManager = useMusicListManager();
     //팝업관련
     const setPopupInfo = useSetRecoilState(PopupInfoState);
-    const formPopupManager = useFormPopupManager();
     const togglePlayerVisiblity = () => {
         playerVisiblity ? setPlayerVisiblity(false) : setPlayerVisiblity(true);
     }
-    const addToPlaylist = (items: MusicInfo[]) => {
-        formPopupManager(FormKind.AppendPlaylist, items);
+    const addToPlaylist = (event: React.MouseEvent<Element, MouseEvent>, items: MusicInfo[]) => {
+        const info: PopupInfo = {
+            target: event.target as HTMLElement,
+            kind: PopupKind.SelectTgtPlaylist,
+            data: items
+        }
+        setPopupInfo(info);
     }
     const openPopup = (event: React.MouseEvent, musicInfos: MusicInfo[]) => {
         event.stopPropagation();

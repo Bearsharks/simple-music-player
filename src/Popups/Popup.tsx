@@ -1,9 +1,9 @@
-import { useRecoilValue, useRecoilState } from 'recoil'
+import { useRecoilValue, useRecoilState, useSetRecoilState } from 'recoil'
 import { popupOpenState, PopupInfoState, PopupInfo, PopupKind, useFormPopupManager, FormKind } from './PopupStates';
 import styles from './Popup.module.scss'
-import { memo, useRef, useEffect } from 'react';
-import { MusicInfo, MusicInfoArrayCheck, MusicListAction, MusicListActionType, PlaylistActionType } from '../refs/constants';
-import { useMusicListManager, usePlaylistManager } from '../recoilStates/atoms/playlistAtoms';
+import { memo, useRef, useEffect, useState } from 'react';
+import { MusicInfo, MusicInfoArrayCheck, MusicListAction, MusicListActionType, PlaylistAction, PlaylistActionType } from '../refs/constants';
+import { playlistInfosState, useMusicListManager, usePlaylistManager } from '../recoilStates/atoms/playlistAtoms';
 import { searchByQuery } from '../refs/youtubeSearch';
 import OptionSelector from '../components/OptionSelector';
 
@@ -49,12 +49,17 @@ function Popup() {
                 throw "playlistID is not valid can't render PlaylistOptions";
             case PopupKind.MusicOptions:
                 if (MusicInfoArrayCheck(info.data)) {
-                    return <MusicOptions setPopupOpen={setOpen} musicInfos={info.data}></MusicOptions>
+                    return <MusicOptions evTarget={info.target} setPopupOpen={setOpen} musicInfos={info.data}></MusicOptions>
                 }
                 throw "musicInfos is not valid can't render MusicOptions";
             case PopupKind.SearchOptions:
                 if ((info.data as HTMLTextAreaElement).value) {
                     return <SearchBarOptions setPopupOpen={setOpen} textarea={(info.data as HTMLTextAreaElement)}></SearchBarOptions>
+                }
+                throw "musicInfos is not valid can't render MusicOptions";
+            case PopupKind.SelectTgtPlaylist:
+                if (MusicInfoArrayCheck(info.data)) {
+                    return <AppendPlaylistPopup setPopupOpen={setOpen} musicInfos={info.data}></AppendPlaylistPopup>
                 }
                 throw "musicInfos is not valid can't render MusicOptions";
             default:
@@ -73,13 +78,58 @@ function Popup() {
 }
 export default Popup;
 
-interface MusicOptionsProps {
+
+
+
+interface AppendPlaylistPopupProps {
     setPopupOpen: (isOpen: boolean) => void;
     musicInfos: MusicInfo[];
 }
-const MusicOptions = memo(function ({ setPopupOpen, musicInfos }: MusicOptionsProps) {
+function AppendPlaylistPopup({ musicInfos, setPopupOpen }: AppendPlaylistPopupProps) {
+    const [selectedPlaylist, selectPlaylist] = useState("");
+    const playlistInfos = useRecoilValue(playlistInfosState);
+    const playlistManager = usePlaylistManager();
+    const submit = () => {
+        if (!selectedPlaylist) return;
+        const appendAction: PlaylistAction = {
+            type: PlaylistActionType.APPEND,
+            payload: {
+                info: { id: selectedPlaylist },
+                items: musicInfos
+            }
+        }
+        playlistManager(appendAction);
+        setPopupOpen(false);
+    }
+    return (
+        <div >
+            <label>선택 : </label><input type='text' value={selectedPlaylist} readOnly></input>
+            {
+                playlistInfos.map((info) =>
+                    <div
+                        key={info.id}
+                        onClick={() => selectPlaylist(info.id)}
+                    >
+                        {`${info.id}/${info.name}/${info.description}`}
+                    </div>)
+            }
+            <div>
+                <button onClick={() => setPopupOpen(false)}>취소</button>
+                <button onClick={submit}>확인</button>
+            </div>
+        </div>
+    );
+}
+
+
+interface MusicOptionsProps {
+    evTarget: HTMLElement;
+    setPopupOpen: (isOpen: boolean) => void;
+    musicInfos: MusicInfo[];
+}
+const MusicOptions = memo(function ({ setPopupOpen, musicInfos, evTarget }: MusicOptionsProps) {
     const musicListManager = useMusicListManager();
-    const formPopupManager = useFormPopupManager();
+    const setPopupInfo = useSetRecoilState(PopupInfoState);
     const addToNextMusic = (musicInfos: MusicInfo[]) => {
         const action: MusicListAction = {
             type: MusicListActionType.ADD_TO_NEXT,
@@ -95,7 +145,13 @@ const MusicOptions = memo(function ({ setPopupOpen, musicInfos }: MusicOptionsPr
         musicListManager(action);
     }
     const addToPlaylist = (items: MusicInfo[]) => {
-        formPopupManager(FormKind.AppendPlaylist, items);
+        const info: PopupInfo = {
+            target: evTarget,
+            kind: PopupKind.SelectTgtPlaylist,
+            data: items
+        }
+        setPopupInfo(info);
+        setPopupOpen(false);
     }
     const deleteMusic = (items: MusicInfo[]) => {
         const delAction: MusicListAction = {
@@ -202,3 +258,4 @@ const SearchBarOptions = memo(function ({ setPopupOpen, textarea }: SearchBarOpt
     ]
     return <OptionSelector options={options} />;
 });
+
