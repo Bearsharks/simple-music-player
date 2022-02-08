@@ -3,15 +3,14 @@ import { useRecoilValue, useSetRecoilState, useRecoilState } from 'recoil';
 import { MusicInfoActionType, MusicInfoItem, PlayerState } from './refs/constants';
 import { ytPlayerInitedState } from './recoilStates/atoms/ytplayerStates'
 import youtubeSearch, { SearchType } from './refs/youtubeSearch';
-import { musicPlayerState, useCurMusicManager, useMusicListManager, curMusicInfoState, musicPlayerProgressState } from './recoilStates/atoms/playlistAtoms';
+import { musicPlayerState, useCurMusicManager, curMusicInfoState, musicPlayerProgressState } from './recoilStates/atoms/playlistAtoms';
 
 function YoutubePlayer() {
 	const [ytPlayerInited, setYTPlayerInited] = useRecoilState(ytPlayerInitedState);
 	const setPlayState = useSetRecoilState(musicPlayerState);
-	const musicListManager = useMusicListManager();
 	const curMusicManager = useCurMusicManager();
 	const curMusic = useRecoilValue(curMusicInfoState);
-	const [progress, setProgress] = useRecoilState(musicPlayerProgressState);
+	const setProgress = useSetRecoilState(musicPlayerProgressState);
 	const prevMusicRef = useRef<MusicInfoItem>();
 	useEffect(() => {
 		if (!(window as any).YT) { // If not, load the youtube ifram api script asynchronously

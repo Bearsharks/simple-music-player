@@ -21,6 +21,22 @@ export function MusicInfoCheck(params: unknown): params is MusicInfo {
     return !!(musicInfo.name) && (!!musicInfo.query || !!musicInfo.videoID);
 }
 
+export function MusicInfoArrayCheck(params: unknown): params is MusicInfo[] {
+    if (Array.isArray(params)) {
+        let isMusicInfoArray = true;
+        params.forEach(function (item) {
+            if (!MusicInfoCheck(item)) {
+                isMusicInfoArray = false;
+            }
+        })
+        if (isMusicInfoArray || params.length <= 0) {
+            return true;
+        }
+    }
+    return false;
+}
+
+
 export enum MusicInfoActionType {
     NEXT, PREV, SET_IDX, SET_INFO
 }

@@ -73,6 +73,12 @@ export async function getToken() {
 
 }
 
+export async function checkAuth() {
+    const res = await fetch(`${process.env.REACT_APP_API_URL}/isAuthed`, {
+        credentials: 'include',
+    });
+    return (res.status === 200) && 'true' === await res.text();
+}
 
 export const doSignIn = async (staySignedIn?: boolean) => {
     debugger;
