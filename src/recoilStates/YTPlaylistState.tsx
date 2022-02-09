@@ -13,7 +13,6 @@ export const myYTPlaylistInfosState = selector<PlaylistInfo[]>({
 
         get(YTPlaylistRequestID);
         const infos = await getMyYTPlaylistInfos();
-        debugger;
         return infos
     }
 })
