@@ -1,5 +1,14 @@
+@import "../global.scss";
+
+.wrapper{
+    height:50px;
+}
+
 .hamburger-btn {
-    z-index: 100;
+    height: $header-size;
+    width: $header-size;    
+}
+.hamburger-wrapper {
     height: 100%;
     display: flex;
     align-items: center;
@@ -7,7 +16,6 @@
     margin : 1px;    
     
 }
-
 @mixin hamburger-line (){
     width: 40px;
     height: 3px;    
@@ -23,7 +31,6 @@
 
 .hamburger {
     @include hamburger-line();
-    margin : 0px 10px 0px 10px;   
     &:after{
         @include hamburger-line();
         @include hamburger-pseudo ();

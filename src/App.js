@@ -4,9 +4,8 @@ import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
 import OauthCallback from './oauth2/OauthCallback';
 import Init from './InitPage';
 import Login from './LoginPage';
-//import Main from './Main';
 import { checkAuth } from './refs/api'
-import Main from './TestPage';
+import Main from './Main';
 import { useEffect, useState } from 'react';
 import Spinner from './components/Spinner';
 
