@@ -1,0 +1,9 @@
+@import "global.scss";
+
+.header{
+    height : $header-size;
+    display : flex;
+    align-items: center;
+    justify-content: flex-end;
+    z-index: $header-z-index;
+}
