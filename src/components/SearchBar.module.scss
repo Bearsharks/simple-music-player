@@ -1,0 +1,39 @@
+.wrapper{
+    display: flex;
+    width: 100%;
+    height: 100%;
+    &:focus-within button{
+        background:blue;
+        position: fixed;
+        right : 20px;
+        z-index: inherit;
+    }
+}
+.closeBtn{
+    display: none;
+    position: fixed;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba($color: #000000, $alpha: 0.5);
+}
+.closeBtn--show{
+    display: block;
+}
+textarea{
+    width: calc(100% - 6px);
+    height: calc(100% - 6px);
+    resize: none;
+    overflow-y: hidden;
+    max-height: calc(100% - 6px);
+    &:focus{
+        width: inherit;
+        position: absolute;
+        right : 0px;
+        overflow-y:scroll;
+        max-height: 200px;
+    }
+}
+.searchBtn{
+    height: 50px;
+    width: 50px;
+}
