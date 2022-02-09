@@ -1,6 +1,5 @@
 import { atom, useRecoilCallback } from "recoil";
-import { playlistIDsState, playlistInfoStateFamily, usePlaylistManager } from '../recoilStates/atoms/playlistAtoms'
-import { Playlist, PlaylistAction, PlaylistActionType, PlaylistInfo } from "../refs/constants";
+import { playlistInfoStateFamily } from '../recoilStates/atoms/playlistAtoms'
 export const ModalOpenState = atom<boolean>({
     key: "formPopupOpen",
     default: false
@@ -33,6 +32,8 @@ export interface PopupInfo {
     data?: unknown
 };
 
+
+
 export const PopupInfoState = atom<PopupInfo>({
     key: "optionSelector",
     default: {} as PopupInfo
@@ -51,6 +52,7 @@ export interface FormPopupData {
 export enum FormKind {
     CreatePlaylist, UpdatePlaylist, ImportYTPlaylist
 }
+
 export const useFormPopupManager = function () {
     return useRecoilCallback(({ set, snapshot }) => async (kind: FormKind, data?: unknown) => {
         switch (kind) {
@@ -80,7 +82,6 @@ export const useFormPopupManager = function () {
                 set(FormPopupState, popupData);
                 set(FormPopupOpenState, true);
             } break;
-
         }
     });
 }

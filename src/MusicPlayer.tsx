@@ -3,7 +3,7 @@ import PlayerController from './components/PlayerController';
 import MusicList from './components/MusicList';
 import { useState } from 'react'
 import { useRecoilValue, useSetRecoilState } from 'recoil';
-import { PopupInfo, PopupInfoState, PopupKind } from './Popups/PopupStates';
+import { PopupInfo, PopupInfoState, PopupKind, popupOpenState } from './Popups/PopupStates';
 import { curMusicInfoState, musicListState, musicPlayerState, useCurMusicManager, useMusicListManager } from './recoilStates/atoms/playlistAtoms';
 import { MusicInfo, MusicInfoActionType, MusicListActionType, PlayerState } from './refs/constants';
 import YoutubePlayer from './YoutubePlayer';
@@ -17,6 +17,7 @@ function MusicPlayer() {
     const musicListManager = useMusicListManager();
     //팝업관련
     const setPopupInfo = useSetRecoilState(PopupInfoState);
+    const setPopupOpen = useSetRecoilState(popupOpenState);
     const togglePlayerVisiblity = () => {
         playerVisiblity ? setPlayerVisiblity(false) : setPlayerVisiblity(true);
     }
@@ -26,15 +27,20 @@ function MusicPlayer() {
             kind: PopupKind.SelectTgtPlaylist,
             data: items
         }
+
         setPopupInfo(info);
+        setPopupOpen(true);
+
     }
     const openPopup = (event: React.MouseEvent, musicInfos: MusicInfo[]) => {
         event.stopPropagation();
+
         setPopupInfo({
             target: event.target as HTMLElement,
             kind: PopupKind.MusicOptions,
             data: musicInfos
         })
+        setPopupOpen(true);
     }
     const changeOrder = (src: number, dst: number) => {
         musicListManager({

@@ -1,4 +1,4 @@
-import { useRecoilValue, useRecoilState, useSetRecoilState } from 'recoil'
+import { useRecoilValue, useSetRecoilState } from 'recoil'
 import { popupOpenState, PopupInfoState, PopupInfo, PopupKind, useFormPopupManager, FormKind } from './PopupStates';
 import styles from './Popup.module.scss'
 import { memo, useRef, useEffect, useState } from 'react';
@@ -7,39 +7,11 @@ import { playlistInfosState, useMusicListManager, usePlaylistManager } from '../
 import { searchByQuery } from '../refs/youtubeSearch';
 import OptionSelector from '../components/OptionSelector';
 
-function Popup() {
+function InnerPopup() {
     const curRef = useRef<HTMLDivElement>(null);
     const info: PopupInfo = useRecoilValue(PopupInfoState);
-    const [isOpen, setOpen] = useRecoilState(popupOpenState);
-    useEffect(() => {
-        const onClickOutsideHandler = (event: MouseEvent | TouchEvent) => {
-            if (curRef.current && curRef.current.contains(event.target as Node)) {
-                return;
-            }
-            setOpen(false);
-        };
-        document.addEventListener('click', onClickOutsideHandler);
-        document.addEventListener('touchend', onClickOutsideHandler);
-        return () => {
-            document.removeEventListener('click', onClickOutsideHandler);
-            document.removeEventListener('touchend', onClickOutsideHandler);
-        };
-    }, [setOpen]);
+    const setOpen = useSetRecoilState(popupOpenState);
 
-    useEffect(() => {
-        if (!curRef.current || !info.target) return;
-        setOpen(true);
-        const target: HTMLElement = info.target as HTMLElement;
-        const { left, width, top } = target.getBoundingClientRect();
-
-        const tgtRight = left + width;
-        const x = window.innerWidth >= tgtRight + curRef.current.offsetWidth ?
-            tgtRight : left - curRef.current.offsetWidth;
-        const y = window.innerHeight >= top + curRef.current.offsetHeight ?
-            top : top - curRef.current.offsetHeight;
-
-        curRef.current.style.transform = `translate(${x}px, ${y}px)`;
-    }, [info])
     const children = (() => {
         switch (info.kind) {
             case PopupKind.PlaylistOptions:
@@ -67,14 +39,47 @@ function Popup() {
         }
     })();
 
+    useEffect(() => {
+        const onClickOutsideHandler = (event: MouseEvent | TouchEvent) => {
+            debugger;
+            if (curRef.current && curRef.current.contains(event.target as Node)) {
+                return;
+            }
+            setOpen(false);
+        };
+        document.addEventListener('click', onClickOutsideHandler);
+        document.addEventListener('touchend', onClickOutsideHandler);
+        return () => {
+            document.removeEventListener('click', onClickOutsideHandler);
+            document.removeEventListener('touchend', onClickOutsideHandler);
+        };
+    }, [setOpen]);
+    useEffect(() => {
+        if (!curRef.current || !info.target) return;
+        setOpen(true);
+        const target: HTMLElement = info.target as HTMLElement;
+        const { left, width, top } = target.getBoundingClientRect();
+
+        const tgtRight = left + width;
+        const x = window.innerWidth >= tgtRight + curRef.current.offsetWidth ?
+            tgtRight : left - curRef.current.offsetWidth;
+        const y = window.innerHeight >= top + curRef.current.offsetHeight ?
+            top : top - curRef.current.offsetHeight;
+
+        curRef.current.style.transform = `translate(${x}px, ${y}px)`;
+    }, [info, setOpen])
     return (
         <div
-            className={`${styles['wrapper']} ${!isOpen && styles['wrapper--hide']}`}
+            className={`${styles['wrapper']}`}
             ref={curRef}
         >
             {children}
         </div>
     );
+}
+function Popup() {
+    const isOpen = useRecoilValue(popupOpenState);
+    return isOpen ? <InnerPopup></InnerPopup> : <></>
 }
 export default Popup;
 
