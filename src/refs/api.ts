@@ -81,7 +81,6 @@ export async function checkAuth() {
 }
 
 export const doSignIn = async (staySignedIn?: boolean) => {
-    debugger;
     const loginURL = `${process.env.REACT_APP_API_URL}/login?staySignedIn=${staySignedIn}`;
     try {
         const res = await fetch(loginURL, { credentials: 'include' });

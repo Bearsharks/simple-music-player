@@ -47,7 +47,6 @@ export const usePlaylistManager = function () {
                 }
             } break;
             case DELETE: {
-                debugger;
                 const tgt = action.payload;
                 const playlistIDs: string[] = snapshot.getLoadable(playlistIDsState).contents;
                 const isSuccess = await deletePlaylist(tgt);
@@ -154,7 +153,6 @@ export const useMusicListManager = function () {
                 break;
             }
             case MusicListActionType.ADD_TO_NEXT_PLAYLIST: {
-                debugger;
                 const release = snapshot.retain();
                 try {
                     const musicList = await snapshot.getPromise(musicListState);
