@@ -27,8 +27,9 @@ function Main() {
     return (
         <div>
             <header className={`${styles["header"]}`}>
-                <SearchBarRecoil></SearchBarRecoil>
                 <HamburgerBtn onClickHandler={logoutBtnClicked}></HamburgerBtn>
+                <SearchBarRecoil></SearchBarRecoil>
+
             </header>
             <br />
             테스트 페이지입니다.

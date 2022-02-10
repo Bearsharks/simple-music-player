@@ -1,9 +1,17 @@
+@import './global.scss';
+
+@import url(http://fonts.googleapis.com/earlyaccess/notosanskr.css);
+
 .App {
   text-align: center;
   
 }
 body{
   overflow: hidden;
+  padding:5px;
+  color: $font-color;
+  background-color: $bg-color;
+  font-family: $font-family;
 }
 ul{
   list-style:none;
