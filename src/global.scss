@@ -1,11 +1,12 @@
-$header-size : 50px;
+$header-size : 30px;
 $player-size : 30px;
 $header-z-index : 200;
 $player-z-index : 100;
-$blueblack: #001A23;
-$reverse-blueblack: #FFFFFA;
-
-
+$bg-color: #030303;
+$bg-secondary-color: #2c2c2c;
+$font-color: white;
+$font-secondary-color : #909090;
+$font-family: Roboto, 'Noto Sans KR',Arial,sans-serif;
 @mixin style-blueblack {
     background-color: $blueblack;
     color : $reverse-blueblack;
