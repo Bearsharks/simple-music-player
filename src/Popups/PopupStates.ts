@@ -1,17 +1,12 @@
 import { atom, useRecoilCallback } from "recoil";
 import { playlistInfoStateFamily } from '../recoilStates/atoms/playlistAtoms'
 export const ModalOpenState = atom<boolean>({
-    key: "formPopupOpen",
+    key: "ModalOpen",
     default: false
 })
-
-export const FormPopupOpenState = atom<boolean>({
-    key: "formPopupOpen",
-    default: false
-})
-export const FormPopupState = atom<FormPopupData>({
-    key: "formPopup",
-    default: {} as FormPopupData
+export const ModalInfoState = atom<ModalInfoData>({
+    key: "ModalInfo",
+    default: {} as ModalInfoData
 })
 
 export enum OptionSelectorKind {
@@ -44,43 +39,43 @@ export const popupOpenState = atom<boolean>({
 })
 
 
-export interface FormPopupData {
-    kind: FormKind;
+export interface ModalInfoData {
+    kind: ModalKind;
     data?: any;
 }
 
-export enum FormKind {
+export enum ModalKind {
     CreatePlaylist, UpdatePlaylist, ImportYTPlaylist
 }
 
 export const useFormPopupManager = function () {
-    return useRecoilCallback(({ set, snapshot }) => async (kind: FormKind, data?: unknown) => {
+    return useRecoilCallback(({ set, snapshot }) => async (kind: ModalKind, data?: unknown) => {
         switch (kind) {
-            case FormKind.CreatePlaylist: {
-                const popupData: FormPopupData = {
-                    kind: FormKind.CreatePlaylist,
+            case ModalKind.CreatePlaylist: {
+                const popupData: ModalInfoData = {
+                    kind: ModalKind.CreatePlaylist,
                 }
-                set(FormPopupState, popupData);
-                set(FormPopupOpenState, true);
+                set(ModalInfoState, popupData);
+                set(ModalOpenState, true);
             } break;
-            case FormKind.UpdatePlaylist: {
+            case ModalKind.UpdatePlaylist: {
                 if (typeof data !== "string") {
                     throw "playlist id is not string";
                 }
                 const playlistInfo = await snapshot.getPromise(playlistInfoStateFamily(data));
-                const popupData: FormPopupData = {
-                    kind: FormKind.UpdatePlaylist,
+                const popupData: ModalInfoData = {
+                    kind: ModalKind.UpdatePlaylist,
                     data: playlistInfo
                 }
-                set(FormPopupState, popupData);
-                set(FormPopupOpenState, true);
+                set(ModalInfoState, popupData);
+                set(ModalOpenState, true);
             } break;
-            case FormKind.ImportYTPlaylist: {
-                const popupData: FormPopupData = {
-                    kind: FormKind.ImportYTPlaylist
+            case ModalKind.ImportYTPlaylist: {
+                const popupData: ModalInfoData = {
+                    kind: ModalKind.ImportYTPlaylist
                 }
-                set(FormPopupState, popupData);
-                set(FormPopupOpenState, true);
+                set(ModalInfoState, popupData);
+                set(ModalOpenState, true);
             } break;
         }
     });

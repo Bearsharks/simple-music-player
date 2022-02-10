@@ -1,5 +1,5 @@
 import { useRecoilValue, useSetRecoilState } from 'recoil'
-import { popupOpenState, PopupInfoState, PopupInfo, PopupKind, useFormPopupManager, FormKind } from './PopupStates';
+import { popupOpenState, PopupInfoState, PopupInfo, PopupKind, useFormPopupManager, ModalKind } from './PopupStates';
 import styles from './Popup.module.scss'
 import { memo, useRef, useEffect, useState } from 'react';
 import { MusicInfo, MusicInfoArrayCheck, MusicListAction, MusicListActionType, PlaylistAction, PlaylistActionType } from '../refs/constants';
@@ -41,7 +41,6 @@ function InnerPopup() {
 
     useEffect(() => {
         const onClickOutsideHandler = (event: MouseEvent | TouchEvent) => {
-            debugger;
             if (curRef.current && curRef.current.contains(event.target as Node)) {
                 return;
             }
@@ -204,7 +203,7 @@ const PlaylistOptions = memo(function ({ setPopupOpen, playlistid }: PlaylistOpt
         musicListManager(action);
     }
     const updatePlaylistInfo = (playlistid: string) => {
-        formPopupManager(FormKind.UpdatePlaylist, playlistid);
+        formPopupManager(ModalKind.UpdatePlaylist, playlistid);
     }
     const deletePlaylist = (playlistid: string) => {
         playlistManager({
@@ -235,6 +234,7 @@ interface SearchBarOptionsProps {
 const SearchBarOptions = memo(function ({ setPopupOpen, textarea }: SearchBarOptionsProps) {
     const musicListManager = useMusicListManager();
     const addMusics = async (textarea: HTMLTextAreaElement, type?: MusicListActionType) => {
+        if (!textarea.value) return;
         type = type ? type : MusicListActionType.APPEND_PLAYLIST;
         try {
             const searchResult: MusicInfo[] = await searchByQuery(textarea.value);
