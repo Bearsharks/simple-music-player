@@ -1,5 +1,5 @@
 import { useRecoilState, useRecoilValue } from 'recoil'
-import { FormPopupState, FormKind, ModalOpenState } from './PopupStates';
+import { ModalInfoState, ModalKind, ModalOpenState } from './PopupStates';
 import styles from './Modal.module.scss'
 import { useState, useRef, Suspense } from 'react';
 import { Playlist, PlaylistAction, PlaylistActionType, PlaylistInfo } from '../refs/constants';
@@ -22,16 +22,16 @@ function Modal() {
 }
 
 function ModalForm({ setPopupOpen }: { setPopupOpen: (bool: boolean) => void }) {
-    const modalState = useRecoilValue(FormPopupState);
+    const modalState = useRecoilValue(ModalInfoState);
     const closePopup = () => {
         setPopupOpen(false);
     }
     const children = (() => {
         switch (modalState.kind) {
-            case FormKind.CreatePlaylist:
-            case FormKind.UpdatePlaylist:
+            case ModalKind.CreatePlaylist:
+            case ModalKind.UpdatePlaylist:
                 return <PlaylistForm kind={modalState.kind} closePopup={closePopup} playlistInfo={modalState.data} />;
-            case FormKind.ImportYTPlaylist:
+            case ModalKind.ImportYTPlaylist:
                 return <Suspense fallback={<Spinner />}>
                     <ImportYTPlaylistForm closePopup={closePopup} />
                 </Suspense>;
@@ -93,7 +93,7 @@ interface FormItem {
 }
 interface PlaylistFormProps {
     closePopup: () => void;
-    kind: FormKind;
+    kind: ModalKind;
     playlistInfo?: PlaylistInfo;
 }
 function PlaylistForm({ closePopup, kind, playlistInfo }: PlaylistFormProps) {
@@ -113,11 +113,11 @@ function PlaylistForm({ closePopup, kind, playlistInfo }: PlaylistFormProps) {
             for (let i = 0; i < arr.length; i++) {
                 data[formItems[i].id] = arr[i].value;
             }
-            if (kind === FormKind.UpdatePlaylist) {
+            if (kind === ModalKind.UpdatePlaylist) {
                 data.id = playlistInfo?.id;
             }
             const action: PlaylistAction = {
-                type: kind === FormKind.CreatePlaylist ? PlaylistActionType.CREATE : PlaylistActionType.UPDATE,
+                type: kind === ModalKind.CreatePlaylist ? PlaylistActionType.CREATE : PlaylistActionType.UPDATE,
                 payload: {
                     info: data as PlaylistInfo
                 }

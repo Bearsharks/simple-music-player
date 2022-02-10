@@ -1,7 +1,7 @@
 import styles from './PlaylistsRecoil.module.scss';
 import { useRecoilValue, useSetRecoilState } from "recoil";
 import { useMusicListManager, playlistInfosState } from "./recoilStates/atoms/playlistAtoms";
-import { useFormPopupManager, FormKind, PopupInfoState, PopupKind } from './Popups/PopupStates';
+import { useFormPopupManager, ModalKind, PopupInfoState, PopupKind } from './Popups/PopupStates';
 import { MusicListAction, MusicListActionType, } from './refs/constants';
 import Playlists from './components/Playlists';
 function TestPage() {
@@ -27,10 +27,10 @@ function TestPage() {
         });
     }
     const openCreatePlaylistPopup = () => {
-        formPopupManager(FormKind.CreatePlaylist);
+        formPopupManager(ModalKind.CreatePlaylist);
     }
     const openYTPlaylistPopup = () => {
-        formPopupManager(FormKind.ImportYTPlaylist);
+        formPopupManager(ModalKind.ImportYTPlaylist);
     }
     return (
         <div>플레이리스트
