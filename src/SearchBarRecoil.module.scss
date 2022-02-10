@@ -1,10 +1,6 @@
 @import './global.scss';
 
 .wrapper{
-    padding-right: $header-size;
-    position: absolute;
-    top: 0px;
     height: $header-size;
-    width: calc(100vw - $header-size);
     z-index: $header-z-index+1;
 }

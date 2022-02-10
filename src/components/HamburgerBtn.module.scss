@@ -1,12 +1,13 @@
 @import "../global.scss";
 
 .wrapper{
-    height:50px;
+    height:30px;
 }
 
 .hamburger-btn {
     height: $header-size;
     width: $header-size;    
+    border: 0px;
 }
 .hamburger-wrapper {
     height: 100%;
@@ -17,8 +18,8 @@
     
 }
 @mixin hamburger-line (){
-    width: 40px;
-    height: 3px;    
+    width: 27px;
+    height: 2.5px;    
     transition : all 0.5s ease;
     background: black;
 }
@@ -34,13 +35,13 @@
     &:after{
         @include hamburger-line();
         @include hamburger-pseudo ();
-        top : -13px;
+        top : -10px;
     }
     
     &:before {
         @include hamburger-line();
         @include hamburger-pseudo ();
-        top : 11px;
+        top : 7px;
     } 
 }
 
