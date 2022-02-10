@@ -27,6 +27,8 @@ export const playlistIDsState = atom<string[]>({
         getPlaylistInfos().then((result) => {
             const ids = result.map((playlistInfo) => playlistInfo.id);
             resolve(ids);
+        }).catch((e) => {
+            resolve([]);
         })
     })
 })

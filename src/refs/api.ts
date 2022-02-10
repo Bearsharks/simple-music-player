@@ -5,7 +5,7 @@ export async function getPlaylistInfos(): Promise<PlaylistInfo[]> {
     const res = await fetch(`${process.env.REACT_APP_API_URL}/playlists`, {
         credentials: 'include'
     });
-    const playlistInfos = res.json();
+    const playlistInfos = await res.json();
     return playlistInfos;
 }
 
