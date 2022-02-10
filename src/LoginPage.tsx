@@ -4,10 +4,15 @@ const imgSrc = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAMAAACdt4
 
 
 function SignInPage() {
-    const inputRef = useRef();
+    const inputRef = useRef<HTMLInputElement>(null);
+    const signIn = () => {
+        if (inputRef.current) {
+            doSignIn(inputRef.current.checked);
+        }
+    }
     return (
         <div >
-            <div onClick={doSignIn}>
+            <div onClick={signIn}>
                 <img src={imgSrc} alt='구글로그인아이콘' />
                 <label>구글로 로그인</label>
             </div>
