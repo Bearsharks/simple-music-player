@@ -2,15 +2,17 @@ import styles from './HamburgerBtn.module.scss';
 import React, { useState } from 'react';
 
 interface HamburgerBtnProps {
-    onClickHandler: (e: React.MouseEvent, isOpen: boolean) => void;
+    onClickHandler?: (e: React.MouseEvent, isOpen: boolean) => void;
+    isActive: boolean;
+    setActive: (arg0: boolean) => void;
     initialValue?: boolean;
 }
 function HamburgerBtn(props: HamburgerBtnProps) {
-    const [isActive, setActive] = useState(props.initialValue ? props.initialValue : false);
     const togleActive = (e: React.MouseEvent) => {
-        const isOpen = (isActive) ? false : true;
-        setActive(isOpen);
-        props.onClickHandler(e, isOpen);
+        e.stopPropagation();
+        const isOpen = (props.isActive) ? false : true;
+        props.setActive(isOpen);
+        if (props.onClickHandler) props.onClickHandler(e, isOpen);
     }
     return (
         <button className={styles[`hamburger-btn`]}
@@ -19,7 +21,7 @@ function HamburgerBtn(props: HamburgerBtnProps) {
                 className={styles[`hamburger-wrapper`]}
             >
                 <div
-                    className={styles[`hamburger`] + " " + ((isActive) ? styles[`hamburger--active`] : "")}
+                    className={styles[`hamburger`] + " " + ((props.isActive) ? styles[`hamburger--active`] : "")}
                 />
             </div>
         </button>
