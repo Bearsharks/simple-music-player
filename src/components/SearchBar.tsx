@@ -1,4 +1,5 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useRef, useState } from "react";
+import OuterClickEventCatcher from "./OuterClickEventCatcher";
 import styles from './SearchBar.module.scss';
 export interface SearchBarProps {
     search: (event: React.MouseEvent, textarea: HTMLTextAreaElement) => void;
@@ -43,7 +44,7 @@ function SearchBar(props: SearchBarProps) {
                 className={`${isExpanded && styles['text--expand']}`}
                 ref={textInput}
                 onKeyDown={resize} onKeyUp={resize} onClick={expandTextArea}
-            > </textarea >
+            ></textarea >
             {!isExpanded &&
                 <button
                     className={`${styles['search-button']}`}
@@ -75,27 +76,3 @@ function SearchBar(props: SearchBarProps) {
     )
 }
 export default SearchBar;
-
-interface OuterClickEventCatcherProps {
-    setOpen: (arg0: boolean) => void;
-    wrapper: HTMLElement | null;
-    onClickHandler: (arg0: MouseEvent | TouchEvent) => void;
-}
-function OuterClickEventCatcher({ wrapper, setOpen, onClickHandler }: OuterClickEventCatcherProps) {
-    useEffect(() => {
-        const onClickOutsideHandler = (event: MouseEvent | TouchEvent) => {
-            if (wrapper && wrapper.contains(event.target as Node)) {
-                return;
-            }
-            onClickHandler(event);
-            setOpen(false);
-        };
-        document.addEventListener('click', onClickOutsideHandler);
-        document.addEventListener('touchend', onClickOutsideHandler);
-        return () => {
-            document.removeEventListener('click', onClickOutsideHandler);
-            document.removeEventListener('touchend', onClickOutsideHandler);
-        };
-    }, [setOpen, wrapper, onClickHandler]);
-    return <></>
-}

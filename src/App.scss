@@ -20,12 +20,6 @@ ul{
 header{
   height:45px;
 }
-.nav-btn {
-    height: 45px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
 main{
   display: flex;
   flex-direction: column;
@@ -42,19 +36,4 @@ main{
 }
 .curMusic{
   border: 1px solid black;
-}
-.navigation{
-	background-color: white;
-	z-index: 10;
-}
-.navigation{
-	background-color: white;
-	z-index: 10;
-	transform: translateY(0px);
-	background-color: rgba(255,255,255,0.8);
-	transition: all 0.6s ease;
-}
-.navigation--hide{
-	transform: translateY(-200%);
-	transition: all 0.6s ease;
 }
