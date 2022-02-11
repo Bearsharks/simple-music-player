@@ -155,7 +155,6 @@ const MusicOptions = memo(function ({ setPopupOpen, musicInfos, evTarget }: Musi
             data: items
         }
         setPopupInfo(info);
-        setPopupOpen(false);
     }
     const deleteMusic = (items: MusicInfo[]) => {
         const delAction: MusicListAction = {
@@ -173,7 +172,7 @@ const MusicOptions = memo(function ({ setPopupOpen, musicInfos, evTarget }: Musi
     const options = [
         { icon: "O", name: "다음 음악으로 재생", onClickHandler: onClickHandlerWrapper(addToNextMusic) },
         { icon: "O", name: "목록에 추가", onClickHandler: onClickHandlerWrapper(appendMusic) },
-        { icon: "O", name: "재생목록에 추가", onClickHandler: onClickHandlerWrapper(addToPlaylist) },
+        { icon: "O", name: "재생목록에 추가", onClickHandler: () => addToPlaylist(musicInfos) },
         { icon: "O", name: "목록에서 삭제", onClickHandler: onClickHandlerWrapper(deleteMusic) }
     ];
     return <OptionSelector options={options} />;
