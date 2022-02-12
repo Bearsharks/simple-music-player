@@ -21,29 +21,56 @@ function PlayerController(props: PlayerControllerProps) {
     return (
         <div className={styles[`wrapper`]} >
             {props.musicInfo.name &&
-                <div>
-                    <div className={styles[`wrapper_progress-bar`]}>
-                        <ProgressBar></ProgressBar>
-                    </div>
+                <>
+                    <ProgressBar></ProgressBar>
                     <div className={styles[`wrapper_controller`]} >
-                        <div onClick={props.goPrev}>뒤</div>
-                        <div onClick={props.togglePlayState}>
-                            {(props.isPlaying) ?
-                                <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="#000000"><path d="M0 0h24v24H0V0z" fill="none" /><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" /></svg> :
-                                <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="#000000"><path d="M0 0h24v24H0V0z" fill="none" /><path d="M10 8.64L15.27 12 10 15.36V8.64M8 5v14l11-7L8 5z" /></svg>
-                            }
+                        <div className={styles[`left-control`]}>
+                            <div className={styles[`previous-button`]} onClick={props.goPrev}>
+                                <span className="material-icons">skip_previous</span>
+                            </div>
+                            <div className={styles[`play-pause-button`]} onClick={props.togglePlayState}>
+                                <span className="material-icons md-32">
+                                    {(props.isPlaying) ? "pause" : "play_arrow"}
+                                </span>
+                            </div>
+                            <div className={styles[`next-button`]} onClick={props.goNext}>
+                                <span className="material-icons">skip_next</span>
+                            </div>
                         </div>
-                        <div onClick={props.goNext}>앞</div>
-                        <div>{props.musicInfo.name}</div>
-                        <SoundController></SoundController>
-                        <button onClick={popupOpen}>버튼</button>
-                        <button onClick={props.togglePlayerVisiblity}>
-                            {props.playerVisiblity ? `V` : `ㅅ`}
-                        </button>
+                        <div className={styles["midle-control"]}>
+                            <div className={styles["cur-music-info"]}>{props.musicInfo.name}</div>
+                            <div className={styles["more-vert-button"]} onClick={popupOpen}>
+                                <span className="material-icons">more_vert</span>
+                            </div>
+                        </div>
+                        <div className={styles["right-control"]}>
+                            <ExpandMenus></ExpandMenus>
+                            <div
+                                className={`${styles["right-control__show-list-btn"]} ${props.playerVisiblity && styles["right-control__show-list-btn--rot"]}`}
+                                onClick={props.togglePlayerVisiblity}>
+                                <span className={"material-icons md-28"}>
+                                    arrow_drop_down
+                                </span>
+                            </div>
+                        </div>
+
                     </div>
-                </div>}
+                </>}
         </div>
     );
 }
 
 export default PlayerController;
+
+function ExpandMenus() {
+    return (
+        <div className={styles['expand-menus']}>
+            <div className={styles['expand-menus__button']}>
+                <span className="material-icons">arrow_left</span>
+            </div>
+            <div className={styles['expand-menus__menu']}>
+                <SoundController></SoundController>
+            </div>
+        </div>
+    );
+}
