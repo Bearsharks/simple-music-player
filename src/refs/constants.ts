@@ -8,9 +8,11 @@ export interface MusicInfoItem extends MusicInfo {
     key: string;
 }
 export interface MusicInfo {
-    videoID: string,
-    name: string,
-    query: string
+    videoID: string;
+    name: string;
+    query: string;
+    owner: string;
+    thumbnail: string;
 }
 export interface Playlist {
     info: PlaylistInfo,

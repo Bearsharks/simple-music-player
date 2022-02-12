@@ -1,6 +1,5 @@
 import React from 'react';
 import { ComponentStory, ComponentMeta } from '@storybook/react';
-import { musicListFixture } from './fixture/fixture';
 import PlayerController from '../../components/PlayerController';
 
 export default {
@@ -13,5 +12,5 @@ const Template: ComponentStory<typeof PlayerController> = (args) => <PlayerContr
 
 export const Inited = Template.bind({});
 Inited.args = {
-    musicInfo: musicListFixture[0]
+
 };

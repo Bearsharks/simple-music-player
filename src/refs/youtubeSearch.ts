@@ -10,22 +10,25 @@ function toMusicInfo(data: any, type: SearchType, query: string): MusicInfo {
         return {
             videoID: data.snippet.resourceId.videoId,
             name: data.snippet.title,
-            //data.snippet.description,
             query: query,
+            thumbnail: data.snippet.thumbnails.default.url,
+            owner: data.snippet.videoOwnerChannelTitle,
         }
     } else if (type === SearchType.Music) {
         return {
             videoID: data.id,
             name: data.snippet.title,
-            //data.snippet.description,
+            thumbnail: data.snippet.thumbnails.default.url,
             query: query,
+            owner: data.snippet.channelTitle,
         };
     } else {
         return {
             videoID: data.id.videoId,
             name: data.snippet.title,
-            // data.snippet.description,
             query: query,
+            thumbnail: data.snippet.thumbnails.default.url,
+            owner: data.snippet.channelTitle,
         };
     }
 }
@@ -56,7 +59,9 @@ export const searchByQuery = async (query: string): Promise<MusicInfo[]> => {
             newMusicList.push({
                 videoID: "",
                 name: queryList[i],
-                query: queryList[i]
+                query: queryList[i],
+                owner: "",
+                thumbnail: ""
             })
         }
     }
@@ -70,15 +75,16 @@ export default async function youtubeSearch(value: string, type: SearchType, pag
             part: `snippet`,
             playlistId: value,
             maxResults: 50,
-            fields: `nextPageToken,pageInfo,items(snippet(title,description,resourceId))`
+            //fields: `nextPageToken,pageInfo,items(snippet(title,description,resourceId,thumbnails(default)))`
+            fields: `nextPageToken,pageInfo,items(snippet(title,resourceId,thumbnails(default),videoOwnerChannelTitle))`
         };
         if (pageToken) params.pageToken = pageToken;
     } else if (type === SearchType.Music) {
+        debugger;
         params = {
-
             part: `snippet`,
             id: value,
-            fields: `items(id,snippet(title,description))`
+            fields: `items(id,snippet(title,thumbnails(default),channelTitle))`
         };
     } else if (type === SearchType.Search) {
         params = {
@@ -87,7 +93,7 @@ export default async function youtubeSearch(value: string, type: SearchType, pag
             type: `video`,
             topic: `/m/04rlf`,
             q: `${value} audio`,
-            fields: `items(id,snippet(title,description))`
+            fields: `items(id,snippet(title,thumbnails(default),channelTitle))`
         }
     }
     let query: string = Object.keys(params).map(k => encodeURIComponent(k) + '=' + encodeURIComponent(params[k])).join('&');
@@ -107,14 +113,9 @@ export default async function youtubeSearch(value: string, type: SearchType, pag
 //파람만들기 파람으로 패스 만들기 결과 반환하기
 const YTFetch = async (url: string, pageToken?: string): Promise<any> => {
     if (!sessionStorage.getItem("access_token")) {
-        try {
-            const token = await getToken();
-            if (token === "") return;
-            sessionStorage.setItem("access_token", token);
-        } catch (e) {
-            console.error(e);
-            return [];
-        }
+        const token = await getToken();
+        if (token === "") return;
+        sessionStorage.setItem("access_token", token);
     }
     url += `&access_token=${sessionStorage.getItem("access_token")}`;
     let res = await fetch(url);
