@@ -38,7 +38,10 @@ function PlayerController(props: PlayerControllerProps) {
                             </div>
                         </div>
                         <div className={styles["midle-control"]}>
-                            <div className={styles["cur-music-info"]}>{props.musicInfo.name}</div>
+                            <div className={styles["cur-music-info"]}
+                                title={props.musicInfo.name}
+
+                            >{props.musicInfo.name}</div>
                             <div className={styles["more-vert-button"]} onClick={popupOpen}>
                                 <span className="material-icons">more_vert</span>
                             </div>

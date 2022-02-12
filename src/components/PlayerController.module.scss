@@ -42,8 +42,9 @@ $button-size : 32px;
     width: 100%;
 }
 .cur-music-info{
-    width: 50%;
     max-width: 300px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
     overflow: hidden;
 }
 .more-vert-button{
