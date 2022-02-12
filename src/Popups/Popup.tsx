@@ -66,6 +66,7 @@ function InnerPopup() {
             top : top - curRef.current.offsetHeight;
 
         curRef.current.style.transform = `translate(${x}px, ${y}px)`;
+        curRef.current.style.visibility = "initial";
     }, [info, setOpen])
     return (
         <div
@@ -170,10 +171,10 @@ const MusicOptions = memo(function ({ setPopupOpen, musicInfos, evTarget }: Musi
         }
     }
     const options = [
-        { icon: "O", name: "다음 음악으로 재생", onClickHandler: onClickHandlerWrapper(addToNextMusic) },
-        { icon: "O", name: "목록에 추가", onClickHandler: onClickHandlerWrapper(appendMusic) },
-        { icon: "O", name: "재생목록에 추가", onClickHandler: () => addToPlaylist(musicInfos) },
-        { icon: "O", name: "목록에서 삭제", onClickHandler: onClickHandlerWrapper(deleteMusic) }
+        { icon: "playlist_play", name: "다음 음악으로 재생", onClickHandler: onClickHandlerWrapper(addToNextMusic) },
+        { icon: "queue_music", name: "목록에 추가", onClickHandler: onClickHandlerWrapper(appendMusic) },
+        { icon: "playlist_add", name: "재생목록에 추가", onClickHandler: () => addToPlaylist(musicInfos) },
+        { icon: "remove_circle_outline", name: "목록에서 삭제", onClickHandler: onClickHandlerWrapper(deleteMusic) }
     ];
     return <OptionSelector options={options} />;
 })
@@ -217,10 +218,10 @@ const PlaylistOptions = memo(function ({ setPopupOpen, playlistid }: PlaylistOpt
         }
     }
     const options = [
-        { icon: "S", name: "재생목록에 추가", onClickHandler: onClickHandlerWrapper(appendMusiclist) },
-        { icon: "A", name: "다음 음악으로 추가", onClickHandler: onClickHandlerWrapper(addToNextMusic) },
-        { icon: "U", name: "재생목록 수정", onClickHandler: onClickHandlerWrapper(updatePlaylistInfo) },
-        { icon: "X", name: "재생목록 삭제", onClickHandler: onClickHandlerWrapper(deletePlaylist) },
+        { icon: "playlist_add", name: "재생목록에 추가", onClickHandler: onClickHandlerWrapper(appendMusiclist) },
+        { icon: "playlist_play", name: "다음 음악으로 추가", onClickHandler: onClickHandlerWrapper(addToNextMusic) },
+        { icon: "edit", name: "재생목록 수정", onClickHandler: onClickHandlerWrapper(updatePlaylistInfo) },
+        { icon: "library_add_check", name: "재생목록 삭제", onClickHandler: onClickHandlerWrapper(deletePlaylist) },
     ];
     return <OptionSelector options={options} />;
 })
@@ -252,11 +253,11 @@ const SearchBarOptions = memo(function ({ setPopupOpen, textarea }: SearchBarOpt
     }
     const options = [
         {
-            icon: "O", name: "다음 음악으로 재생",
+            icon: "playlist_play", name: "다음 음악으로 재생",
             onClickHandler: () => addMusics(textarea, MusicListActionType.ADD_TO_NEXT)
         },
         {
-            icon: "O", name: "목록에 추가",
+            icon: "playlist_add", name: "목록에 추가",
             onClickHandler: () => addMusics(textarea, MusicListActionType.APPEND_ITEMS)
         }
     ]
