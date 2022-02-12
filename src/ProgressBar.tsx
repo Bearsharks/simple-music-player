@@ -46,7 +46,7 @@ function ProgressBar() {
             const zero = (sec >= 10) ? "" : "0"
             posX = posX < 10 ? 10 : posX;
             posX = posX > width - 10 ? width - 10 : posX;
-            timeInfo.current.style.left = `${posX}px`;
+            timeInfo.current.style.transform = `translateX(${posX}px`;
             timeInfo.current.textContent = `${min}:${zero}${sec}`;
         }
     }
