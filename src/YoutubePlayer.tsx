@@ -50,7 +50,9 @@ function YoutubePlayer() {
 		if (!ytPlayerInited || (!curMusic.query && !curMusic.videoID)) return;
 		const player = (window as any).player;
 		if (player.getPlayerState() !== PlayerState.ENDED &&
-			prevMusicRef.current && curMusic.key === prevMusicRef.current.key) return;
+			prevMusicRef.current &&
+			curMusic.key === prevMusicRef.current.key &&
+			curMusic.videoID === prevMusicRef.current.videoID) return;
 
 		if (curMusic.videoID) {
 			player.loadVideoById({ videoId: curMusic.videoID });
