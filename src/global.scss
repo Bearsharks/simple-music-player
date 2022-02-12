@@ -1,18 +1,19 @@
-$body-padding : 5px;
-
 $header-size : 30px;
-$player-size : 30px;
+$player-size : 64px;
+$header-padding-size : 5px;
+$scrollbar-width: 12px;
 
 $menu-button-z-index : 1000;
 $popup-z-index: 400;
 $sidemenu-z-index : 300;
 $header-z-index : 200;
-
 $player-z-index : 100;
 
 $bg-color: #030303;
 $bg-secondary-color: #2c2c2c;
-
+$bg-grey :#212121;
+$bg-light-grey: #4c4c4c;
+//#383838
 $font-color: white;
 $font-secondary-color : #909090;
 $font-family: Roboto, 'Noto Sans KR',Arial,sans-serif;
