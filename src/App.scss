@@ -6,20 +6,19 @@
   text-align: center;
   
 }
+
+.material-icons.md-24 { font-size: 24px; }
+.material-icons.md-28 { font-size: 28px; }
+.material-icons.md-32 { font-size: 32px; }
+.material-icons.md-48 { font-size: 48px; }
+
 body{
   overflow: hidden;
-  padding:5px;
   color: $font-color;
   background-color: $bg-color;
   font-family: $font-family;
 }
-ul{
-  list-style:none;
-  padding: 10px;
-}
-header{
-  height:45px;
-}
+
 main{
   display: flex;
   flex-direction: column;
@@ -27,13 +26,7 @@ main{
   margin: 0 auto;
   list-style:none;
 }
-.title{
-	padding: 10px;
-    z-index: 100;
-    font-weight: 600;
-    font-family: sans-serif;
 
-}
 .curMusic{
   border: 1px solid black;
 }

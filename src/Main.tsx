@@ -8,11 +8,14 @@ import { Suspense } from 'react';
 import Spinner from './components/Spinner';
 import Popup from './Popups/Popup';
 import HamburgerBtn from './components/HamburgerBtn';
+import SideMenu from './components/SideMenu';
+import { useRecoilState, useSetRecoilState } from 'recoil';
+import { sideMenuOpenState } from './recoilStates/sideMenu';
 function Main() {
     const navigate = useNavigate();
-    const logoutBtnClicked = (e: React.MouseEvent, isOpen: boolean) => {
+    const [isSideMenuOpen, setOpenSideMenu] = useRecoilState(sideMenuOpenState);
+    const logoutBtnClicked = (e: React.MouseEvent) => {
         e.stopPropagation();
-        if (isOpen) return;
 
         const logoutURL = `${process.env.REACT_APP_API_URL}/logout`;
         fetch(logoutURL, {
@@ -27,9 +30,8 @@ function Main() {
     return (
         <div>
             <header className={`${styles["header"]}`}>
-                <HamburgerBtn onClickHandler={logoutBtnClicked}></HamburgerBtn>
+                <HamburgerBtn setActive={setOpenSideMenu} isActive={isSideMenuOpen}></HamburgerBtn>
                 <SearchBarRecoil></SearchBarRecoil>
-
             </header>
             <br />
             테스트 페이지입니다.
@@ -39,6 +41,9 @@ function Main() {
                 <PlaylistsRecoil></PlaylistsRecoil>
             </Suspense>
             <MusicPlayer></MusicPlayer>
+            <SideMenu>
+                <button onClick={logoutBtnClicked}>로그아웃</button>
+            </SideMenu>
         </div>
     );
 }
