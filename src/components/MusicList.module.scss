@@ -1,3 +1,47 @@
-.music-list_item{
-    display: flex;
+@import '../global.scss';
+
+.music-list{
+    height: 100%;
+    overflow: auto;
+    padding-left: 10px;
+    @include append_scrollbar;
+}
+.drag_handle{
+    width: 32px;
+}
+.item__icon{
+    width: 32px;
+    height:32px;
+    object-fit: contain;
+    margin: 0 16px 0 0;
+}
+.item__text{
+    width: 100%;
+    padding-left: 10px;
+    text-align: left;
+    font-size: 16px;
+    line-height: 1.3;
+    font-weight: 500;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+}
+.item__text--light{
+    font-weight: 400;
+    color:$font-secondary-color
+}
+.container {
+    width: 100%;
+    padding: 5px 10px;
+
+    display: grid;    
+    grid-template-columns: 45px auto 50px;
+    grid-gap: 10px 10px;    
+    justify-items: stretch;
+    align-items: center;
+}
+.item{
+    width: 100%;
+    overflow: hidden;
+    text-align: center;
 }
