@@ -4,7 +4,7 @@ import { MusicInfoActionType, MusicInfoItem, PlayerState } from './refs/constant
 import { ytPlayerInitedState } from './recoilStates/atoms/ytplayerStates'
 import youtubeSearch, { SearchType } from './refs/youtubeSearch';
 import { musicPlayerState, useCurMusicManager, curMusicInfoState, musicPlayerProgressState } from './recoilStates/atoms/playlistAtoms';
-
+import styles from './YoutubePlayer.module.scss';
 function YoutubePlayer() {
 	const [ytPlayerInited, setYTPlayerInited] = useRecoilState(ytPlayerInitedState);
 	const setPlayState = useSetRecoilState(musicPlayerState);
@@ -19,12 +19,11 @@ function YoutubePlayer() {
 
 			const firstScriptTag = document.getElementsByTagName('script')[0];
 			firstScriptTag.parentNode?.insertBefore(tag, firstScriptTag);
-			const widthsize = Math.min(640, window.innerWidth);
 
 			(window as any).onYouTubeIframeAPIReady = function () {
 				(window as any).player = new (window as any).YT.Player('player', {
-					width: widthsize,
-					height: Math.round(widthsize * 10 / 16),
+					width: '100%',
+					height: '100%',
 					playerVars: { playsinline: 1, autoplay: 1 },
 					events: {
 						'onStateChange': (event: any) => {
@@ -72,7 +71,7 @@ function YoutubePlayer() {
 	}, [curMusic, ytPlayerInited])
 
 	return (
-		<div className={`playerwrapper`} id={`player`}></div>
+		<div className={styles['wrapper']} id={`player`}></div>
 	);
 }
 
