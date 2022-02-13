@@ -1,0 +1,28 @@
+@import '../global.scss';
+.player-detail{
+    z-index: 10;
+    width: 100vw;
+    height: calc(100vh - 104px);
+    background-color: $bg-color;
+
+    position: fixed;
+    bottom: 64px;
+
+    display: grid;
+    grid-template-rows: 24px calc(100vw * 9 / 16) 32px 48px auto;
+    transition: transform 0.6s ease;
+    grid-template-columns: auto;  
+    
+}
+.player-detail__hide{   
+    transform: translateY(100%);
+    visibility: hidden;
+	  transition: all 0.6s ease;
+}
+.player-detail__menus{
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    align-items: center;
+    text-align: right;
+    border-bottom: 1px solid white;
+}

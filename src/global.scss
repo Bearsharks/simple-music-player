@@ -1,6 +1,7 @@
 $header-size : 30px;
 $player-size : 64px;
 $header-padding-size : 5px;
+$header-footer-size: $header-size + $player-size + 2 * $header-padding-size;
 $scrollbar-width: 12px;
 
 $menu-button-z-index : 1000;
@@ -28,10 +29,10 @@ $font-family: Roboto, 'Noto Sans KR',Arial,sans-serif;
 
 @mixin append_scrollbar {
     scrollbar-width: thin;
-    scrollbar-color: #babac0 #f4f4f4;
+    scrollbar-color: $bg-light-grey #717171;
     &::-webkit-scrollbar {
         //@function:#f4f4f4;
-        width:7px;
+        width:12px;
     }
     
     /* background of the scrollbar except button or resizer */
@@ -39,11 +40,11 @@ $font-family: Roboto, 'Noto Sans KR',Arial,sans-serif;
         //background-color:#f4f4f4;
     }
     &::-webkit-scrollbar-thumb:hover {
-        background-color:#939397;
+        background-color:#717171;
     }
     /* scrollbar itself */
     &::-webkit-scrollbar-thumb {
-        background-color:#babac0;
+        background-color:$bg-light-grey;
     }    
     /* set button(top and bottom of the scrollbar) */
     &::-webkit-scrollbar-button {
