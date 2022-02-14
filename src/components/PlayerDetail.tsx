@@ -43,7 +43,6 @@ function PlayerDetail({ playerVisiblity, addToPlaylist, openPopup, musicList }: 
             </div>
             <MusicList
                 items={musicList}
-                addToPlaylist={addToPlaylist}
                 playMusic={playMusic}
                 openOptionsPopup={openPopup}
                 changeOrder={changeOrder} />

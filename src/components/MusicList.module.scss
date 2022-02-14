@@ -9,13 +9,13 @@
 .drag_handle{
     width: 32px;
 }
-.item__icon{
+.grid-item__icon{
     width: 32px;
     height:32px;
     object-fit: contain;
     margin: 0 16px 0 0;
 }
-.item__text{
+.grid-item__text{
     width: 100%;
     padding-left: 10px;
     text-align: left;
@@ -26,11 +26,18 @@
     white-space: nowrap;
     overflow: hidden;
 }
-.item__text--light{
+.grid-item__text--light{
     font-weight: 400;
     color:$font-secondary-color
 }
-.container {
+.wrapper{ 
+    display: flex;
+    align-items: center;
+}
+.wrapper--selected{
+    background-color: $bg-light-grey;
+}
+.grid-container {
     width: 100%;
     padding: 5px 10px;
 
@@ -39,9 +46,37 @@
     grid-gap: 10px 10px;    
     justify-items: stretch;
     align-items: center;
+    &:hover .overlay{
+        visibility: initial;
+    }
 }
-.item{
-    width: 100%;
+.grid-item{
+    position: relative;
     overflow: hidden;
     text-align: center;
+    
+}
+.grid-item--fit{
+    width: 100%;
+    height: 100%;
+}
+.overlay{
+    position: absolute;
+    top: 0px;
+
+    width: calc(100% - 8px);
+    height: calc(100% - 8px);
+    padding: 4px;
+    
+    background-color: rgba($color: #000000, $alpha: 0.4);
+    visibility: hidden;
+}
+.overlay--show{
+    visibility: initial;
+}
+
+.thumbnail{
+    object-fit: cover;
+    width: 100%;
+    height: 100%;
 }
