@@ -1,0 +1,12 @@
+.wrapper{
+    display: flex;
+    flex-wrap: wrap;
+    width: 140px;
+    height: 140px;
+    border: 2px solid black;
+    border-radius: 2px;
+    & div{
+        width: 50%;
+        height: 50%;
+    }
+}
