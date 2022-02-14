@@ -150,7 +150,8 @@ export const getMyYTPlaylistInfos = async (): Promise<PlaylistInfo[]> => {
             id: info.id,
             name: info.snippet.title,
             description: info.snippet.description,
-            //info.snippet.thumbnails.default
+            thumbnails: info.snippet.thumbnails.default,
+            itemCount: info.contentDetails.itemCount
         }
     })
 }

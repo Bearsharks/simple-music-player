@@ -66,7 +66,9 @@ export interface PlaylistAction {
 export interface PlaylistInfo {
     id: string,
     name: string,
-    description: string
+    description: string,
+    thumbnails: string[],
+    itemCount: number
 }
 
 export const INVALID_MUSIC_INFO = {
