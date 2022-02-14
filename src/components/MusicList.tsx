@@ -100,7 +100,16 @@ function MusicItem({ idx, item, playMusic, openOptionsPopup, dragHandleProps, is
             </div>
             <div className={styles[`grid-container`]} onClick={() => { playMusic(idx) }}>
                 <div className={`${styles[`grid-item`]} ${styles["grid-item--fit"]}`} >
-                    <img className={styles["thumbnail"]} alt={item.name} src={item.thumbnail} />
+                    {
+                        item.thumbnail ?
+                            <img className={styles["thumbnail"]} alt={item.name} src={item.thumbnail} /> :
+                            <div className={styles["thumbnail"]}>
+                                <span className="material-icons md-32">
+                                    question_mark
+                                </span>
+                            </div>
+                    }
+
                     <div className={`${styles["overlay"]} ${isCurMusic && styles["overlay--show"]}`}>
                         <span className="material-icons md-32">
                             play_arrow
