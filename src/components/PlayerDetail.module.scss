@@ -2,9 +2,9 @@
 .player-detail{
     z-index: 10;
     width: 100vw;
-    height: calc(100vh - 104px);
+    
     background-color: $bg-color;
-
+    height: calc(100% - $player-size);
     position: fixed;
     bottom: 64px;
 
