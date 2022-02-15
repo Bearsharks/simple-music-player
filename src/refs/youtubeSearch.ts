@@ -80,7 +80,6 @@ export default async function youtubeSearch(value: string, type: SearchType, pag
         };
         if (pageToken) params.pageToken = pageToken;
     } else if (type === SearchType.Music) {
-        debugger;
         params = {
             part: `snippet`,
             id: value,
