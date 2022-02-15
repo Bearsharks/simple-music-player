@@ -1,7 +1,7 @@
 import styles from './PlaylistsRecoil.module.scss';
 import { useRecoilValue, useSetRecoilState } from "recoil";
 import { useMusicListManager, playlistInfosState } from "./recoilStates/atoms/playlistAtoms";
-import { useFormPopupManager, ModalKind, PopupInfoState, PopupKind } from './Popups/PopupStates';
+import { useFormPopupManager, ModalKind, PopupInfoState, PopupKind, popupOpenState } from './Popups/PopupStates';
 import { MusicListAction, MusicListActionType, } from './refs/constants';
 import Playlists from './components/Playlists';
 import Spinner from './components/Spinner';
@@ -11,7 +11,7 @@ function PlaylistsRecoil() {
     const musicListManager = useMusicListManager();
     const formPopupManager = useFormPopupManager();
     const setPopupInfoState = useSetRecoilState(PopupInfoState);
-
+    const setOpen = useSetRecoilState(popupOpenState);
     const setMusiclist = (playlistid: string) => {
         const action: MusicListAction = {
             type: MusicListActionType.SET,
@@ -27,6 +27,7 @@ function PlaylistsRecoil() {
             kind: PopupKind.PlaylistOptions,
             data: playlistid
         });
+        setOpen(true);
     }
     const openCreatePlaylistPopup = () => {
         formPopupManager(ModalKind.CreatePlaylist);

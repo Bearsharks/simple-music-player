@@ -11,7 +11,6 @@ function InnerPopup() {
     const curRef = useRef<HTMLDivElement>(null);
     const info: PopupInfo = useRecoilValue(PopupInfoState);
     const setOpen = useSetRecoilState(popupOpenState);
-
     const children = (() => {
         switch (info.kind) {
             case PopupKind.PlaylistOptions:
