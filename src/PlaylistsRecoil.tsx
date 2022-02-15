@@ -4,7 +4,9 @@ import { useMusicListManager, playlistInfosState } from "./recoilStates/atoms/pl
 import { useFormPopupManager, ModalKind, PopupInfoState, PopupKind } from './Popups/PopupStates';
 import { MusicListAction, MusicListActionType, } from './refs/constants';
 import Playlists from './components/Playlists';
-function TestPage() {
+import Spinner from './components/Spinner';
+import { Suspense } from 'react';
+function PlaylistsRecoil() {
     const playlistInfos = useRecoilValue(playlistInfosState);
     const musicListManager = useMusicListManager();
     const formPopupManager = useFormPopupManager();
@@ -33,17 +35,18 @@ function TestPage() {
         formPopupManager(ModalKind.ImportYTPlaylist);
     }
     return (
-        <div>플레이리스트
-            <button onClick={openCreatePlaylistPopup}>새 재생목록</button>
-            <button onClick={openYTPlaylistPopup}>유튜브</button>
-            <Playlists
-                playlistInfos={playlistInfos}
-                playPlaylist={setMusiclist}
-                openOptionsSelector={openOptionsSelector}
-            ></Playlists>
+        <div>
+            <Suspense fallback={<Spinner></Spinner>}>
+                <Playlists
+                    openCreatePlaylistPopup={openCreatePlaylistPopup}
+                    playlistInfos={playlistInfos}
+                    playPlaylist={setMusiclist}
+                    openOptionsSelector={openOptionsSelector}
+                ></Playlists>
+            </Suspense>
         </div>
     );
 }
 
 
-export default TestPage;
+export default PlaylistsRecoil;

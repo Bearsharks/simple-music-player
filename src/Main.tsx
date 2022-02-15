@@ -33,17 +33,20 @@ function Main() {
                 <HamburgerBtn setActive={setOpenSideMenu} isActive={isSideMenuOpen}></HamburgerBtn>
                 <SearchBarRecoil></SearchBarRecoil>
             </header>
-            <br />
-            테스트 페이지입니다.
-            <Suspense fallback={<Spinner></Spinner>}>
-                <FormPopup></FormPopup>
-                <Popup></Popup>
-                <PlaylistsRecoil></PlaylistsRecoil>
-            </Suspense>
-            <MusicPlayer></MusicPlayer>
-            <SideMenu>
-                <button onClick={logoutBtnClicked}>로그아웃</button>
-            </SideMenu>
+            <main>
+                <Suspense fallback={<Spinner></Spinner>}>
+                    <FormPopup></FormPopup>
+                    <Popup></Popup>
+                    <PlaylistsRecoil></PlaylistsRecoil>
+                </Suspense>
+                <MusicPlayer></MusicPlayer>
+                <SideMenu>
+                    <button onClick={logoutBtnClicked}>로그아웃</button>
+                </SideMenu>
+                <br />
+                <br />
+                <br />
+            </main>
         </div>
     );
 }
