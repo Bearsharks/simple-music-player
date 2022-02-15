@@ -1,5 +1,5 @@
 import { useRecoilValue, useSetRecoilState } from 'recoil'
-import { popupOpenState, PopupInfoState, PopupInfo, PopupKind, useFormPopupManager, ModalKind } from './PopupStates';
+import { popupOpenState, PopupInfoState, PopupInfo, PopupKind, useModalManager, ModalKind } from './PopupStates';
 import styles from './Popup.module.scss'
 import { memo, useRef, useEffect, useState } from 'react';
 import { MusicInfo, MusicInfoArrayCheck, MusicListAction, MusicListActionType, PlaylistAction, PlaylistActionType } from '../refs/constants';
@@ -33,6 +33,8 @@ function InnerPopup() {
                     return <AppendPlaylistPopup setPopupOpen={setOpen} musicInfos={info.data}></AppendPlaylistPopup>
                 }
                 throw "musicInfos is not valid can't render MusicOptions";
+            case PopupKind.YTOptions:
+                return <YTOptions setPopupOpen={setOpen} ></YTOptions>
             default:
                 return "";
         }
@@ -185,7 +187,7 @@ interface PlaylistOptionsProps {
 const PlaylistOptions = memo(function ({ setPopupOpen, playlistid }: PlaylistOptionsProps) {
     const playlistManager = usePlaylistManager();
     const musicListManager = useMusicListManager();
-    const formPopupManager = useFormPopupManager();
+    const formPopupManager = useModalManager();
     const appendMusiclist = (playlistid: string) => {
         const action: MusicListAction = {
             type: MusicListActionType.APPEND_PLAYLIST,
@@ -262,4 +264,22 @@ const SearchBarOptions = memo(function ({ setPopupOpen, textarea }: SearchBarOpt
     ]
     return <OptionSelector options={options} />;
 });
-
+//formPopupManager(ModalKind.ImportMyYTPlaylist);
+const YTOptions = memo(function ({ setPopupOpen }: { setPopupOpen: (isOpen: boolean) => void }) {
+    const modalManager = useModalManager();
+    const openModal = (kind: ModalKind) => {
+        modalManager(ModalKind.ImportMyYTPlaylist);
+        setPopupOpen(false);
+    }
+    const options = [
+        {
+            icon: "playlist_add", name: "내 재생목록 가져오기",
+            onClickHandler: () => openModal(ModalKind.ImportMyYTPlaylist)
+        },
+        {
+            icon: "add_link", name: "링크에서 가져오기",
+            onClickHandler: () => openModal(ModalKind.ImportYTPlaylistLink)
+        }
+    ]
+    return <OptionSelector options={options} />;
+});

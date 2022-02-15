@@ -19,7 +19,7 @@ export const OptionSelectorOpenState = atom<boolean>({
 })
 
 export enum PopupKind {
-    PlaylistOptions, MusicOptions, SelectTgtPlaylist, SearchOptions
+    PlaylistOptions, MusicOptions, SelectTgtPlaylist, SearchOptions, YTOptions
 }
 export interface PopupInfo {
     target: HTMLElement,
@@ -45,10 +45,10 @@ export interface ModalInfoData {
 }
 
 export enum ModalKind {
-    CreatePlaylist, UpdatePlaylist, ImportYTPlaylist
+    CreatePlaylist, UpdatePlaylist, ImportMyYTPlaylist, ImportYTPlaylistLink
 }
 
-export const useFormPopupManager = function () {
+export const useModalManager = function () {
     return useRecoilCallback(({ set, snapshot }) => async (kind: ModalKind, data?: unknown) => {
         switch (kind) {
             case ModalKind.CreatePlaylist: {
@@ -70,9 +70,9 @@ export const useFormPopupManager = function () {
                 set(ModalInfoState, popupData);
                 set(ModalOpenState, true);
             } break;
-            case ModalKind.ImportYTPlaylist: {
+            case ModalKind.ImportMyYTPlaylist: {
                 const popupData: ModalInfoData = {
-                    kind: ModalKind.ImportYTPlaylist
+                    kind: ModalKind.ImportMyYTPlaylist
                 }
                 set(ModalInfoState, popupData);
                 set(ModalOpenState, true);
