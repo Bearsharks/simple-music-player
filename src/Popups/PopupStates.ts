@@ -77,6 +77,13 @@ export const useModalManager = function () {
                 set(ModalInfoState, popupData);
                 set(ModalOpenState, true);
             } break;
+            case ModalKind.ImportYTPlaylistLink: {
+                const popupData: ModalInfoData = {
+                    kind: ModalKind.ImportYTPlaylistLink
+                }
+                set(ModalInfoState, popupData);
+                set(ModalOpenState, true);
+            }
         }
     });
 }
