@@ -13,18 +13,16 @@
 .material-icons.md-48 { font-size: 48px; }
 
 body{
-  overflow: hidden;
   color: $font-color;
   background-color: $bg-color;
   font-family: $font-family;
+  overflow: hidden;
 }
 
 main{
-  display: flex;
-  flex-direction: column;
-  width: 95vw;
-  margin: 0 auto;
-  list-style:none;
+  width: 100vw;
+  height: calc(100vh - $header-size);
+  @include append_scrollbar;
 }
 
 .curMusic{

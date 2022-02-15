@@ -28,6 +28,7 @@ $font-family: Roboto, 'Noto Sans KR',Arial,sans-serif;
 }
 
 @mixin append_scrollbar {
+    overflow: auto;
     scrollbar-width: thin;
     scrollbar-color: $bg-light-grey #717171;
     &::-webkit-scrollbar {
