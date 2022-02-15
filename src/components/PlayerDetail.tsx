@@ -28,24 +28,26 @@ function PlayerDetail({ playerVisiblity, addToPlaylist, openPopup, musicList }: 
         });
     }
     return (
-        <div className={`${styles['player-detail']} ${(!playerVisiblity) && styles['player-detail__hide']}`}>
-            <div></div>
-            <YoutubePlayer></YoutubePlayer>
-            <div></div>
-            <div className={styles['player-detail__menus']}>
-                <div>
-                    다음 트랙
-                </div>
+        <div className={`${styles['wrapper']} ${(!playerVisiblity) && styles['wrapper--hide']}`}>
+            <div className={`${styles['player-detail']} ${(!playerVisiblity) && styles['player-detail__hide']}`}>
                 <div></div>
-                <button onClick={(event: React.MouseEvent) => addToPlaylist(event, musicList)} >
-                    <span className="material-icons md-28">playlist_add</span> 재생목록에 추가
-                </button>
+                <YoutubePlayer></YoutubePlayer>
+                <div></div>
+                <div className={styles['player-detail__menus']}>
+                    <div>
+                        다음 트랙
+                    </div>
+                    <div></div>
+                    <button onClick={(event: React.MouseEvent) => addToPlaylist(event, musicList)} >
+                        <span className="material-icons md-28">playlist_add</span> 재생목록에 추가
+                    </button>
+                </div>
+                <MusicList
+                    items={musicList}
+                    playMusic={playMusic}
+                    openOptionsPopup={openPopup}
+                    changeOrder={changeOrder} />
             </div>
-            <MusicList
-                items={musicList}
-                playMusic={playMusic}
-                openOptionsPopup={openPopup}
-                changeOrder={changeOrder} />
         </div>
     );
 }

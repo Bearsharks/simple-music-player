@@ -5,19 +5,30 @@
     
     background-color: $bg-color;
     height: calc(100% - $player-size);
-    position: fixed;
-    bottom: 64px;
 
     display: grid;
     grid-template-rows: 24px calc(100vw * 9 / 16) 32px 48px auto;
     transition: transform 0.6s ease;
     grid-template-columns: auto;  
+    transition: all 0.6s ease;
     
+}
+.wrapper{
+    width: 100vw;
+    z-index: 10;
+    background-color: $bg-color;
+    height: calc(100% - $header-size);
+    position: fixed;
+    top: 30px;
+}
+.wrapper--hide{
+    transform: translateY(100%);
+    visibility: hidden;
+	transition: all 0.6s ease;
 }
 .player-detail__hide{   
     transform: translateY(100%);
-    visibility: hidden;
-	  transition: all 0.6s ease;
+	
 }
 .player-detail__menus{
     display: grid;
