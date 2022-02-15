@@ -1,7 +1,7 @@
 import styles from './PlaylistsRecoil.module.scss';
 import { useRecoilValue, useSetRecoilState } from "recoil";
 import { useMusicListManager, playlistInfosState } from "./recoilStates/atoms/playlistAtoms";
-import { useFormPopupManager, ModalKind, PopupInfoState, PopupKind, popupOpenState } from './Popups/PopupStates';
+import { useModalManager, ModalKind, PopupInfoState, PopupKind, popupOpenState } from './Popups/PopupStates';
 import { MusicListAction, MusicListActionType, } from './refs/constants';
 import Playlists from './components/Playlists';
 import Spinner from './components/Spinner';
@@ -9,7 +9,7 @@ import { Suspense } from 'react';
 function PlaylistsRecoil() {
     const playlistInfos = useRecoilValue(playlistInfosState);
     const musicListManager = useMusicListManager();
-    const formPopupManager = useFormPopupManager();
+    const formPopupManager = useModalManager();
     const setPopupInfoState = useSetRecoilState(PopupInfoState);
     const setOpen = useSetRecoilState(popupOpenState);
     const setMusiclist = (playlistid: string) => {
@@ -31,9 +31,6 @@ function PlaylistsRecoil() {
     }
     const openCreatePlaylistPopup = () => {
         formPopupManager(ModalKind.CreatePlaylist);
-    }
-    const openYTPlaylistPopup = () => {
-        formPopupManager(ModalKind.ImportYTPlaylist);
     }
     return (
         <div>
