@@ -11,14 +11,14 @@ function toMusicInfo(data: any, type: SearchType, query: string): MusicInfo {
             videoID: data.snippet.resourceId.videoId,
             name: data.snippet.title,
             query: query,
-            thumbnail: data.snippet.thumbnails.default.url,
+            thumbnail: data.snippet.thumbnails.default?.url ? data.snippet.thumbnails.default.url : "",
             owner: data.snippet.videoOwnerChannelTitle,
         }
     } else if (type === SearchType.Music) {
         return {
             videoID: data.id,
             name: data.snippet.title,
-            thumbnail: data.snippet.thumbnails.default.url,
+            thumbnail: data.snippet.thumbnails.default?.url ? data.snippet.thumbnails.default.url : "",
             query: query,
             owner: data.snippet.channelTitle,
         };
@@ -39,22 +39,10 @@ export const searchByQuery = async (query: string): Promise<MusicInfo[]> => {
     let newMusicList: MusicInfo[] = [];
     for (let i = 0; i < queryList.length; i++) {
         if (queryList[i].substring(0, 4) === 'http') {
-            let result: any = {};
-            let qs = queryList[i].substring(queryList[i].indexOf('?') + 1).split('&');
-            for (let j = 0; j < qs.length; j++) {
-                const [kind, value] = qs[j].split('=');
-                result[kind] = value;
-            }
-            if (result['list']) {
-                const searchResult: MusicInfo[] = await youtubeSearch(result['list'], SearchType.List);
-                newMusicList.push(...searchResult);
-            } else if (result['v']) {
-                //result.push(...await this.appendMusic(g.id));
-                const searchResult: MusicInfo[] = await youtubeSearch(result['v'], SearchType.Music);
-                newMusicList.push(...searchResult);
-            } else {
-                console.log(`${i}번째 검색어 잘 못된 url`);
-            }
+            const { id, kind } = urlToId(queryList[i])
+            if (!id) console.log(`${i}번째 검색어 잘 못된 url`);
+            const searchResult: MusicInfo[] = await youtubeSearch(id, kind);
+            newMusicList.push(...searchResult);
         } else {
             newMusicList.push({
                 videoID: "",
@@ -153,4 +141,43 @@ export const getMyYTPlaylistInfos = async (): Promise<PlaylistInfo[]> => {
             itemCount: info.contentDetails.itemCount
         }
     })
+}
+
+export const getYTPlaylistByID = async (id: string): Promise<PlaylistInfo> => {
+    const params: any = {
+        part: `snippet,contentDetails`,
+        id: id
+    };
+    let query: string = Object.keys(params).map(k => encodeURIComponent(k) + '=' + encodeURIComponent(params[k])).join('&');
+    let info = (await YTFetch(`https://www.googleapis.com/youtube/v3/playlists?${query}`))[0];
+    return {
+        id: info.id,
+        name: info.snippet.title,
+        description: info.snippet.description,
+        thumbnails: info.snippet.thumbnails.default,
+        itemCount: info.contentDetails.itemCount
+    }
+}
+
+export const urlToId = (url: string): { id: string, kind: SearchType } => {
+    if (url.substring(0, 4) === 'http') {
+        let result: any = {};
+        let qs = url.substring(url.indexOf('?') + 1).split('&');
+        for (let j = 0; j < qs.length; j++) {
+            const [kind, value] = qs[j].split('=');
+            result[kind] = value;
+        }
+        if (result['list']) {
+            return {
+                kind: SearchType.List,
+                id: result['list']
+            }
+        } else if (result['v']) {
+            return {
+                kind: SearchType.Music,
+                id: result['v']
+            }
+        }
+    }
+    return {} as { id: string, kind: SearchType };
 }

@@ -1,9 +1,9 @@
 import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil'
 import { ModalInfoState, ModalKind, ModalOpenState, PopupInfoState, PopupKind, popupOpenState, useModalManager } from './PopupStates';
 import styles from './Modal.module.scss'
-import { useState, useRef, Suspense } from 'react';
+import React, { useState, useRef, Suspense } from 'react';
 import { Playlist, PlaylistAction, PlaylistActionType, PlaylistInfo } from '../refs/constants';
-import youtubeSearch, { SearchType } from '../refs/youtubeSearch';
+import youtubeSearch, { getYTPlaylistByID, SearchType, urlToId } from '../refs/youtubeSearch';
 import Spinner from '../components/Spinner';
 import { myYTPlaylistInfosState } from '../recoilStates/YTPlaylistState';
 import { usePlaylistManager } from '../recoilStates/atoms/playlistAtoms';
@@ -35,6 +35,8 @@ function ModalForm({ setModalOpen }: { setModalOpen: (bool: boolean) => void }) 
                 return <Suspense fallback={<Spinner />}>
                     <ImportMyYTPlaylistForm closePopup={closePopup} />
                 </Suspense>;
+            case ModalKind.ImportYTPlaylistLink:
+                return <ImportYTPlaylistLink closePopup={closePopup} ></ImportYTPlaylistLink>
             default:
                 return <div></div>;
         }
@@ -154,6 +156,65 @@ function PlaylistForm({ closePopup, kind, playlistInfo }: PlaylistFormProps) {
                 <button onClick={closePopup}>취소</button>
                 <button onClick={onClickHandler}>확인</button>
 
+            </div>
+        </form>
+    );
+}
+
+interface FormItem {
+    id: string,
+    name: string,
+    value?: string
+}
+interface PlaylistFormProps {
+    closePopup: () => void;
+    kind: ModalKind;
+    playlistInfo?: PlaylistInfo;
+}
+function ImportYTPlaylistLink({ closePopup }: { closePopup: () => void }) {
+    const curRef = useRef<HTMLFormElement>(null);
+    const playlistManager = usePlaylistManager();
+    const onClickHandler = async (e: React.MouseEvent) => {
+        e.preventDefault();
+        if (curRef.current) {
+            const url = curRef.current.getElementsByTagName('input')[0]?.value;
+            if (!url) return;
+            const { id, kind } = urlToId(url);
+            if (!id || kind !== SearchType.List) return;
+            debugger;
+            try {
+                const info = await getYTPlaylistByID(id);
+                const playlist: Playlist = {
+                    info: info,
+                    items: await youtubeSearch(info.id, SearchType.List)
+                }
+                const createAction: PlaylistAction = {
+                    type: PlaylistActionType.CREATE,
+                    payload: playlist
+                }
+                playlistManager(createAction);
+            } catch (e) {
+                debugger;
+                console.error(e);
+                alert('재생목록을 가져오지 못했습니다');
+            } finally {
+                closePopup();
+            }
+
+
+        }
+    }
+
+
+    return (
+        <form ref={curRef} >
+            <div>
+                <label>유튜브 재생목록 URL</label>
+                <input id="linkURL"></input>
+            </div>
+            <div>
+                <button onClick={closePopup}>취소</button>
+                <button onClick={onClickHandler}>확인</button>
             </div>
         </form>
     );

@@ -12,8 +12,14 @@ export const myYTPlaylistInfosState = selector<PlaylistInfo[]>({
     get: async ({ get }) => {
 
         get(YTPlaylistRequestID);
-        const infos = await getMyYTPlaylistInfos();
-        return infos
+        try {
+            const infos = await getMyYTPlaylistInfos();
+            return infos
+        } catch (e) {
+            console.error(e);
+            alert("재생목록 정보를 가져오지 못했습니다.")
+            return [];
+        }
     }
 })
 
