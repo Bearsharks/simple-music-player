@@ -1,5 +1,6 @@
-import { atom, useRecoilCallback } from "recoil";
+import { atom, selector, useRecoilCallback } from "recoil";
 import { playlistInfoStateFamily } from '../recoilStates/atoms/playlistAtoms'
+import { MusicInfo } from "../refs/constants";
 export const ModalOpenState = atom<boolean>({
     key: "ModalOpen",
     default: false
@@ -29,9 +30,15 @@ export interface PopupInfo {
 
 
 
-export const PopupInfoState = atom<PopupInfo>({
-    key: "optionSelector",
+const PopupInfoState = atom<PopupInfo>({
+    key: "popupInfoState",
     default: {} as PopupInfo
+})
+export const getPopupInfoState = selector<PopupInfo>({
+    key: "getPopupInfo",
+    get: ({ get }) => {
+        return get(PopupInfoState);
+    }
 })
 export const popupOpenState = atom<boolean>({
     key: "popupOpen",
@@ -46,6 +53,45 @@ export interface ModalInfoData {
 
 export enum ModalKind {
     CreatePlaylist, UpdatePlaylist, ImportMyYTPlaylist, ImportYTPlaylistLink
+}
+
+const useOpenPopup = () => {
+    return useRecoilCallback(({ set }) =>
+        (kind: PopupKind, target: HTMLElement, data?: unknown) => {
+            set(PopupInfoState, {
+                target: target,
+                kind: kind,
+                data: data
+            });
+            set(popupOpenState, true);
+        }
+    )
+}
+export const useOpenMusicOptionsPopup = () => {
+    const openPopup = useOpenPopup();
+    return (target: HTMLElement, musicInfo: MusicInfo[]) =>
+        openPopup(PopupKind.MusicOptions, target, musicInfo);
+}
+export const useOpenYTOptionsPopup = () => {
+    const openPopup = useOpenPopup();
+    return (target: HTMLElement) =>
+        openPopup(PopupKind.YTOptions, target);
+}
+export const useOpenSelectTgtPlaylistPopup = () => {
+    const openPopup = useOpenPopup();
+    return (target: HTMLElement, musicInfo: MusicInfo[]) =>
+        openPopup(PopupKind.SelectTgtPlaylist, target, musicInfo);
+}
+export const useOpenPlaylistOptionsPopup = () => {
+    const openPopup = useOpenPopup();
+    return (target: HTMLElement, playlistID: string) =>
+        openPopup(PopupKind.PlaylistOptions, target, playlistID);
+}
+
+export const useOpenSearchOptionsPopup = () => {
+    const openPopup = useOpenPopup();
+    return (target: HTMLElement, textarea: HTMLTextAreaElement) =>
+        openPopup(PopupKind.SearchOptions, target, textarea);
 }
 
 export const useModalManager = function () {

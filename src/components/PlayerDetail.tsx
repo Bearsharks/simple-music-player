@@ -1,20 +1,19 @@
 import styles from './PlayerDetail.module.scss';
 import MusicList from './MusicList';
 import { useCurMusicManager, useMusicListManager } from '../recoilStates/atoms/playlistAtoms';
-import { MusicInfo, MusicInfoActionType, MusicInfoItem, MusicListActionType } from '../refs/constants';
+import { MusicInfoActionType, MusicInfoItem, MusicListActionType } from '../refs/constants';
 import YoutubePlayer from '../YoutubePlayer';
+import { useOpenMusicOptionsPopup, useOpenSelectTgtPlaylistPopup } from '../Popups/PopupStates';
 
 export interface PlayerDetailProps {
     playerVisiblity: boolean;
-    addToPlaylist: (event: React.MouseEvent<Element, MouseEvent>, items: MusicInfo[]) => void;
-    openPopup: (event: React.MouseEvent, musicInfos: MusicInfo[]) => void;
     musicList: MusicInfoItem[];
 }
-function PlayerDetail({ playerVisiblity, addToPlaylist, openPopup, musicList }: PlayerDetailProps) {
-
+function PlayerDetail({ playerVisiblity, musicList }: PlayerDetailProps) {
+    const openMusicOptionsPopup = useOpenMusicOptionsPopup();
     const musicListManager = useMusicListManager();
     const curMusicManager = useCurMusicManager();
-
+    const openSelectTgtPlaylistPopup = useOpenSelectTgtPlaylistPopup();
     const changeOrder = (src: number, dst: number) => {
         musicListManager({
             type: MusicListActionType.CHANGE_ORDER,
@@ -27,6 +26,9 @@ function PlayerDetail({ playerVisiblity, addToPlaylist, openPopup, musicList }: 
             payload: idx
         });
     }
+    const addToPlaylistBtnClickHandler = (event: React.MouseEvent) => {
+        openSelectTgtPlaylistPopup(event.target as HTMLElement, musicList)
+    }
     return (
         <div className={`${styles['wrapper']} ${(!playerVisiblity) && styles['wrapper--hide']}`}>
             <div className={`${styles['player-detail']} ${(!playerVisiblity) && styles['player-detail__hide']}`}>
@@ -38,14 +40,14 @@ function PlayerDetail({ playerVisiblity, addToPlaylist, openPopup, musicList }: 
                         다음 트랙
                     </div>
                     <div></div>
-                    <button onClick={(event: React.MouseEvent) => addToPlaylist(event, musicList)} >
+                    <button onClick={addToPlaylistBtnClickHandler} >
                         <span className="material-icons md-28">playlist_add</span> 재생목록에 추가
                     </button>
                 </div>
                 <MusicList
                     items={musicList}
                     playMusic={playMusic}
-                    openOptionsPopup={openPopup}
+                    openOptionsPopup={openMusicOptionsPopup}
                     changeOrder={changeOrder} />
             </div>
         </div>

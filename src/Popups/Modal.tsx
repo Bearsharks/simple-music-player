@@ -1,5 +1,5 @@
-import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil'
-import { ModalInfoState, ModalKind, ModalOpenState, PopupInfoState, PopupKind, popupOpenState, useModalManager } from './PopupStates';
+import { useRecoilState, useRecoilValue, } from 'recoil'
+import { ModalInfoState, ModalKind, ModalOpenState, useOpenYTOptionsPopup } from './PopupStates';
 import styles from './Modal.module.scss'
 import React, { useState, useRef, Suspense } from 'react';
 import { Playlist, PlaylistAction, PlaylistActionType, PlaylistInfo } from '../refs/constants';
@@ -106,9 +106,7 @@ function PlaylistForm({ closePopup, kind, playlistInfo }: PlaylistFormProps) {
     ];
 
     const playlistManager = usePlaylistManager();
-
-    const setPopupInfoState = useSetRecoilState(PopupInfoState);
-    const setPopupOpen = useSetRecoilState(popupOpenState);
+    const openYTPopup = useOpenYTOptionsPopup();
 
     const onClickHandler = () => {
         if (curRef.current) {
@@ -132,13 +130,8 @@ function PlaylistForm({ closePopup, kind, playlistInfo }: PlaylistFormProps) {
         }
     }
 
-    const openYTPopup = (event: React.MouseEvent) => {
-        event.preventDefault();
-        setPopupInfoState({
-            target: event.target as HTMLElement,
-            kind: PopupKind.YTOptions,
-        });
-        setPopupOpen(true);
+    const btnClickHandler = (event: React.MouseEvent) => {
+        openYTPopup(event.target as HTMLElement);
     }
 
     return (
@@ -151,7 +144,7 @@ function PlaylistForm({ closePopup, kind, playlistInfo }: PlaylistFormProps) {
             )}
             <div>
                 {kind === ModalKind.CreatePlaylist &&
-                    <button onClick={openYTPopup}>유튜브에서 가져오기</button>
+                    <button onClick={btnClickHandler}>유튜브에서 가져오기</button>
                 }
                 <button onClick={closePopup}>취소</button>
                 <button onClick={onClickHandler}>확인</button>

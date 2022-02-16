@@ -1,4 +1,5 @@
 import React from "react";
+import { useOpenMusicOptionsPopup } from "../Popups/PopupStates";
 import ProgressBar from "../ProgressBar";
 import { MusicInfo } from "../refs/constants";
 import SoundController from "../SoundController";
@@ -6,7 +7,6 @@ import styles from './PlayerController.module.scss';
 
 export interface PlayerControllerProps {
     musicInfo: MusicInfo;
-    openOptionsPopup: (event: React.MouseEvent, musicInfo: MusicInfo[]) => void;
     isPlaying: boolean;
     goNext: () => void;
     goPrev: () => void;
@@ -15,8 +15,9 @@ export interface PlayerControllerProps {
     togglePlayerVisiblity: () => void;
 }
 function PlayerController(props: PlayerControllerProps) {
+    const openMusicOptionsPopup = useOpenMusicOptionsPopup();
     const popupOpen = (event: React.MouseEvent) => {
-        props.openOptionsPopup(event, [props.musicInfo]);
+        openMusicOptionsPopup(event.target as HTMLElement, [props.musicInfo]);
     }
     return (
         <div className={styles[`wrapper`]} >

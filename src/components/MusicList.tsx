@@ -2,12 +2,12 @@ import React, { memo } from "react";
 import { MusicInfo, MusicInfoItem } from "../refs/constants";
 import styles from './MusicList.module.scss';
 import { DragDropContext, Droppable, DropResult, Draggable, DraggableProvidedDragHandleProps, DroppableProvided } from "react-beautiful-dnd";
-import { useRecoilState, useRecoilValue } from "recoil";
+import { useRecoilValue } from "recoil";
 import { curMusicIdxState } from "../recoilStates/atoms/playlistAtoms";
 
 export interface MusicListProps {
     items: MusicInfoItem[];
-    openOptionsPopup: (event: React.MouseEvent, musicInfos: MusicInfo[]) => void;
+    openOptionsPopup: (target: HTMLElement, musicInfos: MusicInfo[]) => void;
     playMusic: (idx: number | undefined) => void;
     changeOrder: (src: number, dst: number) => void;
 }
@@ -46,7 +46,7 @@ export default memo(MusicList);
 export interface MusicListItemsProps {
     provided: DroppableProvided
     items: MusicInfoItem[];
-    openOptionsPopup: (event: React.MouseEvent, musicInfos: MusicInfo[]) => void;
+    openOptionsPopup: (target: HTMLElement, musicInfos: MusicInfo[]) => void;
     playMusic: (idx: number | undefined) => void;
 }
 function MusicListItems({ provided, items, playMusic, openOptionsPopup }: MusicListItemsProps) {
@@ -83,13 +83,13 @@ interface MusicItemProps {
     idx: number;
     item: MusicInfoItem;
     playMusic: (idx: number | undefined) => void;
-    openOptionsPopup: (event: React.MouseEvent, musicInfos: MusicInfo[]) => void;
+    openOptionsPopup: (target: HTMLElement, musicInfos: MusicInfo[]) => void;
     dragHandleProps: DraggableProvidedDragHandleProps | undefined;
     isCurMusic: boolean;
 };
 function MusicItem({ idx, item, playMusic, openOptionsPopup, dragHandleProps, isCurMusic }: MusicItemProps) {
     const popupOpen = (event: React.MouseEvent) => {
-        openOptionsPopup(event, [item]);
+        openOptionsPopup(event.target as HTMLElement, [item]);
     }
     return (
         <div className={`${styles['wrapper']} ${isCurMusic && styles['wrapper--selected']}`}>
