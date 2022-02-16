@@ -32,21 +32,21 @@ function Main() {
             <header className={`${styles["header"]}`}>
                 <HamburgerBtn setActive={setOpenSideMenu} isActive={isSideMenuOpen}></HamburgerBtn>
                 <SearchBarRecoil></SearchBarRecoil>
+                <SideMenu>
+                    <button onClick={logoutBtnClicked}>로그아웃</button>
+                </SideMenu>
             </header>
             <main>
                 <Suspense fallback={<Spinner></Spinner>}>
                     <FormPopup></FormPopup>
                     <Popup></Popup>
                     <PlaylistsRecoil></PlaylistsRecoil>
+                    <br />
+                    <br />
+                    <br />
                 </Suspense>
-                <MusicPlayer></MusicPlayer>
-                <SideMenu>
-                    <button onClick={logoutBtnClicked}>로그아웃</button>
-                </SideMenu>
-                <br />
-                <br />
-                <br />
             </main>
+            <MusicPlayer></MusicPlayer>
         </div>
     );
 }
