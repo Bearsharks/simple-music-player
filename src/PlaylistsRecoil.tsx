@@ -1,16 +1,20 @@
 import styles from './PlaylistsRecoil.module.scss';
 import { useRecoilValue, useSetRecoilState } from "recoil";
 import { useMusicListManager, playlistInfosState } from "./recoilStates/atoms/playlistAtoms";
-import { useModalManager, ModalKind, PopupInfoState, PopupKind, popupOpenState } from './Popups/PopupStates';
+import { useModalManager, ModalKind, popupOpenState, useOpenPlaylistOptionsPopup } from './Popups/PopupStates';
 import { MusicListAction, MusicListActionType, } from './refs/constants';
 import Playlists from './components/Playlists';
 import Spinner from './components/Spinner';
 import { Suspense } from 'react';
-function PlaylistsRecoil() {
+
+interface PlaylistsRecoilProps {
+    goToPlaylistPage: (id: string) => void;
+}
+function PlaylistsRecoil(props: PlaylistsRecoilProps) {
     const playlistInfos = useRecoilValue(playlistInfosState);
     const musicListManager = useMusicListManager();
     const formPopupManager = useModalManager();
-    const setPopupInfoState = useSetRecoilState(PopupInfoState);
+    const setPopupInfoState = useOpenPlaylistOptionsPopup();
     const setOpen = useSetRecoilState(popupOpenState);
     const setMusiclist = (playlistid: string) => {
         const action: MusicListAction = {
@@ -22,11 +26,7 @@ function PlaylistsRecoil() {
 
     const openOptionsSelector = (e: React.MouseEvent<HTMLElement>, playlistid: string) => {
         e.stopPropagation();
-        setPopupInfoState({
-            target: e.target as HTMLElement,
-            kind: PopupKind.PlaylistOptions,
-            data: playlistid
-        });
+        setPopupInfoState(e.target as HTMLElement, playlistid);
         setOpen(true);
     }
     const openCreatePlaylistPopup = () => {
@@ -36,6 +36,7 @@ function PlaylistsRecoil() {
         <div>
             <Suspense fallback={<Spinner></Spinner>}>
                 <Playlists
+                    goToPlaylistPage={props.goToPlaylistPage}
                     openCreatePlaylistPopup={openCreatePlaylistPopup}
                     playlistInfos={playlistInfos}
                     playPlaylist={setMusiclist}

@@ -5,6 +5,7 @@ import styles from './Playlists.module.scss';
 import Thumbnail from "./Thumbnail";
 
 export interface PlaylistsProps {
+    goToPlaylistPage: (id: string) => void;
     openCreatePlaylistPopup: () => void;
     playlistInfos: PlaylistInfo[],
     playPlaylist: (id: string) => void,
@@ -46,9 +47,9 @@ export default function Playlists(props: PlaylistsProps) {
                     <div className={styles['grid-item']} key={el.id}
                         title={el.description}
                     >
-                        <div className={styles['thumbnail']}>
+                        <div className={styles['thumbnail']} >
                             <Thumbnail thumbnails={el.thumbnails} name={el.name}></Thumbnail>
-                            <div className={styles['thumbnail__overlay']}>
+                            <div className={styles['thumbnail__overlay']} onClick={() => props.goToPlaylistPage(el.id)}>
 
                             </div>
                             <div
@@ -65,7 +66,7 @@ export default function Playlists(props: PlaylistsProps) {
                                 <span className="material-icons">more_vert</span>
                             </div>
                         </div>
-                        <div className={styles['playlist-info']}>
+                        <div className={styles['playlist-info']} onClick={() => props.goToPlaylistPage(el.id)}>
                             {el.name}
                         </div>
                         <div className={styles['playlist-info--secondary']}>

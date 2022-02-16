@@ -1,10 +1,9 @@
 import styles from './MusicPlayer.module.scss'
 import PlayerController from './components/PlayerController';
 import { useState } from 'react'
-import { useRecoilValue, useSetRecoilState } from 'recoil';
-import { PopupInfo, PopupInfoState, PopupKind, popupOpenState } from './Popups/PopupStates';
+import { useRecoilValue } from 'recoil';
 import { curMusicInfoState, musicListState, musicPlayerState, useCurMusicManager } from './recoilStates/atoms/playlistAtoms';
-import { MusicInfo, MusicInfoActionType, PlayerState } from './refs/constants';
+import { MusicInfoActionType, PlayerState } from './refs/constants';
 
 import PlayerDetail from './components/PlayerDetail';
 
@@ -14,32 +13,8 @@ function MusicPlayer() {
     const curMusicManager = useCurMusicManager();
     const playState = useRecoilValue(musicPlayerState);
     const musicList = useRecoilValue(musicListState);
-    //팝업관련
-    const setPopupInfo = useSetRecoilState(PopupInfoState);
-    const setPopupOpen = useSetRecoilState(popupOpenState);
     const togglePlayerVisiblity = () => {
         playerVisiblity ? setPlayerVisiblity(false) : setPlayerVisiblity(true);
-    }
-
-    const openPopup = (event: React.MouseEvent, musicInfos: MusicInfo[]) => {
-        event.stopPropagation();
-
-        setPopupInfo({
-            target: event.target as HTMLElement,
-            kind: PopupKind.MusicOptions,
-            data: musicInfos
-        })
-        setPopupOpen(true);
-    }
-    const addToPlaylist = (event: React.MouseEvent<Element, MouseEvent>, items: MusicInfo[]) => {
-        const info: PopupInfo = {
-            target: event.target as HTMLElement,
-            kind: PopupKind.SelectTgtPlaylist,
-            data: items
-        }
-        setPopupInfo(info);
-        setPopupOpen(true);
-
     }
     const goNext = () => {
         curMusicManager({ type: MusicInfoActionType.NEXT })
@@ -61,7 +36,6 @@ function MusicPlayer() {
         <div className={styles['wrapper']}>
             <PlayerController
                 musicInfo={curMusicInfo}
-                openOptionsPopup={openPopup}
                 playerVisiblity={playerVisiblity}
                 togglePlayerVisiblity={togglePlayerVisiblity}
                 isPlaying={playState === PlayerState.PLAYING}
@@ -72,8 +46,6 @@ function MusicPlayer() {
             <PlayerDetail
                 musicList={musicList}
                 playerVisiblity={playerVisiblity}
-                openPopup={openPopup}
-                addToPlaylist={addToPlaylist}
             ></PlayerDetail>
         </div >
     )

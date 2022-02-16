@@ -1,5 +1,5 @@
 import { useRecoilValue, useSetRecoilState } from 'recoil'
-import { popupOpenState, PopupInfoState, PopupInfo, PopupKind, useModalManager, ModalKind } from './PopupStates';
+import { popupOpenState, getPopupInfoState, PopupInfo, PopupKind, useModalManager, ModalKind, useOpenSelectTgtPlaylistPopup } from './PopupStates';
 import styles from './Popup.module.scss'
 import { memo, useRef, useEffect, useState } from 'react';
 import { MusicInfo, MusicInfoArrayCheck, MusicListAction, MusicListActionType, PlaylistAction, PlaylistActionType } from '../refs/constants';
@@ -9,7 +9,7 @@ import OptionSelector from '../components/OptionSelector';
 
 function InnerPopup() {
     const curRef = useRef<HTMLDivElement>(null);
-    const info: PopupInfo = useRecoilValue(PopupInfoState);
+    const info: PopupInfo = useRecoilValue(getPopupInfoState);
     const setOpen = useSetRecoilState(popupOpenState);
     const children = (() => {
         switch (info.kind) {
@@ -135,7 +135,7 @@ interface MusicOptionsProps {
 }
 const MusicOptions = memo(function ({ setPopupOpen, musicInfos, evTarget }: MusicOptionsProps) {
     const musicListManager = useMusicListManager();
-    const setPopupInfo = useSetRecoilState(PopupInfoState);
+    const openSelectTgtPlaylistPopup = useOpenSelectTgtPlaylistPopup();
     const addToNextMusic = (musicInfos: MusicInfo[]) => {
         const action: MusicListAction = {
             type: MusicListActionType.ADD_TO_NEXT,
@@ -151,12 +151,7 @@ const MusicOptions = memo(function ({ setPopupOpen, musicInfos, evTarget }: Musi
         musicListManager(action);
     }
     const addToPlaylist = (items: MusicInfo[]) => {
-        const info: PopupInfo = {
-            target: evTarget,
-            kind: PopupKind.SelectTgtPlaylist,
-            data: items
-        }
-        setPopupInfo(info);
+        openSelectTgtPlaylistPopup(evTarget, items);
     }
     const deleteMusic = (items: MusicInfo[]) => {
         const delAction: MusicListAction = {
