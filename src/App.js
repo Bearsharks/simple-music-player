@@ -2,7 +2,6 @@
 import './App.scss';
 import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
 import OauthCallback from './oauth2/OauthCallback';
-import Init from './InitPage';
 import Login from './LoginPage';
 import { checkAuth } from './refs/api'
 import Main from './Main';
@@ -25,11 +24,9 @@ function App() {
     return (
         <BrowserRouter basename='/simple-music-player'>
             <Routes>
-                <Route path="/main" element={<PrivateRoute><Main /></PrivateRoute>}></Route>
                 <Route path="/login" element={<Login />}></Route>
                 <Route path="/callback/:token" element={<OauthCallback />}></Route>
-                <Route path="/" element={<Init />}></Route>
-                <Route path="*" element={<div />}></Route>
+                <Route path="*" element={<PrivateRoute><Main /></PrivateRoute>}></Route>
             </Routes>
         </BrowserRouter >
     );
