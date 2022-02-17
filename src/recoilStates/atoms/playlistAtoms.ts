@@ -65,7 +65,7 @@ export const usePlaylistManager = function () {
                 const info: PlaylistInfo = snapshot.getLoadable(playlistInfoStateFamily(tgt)).contents;
                 const result = await updatePlaylist(action.payload);
                 if (result) {
-                    set(playlistInfoStateFamily(tgt), { info, ...action.payload.info });
+                    set(playlistInfoStateFamily(tgt), { ...info, ...action.payload.info });
                     if (action.payload.items) {
                         set(playlistItemStateFamily(tgt), action.payload.items);
                     }
