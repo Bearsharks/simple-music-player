@@ -40,7 +40,7 @@ export function MusicInfoArrayCheck(params: unknown): params is MusicInfo[] {
 
 
 export enum MusicInfoActionType {
-    NEXT, PREV, SET_IDX, SET_INFO
+    NEXT, PREV, SET_IDX, SET_INFO, SET
 }
 export interface MusicInfoAction {
     type: MusicInfoActionType

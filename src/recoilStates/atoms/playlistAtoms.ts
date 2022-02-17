@@ -253,10 +253,14 @@ function MusicInfoActionCheck(params: unknown): params is MusicInfoAction {
 }
 
 export const useCurMusicManager = function () {
+    const setListCurIdx = useRecoilTransaction_UNSTABLE(({ set }) => (list: MusicInfoItem[], idx: number) => {
+        set(musicListState, list);
+        set(curMusicIdxState, idx);
+    });
     return useRecoilCallback(({ set, snapshot }) => async (action: MusicInfoAction) => {
         const list: MusicInfoItem[] = snapshot.getLoadable(musicListState).contents;
         const idx: number = snapshot.getLoadable(curMusicIdxState).contents;
-        const { NEXT, PREV, SET_INFO, SET_IDX } = MusicInfoActionType;
+        const { NEXT, PREV, SET_INFO, SET_IDX, SET } = MusicInfoActionType;
         switch (action.type) {
             case NEXT:
                 if (idx + 1 < list.length) set(curMusicIdxState, idx + 1);
@@ -264,13 +268,19 @@ export const useCurMusicManager = function () {
             case PREV:
                 if (idx - 1 >= 0) set(curMusicIdxState, idx - 1);
                 break;
+            case SET: {
+                const list: MusicInfoItem[] = action.payload.list;
+                const idx: number = action.payload.idx;
+                setListCurIdx(list, idx);
+            }
+                break;
             case SET_IDX:
                 if (typeof action.payload !== 'number') break;
                 const next: number = action.payload;
                 if (0 <= next && next < list.length) set(curMusicIdxState, action.payload);
                 break;
             case SET_INFO:
-                let musicInfo: MusicInfo = action.payload;
+                const musicInfo: MusicInfo = action.payload;
                 set(musicListState, [
                     ...list.slice(0, idx), // everything before current post
                     { ...list[idx], ...musicInfo },
