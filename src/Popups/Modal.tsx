@@ -131,6 +131,7 @@ function PlaylistForm({ closePopup, kind, playlistInfo }: PlaylistFormProps) {
     }
 
     const btnClickHandler = (event: React.MouseEvent) => {
+        event.preventDefault();
         openYTPopup(event.target as HTMLElement);
     }
 
