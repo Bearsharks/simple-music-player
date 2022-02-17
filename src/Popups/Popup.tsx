@@ -227,7 +227,7 @@ interface PlaylistOptionsProps {
 const PlaylistOptions = memo(function ({ setPopupOpen, playlistid }: PlaylistOptionsProps) {
     const playlistManager = usePlaylistManager();
     const musicListManager = useMusicListManager();
-    const formPopupManager = useModalManager();
+    const modalManager = useModalManager();
     const appendMusiclist = (playlistid: string) => {
         const action: MusicListAction = {
             type: MusicListActionType.APPEND_PLAYLIST,
@@ -244,7 +244,7 @@ const PlaylistOptions = memo(function ({ setPopupOpen, playlistid }: PlaylistOpt
         musicListManager(action);
     }
     const updatePlaylistInfo = (playlistid: string) => {
-        formPopupManager(ModalKind.UpdatePlaylist, playlistid);
+        modalManager(ModalKind.UpdatePlaylist, playlistid);
     }
     const deletePlaylist = (playlistid: string) => {
         playlistManager({
