@@ -85,9 +85,9 @@ function MusicListItems({ provided, items, playMusic, openOptionsPopup }: MusicL
 
 export interface MusicItemProps {
     idx: number;
-    item: MusicInfo;
+    item: MusicInfoItem;
     playMusic: (idx: number | undefined) => void;
-    openOptionsPopup: (target: HTMLElement, musicInfos: MusicInfo[]) => void;
+    openOptionsPopup: (target: HTMLElement, musicInfos: MusicInfoItem[]) => void;
     isCurMusic?: boolean;
 };
 export function MusicItem({ idx, item, playMusic, openOptionsPopup, isCurMusic }: MusicItemProps) {
