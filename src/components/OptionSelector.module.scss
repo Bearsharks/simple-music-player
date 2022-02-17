@@ -2,7 +2,7 @@
 .wrapper{
     background-color: $bg-secondary-color;
     width: 240px;
-    padding: 8px 0;
+    padding: 8px 0px 8px 8px;
     border: 1px solid rgba(255,255,255,0.1);
     border-radius: 2px;
 }
@@ -11,7 +11,6 @@
     display: flex;
     height: 48px;
     align-items: center;
-    padding: 0 8px;
 }
 .options__icon{
     width: 24px;
