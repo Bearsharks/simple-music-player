@@ -1,7 +1,7 @@
 import React, { memo } from "react";
 import { MusicInfo, MusicInfoItem } from "../refs/constants";
 import styles from './MusicList.module.scss';
-import { DragDropContext, Droppable, DropResult, Draggable, DraggableProvidedDragHandleProps, DroppableProvided } from "react-beautiful-dnd";
+import { DragDropContext, Droppable, DropResult, Draggable, DroppableProvided } from "react-beautiful-dnd";
 import { useRecoilValue } from "recoil";
 import { curMusicIdxState } from "../recoilStates/atoms/playlistAtoms";
 
@@ -43,7 +43,7 @@ function MusicList(props: MusicListProps) {
 export default memo(MusicList);
 
 
-export interface MusicListItemsProps {
+interface MusicListItemsProps {
     provided: DroppableProvided
     items: MusicInfoItem[];
     openOptionsPopup: (target: HTMLElement, musicInfos: MusicInfo[]) => void;
@@ -57,19 +57,23 @@ function MusicListItems({ provided, items, playMusic, openOptionsPopup }: MusicL
                 key={item.key}
                 draggableId={item.key}
                 index={idx}
-
             >
                 {(provided, snapshot) =>
                     <div
                         ref={provided.innerRef}
                         {...provided.draggableProps}
+                        className={`${styles['wrapper']} ${curMusicIdx === idx && styles['wrapper--selected']}`}
                     >
+                        <div
+                            className={styles[`drag_handle`]}
+                            {...provided.dragHandleProps}>
+                            <span className="material-icons md-28">drag_handle</span>
+                        </div>
                         <MusicItem
                             idx={idx}
                             item={item}
                             playMusic={playMusic}
                             openOptionsPopup={openOptionsPopup}
-                            dragHandleProps={provided.dragHandleProps}
                             isCurMusic={curMusicIdx === idx}
                         ></MusicItem>
                     </div>
@@ -79,35 +83,29 @@ function MusicListItems({ provided, items, playMusic, openOptionsPopup }: MusicL
     </div>)
 }
 
-interface MusicItemProps {
+export interface MusicItemProps {
     idx: number;
-    item: MusicInfoItem;
+    item: MusicInfo;
     playMusic: (idx: number | undefined) => void;
     openOptionsPopup: (target: HTMLElement, musicInfos: MusicInfo[]) => void;
-    dragHandleProps: DraggableProvidedDragHandleProps | undefined;
-    isCurMusic: boolean;
+    isCurMusic?: boolean;
 };
-function MusicItem({ idx, item, playMusic, openOptionsPopup, dragHandleProps, isCurMusic }: MusicItemProps) {
+export function MusicItem({ idx, item, playMusic, openOptionsPopup, isCurMusic }: MusicItemProps) {
     const popupOpen = (event: React.MouseEvent) => {
+        event.stopPropagation();
         openOptionsPopup(event.target as HTMLElement, [item]);
     }
     return (
-        <div className={`${styles['wrapper']} ${isCurMusic && styles['wrapper--selected']}`}>
-            <div
-                className={styles[`drag_handle`]}
-                {...dragHandleProps}>
-                <span className="material-icons md-28">drag_handle</span>
-            </div>
+        <div className={styles['wrapper']} >
             <div className={styles[`grid-container`]} onClick={() => { playMusic(idx) }}>
                 <div className={`${styles[`grid-item`]} ${styles["grid-item--fit"]}`} >
-                    {
-                        item.thumbnail ?
-                            <img className={styles["thumbnail"]} alt={item.name} src={item.thumbnail} /> :
-                            <div className={styles["thumbnail"]}>
-                                <span className="material-icons md-32">
-                                    question_mark
-                                </span>
-                            </div>
+                    {item.thumbnail ?
+                        <img className={styles["thumbnail"]} alt={item.name} src={item.thumbnail} /> :
+                        <div className={styles["thumbnail"]}>
+                            <span className="material-icons md-32">
+                                question_mark
+                            </span>
+                        </div>
                     }
 
                     <div className={`${styles["overlay"]} ${isCurMusic && styles["overlay--show"]}`}>
