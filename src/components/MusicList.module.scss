@@ -3,11 +3,11 @@
 .music-list{
     height: 100%;
     overflow: auto;
-    padding-left: 10px;
     @include append_scrollbar;
 }
 .drag_handle{
     width: 32px;
+    padding-left: 10px;
 }
 .grid-item__icon{
     width: 32px;
@@ -33,9 +33,10 @@
 .wrapper{ 
     display: flex;
     align-items: center;
+    width: 100%;
 }
 .wrapper--selected{
-    background-color: $bg-light-grey;
+    background-color: rgba(255, 255, 255, 0.1);
 }
 .grid-container {
     width: 100%;
