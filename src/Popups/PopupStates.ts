@@ -1,6 +1,6 @@
 import { atom, selector, useRecoilCallback } from "recoil";
 import { playlistInfoStateFamily } from '../recoilStates/atoms/playlistAtoms'
-import { MusicInfo } from "../refs/constants";
+import { MusicInfo, MusicInfoItem } from "../refs/constants";
 export const ModalOpenState = atom<boolean>({
     key: "ModalOpen",
     default: false
@@ -20,7 +20,7 @@ export const OptionSelectorOpenState = atom<boolean>({
 })
 
 export enum PopupKind {
-    PlaylistOptions, MusicOptions, SelectTgtPlaylist, SearchOptions, YTOptions
+    PlaylistOptions, MusicOptions, SelectTgtPlaylist, SearchOptions, YTOptions, PlaylistItemOptions
 }
 export interface PopupInfo {
     target: HTMLElement,
@@ -71,6 +71,11 @@ export const useOpenMusicOptionsPopup = () => {
     const openPopup = useOpenPopup();
     return (target: HTMLElement, musicInfo: MusicInfo[]) =>
         openPopup(PopupKind.MusicOptions, target, musicInfo);
+}
+export const useOpenPlaylistItemOptionsPopup = () => {
+    const openPopup = useOpenPopup();
+    return (target: HTMLElement, playlistID: string, musicInfos: MusicInfoItem[]) =>
+        openPopup(PopupKind.PlaylistItemOptions, target, { playlistID, musicInfos });
 }
 export const useOpenYTOptionsPopup = () => {
     const openPopup = useOpenPopup();

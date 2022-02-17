@@ -1,11 +1,12 @@
 import { useRecoilValue, useSetRecoilState } from 'recoil'
 import { popupOpenState, getPopupInfoState, PopupInfo, PopupKind, useModalManager, ModalKind, useOpenSelectTgtPlaylistPopup } from './PopupStates';
 import styles from './Popup.module.scss'
-import { memo, useRef, useEffect, useState } from 'react';
-import { MusicInfo, MusicInfoArrayCheck, MusicListAction, MusicListActionType, PlaylistAction, PlaylistActionType } from '../refs/constants';
+import { memo, useRef, useEffect, useState, Suspense } from 'react';
+import { MusicInfo, MusicInfoArrayCheck, MusicInfoItem, MusicListAction, MusicListActionType, Playlist, PlaylistAction, PlaylistActionType } from '../refs/constants';
 import { playlistInfosState, useMusicListManager, usePlaylistManager } from '../recoilStates/atoms/playlistAtoms';
 import { searchByQuery } from '../refs/youtubeSearch';
-import OptionSelector from '../components/OptionSelector';
+import OptionSelector, { OptionInfo } from '../components/OptionSelector';
+import Spinner from '../components/Spinner';
 
 function InnerPopup() {
     const curRef = useRef<HTMLDivElement>(null);
@@ -30,11 +31,25 @@ function InnerPopup() {
                 throw "musicInfos is not valid can't render MusicOptions";
             case PopupKind.SelectTgtPlaylist:
                 if (MusicInfoArrayCheck(info.data)) {
-                    return <AppendPlaylistPopup setPopupOpen={setOpen} musicInfos={info.data}></AppendPlaylistPopup>
+                    return <Suspense fallback={<Spinner />}>
+                        <AppendPlaylistPopup setPopupOpen={setOpen} musicInfos={info.data}></AppendPlaylistPopup>
+                    </Suspense>
                 }
                 throw "musicInfos is not valid can't render MusicOptions";
             case PopupKind.YTOptions:
                 return <YTOptions setPopupOpen={setOpen} ></YTOptions>
+            case PopupKind.PlaylistItemOptions:
+                const playlistID: string = (info.data as any).playlistID;
+                const musicInfos: MusicInfoItem[] = (info.data as any).musicInfos;
+                if (playlistID && musicInfos.length && musicInfos[0].key) {
+                    return <PlaylistItemOptions
+                        evTarget={info.target}
+                        setPopupOpen={setOpen}
+                        playlistID={playlistID}
+                        musicInfos={musicInfos}
+                    ></PlaylistItemOptions>
+                }
+                throw "playlistID is not valid can't render PlaylistItemOptions";
             default:
                 return "";
         }
@@ -133,7 +148,7 @@ interface MusicOptionsProps {
     setPopupOpen: (isOpen: boolean) => void;
     musicInfos: MusicInfo[];
 }
-const MusicOptions = memo(function ({ setPopupOpen, musicInfos, evTarget }: MusicOptionsProps) {
+const useGetMusicOptions = (musicInfos: MusicInfo[], setPopupOpen: (isOpen: boolean) => void, evTarget: HTMLElement): OptionInfo[] => {
     const musicListManager = useMusicListManager();
     const openSelectTgtPlaylistPopup = useOpenSelectTgtPlaylistPopup();
     const addToNextMusic = (musicInfos: MusicInfo[]) => {
@@ -142,6 +157,7 @@ const MusicOptions = memo(function ({ setPopupOpen, musicInfos, evTarget }: Musi
             payload: musicInfos
         }
         musicListManager(action);
+        setPopupOpen(false);
     }
     const appendMusic = (musicInfos: MusicInfo[]) => {
         const action: MusicListAction = {
@@ -149,28 +165,57 @@ const MusicOptions = memo(function ({ setPopupOpen, musicInfos, evTarget }: Musi
             payload: musicInfos
         }
         musicListManager(action);
+        setPopupOpen(false);
     }
     const addToPlaylist = (items: MusicInfo[]) => {
         openSelectTgtPlaylistPopup(evTarget, items);
     }
+    return [{ icon: "playlist_play", name: "다음 음악으로 재생", onClickHandler: () => addToNextMusic(musicInfos) },
+    { icon: "queue_music", name: "목록에 추가", onClickHandler: () => appendMusic(musicInfos) },
+    { icon: "playlist_add", name: "재생목록에 추가", onClickHandler: () => addToPlaylist(musicInfos) }];
+}
+const MusicOptions = memo(function ({ setPopupOpen, musicInfos, evTarget }: MusicOptionsProps) {
+    const musicListManager = useMusicListManager();
+    const musicOptions = useGetMusicOptions(musicInfos, setPopupOpen, evTarget);
     const deleteMusic = (items: MusicInfo[]) => {
+        debugger;
         const delAction: MusicListAction = {
             type: MusicListActionType.DELETE,
             payload: items
         }
         musicListManager(delAction);
-    }
-    const onClickHandlerWrapper = (callback: (data: any) => void) => {
-        return () => {
-            callback(musicInfos);
-            setPopupOpen(false);
-        }
+        setPopupOpen(false);
     }
     const options = [
-        { icon: "playlist_play", name: "다음 음악으로 재생", onClickHandler: onClickHandlerWrapper(addToNextMusic) },
-        { icon: "queue_music", name: "목록에 추가", onClickHandler: onClickHandlerWrapper(appendMusic) },
-        { icon: "playlist_add", name: "재생목록에 추가", onClickHandler: () => addToPlaylist(musicInfos) },
-        { icon: "remove_circle_outline", name: "목록에서 삭제", onClickHandler: onClickHandlerWrapper(deleteMusic) }
+        ...musicOptions,
+        { icon: "remove_circle_outline", name: "목록에서 삭제", onClickHandler: () => deleteMusic(musicInfos) }
+    ];
+    return <OptionSelector options={options} />;
+})
+
+interface PlaylistItemOptionsProps {
+    evTarget: HTMLElement;
+    setPopupOpen: (isOpen: boolean) => void;
+    playlistID: string,
+    musicInfos: MusicInfoItem[]
+}
+const PlaylistItemOptions = memo(function ({ setPopupOpen, evTarget, musicInfos, playlistID }: PlaylistItemOptionsProps) {
+    const musicOptions = useGetMusicOptions(musicInfos, setPopupOpen, evTarget);
+    const playlistManager = usePlaylistManager();
+    const deleteMusic = (items: MusicInfoItem[]) => {
+        const delAction: PlaylistAction = {
+            type: PlaylistActionType.DELETE_ITEMS,
+            payload: {
+                id: playlistID,
+                items: items
+            }
+        }
+        playlistManager(delAction);
+        setPopupOpen(false);
+    }
+    const options = [
+        ...musicOptions,
+        { icon: "remove_circle_outline", name: "재생목록에서 삭제", onClickHandler: () => deleteMusic(musicInfos) }
     ];
     return <OptionSelector options={options} />;
 })

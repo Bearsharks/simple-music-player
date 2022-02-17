@@ -39,7 +39,7 @@ export const playlistIDsState = atom<string[]>({
 export const usePlaylistManager = function () {
     //create, delete, update
     return useRecoilCallback(({ set, reset, snapshot }) => async (action: PlaylistAction) => {
-        const { CREATE, DELETE, UPDATE, APPEND } = PlaylistActionType;
+        const { CREATE, DELETE, UPDATE, APPEND, DELETE_ITEMS } = PlaylistActionType;
         switch (action.type) {
             case CREATE: {
                 const playlistIDs: string[] = snapshot.getLoadable(playlistIDsState).contents;
@@ -69,9 +69,35 @@ export const usePlaylistManager = function () {
                     if (action.payload.items) {
                         set(playlistItemStateFamily(tgt), action.payload.items);
                     }
-
                 }
             } break;
+            case DELETE_ITEMS: {
+                let tgtInfos: MusicInfoItem[] = (action.payload.items).reverse();
+                let info: PlaylistInfo = snapshot.getLoadable(playlistInfoStateFamily(action.payload.id)).contents;
+                let list: MusicInfoItem[] = (snapshot.getLoadable(playlistItemStateFamily(action.payload.id)).contents).slice();
+                let tgtIdxs = [];
+                for (let i = 0; i < list.length; i++) {
+                    if (list[i].key === tgtInfos[tgtInfos.length - 1].key) {
+                        tgtIdxs.push(i);
+                        if (tgtInfos.length === 1) break;
+                        tgtInfos.pop();
+                    }
+                }
+                for (let idx of tgtIdxs) {
+                    list[idx] = {} as MusicInfoItem;
+                }
+                let emptyIdx = 0;
+                for (let i = 0; i < list.length; i++) {
+                    if (list[i].key) list[emptyIdx++] = list[i];
+                }
+                for (let i = 0; i < tgtInfos.length; i++) list.pop();
+                debugger;
+                const result = await updatePlaylist({ info, items: list });
+                if (result) {
+                    set(playlistItemStateFamily(action.payload.id), list);
+                }
+                break;
+            }
             case APPEND: {
                 if (!action.payload.info || !action.payload.info.id || !action.payload.items) return;
                 const tgt: string = action.payload.info.id;
@@ -273,6 +299,7 @@ export const useCurMusicManager = function () {
                 const idx: number = action.payload.idx;
                 setListCurIdx(list, idx);
             }
+
                 break;
             case SET_IDX:
                 if (typeof action.payload !== 'number') break;
