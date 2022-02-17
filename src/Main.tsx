@@ -3,7 +3,7 @@ import PlaylistsRecoil from './PlaylistsRecoil'
 import FormPopup from './Popups/Modal';
 import SearchBarRecoil from './SearchBarRecoil';
 import MusicPlayer from './MusicPlayer';
-import { useNavigate } from 'react-router-dom';
+import { Route, Routes, useNavigate, useParams } from 'react-router-dom';
 import { Suspense } from 'react';
 import Spinner from './components/Spinner';
 import Popup from './Popups/Popup';
@@ -11,6 +11,7 @@ import HamburgerBtn from './components/HamburgerBtn';
 import SideMenu from './components/SideMenu';
 import { useRecoilState, useSetRecoilState } from 'recoil';
 import { sideMenuOpenState } from './recoilStates/sideMenu';
+import PlaylistPage from './PlaylistPage';
 function Main() {
     const navigate = useNavigate();
     const [isSideMenuOpen, setOpenSideMenu] = useRecoilState(sideMenuOpenState);
@@ -27,6 +28,9 @@ function Main() {
             console.log(err);
         });
     }
+    const goToPlaylistPage = (id: string) => {
+        navigate(`/playlist/${id}`);
+    }
     return (
         <div>
             <header className={`${styles["header"]}`}>
@@ -38,14 +42,15 @@ function Main() {
             </header>
             <main>
                 <Suspense fallback={<Spinner></Spinner>}>
-                    <FormPopup></FormPopup>
-                    <Popup></Popup>
-                    <PlaylistsRecoil></PlaylistsRecoil>
-                    <br />
-                    <br />
-                    <br />
+                    <Routes>
+                        <Route path="*" element={<PlaylistsRecoil goToPlaylistPage={goToPlaylistPage} />}
+                        ></Route>
+                        <Route path="playlist/:id" element={<PlaylistPage />} />
+                    </Routes>
                 </Suspense>
             </main>
+            <FormPopup></FormPopup>
+            <Popup></Popup>
             <MusicPlayer></MusicPlayer>
         </div>
     );
