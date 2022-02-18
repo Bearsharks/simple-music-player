@@ -6,29 +6,36 @@
 .navigation{
     position: fixed;
     top:0px;
-    width: 50%;
+    right:0px;
+    z-index: $header-z-index + 1;
+    width: 40%;
     max-width: 300px;
-    height: 100%;
-    padding:$header-padding-size;
+    height: calc(100vh);
+    padding-top:$header-size;
     display:flex;
     flex-direction: column;
-    justify-content: center;
-    align-items: center;
     align-content: center;
-
-    z-index: $sidemenu-z-index;
     
     background-color: $bg-secondary-color;
         
-    transform: translateX(-150%);
+    transform: translateX(150%);
     visibility: hidden;
     transition : all 0.5s ease;
 }
-
+.user-info{
+    display: flex;
+    align-items: center;
+}
+.user-info__img{
+    width: 40px;
+    height: 40px;
+    margin: 10px;
+    border-radius: 50%;
+}
 .navigation--active{
     margin-right: 0%;
     visibility: visible;
-    transform: translateX(-5px);
+    transform: translateX(0%);
     transition : all 0.5s ease;
 }
 .close-button{
@@ -37,11 +44,26 @@
     width: $header-size;
     height: $header-size;
     top:0px;
-    left: 0px;
+    right: 0px;
 }
-.miniLink{
-    width: 80%;
-    margin: 20px;
+.wrapper{
     padding: 10px;
     border-top: 1px solid white;
+}
+.options{
+    display: flex;
+    cursor: pointer;
+    padding : 16px;
+    & div{
+        padding : 0 5px;
+    }
+}
+.options__icon{
+    
+}
+.options__text{
+    display: flex;
+    font-size: 15px;
+    font-weight: 300;
+    cursor: pointer;
 }
