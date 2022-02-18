@@ -66,7 +66,6 @@ export default async function youtubeSearch(value: string, type: SearchType, pag
             //fields: `nextPageToken,pageInfo,items(snippet(title,description,resourceId,thumbnails(default)))`
             fields: `nextPageToken,pageInfo,items(snippet(title,resourceId,thumbnails(default),videoOwnerChannelTitle))`
         };
-        if (pageToken) params.pageToken = pageToken;
     } else if (type === SearchType.Music) {
         params = {
             part: `snippet`,
@@ -104,8 +103,9 @@ const YTFetch = async (url: string, pageToken?: string): Promise<any> => {
         if (token === "") return;
         sessionStorage.setItem("access_token", token);
     }
-    url += `&access_token=${sessionStorage.getItem("access_token")}`;
-    let res = await fetch(url);
+    let curURL = url + `&access_token=${sessionStorage.getItem("access_token")}`;
+    if (pageToken) curURL += `&pageToken=${pageToken}`;
+    let res = await fetch(curURL);
     if (res.status === 200) {
         const data = await res.json();
         if (data.nextPageToken) {
@@ -114,6 +114,7 @@ const YTFetch = async (url: string, pageToken?: string): Promise<any> => {
         return data.items;
     } else if (res.status === 403 || res.status === 401) {
         //유튜브 읽기 권한이 없다면 무한루프가 발생하기 때문에 없다면 확인후 권한을 달라고 하자
+        console.log(await res.text());
         sessionStorage.setItem("access_token", "");
         return YTFetch(url, pageToken);
     }
