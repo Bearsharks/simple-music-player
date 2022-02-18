@@ -19,7 +19,7 @@
     background-color: $bg-color;
     height: calc(100% - $header-size);
     position: fixed;
-    top: 30px;
+    top: $header-size; 
 }
 .wrapper--hide{
     transform: translateY(100%);

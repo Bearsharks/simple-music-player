@@ -7,8 +7,6 @@ function SearchBarRecoil() {
     const searchOptionPopupOpen = (event: React.MouseEvent, textarea: HTMLTextAreaElement) => {
         openSearchOptionsPopup(event.target as HTMLElement, textarea);
     }
-    return <div className={styles['wrapper']}>
-        <SearchBar search={searchOptionPopupOpen} />
-    </div>
+    return <SearchBar search={searchOptionPopupOpen} />
 }
 export default SearchBarRecoil;
