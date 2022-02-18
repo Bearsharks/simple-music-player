@@ -52,10 +52,8 @@ export default function Playlists(props: PlaylistsProps) {
                             <div className={styles['thumbnail__overlay']} onClick={() => props.goToPlaylistPage(el.id)}>
 
                             </div>
-                            <div
-                                className={styles['thumbnail__play-btn']}
-                                title="재생">
-                                <div onClick={() => props.playPlaylist(el.id)}>
+                            <div className={styles['thumbnail__play-btn']}>
+                                <div onClick={() => props.playPlaylist(el.id)} title="재생">
                                     <span className="material-icons md-32">play_arrow</span>
                                 </div>
                             </div>
