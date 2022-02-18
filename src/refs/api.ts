@@ -77,7 +77,12 @@ export async function checkAuth() {
     const res = await fetch(`${process.env.REACT_APP_API_URL}/isAuthed`, {
         credentials: 'include',
     });
-    return (res.status === 200) && 'true' === await res.text();
+    const data = await res.json();
+    if (data.isAuthed) {
+        sessionStorage.setItem("username", data.username);
+        sessionStorage.setItem("userimg", data.userimg);
+    }
+    return data.isAuthed;
 }
 
 export const doSignIn = async (staySignedIn?: boolean) => {
