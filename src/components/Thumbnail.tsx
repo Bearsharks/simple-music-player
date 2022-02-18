@@ -15,13 +15,15 @@ function Thumbnail({ thumbnails, name }: { thumbnails: string[], name: string })
     return <div title={name} className={styles["wrapper"]}>
         <img style={{ "width": "100%", "height": "100%" }} alt={""}
             src={"https://lh3.googleusercontent.com/wr28amLh-pMk4vmrYv_Orhly8DTtdvZJFuLwmXG5RNvZJjGlFe_WMnKp4pWlZI1gL7ihQn-xZuzZ0A6VZZbv2Z-iTEH3dpjn=s576"}>
-        </img> {thumbnails.length &&
+        </img>
+        {thumbnails.length ?
             <div className={styles["img-wrap"]}>{
-                thumbnails.map((img: string, idx) => <img
-                    className={styles["img"]} key={idx} src={img} alt={""}
-                    style={thumbnails.length === 1 ? { "width": "100%", "height": "100%" } : {}}
-                ></img>)}
-            </div>
+                thumbnails.map((img: string, idx) =>
+                    <img
+                        className={styles["img"]} key={idx} src={img} alt={""}
+                        style={thumbnails.length === 1 ? { "width": "100%", "height": "100%" } : {}}
+                    ></img>)}
+            </div> : ""
         }
     </div>
 }
