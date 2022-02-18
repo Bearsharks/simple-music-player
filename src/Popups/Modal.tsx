@@ -88,127 +88,139 @@ function ImportMyYTPlaylistForm({ closePopup }: { closePopup: () => void }) {
     );
 }
 
+function ImportYTPlaylistLink({ closePopup }: { closePopup: () => void }) {
+    const playlistManager = usePlaylistManager();
+    const formItems: FormItem[] = [{ id: "url", name: "재생목록 url", value: "", require: true }];
+    const submit = async (data: any) => {
+        const url: string = data.url;
+        if (!url) return;
+        const { id, kind } = urlToId(url);
+        if (!id || kind !== SearchType.List) return;
+        try {
+            const info = await getYTPlaylistByID(id);
+            const playlist: Playlist = {
+                info: info,
+                items: await youtubeSearch(info.id, SearchType.List)
+            }
+            const createAction: PlaylistAction = {
+                type: PlaylistActionType.CREATE,
+                payload: playlist
+            }
+            playlistManager(createAction);
+        } catch (e) {
+            console.error(e);
+            alert('재생목록을 가져오지 못했습니다');
+        } finally {
+            closePopup();
+        }
+    }
+
+    return <Form name='유튜브 재생목록 가져오기'
+        formItems={formItems}
+        closePopup={closePopup}
+        submit={submit} />
+}
+
 interface FormItem {
     id: string,
     name: string,
-    value?: string
+    value?: string,
+    require?: boolean
 }
 interface PlaylistFormProps {
     closePopup: () => void;
     kind: ModalKind;
     playlistInfo?: PlaylistInfo;
 }
+
 function PlaylistForm({ closePopup, kind, playlistInfo }: PlaylistFormProps) {
-    const curRef = useRef<HTMLFormElement>(null);
     const formItems: FormItem[] = [
-        { id: "name", name: "이름", value: playlistInfo ? playlistInfo.name : "" },
+        { id: "name", name: "제목", value: playlistInfo ? playlistInfo.name : "", require: true },
         { id: "description", name: "설명", value: playlistInfo ? playlistInfo.description : "" },
     ];
-
     const playlistManager = usePlaylistManager();
     const openYTPopup = useOpenYTOptionsPopup();
+    const submit = (data: any) => {
+        let info: any;
+        if (playlistInfo) info = playlistInfo;
 
-    const onClickHandler = () => {
+        for (let item of formItems) {
+            info[item.id] = data[item.id];
+        }
+        const action: PlaylistAction = {
+            type: kind === ModalKind.CreatePlaylist ? PlaylistActionType.CREATE : PlaylistActionType.UPDATE,
+            payload: {
+                info: info as PlaylistInfo
+            }
+        }
+        playlistManager(action);
+        closePopup();
+    }
+    const btnClickHandler = (event: React.MouseEvent) => {
+        event.preventDefault();
+        openYTPopup(event.target as HTMLElement);
+    }
+    const name = (playlistInfo?.name) ? playlistInfo.name : "새 재생목록";
+    return <Form name={name} formItems={formItems} closePopup={closePopup} submit={submit}>
+        {kind === ModalKind.CreatePlaylist ?
+            <button className={styles['importYTBtn']} onClick={btnClickHandler}>
+                <span className='material-icons'>
+                    add
+                </span>
+                유튜브에서 가져오기
+            </button> : ""
+        }
+    </Form>
+
+}
+
+interface FormProps {
+    formItems: FormItem[];
+    name: string;
+    closePopup: () => void;
+    submit: (data: any) => void;
+    children?: React.ReactChild
+}
+function Form({ formItems, closePopup, submit, name, children }: FormProps) {
+    const curRef = useRef<HTMLFormElement>(null);
+    const onClickHandler = (e: React.MouseEvent) => {
+        e.preventDefault();
         if (curRef.current) {
             const formEle = curRef.current;
             let data = {} as any;
             const arr = formEle.getElementsByTagName('input');
             for (let i = 0; i < arr.length; i++) {
-                data[formItems[i].id] = arr[i].value;
-            }
-            if (kind === ModalKind.UpdatePlaylist) {
-                data.id = playlistInfo?.id;
-            }
-            const action: PlaylistAction = {
-                type: kind === ModalKind.CreatePlaylist ? PlaylistActionType.CREATE : PlaylistActionType.UPDATE,
-                payload: {
-                    info: data as PlaylistInfo
+                data[formItems[i].id] = arr[i].value.trim();
+                if (formItems[i].require && !data[formItems[i].id]) {
+                    return;
                 }
             }
-            playlistManager(action);
-            closePopup();
+            submit(data);
         }
     }
-
-    const btnClickHandler = (event: React.MouseEvent) => {
-        event.preventDefault();
-        openYTPopup(event.target as HTMLElement);
-    }
-
     return (
-        <form ref={curRef} >
+        <form ref={curRef} className={styles['playlist-form']}>
+            <h2>
+                {name}
+            </h2>
+            <br />
             {formItems.map((item: FormItem) =>
-                <div key={item.id}>
-                    <label>{item.name}</label>
+                <div key={item.id} className={styles['form-item']}>
+                    <div className={styles['form-item__label']}>
+                        <label>{item.name}</label>
+                    </div>
                     <input id={item.id} defaultValue={item.value}></input>
                 </div>
             )}
-            <div>
-                {kind === ModalKind.CreatePlaylist &&
-                    <button onClick={btnClickHandler}>유튜브에서 가져오기</button>
-                }
-                <button onClick={closePopup}>취소</button>
-                <button onClick={onClickHandler}>확인</button>
-
-            </div>
-        </form>
-    );
-}
-
-interface FormItem {
-    id: string,
-    name: string,
-    value?: string
-}
-interface PlaylistFormProps {
-    closePopup: () => void;
-    kind: ModalKind;
-    playlistInfo?: PlaylistInfo;
-}
-function ImportYTPlaylistLink({ closePopup }: { closePopup: () => void }) {
-    const curRef = useRef<HTMLFormElement>(null);
-    const playlistManager = usePlaylistManager();
-    const onClickHandler = async (e: React.MouseEvent) => {
-        e.preventDefault();
-        if (curRef.current) {
-            const url = curRef.current.getElementsByTagName('input')[0]?.value;
-            if (!url) return;
-            const { id, kind } = urlToId(url);
-            if (!id || kind !== SearchType.List) return;
-            debugger;
-            try {
-                const info = await getYTPlaylistByID(id);
-                const playlist: Playlist = {
-                    info: info,
-                    items: await youtubeSearch(info.id, SearchType.List)
-                }
-                const createAction: PlaylistAction = {
-                    type: PlaylistActionType.CREATE,
-                    payload: playlist
-                }
-                playlistManager(createAction);
-            } catch (e) {
-                debugger;
-                console.error(e);
-                alert('재생목록을 가져오지 못했습니다');
-            } finally {
-                closePopup();
+            {!children ? "" :
+                <div>
+                    {children}
+                </div>
             }
-
-
-        }
-    }
-
-
-    return (
-        <form ref={curRef} >
-            <div>
-                <label>유튜브 재생목록 URL</label>
-                <input id="linkURL"></input>
-            </div>
-            <div>
-                <button onClick={closePopup}>취소</button>
-                <button onClick={onClickHandler}>확인</button>
+            <div className={styles['playlist-form-actions']}>
+                <div className={styles['playlist-form-actions__button']} onClick={closePopup}>취소</div>
+                <div className={`${styles['playlist-form-actions__button--white']} ${styles['playlist-form-actions__button']}`}
+                    onClick={onClickHandler}>제출</div>
             </div>
         </form>
     );

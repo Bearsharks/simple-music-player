@@ -18,4 +18,58 @@
   transform: translate(-50%,-50%);
   background-color: $bg-grey;
   z-index: 102;
+  width: 90vw;
+}
+.playlist-form{
+  padding: 24px;
+  & input{
+    background-color: transparent;
+    color: white;
+    width: 100%;
+    border: 0;
+    border-bottom: 1px solid;
+    height: 30px;
+    &:focus{
+      outline: 0;
+      border-bottom: 2px solid #3ea6ff;      
+      transition: all 0.7s ease;
+    }
+  }
+
+  
+}
+.form-item{
+  margin-bottom: 24px;
+  &:focus-within .form-item__label{
+    color: #3ea6ff;
+    transition: all 0.5s ease;
+  }
+}
+.form-item__label{
+  font-size: small;
+}
+.playlist-form-actions{
+  display: flex;
+  align-items: center;
+    justify-content: flex-end;
+}
+.importYTBtn{
+  font-size: small;
+  display: flex;
+  align-items: center;
+}
+.playlist-form-actions__button{
+  width: 70px;
+  height: 40px;
+  font-weight: 300;
+  border-radius: 3px;
+  background-color: transparent;
+  cursor: pointer;
+  display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.playlist-form-actions__button--white{
+  background-color: white;
+  color: $bg-color;
 }

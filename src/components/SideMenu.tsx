@@ -33,7 +33,6 @@ function SideMenu({ children }: { children?: React.ReactNode }) {
                 <div>
                     {sessionStorage.getItem('username')}
                 </div>
-
             </div>
 
             <div className={`${styles["wrapper"]}`}>
