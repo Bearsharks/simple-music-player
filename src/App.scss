@@ -6,7 +6,12 @@
   text-align: center;
   
 }
-
+html {
+  box-sizing: border-box;
+}
+*, *:before, *:after {
+  box-sizing: inherit;
+}
 .material-icons.md-24 { font-size: 24px; }
 .material-icons.md-28 { font-size: 28px; }
 .material-icons.md-32 { font-size: 32px; }
