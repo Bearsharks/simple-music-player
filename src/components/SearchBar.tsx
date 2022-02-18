@@ -39,40 +39,44 @@ function SearchBar(props: SearchBarProps) {
     }
     const curRef = useRef<HTMLDivElement>(null);
     return (
-        <div className={`${styles['wrapper']}  ${isExpanded && styles['wrapper--expand']}`} ref={curRef}>
-            <textarea
-                className={`${isExpanded && styles['text--expand']}`}
-                ref={textInput}
-                onKeyDown={resize} onKeyUp={resize} onClick={expandTextArea}
-            ></textarea >
-            {!isExpanded &&
-                <button
-                    className={`${styles['search-button']}`}
-                    onClick={search}
-                >
-                    <span className="material-icons">
-                        search
-                    </span>
-                </button>}
-            {isExpanded &&
-                <div className={`${styles['expanded-menu']}`}>
-                    <div>ex)노래명 - 가수명 / 유튜브 url(재생목록, 동영상)</div>
-                    <button
-                        className={`${styles['search-button']} ${styles['search-button--expand']}`}
-                        onClick={search}
-                    >
-                        <span className="material-icons">
-                            search
-                        </span>
-                    </button>
-                    <OuterClickEventCatcher
-                        onClickHandler={shirinkTextBox}
-                        wrapper={curRef.current}
-                        setOpen={setExpended}
-                    ></OuterClickEventCatcher>
-                </div>
-            }
-        </div>
+        <>
+            <div
+                className={`${styles['search-button']}`}
+                onClick={expandTextArea}
+            >
+                <span className="material-icons md-28">
+                    search
+                </span>
+            </div>
+            <div ref={curRef} className={`${styles['wrapper']} ${isExpanded && styles['wrapper--expand']}`}>
+                {isExpanded &&
+                    <>
+                        <textarea
+                            className={styles['text--expand']}
+                            ref={textInput}
+                            onKeyDown={resize} onKeyUp={resize}
+                        ></textarea >
+                        <div className={`${styles['expanded-menu']}`}>
+                            <div>ex)노래명 - 가수명 / 유튜브 url(재생목록, 동영상)</div>
+                            <div
+                                className={`${styles['search-button']} ${styles['search-button--expand']}`}
+                                onClick={search}
+                            >
+                                <span className="material-icons md-28">
+                                    search
+                                </span>
+                            </div>
+                        </div>
+                        <OuterClickEventCatcher
+                            onClickHandler={shirinkTextBox}
+                            wrapper={curRef.current}
+                            setOpen={setExpended}
+                        ></OuterClickEventCatcher>
+                    </>
+                }
+            </div>
+        </>
+
     )
 }
 export default SearchBar;

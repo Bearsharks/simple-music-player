@@ -5,6 +5,7 @@
     width: $header-size;    
     border: 0px;
     background-color: transparent;
+    z-index: $header-z-index + 5;
 }
 .hamburger-wrapper {
     height: 100%;

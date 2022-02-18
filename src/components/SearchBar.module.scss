@@ -9,8 +9,10 @@ $padding-size : 5px;
 .wrapper--expand{
     display: block;
     position: absolute;
+    z-index: $header-z-index + 10;
     padding: $padding-size;
     border: 1px solid #555555;
+    top:0px;
     left: 0px;
     width: calc(100vw - 2*$padding-size - 2px);
     height: fit-content;        
@@ -41,7 +43,7 @@ textarea{
 }
 
 .text--expand{
-    width: calc(100% - 11px);
+    width: calc(100% - 12px);
     margin: 5px;
     border: 1px solid white;
     border-radius: 2px;
@@ -49,11 +51,9 @@ textarea{
     max-height: 200px;
 }
 .search-button{
-    height: 100%;
-    width: 35px;
-    padding: 0px;
-    border-radius: 0% 10% 10% 0%;
-    border: 0px; 
+    padding: 4px;
+    width: 32px;
+    height: 32px;
 }
 .search-button--expand{
     border-radius: 10%;
@@ -62,4 +62,5 @@ textarea{
 .expanded-menu{
     display: flex;
     justify-content: space-between;
+    align-items: center;
 }

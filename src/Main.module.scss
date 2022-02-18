@@ -3,9 +3,12 @@
 .header{
     height : $header-size;
     display : flex;
-    align-items: center;
     padding : $header-padding-size;
     z-index: $header-z-index;
     justify-content: space-between;
+    align-items: center;
+}
+.header__right-contents{
+    display : flex;
     align-items: center;
 }
