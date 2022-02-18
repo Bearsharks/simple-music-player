@@ -91,7 +91,6 @@ export const usePlaylistManager = function () {
                     if (list[i].key) list[emptyIdx++] = list[i];
                 }
                 for (let i = 0; i < tgtInfos.length; i++) list.pop();
-                debugger;
                 const result = await updatePlaylist({ info, items: list });
                 if (result) {
                     set(playlistItemStateFamily(action.payload.id), list);

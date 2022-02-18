@@ -178,7 +178,6 @@ const MusicOptions = memo(function ({ setPopupOpen, musicInfos, evTarget }: Musi
     const musicListManager = useMusicListManager();
     const musicOptions = useGetMusicOptions(musicInfos, setPopupOpen, evTarget);
     const deleteMusic = (items: MusicInfo[]) => {
-        debugger;
         const delAction: MusicListAction = {
             type: MusicListActionType.DELETE,
             payload: items
