@@ -1,8 +1,8 @@
 import { atom, atomFamily, selector, useRecoilCallback, useRecoilTransaction_UNSTABLE } from 'recoil';
-import { getPlaylistInfo, getPlaylistItems, getPlaylistInfos, updatePlaylist, deletePlaylist, createPlaylist } from '../../refs/api';
+import api from '../../refs/apiSelector';
 import { PlaylistAction, PlaylistActionType, MusicInfoAction, MusicInfoActionType, MusicListActionType, MusicListAction, PlaylistInfo, PlayerState, MusicInfo, MusicInfoItem } from '../../refs/constants';
 import keyGenerator from '../../refs/keyGenerator';
-
+const { getPlaylistInfo, getPlaylistItems, getPlaylistInfos, updatePlaylist, deletePlaylist, createPlaylist } = api;
 
 export const musicPlayerState = atom<PlayerState>({
     key: 'musicPlayerState',
