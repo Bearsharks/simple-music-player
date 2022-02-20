@@ -9,12 +9,10 @@ import Spinner from './components/Spinner';
 import Popup from './Popups/Popup';
 import HamburgerBtn from './components/HamburgerBtn';
 import SideMenu from './components/SideMenu';
-import { useRecoilState } from 'recoil';
-import { sideMenuOpenState } from './recoilStates/sideMenu';
 import PlaylistPage from './PlaylistPage';
 function Main() {
     const navigate = useNavigate();
-    const [isSideMenuOpen, setOpenSideMenu] = useRecoilState(sideMenuOpenState);
+
 
     const goToPlaylistPage = (id: string) => {
         navigate(`/playlist/${id}`);
@@ -32,7 +30,7 @@ function Main() {
                 </div>
                 <div className={styles["header__right-contents"]}>
                     <SearchBarRecoil></SearchBarRecoil>
-                    <HamburgerBtn setActive={setOpenSideMenu} isActive={isSideMenuOpen}></HamburgerBtn>
+                    <HamburgerBtn></HamburgerBtn>
                 </div>
                 <SideMenu></SideMenu>
             </header>
