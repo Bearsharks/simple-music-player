@@ -141,7 +141,7 @@ function PlaylistForm({ closePopup, kind, playlistInfo }: PlaylistFormProps) {
     const playlistManager = usePlaylistManager();
     const openYTPopup = useOpenYTOptionsPopup();
     const submit = (data: any) => {
-        let info: any;
+        let info: any = {};
         if (playlistInfo) info = playlistInfo;
 
         for (let item of formItems) {
