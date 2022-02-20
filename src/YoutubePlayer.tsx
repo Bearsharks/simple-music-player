@@ -71,7 +71,7 @@ function YoutubePlayer() {
 	}, [curMusic, ytPlayerInited])
 
 	return (
-		<div className={styles['wrapper']} id={`player`}></div>
+		<div id={`player`}></div>
 	);
 }
 

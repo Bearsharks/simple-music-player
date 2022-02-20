@@ -21,7 +21,7 @@ function Main() {
         navigate("/");
     }
     return (
-        <div>
+        <div >
             <header className={styles["header"]}>
                 <div onClick={goToHome}>
                     <span className="material-icons md-32">
@@ -35,13 +35,15 @@ function Main() {
                 <SideMenu></SideMenu>
             </header>
             <main>
-                <Suspense fallback={<Spinner></Spinner>}>
-                    <Routes>
-                        <Route path="*" element={<PlaylistsRecoil goToPlaylistPage={goToPlaylistPage} />}
-                        ></Route>
-                        <Route path="playlist/:id" element={<PlaylistPage />} />
-                    </Routes>
-                </Suspense>
+                <div className={styles["main-contents"]}>
+                    <Suspense fallback={<Spinner></Spinner>}>
+                        <Routes>
+                            <Route path="*" element={<PlaylistsRecoil goToPlaylistPage={goToPlaylistPage} />}
+                            ></Route>
+                            <Route path="playlist/:id" element={<PlaylistPage />} />
+                        </Routes>
+                    </Suspense>
+                </div>
             </main>
             <FormPopup></FormPopup>
             <Popup></Popup>

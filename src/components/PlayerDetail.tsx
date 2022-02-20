@@ -10,7 +10,6 @@ export interface PlayerDetailProps {
     musicList: MusicInfoItem[];
 }
 function PlayerDetail({ playerVisiblity, musicList }: PlayerDetailProps) {
-
     const openSelectTgtPlaylistPopup = useOpenSelectTgtPlaylistPopup();
     const addToPlaylistBtnClickHandler = (event: React.MouseEvent) => {
         openSelectTgtPlaylistPopup(event.target as HTMLElement, musicList)
@@ -18,19 +17,23 @@ function PlayerDetail({ playerVisiblity, musicList }: PlayerDetailProps) {
     return (
         <div className={`${styles['wrapper']} ${(!playerVisiblity) && styles['wrapper--hide']}`}>
             <div className={`${styles['player-detail']} ${(!playerVisiblity) && styles['player-detail__hide']}`}>
-                <div></div>
-                <YoutubePlayer></YoutubePlayer>
-                <div></div>
-                <div className={styles['player-detail__menus']}>
-                    <div>
-                        다음 트랙
-                    </div>
-                    <div></div>
-                    <button onClick={addToPlaylistBtnClickHandler} >
-                        <span className="material-icons md-28">playlist_add</span> 재생목록에 추가
-                    </button>
+
+                <div className={styles['player']}>
+                    <YoutubePlayer></YoutubePlayer>
                 </div>
-                <MusicListRecoil items={musicList}></MusicListRecoil>
+                <div>
+                    <div className={styles['player-detail__menus']}>
+                        <div>
+                            다음 트랙
+                        </div>
+                        <div></div>
+                        <button onClick={addToPlaylistBtnClickHandler} >
+                            <span className="material-icons md-28">playlist_add</span> 재생목록에 추가
+                        </button>
+                    </div>
+                    <MusicListRecoil items={musicList}></MusicListRecoil>
+                </div>
+
             </div>
         </div>
     );

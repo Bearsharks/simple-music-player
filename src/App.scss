@@ -28,8 +28,11 @@ main{
   width: 100vw;
   height: calc(100vh - $header-size);
   @include append_scrollbar;
+  
 }
-
+//1200px; 
+//1000px;              1000이상부터 사이드로 40% 차지 1000이상부터 컨트롤러 숨기지않음
+//        그밑은 100%
 .curMusic{
   border: 1px solid black;
 }
