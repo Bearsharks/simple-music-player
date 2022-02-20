@@ -4,6 +4,7 @@ import { useRecoilState } from 'recoil';
 import { sideMenuOpenState } from '../recoilStates/sideMenu'
 import OuterClickEventCatcher from "./OuterClickEventCatcher";
 import { useNavigate } from "react-router-dom";
+
 function SideMenu({ children }: { children?: React.ReactNode }) {
     const curRef = useRef<HTMLDivElement>(null);
     const [isActive, setActive] = useRecoilState(sideMenuOpenState);
