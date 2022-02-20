@@ -55,6 +55,7 @@ export const usePlaylistManager = function () {
                 if (isSuccess) {
                     const newOne: string[] = playlistIDs.filter((item) => item !== tgt);
                     set(playlistIDsState, newOne);
+                    debugger;
                     reset(playlistItemStateFamily(tgt));
                     reset(playlistInfoStateFamily(tgt));
                 }
@@ -101,7 +102,7 @@ export const usePlaylistManager = function () {
                 if (!action.payload.info || !action.payload.info.id || !action.payload.items) return;
                 const tgt: string = action.payload.info.id;
                 const playlistItems: MusicInfoItem[] = await snapshot.getPromise(playlistItemStateFamily(tgt));
-                const newList = playlistItems.concat(createMusicItem(action.payload.items));
+                const newList = playlistItems.concat(toMusicInfoItems(action.payload.items));
                 const result = await updatePlaylist({ info: action.payload.info, items: newList });
                 if (result) {
                     set(playlistItemStateFamily(tgt), newList);
@@ -133,7 +134,7 @@ export const playlistInfosState = selector<PlaylistInfo[]>({
     },
 })
 
-const createMusicItem = (musicInfos: MusicInfo[]): MusicInfoItem[] => {
+const toMusicInfoItems = (musicInfos: MusicInfo[]): MusicInfoItem[] => {
     const keys = keyGenerator(musicInfos.length);
     return musicInfos.map((info, idx): MusicInfoItem => {
         return { ...info, key: keys[idx] }
@@ -144,11 +145,11 @@ export const playlistItemStateFamily = atomFamily<MusicInfoItem[], string>({
     default: async (id): Promise<MusicInfoItem[]> => {
         try {
             const musicInfos: MusicInfo[] = await getPlaylistItems(id);
-            return createMusicItem(musicInfos);
+            return toMusicInfoItems(musicInfos);
         } catch (err) {
             console.error(err);
         }
-        return {} as MusicInfoItem[];
+        return [];
     },
 });
 
@@ -198,7 +199,7 @@ export const useMusicListManager = function () {
             case MusicListActionType.APPEND_ITEMS: {
                 const musicList = await snapshot.getPromise(musicListState);
 
-                set(musicListState, musicList.concat(createMusicItem(action.payload)));
+                set(musicListState, musicList.concat(toMusicInfoItems(action.payload)));
 
                 if (musicList.length === 0) {
                     set(curMusicIdxState, 0);
@@ -208,7 +209,7 @@ export const useMusicListManager = function () {
             case MusicListActionType.ADD_TO_NEXT:
                 const musicList = await snapshot.getPromise(musicListState);
                 const curIdx = await snapshot.getPromise(curMusicIdxState);
-                const newItems = createMusicItem(action.payload);
+                const newItems = toMusicInfoItems(action.payload);
                 set(musicListState, musicList.length > 0 ? [
                     ...musicList.slice(0, curIdx + 1),
                     ...newItems,

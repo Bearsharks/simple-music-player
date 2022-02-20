@@ -3,7 +3,6 @@ import { API } from "./apiSelector";
 import { MusicInfo, PlaylistInfo } from "./constants";
 import keyGenerator from "./keyGenerator";
 
-
 let a: any = {
     id1: {
         id: "id1",
@@ -12,7 +11,18 @@ let a: any = {
         items: []
     }
 }
+export const reset = () => {
 
+    a = {
+        id1: {
+            id: "id1",
+            name: "name",
+            description: "description",
+            items: []
+        }
+    }
+    console.log(a);
+}
 const getToken = async (): Promise<string> => {
     return "aasdfasfasdf";
 }
@@ -29,7 +39,7 @@ const createPlaylist = async (info: PlaylistInfo, items: MusicInfo[]): Promise<s
     info.id = keyGenerator()[0];
     a[info.id] = {
         ...info,
-        items: items
+        items: items ? items : []
     }
     return info.id;
 };
@@ -40,6 +50,7 @@ const deletePlaylist = async (id: string): Promise<boolean> => {
 };
 const updatePlaylist = async (playlist: { info: PlaylistInfo, items?: MusicInfo[] }): Promise<boolean> => {
     if (playlist.info.id && a[playlist.info.id]) {
+
         playlist.info.description = playlist.info.description ? playlist.info.description : a[playlist.info.id].description;
         playlist.info.name = playlist.info.name ? playlist.info.name : a[playlist.info.id].name;
         let result: any = { info: playlist.info };
