@@ -5,9 +5,25 @@
 .grid-container{
     display: grid;
     grid-template-columns: repeat(3,1fr);
-    margin: 10px;
+    margin: 20px;
     grid-gap: 40px 10px;
     gap: 40px 10px;
+    @media (max-width: 350px){
+        margin: 10px;
+        grid-template-columns: repeat(2,1fr);
+    }
+    @media (min-width: 950px) and (max-width: 1200px){
+        margin: 20px;
+        grid-template-columns: repeat(4,1fr);
+        grid-gap: 50px 20px;
+        gap: 50px 20px;
+      }
+    @media (min-width: 1201px){
+        margin: 25px;
+    grid-template-columns: repeat(5,1fr);
+    grid-gap: 60px 25px;
+        gap: 60px 25px;
+    }
 }
 
 

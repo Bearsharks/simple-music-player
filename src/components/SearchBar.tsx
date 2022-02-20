@@ -39,7 +39,7 @@ function SearchBar(props: SearchBarProps) {
     }
     const curRef = useRef<HTMLDivElement>(null);
     return (
-        <>
+        <div>
             <div
                 className={`${styles['search-button']}`}
                 onClick={expandTextArea}
@@ -50,7 +50,7 @@ function SearchBar(props: SearchBarProps) {
             </div>
             <div ref={curRef} className={`${styles['wrapper']} ${isExpanded && styles['wrapper--expand']}`}>
                 {isExpanded &&
-                    <>
+                    <div className={styles['search-panel']}>
                         <textarea
                             className={styles['text--expand']}
                             ref={textInput}
@@ -72,10 +72,10 @@ function SearchBar(props: SearchBarProps) {
                             wrapper={curRef.current}
                             setOpen={setExpended}
                         ></OuterClickEventCatcher>
-                    </>
+                    </div>
                 }
             </div>
-        </>
+        </div>
 
     )
 }

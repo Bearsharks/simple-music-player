@@ -1,13 +1,15 @@
 @import '../global.scss';
 $padding-size : 5px;
 .wrapper{
-    display: flex;
+    
     width: 100%;
     height: 100%;
-    
+    margin:auto;
 }
 .wrapper--expand{
-    display: block;
+    display: flex;
+    justify-content: center;
+
     position: absolute;
     z-index: $header-z-index + 10;
     padding: $padding-size;
@@ -29,6 +31,11 @@ $padding-size : 5px;
 }
 .closeBtn--show{
     display: block;
+}
+
+.search-panel{
+    width: 100%;
+    max-width: 1450px;
 }
 textarea{
     width: 250px;
