@@ -30,7 +30,7 @@ function PlayerController(props: PlayerControllerProps) {
                                 <span className="material-icons">skip_previous</span>
                             </div>
                             <div className={styles[`play-pause-button`]} onClick={props.togglePlayState}>
-                                <span className="material-icons md-32">
+                                <span className="material-icons">
                                     {(props.isPlaying) ? "pause" : "play_arrow"}
                                 </span>
                             </div>
@@ -39,10 +39,15 @@ function PlayerController(props: PlayerControllerProps) {
                             </div>
                         </div>
                         <div className={styles["midle-control"]}>
-                            <div className={styles["cur-music-info"]}
-                                title={props.musicInfo.name}
+                            <div className={styles["cur-music-info"]}>
+                                <div
+                                    title={props.musicInfo.name}
 
-                            >{props.musicInfo.name}</div>
+                                >{props.musicInfo.name}</div>
+                                <div className={styles["cur-music-info--secondary"]}
+                                >{props.musicInfo.owner}</div>
+                            </div>
+
                             <div className={styles["more-vert-button"]} onClick={popupOpen}>
                                 <span className="material-icons">more_vert</span>
                             </div>
