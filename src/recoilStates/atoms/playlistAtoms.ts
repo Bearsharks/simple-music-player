@@ -168,9 +168,9 @@ export const useMusicListManager = function () {
     //create, delete, update
     return useRecoilCallback(({ set, reset, snapshot }) => async (action: MusicListAction) => {
         switch (action.type) {
-            case MusicListActionType.SET: {
+            case MusicListActionType.LOAD_PLAYLIST: {
                 const playlistItems = await snapshot.getPromise(playlistItemStateFamily(action.payload));
-                setListCurIdx(playlistItems, 0);
+                setListCurIdx(toMusicInfoItems(playlistItems), 0);
                 break;
             }
             case MusicListActionType.APPEND_PLAYLIST: {

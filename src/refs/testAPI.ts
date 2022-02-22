@@ -2,26 +2,17 @@
 import { API } from "./apiSelector";
 import { MusicInfo, PlaylistInfo } from "./constants";
 import keyGenerator from "./keyGenerator";
-
+import { playlistFixture } from './fixture';
 let a: any = {
-    id1: {
-        id: "id1",
-        name: "name",
-        description: "description",
-        items: []
-    }
+    id1: playlistFixture
 }
 export const reset = () => {
-
     a = {
-        id1: {
-            id: "id1",
-            name: "name",
-            description: "description",
-            items: []
-        }
+        id1: playlistFixture
     }
-    console.log(a);
+}
+export const testAPIget = (id: string, items: string) => {
+    return a[id][items];
 }
 const getToken = async (): Promise<string> => {
     return "aasdfasfasdf";
@@ -50,12 +41,11 @@ const deletePlaylist = async (id: string): Promise<boolean> => {
 };
 const updatePlaylist = async (playlist: { info: PlaylistInfo, items?: MusicInfo[] }): Promise<boolean> => {
     if (playlist.info.id && a[playlist.info.id]) {
-
-        playlist.info.description = playlist.info.description ? playlist.info.description : a[playlist.info.id].description;
-        playlist.info.name = playlist.info.name ? playlist.info.name : a[playlist.info.id].name;
-        let result: any = { info: playlist.info };
-        result.items = playlist.items ? playlist.items : a[playlist.info.id].items;
-        a[playlist.info.id] = result;
+        let origin: any = { ...a[playlist.info.id] };
+        origin.description = playlist.info.description ? playlist.info.description : origin.description;
+        origin.name = playlist.info.name ? playlist.info.name : origin.name;
+        origin.items = playlist.items ? playlist.items : origin.items;
+        a[playlist.info.id] = origin;
         return true;
     }
     return false;
