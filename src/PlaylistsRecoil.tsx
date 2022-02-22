@@ -18,7 +18,7 @@ function PlaylistsRecoil(props: PlaylistsRecoilProps) {
     const setOpen = useSetRecoilState(popupOpenState);
     const setMusiclist = (playlistid: string) => {
         const action: MusicListAction = {
-            type: MusicListActionType.SET,
+            type: MusicListActionType.LOAD_PLAYLIST,
             payload: playlistid
         }
         musicListManager(action);

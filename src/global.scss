@@ -1,7 +1,7 @@
-$header-size : 64px;
+
 $player-size : 64px;
 $header-padding-size : 4px;
-$header-footer-size: $header-size + $player-size + 2 * $header-padding-size;
+$header-footer-size: var(--header-size) + $player-size + 2 * $header-padding-size;
 $scrollbar-width: 12px;
 
 $menu-button-z-index : 1000;

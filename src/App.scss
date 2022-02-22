@@ -2,6 +2,7 @@
 
 @import url(http://fonts.googleapis.com/earlyaccess/notosanskr.css);
 
+
 .App {
   text-align: center;
   
@@ -22,11 +23,16 @@ body{
   background-color: $bg-color;
   font-family: $font-family;
   overflow: hidden;
+  --header-size : 64px;
+  @media (max-width: 400px){
+      --header-size : 48px;
+  }
+
 }
 
 main{
   width: 100vw;
-  height: calc(100vh - $header-size);
+  height: calc(100vh - var(--header-size));
   @include append_scrollbar;
   
 }
