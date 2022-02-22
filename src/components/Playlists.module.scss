@@ -28,8 +28,20 @@
 
 
 .wrapper{
-    
+    & h1{
+        margin: 15px 0 15px 15px;        
+    }
+    & select{
+        margin-left: 16px;
+        background-color: $bg-light-grey;
+        padding:1px;
+        color: white;
+        width: 100px;
+        height: 25px;
+        border-radius: 3px;
+    }
 }
+
 
 .playlist-info{
     max-height: 48px;
