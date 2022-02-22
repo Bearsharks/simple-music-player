@@ -57,7 +57,7 @@ function PlayerController(props: PlayerControllerProps) {
                             <div
                                 className={`${styles["right-control__show-list-btn"]} ${!props.playerVisiblity && styles["right-control__show-list-btn--rot"]}`}
                                 onClick={props.togglePlayerVisiblity}>
-                                <span className={"material-icons md-28"}>
+                                <span className={"material-icons"}>
                                     arrow_drop_down
                                 </span>
                             </div>

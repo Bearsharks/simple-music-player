@@ -31,7 +31,7 @@ export default function Playlists(props: PlaylistsProps) {
     }
     return (
         <div className={styles['wrapper']}>
-            <div>재생목록</div>
+            <h1>재생목록</h1>
             <select onChange={handleChange} defaultValue={SortBy_.Lastest}>
                 <option value={SortBy_.Lastest}>최근 추가순</option>
                 <option value={SortBy_.ABC}>가나다</option>
