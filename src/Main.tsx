@@ -10,20 +10,24 @@ import Popup from './Popups/Popup';
 import HamburgerBtn from './components/HamburgerBtn';
 import SideMenu from './components/SideMenu';
 import PlaylistPage from './PlaylistPage';
+import musiclistOpenState from './recoilStates/musiclistOpenState';
+import { useSetRecoilState } from 'recoil';
 function Main() {
     const navigate = useNavigate();
-
+    const setMusicListOpen = useSetRecoilState(musiclistOpenState);
 
     const goToPlaylistPage = (id: string) => {
         navigate(`/playlist/${id}`);
     }
     const goToHome = () => {
+        setMusicListOpen(false);
         navigate("/");
+
     }
     return (
         <div >
             <header className={styles["header"]}>
-                <div onClick={goToHome}>
+                <div className={styles["header__left-contents"]} onClick={goToHome}>
                     <span className="material-icons md-32">
                         home
                     </span>

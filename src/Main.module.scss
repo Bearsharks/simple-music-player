@@ -1,7 +1,7 @@
 @import "global.scss";
 
 .header{
-    height : $header-size;
+    height: var(--header-size);
     display : flex;
     padding : $header-padding-size;
     z-index: $header-z-index;
@@ -11,6 +11,11 @@
 .header__right-contents{
     display : flex;
     align-items: center;
+}
+.header__left-contents{
+  display : flex;
+    align-items: center;
+    padding: 10px;
 }
 .main-contents{
     margin: auto;

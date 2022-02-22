@@ -21,18 +21,21 @@ function PlayerDetail({ playerVisiblity, musicList }: PlayerDetailProps) {
                 <div className={styles['player']}>
                     <YoutubePlayer></YoutubePlayer>
                 </div>
-                <div>
-                    <div className={styles['player-detail__menus']}>
-                        <div>
-                            다음 트랙
-                        </div>
-                        <div></div>
-                        <button onClick={addToPlaylistBtnClickHandler} >
-                            <span className="material-icons md-28">playlist_add</span> 재생목록에 추가
-                        </button>
+
+                <div className={styles['menus']}>
+                    <div>
+                        다음 트랙
                     </div>
+                    <button onClick={addToPlaylistBtnClickHandler} title={`재생목록에 추가`}>
+                        <span className="material-icons md-28">playlist_add</span>
+                        <label>재생목록에 추가</label>
+                    </button>
+                </div>
+                <div className={styles['music-list']}>
                     <MusicListRecoil items={musicList}></MusicListRecoil>
                 </div>
+
+
 
             </div>
         </div>
