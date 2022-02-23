@@ -3,7 +3,6 @@
   "homepage": "http://bearsharks.github.io/simple-music-player",
   "version": "0.1.0",
   "private": true,
-  "proxy": "http://localhost:5001/simple-music-player-319201/asia-northeast3/main",
   "dependencies": {
     "@testing-library/jest-dom": "^5.16.1",
     "@testing-library/react": "^12.1.2",
