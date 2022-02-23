@@ -1,6 +1,5 @@
 import React from 'react';
 import { ComponentStory, ComponentMeta } from '@storybook/react';
-import { playlistInfosFixture } from './fixture/fixture';
 import Playlists from '../../components/Playlists';
 
 export default {
@@ -13,5 +12,5 @@ const Template: ComponentStory<typeof Playlists> = (args) => <Playlists {...args
 
 export const Inited = Template.bind({});
 Inited.args = {
-    playlistInfos: playlistInfosFixture
+    playlistInfos: []
 };

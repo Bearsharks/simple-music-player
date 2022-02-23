@@ -1,0 +1,69 @@
+@import '../global.scss';
+.linkActive{
+    color : red;
+}
+
+.navigation{
+    position: fixed;
+    top:0px;
+    right:0px;
+    z-index: $header-z-index + 1;
+    width: 40%;
+    max-width: 300px;
+    height: calc(100vh);
+    padding-top:var(--header-size);
+    display:flex;
+    flex-direction: column;
+    align-content: center;
+    
+    background-color: $bg-secondary-color;
+        
+    transform: translateX(150%);
+    visibility: hidden;
+    transition : all 0.5s ease;
+}
+.user-info{
+    display: flex;
+    align-items: center;
+}
+.user-info__img{
+    width: 40px;
+    height: 40px;
+    margin: 10px;
+    border-radius: 50%;
+}
+.navigation--active{
+    margin-right: 0%;
+    visibility: visible;
+    transform: translateX(0%);
+    transition : all 0.5s ease;
+}
+.close-button{
+    position: absolute;
+    margin: $header-padding-size;
+    width: var(--header-size);
+    height: var(--header-size);
+    top:0px;
+    right: 0px;
+}
+.wrapper{
+    padding: 10px;
+    border-top: 1px solid white;
+}
+.options{
+    display: flex;
+    cursor: pointer;
+    padding : 16px;
+    & div{
+        padding : 0 5px;
+    }
+}
+.options__icon{
+    
+}
+.options__text{
+    display: flex;
+    font-size: 15px;
+    font-weight: 300;
+    cursor: pointer;
+}

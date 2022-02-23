@@ -1,3 +1,4 @@
+@import '../global.scss';
 .overlay-backdrop {
   border: 1px solid black;
   position:fixed;
@@ -15,6 +16,87 @@
   top:50%;
   left:50%;
   transform: translate(-50%,-50%);
-  background-color: white;
+  background-color: $bg-grey;
   z-index: 102;
+  width: 90vw;
+  max-width: 500px;
+}
+.grid-container{
+  max-height: 350px;
+  display: grid;
+  grid-template-columns: repeat(3,1fr);
+  padding: 0 10px 0 20px;
+  gap:10px;
+  @media (max-width: 350px){
+    padding: 0 5px 0 10px;
+    gap:5px;
+    grid-template-columns: repeat(2,1fr);
+  }
+  @include append_scrollbar;
+}
+.grid-item{
+  
+}
+.playlist-form{
+  padding: 24px;
+}
+
+.playlist-form__input{
+    background-color: transparent;
+    color: white;
+    width: 100%;
+    border: 0;
+    border-bottom: 1px solid;
+    height: 30px;
+    &:focus{
+      outline: 0;
+      border-bottom: 2px solid #3ea6ff;      
+      transition: all 0.7s ease;
+    }
+}
+.form-item{
+  margin-bottom: 24px;
+  &:focus-within .form-item__label{
+    color: #3ea6ff;
+    transition: all 0.5s ease;
+  }
+}
+.form-item--readonly{
+  margin-bottom: 24px;
+  &:focus-within .form-item__label{
+    color: inherit;
+  }
+  &:focus-within .playlist-form__input:focus{
+    outline: inherit;
+    border-bottom: 1px solid;
+  }
+}
+
+.form-item__label{
+  font-size: small;
+}
+.playlist-form-actions{
+  display: flex;
+  align-items: center;
+    justify-content: flex-end;
+}
+.importYTBtn{
+  font-size: small;
+  display: flex;
+  align-items: center;
+}
+.playlist-form-actions__button{
+  width: 70px;
+  height: 40px;
+  font-weight: 300;
+  border-radius: 3px;
+  background-color: transparent;
+  cursor: pointer;
+  display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.playlist-form-actions__button--white{
+  background-color: white;
+  color: $bg-color;
 }

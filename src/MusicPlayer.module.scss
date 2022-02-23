@@ -1,21 +1,8 @@
-
+@import './global.scss';
 .wrapper{
     height: 100vh;
     display: flex;
     align-items: flex-end;
     position: fixed;
-    top: 0px;
-    
-}
-.player-detail{
-    z-index: 10;
-    position: fixed;
-	transition: all 0.6s ease;
-    height: 90vh;
-    overflow: scroll;
-}
-.player-detail__hide{   
-    transform: translateY(100%);
-    visibility: hidden;
-	  transition: all 0.6s ease;
+    top: 0px;    
 }
