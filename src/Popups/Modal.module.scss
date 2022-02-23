@@ -19,10 +19,27 @@
   background-color: $bg-grey;
   z-index: 102;
   width: 90vw;
+  max-width: 500px;
+}
+.grid-container{
+  max-height: 350px;
+  display: grid;
+  
+  grid-template-columns: repeat(3,1fr);
+  padding: 0 10px 0 20px;
+  gap:10px;
+  @media (max-width: 350px){
+    padding: 0 5px 0 10px;
+    gap:5px;
+    grid-template-columns: repeat(2,1fr);
+  }
+  @include append_scrollbar;
 }
 .playlist-form{
   padding: 24px;
-  & input{
+}
+
+.playlist-form__input{
     background-color: transparent;
     color: white;
     width: 100%;
@@ -34,9 +51,6 @@
       border-bottom: 2px solid #3ea6ff;      
       transition: all 0.7s ease;
     }
-  }
-
-  
 }
 .form-item{
   margin-bottom: 24px;
