@@ -3,7 +3,7 @@ import { PlaylistInfo } from "../refs/constants";
 import { getMyYTPlaylistInfos } from "../refs/youtubeSearch";
 
 
-const YTPlaylistRequestID = atom({
+const YTPlaylistRequestIDState = atom({
     key: 'YTPlaylistRequestID',
     default: 0,
 });
@@ -11,7 +11,7 @@ export const myYTPlaylistInfosState = selector<PlaylistInfo[]>({
     key: 'myYTPlaylist',
     get: async ({ get }) => {
 
-        get(YTPlaylistRequestID);
+        get(YTPlaylistRequestIDState);
         try {
             const infos = await getMyYTPlaylistInfos();
             return infos
@@ -28,7 +28,7 @@ export const myYTPlaylistInfosState = selector<PlaylistInfo[]>({
 export const useRefreshYTPlaylistInfos = () => {
     return useRecoilCallback(
         ({ set }) => async () => {
-            set(YTPlaylistRequestID, (id) => id + 1);
+            set(YTPlaylistRequestIDState, (id) => id + 1);
         }
     );
 }

@@ -24,7 +24,6 @@
 .grid-container{
   max-height: 350px;
   display: grid;
-  
   grid-template-columns: repeat(3,1fr);
   padding: 0 10px 0 20px;
   gap:10px;
@@ -34,6 +33,9 @@
     grid-template-columns: repeat(2,1fr);
   }
   @include append_scrollbar;
+}
+.grid-item{
+  
 }
 .playlist-form{
   padding: 24px;
@@ -59,6 +61,17 @@
     transition: all 0.5s ease;
   }
 }
+.form-item--readonly{
+  margin-bottom: 24px;
+  &:focus-within .form-item__label{
+    color: inherit;
+  }
+  &:focus-within .playlist-form__input:focus{
+    outline: inherit;
+    border-bottom: 1px solid;
+  }
+}
+
 .form-item__label{
   font-size: small;
 }

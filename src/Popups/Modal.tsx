@@ -70,35 +70,24 @@ function ImportMyYTPlaylistForm({ closePopup }: { closePopup: () => void }) {
         selectPlaylist(selectedPlaylist.id);
         selectPlaylistName(selectedPlaylist.name);
     }
-    return (
-        <div>
-            <h1 style={{ "padding": "0 20px" }}>나의 재생목록</h1>
-            <div style={{ "padding": "0 25px" }}>
-                <div className={styles['form-item']}>
-                    <div className={styles['form-item__label']}>
-                        <label>선택한 재생목록</label>
-                    </div>
-                    <input className={styles['playlist-form__input']}
-                        readOnly={true} value={selectedPlaylistName} ></input>
-                </div>
-            </div>
-
+    const formItems: FormItem[] = [{ id: "name", name: "선택한 재생목록", value: selectedPlaylistName, require: true, readonly: true }];
+    return <>
+        <Form
+            formItems={formItems}
+            name={"나의 재생목록"}
+            closePopup={closePopup}
+            submit={submit}
+        >
             <div className={styles['grid-container']}>
                 {ytPLInfo.map((info: PlaylistInfo) =>
-                    <div style={info.id === selectedPlaylist ? { "border": "1px solid white" } : {}}
+                    <div key={info.id} className={styles['grid-item']} style={info.id === selectedPlaylist ? { "border": "1px solid white" } : {}}
                         onClick={() => playlistItemClickHandler(info)}>
                         <PlaylistItem key={info.id} info={info} onClick={() => { }}></PlaylistItem>
                     </div>
                 )}
             </div>
-            <br></br>
-            <div className={styles['playlist-form-actions']}>
-                <div className={styles['playlist-form-actions__button']} onClick={closePopup}>취소</div>
-                <div className={`${styles['playlist-form-actions__button--white']} ${styles['playlist-form-actions__button']}`}
-                    onClick={submit}>제출</div>
-            </div>
-        </div>
-    );
+        </Form>
+    </>
 }
 
 function ImportYTPlaylistLink({ closePopup }: { closePopup: () => void }) {
@@ -134,12 +123,7 @@ function ImportYTPlaylistLink({ closePopup }: { closePopup: () => void }) {
         submit={submit} />
 }
 
-interface FormItem {
-    id: string,
-    name: string,
-    value?: string,
-    require?: boolean
-}
+
 interface PlaylistFormProps {
     closePopup: () => void;
     kind: ModalKind;
@@ -186,7 +170,13 @@ function PlaylistForm({ closePopup, kind, playlistInfo }: PlaylistFormProps) {
     </Form>
 
 }
-
+interface FormItem {
+    id: string,
+    name: string,
+    readonly?: boolean,
+    value?: string,
+    require?: boolean
+}
 interface FormProps {
     formItems: FormItem[];
     name: string;
@@ -218,12 +208,17 @@ function Form({ formItems, closePopup, submit, name, children }: FormProps) {
             </h2>
             <br />
             {formItems.map((item: FormItem) =>
-                <div key={item.id} className={styles['form-item']}>
+                <div key={item.id}
+                    className={`${styles['form-item']} ${item.readonly && styles['form-item--readonly']}`}
+                >
                     <div className={styles['form-item__label']}>
                         <label>{item.name}</label>
                     </div>
                     <input className={styles['playlist-form__input']}
-                        id={item.id} defaultValue={item.value}></input>
+                        id={item.id} defaultValue={item.value}
+                        readOnly={item.readonly}
+                    ></input>
+                    <br></br>
                 </div>
             )}
             {!children ? "" :

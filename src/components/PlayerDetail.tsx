@@ -17,11 +17,9 @@ function PlayerDetail({ playerVisiblity, musicList }: PlayerDetailProps) {
     return (
         <div className={`${styles['wrapper']} ${(!playerVisiblity) && styles['wrapper--hide']}`}>
             <div className={`${styles['player-detail']} ${(!playerVisiblity) && styles['player-detail__hide']}`}>
-
                 <div className={styles['player']}>
                     <YoutubePlayer></YoutubePlayer>
                 </div>
-
                 <div className={styles['menus']}>
                     <div>
                         다음 트랙
@@ -34,9 +32,6 @@ function PlayerDetail({ playerVisiblity, musicList }: PlayerDetailProps) {
                 <div className={styles['music-list']}>
                     <MusicListRecoil items={musicList}></MusicListRecoil>
                 </div>
-
-
-
             </div>
         </div>
     );
