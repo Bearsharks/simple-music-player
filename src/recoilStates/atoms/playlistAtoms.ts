@@ -1,8 +1,8 @@
 import { atom, atomFamily, selector, useRecoilCallback, useRecoilTransaction_UNSTABLE } from 'recoil';
-import { getPlaylistInfo, getPlaylistItems, getPlaylistInfos, updatePlaylist, deletePlaylist, createPlaylist } from '../../refs/api';
+import api from '../../refs/apiSelector';
 import { PlaylistAction, PlaylistActionType, MusicInfoAction, MusicInfoActionType, MusicListActionType, MusicListAction, PlaylistInfo, PlayerState, MusicInfo, MusicInfoItem } from '../../refs/constants';
 import keyGenerator from '../../refs/keyGenerator';
-
+const { getPlaylistInfo, getPlaylistItems, getPlaylistInfos, updatePlaylist, deletePlaylist, createPlaylist } = api;
 
 export const musicPlayerState = atom<PlayerState>({
     key: 'musicPlayerState',
@@ -27,6 +27,8 @@ export const playlistIDsState = atom<string[]>({
         getPlaylistInfos().then((result) => {
             const ids = result.map((playlistInfo) => playlistInfo.id);
             resolve(ids);
+        }).catch((e) => {
+            resolve([]);
         })
     })
 })
@@ -37,7 +39,7 @@ export const playlistIDsState = atom<string[]>({
 export const usePlaylistManager = function () {
     //create, delete, update
     return useRecoilCallback(({ set, reset, snapshot }) => async (action: PlaylistAction) => {
-        const { CREATE, DELETE, UPDATE, APPEND } = PlaylistActionType;
+        const { CREATE, DELETE, UPDATE, APPEND, DELETE_ITEMS } = PlaylistActionType;
         switch (action.type) {
             case CREATE: {
                 const playlistIDs: string[] = snapshot.getLoadable(playlistIDsState).contents;
@@ -47,13 +49,13 @@ export const usePlaylistManager = function () {
                 }
             } break;
             case DELETE: {
-                debugger;
                 const tgt = action.payload;
                 const playlistIDs: string[] = snapshot.getLoadable(playlistIDsState).contents;
                 const isSuccess = await deletePlaylist(tgt);
                 if (isSuccess) {
                     const newOne: string[] = playlistIDs.filter((item) => item !== tgt);
                     set(playlistIDsState, newOne);
+                    debugger;
                     reset(playlistItemStateFamily(tgt));
                     reset(playlistInfoStateFamily(tgt));
                 }
@@ -64,18 +66,43 @@ export const usePlaylistManager = function () {
                 const info: PlaylistInfo = snapshot.getLoadable(playlistInfoStateFamily(tgt)).contents;
                 const result = await updatePlaylist(action.payload);
                 if (result) {
-                    set(playlistInfoStateFamily(tgt), { info, ...action.payload.info });
+                    set(playlistInfoStateFamily(tgt), { ...info, ...action.payload.info });
                     if (action.payload.items) {
                         set(playlistItemStateFamily(tgt), action.payload.items);
                     }
-
                 }
             } break;
+            case DELETE_ITEMS: {
+                let tgtInfos: MusicInfoItem[] = (action.payload.items).reverse();
+                let info: PlaylistInfo = snapshot.getLoadable(playlistInfoStateFamily(action.payload.id)).contents;
+                let list: MusicInfoItem[] = (snapshot.getLoadable(playlistItemStateFamily(action.payload.id)).contents).slice();
+                let tgtIdxs = [];
+                for (let i = 0; i < list.length; i++) {
+                    if (list[i].key === tgtInfos[tgtInfos.length - 1].key) {
+                        tgtIdxs.push(i);
+                        if (tgtInfos.length === 1) break;
+                        tgtInfos.pop();
+                    }
+                }
+                for (let idx of tgtIdxs) {
+                    list[idx] = {} as MusicInfoItem;
+                }
+                let emptyIdx = 0;
+                for (let i = 0; i < list.length; i++) {
+                    if (list[i].key) list[emptyIdx++] = list[i];
+                }
+                for (let i = 0; i < tgtInfos.length; i++) list.pop();
+                const result = await updatePlaylist({ info, items: list });
+                if (result) {
+                    set(playlistItemStateFamily(action.payload.id), list);
+                }
+                break;
+            }
             case APPEND: {
                 if (!action.payload.info || !action.payload.info.id || !action.payload.items) return;
                 const tgt: string = action.payload.info.id;
                 const playlistItems: MusicInfoItem[] = await snapshot.getPromise(playlistItemStateFamily(tgt));
-                const newList = playlistItems.concat(createMusicItem(action.payload.items));
+                const newList = playlistItems.concat(toMusicInfoItems(action.payload.items));
                 const result = await updatePlaylist({ info: action.payload.info, items: newList });
                 if (result) {
                     set(playlistItemStateFamily(tgt), newList);
@@ -107,7 +134,7 @@ export const playlistInfosState = selector<PlaylistInfo[]>({
     },
 })
 
-const createMusicItem = (musicInfos: MusicInfo[]): MusicInfoItem[] => {
+const toMusicInfoItems = (musicInfos: MusicInfo[]): MusicInfoItem[] => {
     const keys = keyGenerator(musicInfos.length);
     return musicInfos.map((info, idx): MusicInfoItem => {
         return { ...info, key: keys[idx] }
@@ -118,11 +145,11 @@ export const playlistItemStateFamily = atomFamily<MusicInfoItem[], string>({
     default: async (id): Promise<MusicInfoItem[]> => {
         try {
             const musicInfos: MusicInfo[] = await getPlaylistItems(id);
-            return createMusicItem(musicInfos);
+            return toMusicInfoItems(musicInfos);
         } catch (err) {
             console.error(err);
         }
-        return {} as MusicInfoItem[];
+        return [];
     },
 });
 
@@ -141,20 +168,18 @@ export const useMusicListManager = function () {
     //create, delete, update
     return useRecoilCallback(({ set, reset, snapshot }) => async (action: MusicListAction) => {
         switch (action.type) {
-            case MusicListActionType.SET: {
+            case MusicListActionType.LOAD_PLAYLIST: {
                 const playlistItems = await snapshot.getPromise(playlistItemStateFamily(action.payload));
-                setListCurIdx(playlistItems, 0);
+                setListCurIdx(toMusicInfoItems(playlistItems), 0);
                 break;
             }
             case MusicListActionType.APPEND_PLAYLIST: {
-
                 const musicList = await snapshot.getPromise(musicListState);
                 const playlistItems = await snapshot.getPromise(playlistItemStateFamily(action.payload));
                 set(musicListState, musicList.concat(playlistItems));
                 break;
             }
             case MusicListActionType.ADD_TO_NEXT_PLAYLIST: {
-                debugger;
                 const release = snapshot.retain();
                 try {
                     const musicList = await snapshot.getPromise(musicListState);
@@ -173,7 +198,7 @@ export const useMusicListManager = function () {
             case MusicListActionType.APPEND_ITEMS: {
                 const musicList = await snapshot.getPromise(musicListState);
 
-                set(musicListState, musicList.concat(createMusicItem(action.payload)));
+                set(musicListState, musicList.concat(toMusicInfoItems(action.payload)));
 
                 if (musicList.length === 0) {
                     set(curMusicIdxState, 0);
@@ -183,7 +208,7 @@ export const useMusicListManager = function () {
             case MusicListActionType.ADD_TO_NEXT:
                 const musicList = await snapshot.getPromise(musicListState);
                 const curIdx = await snapshot.getPromise(curMusicIdxState);
-                const newItems = createMusicItem(action.payload);
+                const newItems = toMusicInfoItems(action.payload);
                 set(musicListState, musicList.length > 0 ? [
                     ...musicList.slice(0, curIdx + 1),
                     ...newItems,
@@ -253,10 +278,14 @@ function MusicInfoActionCheck(params: unknown): params is MusicInfoAction {
 }
 
 export const useCurMusicManager = function () {
+    const setListCurIdx = useRecoilTransaction_UNSTABLE(({ set }) => (list: MusicInfoItem[], idx: number) => {
+        set(musicListState, list);
+        set(curMusicIdxState, idx);
+    });
     return useRecoilCallback(({ set, snapshot }) => async (action: MusicInfoAction) => {
         const list: MusicInfoItem[] = snapshot.getLoadable(musicListState).contents;
         const idx: number = snapshot.getLoadable(curMusicIdxState).contents;
-        const { NEXT, PREV, SET_INFO, SET_IDX } = MusicInfoActionType;
+        const { NEXT, PREV, SET_INFO, SET_IDX, SET } = MusicInfoActionType;
         switch (action.type) {
             case NEXT:
                 if (idx + 1 < list.length) set(curMusicIdxState, idx + 1);
@@ -264,13 +293,20 @@ export const useCurMusicManager = function () {
             case PREV:
                 if (idx - 1 >= 0) set(curMusicIdxState, idx - 1);
                 break;
+            case SET: {
+                const list: MusicInfoItem[] = action.payload.list;
+                const idx: number = action.payload.idx;
+                setListCurIdx(list, idx);
+            }
+
+                break;
             case SET_IDX:
                 if (typeof action.payload !== 'number') break;
                 const next: number = action.payload;
                 if (0 <= next && next < list.length) set(curMusicIdxState, action.payload);
                 break;
             case SET_INFO:
-                let musicInfo: MusicInfo = action.payload;
+                const musicInfo: MusicInfo = action.payload;
                 set(musicListState, [
                     ...list.slice(0, idx), // everything before current post
                     { ...list[idx], ...musicInfo },

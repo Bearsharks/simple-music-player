@@ -25,3 +25,5 @@ yarn-error.log*
 Test.js
 
 /src/refs/secureInfo.js
+
+/src/MusicList/

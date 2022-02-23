@@ -5,7 +5,7 @@ function OauthCallback() {
     sessionStorage.setItem("access_token", param.token);
     const navigate = useNavigate();
     useEffect(() => {
-        navigate("/main");
+        navigate("/");
     }, [navigate]);
     return (
         <div></div>

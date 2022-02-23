@@ -1,7 +1,6 @@
 import React from 'react';
 import { ComponentStory, ComponentMeta } from '@storybook/react';
 import OptionSelector from '../../components/OptionSelector';
-import { OptionsFixture } from './fixture/fixture';
 export default {
     title: 'components/OptionSelector',
     component: OptionSelector,
@@ -12,5 +11,5 @@ const Template: ComponentStory<typeof OptionSelector> = (args) => <OptionSelecto
 
 export const Inited = Template.bind({});
 Inited.args = {
-    options: OptionsFixture
+    options: []
 };

@@ -1,52 +1,44 @@
+@import './global.scss';
+
+@import url(http://fonts.googleapis.com/earlyaccess/notosanskr.css);
+
+
 .App {
   text-align: center;
   
 }
+html {
+  box-sizing: border-box;
+}
+*, *:before, *:after {
+  box-sizing: inherit;
+}
+.material-icons.md-24 { font-size: 24px; }
+.material-icons.md-28 { font-size: 28px; }
+.material-icons.md-32 { font-size: 32px; }
+.material-icons.md-48 { font-size: 48px; }
+
 body{
+  color: $font-color;
+  background-color: $bg-color;
+  font-family: $font-family;
   overflow: hidden;
-}
-ul{
-  list-style:none;
-  padding: 10px;
-}
-header{
-  height:45px;
-}
-.nav-btn {
-    height: 45px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-main{
-  display: flex;
-  flex-direction: column;
-  width: 95vw;
-  margin: 0 auto;
-  list-style:none;
-}
-.title{
-	padding: 10px;
-    z-index: 100;
-    font-weight: 600;
-    font-family: sans-serif;
+  --header-size : 64px;
+  @media (max-width: 400px){
+      --header-size : 48px;
+  }
 
 }
+
+main{
+  width: 100vw;
+  height: calc(100vh - var(--header-size));
+  @include append_scrollbar;
+  
+}
+//1200px; 
+//1000px;              1000이상부터 사이드로 40% 차지 1000이상부터 컨트롤러 숨기지않음
+//        그밑은 100%
 .curMusic{
   border: 1px solid black;
-}
-.navigation{
-	background-color: white;
-	z-index: 10;
-}
-.navigation{
-	background-color: white;
-	z-index: 10;
-	transform: translateY(0px);
-	background-color: rgba(255,255,255,0.8);
-	transition: all 0.6s ease;
-}
-.navigation--hide{
-	transform: translateY(-200%);
-	transition: all 0.6s ease;
 }

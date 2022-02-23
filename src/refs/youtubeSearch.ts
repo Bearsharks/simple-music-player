@@ -10,22 +10,25 @@ function toMusicInfo(data: any, type: SearchType, query: string): MusicInfo {
         return {
             videoID: data.snippet.resourceId.videoId,
             name: data.snippet.title,
-            //data.snippet.description,
             query: query,
+            thumbnail: data.snippet.thumbnails.default?.url ? data.snippet.thumbnails.default.url : "",
+            owner: data.snippet.videoOwnerChannelTitle,
         }
     } else if (type === SearchType.Music) {
         return {
             videoID: data.id,
             name: data.snippet.title,
-            //data.snippet.description,
+            thumbnail: data.snippet.thumbnails.default?.url ? data.snippet.thumbnails.default.url : "",
             query: query,
+            owner: data.snippet.channelTitle,
         };
     } else {
         return {
             videoID: data.id.videoId,
             name: data.snippet.title,
-            // data.snippet.description,
             query: query,
+            thumbnail: data.snippet.thumbnails.default.url,
+            owner: data.snippet.channelTitle,
         };
     }
 }
@@ -36,27 +39,17 @@ export const searchByQuery = async (query: string): Promise<MusicInfo[]> => {
     let newMusicList: MusicInfo[] = [];
     for (let i = 0; i < queryList.length; i++) {
         if (queryList[i].substring(0, 4) === 'http') {
-            let result: any = {};
-            let qs = queryList[i].substring(queryList[i].indexOf('?') + 1).split('&');
-            for (let j = 0; j < qs.length; j++) {
-                const [kind, value] = qs[j].split('=');
-                result[kind] = value;
-            }
-            if (result['list']) {
-                const searchResult: MusicInfo[] = await youtubeSearch(result['list'], SearchType.List);
-                newMusicList.push(...searchResult);
-            } else if (result['v']) {
-                //result.push(...await this.appendMusic(g.id));
-                const searchResult: MusicInfo[] = await youtubeSearch(result['v'], SearchType.Music);
-                newMusicList.push(...searchResult);
-            } else {
-                console.log(`${i}번째 검색어 잘 못된 url`);
-            }
+            const { id, kind } = urlToId(queryList[i])
+            if (!id) console.log(`${i}번째 검색어 잘 못된 url`);
+            const searchResult: MusicInfo[] = await youtubeSearch(id, kind);
+            newMusicList.push(...searchResult);
         } else {
             newMusicList.push({
                 videoID: "",
                 name: queryList[i],
-                query: queryList[i]
+                query: queryList[i],
+                owner: "",
+                thumbnail: ""
             })
         }
     }
@@ -70,15 +63,14 @@ export default async function youtubeSearch(value: string, type: SearchType, pag
             part: `snippet`,
             playlistId: value,
             maxResults: 50,
-            fields: `nextPageToken,pageInfo,items(snippet(title,description,resourceId))`
+            //fields: `nextPageToken,pageInfo,items(snippet(title,description,resourceId,thumbnails(default)))`
+            fields: `nextPageToken,pageInfo,items(snippet(title,resourceId,thumbnails(default),videoOwnerChannelTitle))`
         };
-        if (pageToken) params.pageToken = pageToken;
     } else if (type === SearchType.Music) {
         params = {
-
             part: `snippet`,
             id: value,
-            fields: `items(id,snippet(title,description))`
+            fields: `items(id,snippet(title,thumbnails(default),channelTitle))`
         };
     } else if (type === SearchType.Search) {
         params = {
@@ -87,7 +79,7 @@ export default async function youtubeSearch(value: string, type: SearchType, pag
             type: `video`,
             topic: `/m/04rlf`,
             q: `${value} audio`,
-            fields: `items(id,snippet(title,description))`
+            fields: `items(id,snippet(title,thumbnails(default),channelTitle))`
         }
     }
     let query: string = Object.keys(params).map(k => encodeURIComponent(k) + '=' + encodeURIComponent(params[k])).join('&');
@@ -107,17 +99,13 @@ export default async function youtubeSearch(value: string, type: SearchType, pag
 //파람만들기 파람으로 패스 만들기 결과 반환하기
 const YTFetch = async (url: string, pageToken?: string): Promise<any> => {
     if (!sessionStorage.getItem("access_token")) {
-        try {
-            const token = await getToken();
-            if (token === "") return;
-            sessionStorage.setItem("access_token", token);
-        } catch (e) {
-            console.error(e);
-            return [];
-        }
+        const token = await getToken();
+        if (token === "") return;
+        sessionStorage.setItem("access_token", token);
     }
-    url += `&access_token=${sessionStorage.getItem("access_token")}`;
-    let res = await fetch(url);
+    let curURL = url + `&access_token=${sessionStorage.getItem("access_token")}`;
+    if (pageToken) curURL += `&pageToken=${pageToken}`;
+    let res = await fetch(curURL);
     if (res.status === 200) {
         const data = await res.json();
         if (data.nextPageToken) {
@@ -126,6 +114,7 @@ const YTFetch = async (url: string, pageToken?: string): Promise<any> => {
         return data.items;
     } else if (res.status === 403 || res.status === 401) {
         //유튜브 읽기 권한이 없다면 무한루프가 발생하기 때문에 없다면 확인후 권한을 달라고 하자
+        console.log(await res.text());
         sessionStorage.setItem("access_token", "");
         return YTFetch(url, pageToken);
     }
@@ -149,7 +138,47 @@ export const getMyYTPlaylistInfos = async (): Promise<PlaylistInfo[]> => {
             id: info.id,
             name: info.snippet.title,
             description: info.snippet.description,
-            //info.snippet.thumbnails.default
+            thumbnails: [info.snippet.thumbnails.default.url],
+            itemCount: info.contentDetails.itemCount
         }
     })
+}
+
+export const getYTPlaylistByID = async (id: string): Promise<PlaylistInfo> => {
+    const params: any = {
+        part: `snippet,contentDetails`,
+        id: id
+    };
+    let query: string = Object.keys(params).map(k => encodeURIComponent(k) + '=' + encodeURIComponent(params[k])).join('&');
+    let info = (await YTFetch(`https://www.googleapis.com/youtube/v3/playlists?${query}`))[0];
+    return {
+        id: info.id,
+        name: info.snippet.title,
+        description: info.snippet.description,
+        thumbnails: info.snippet.thumbnails.default,
+        itemCount: info.contentDetails.itemCount
+    }
+}
+
+export const urlToId = (url: string): { id: string, kind: SearchType } => {
+    if (url.substring(0, 4) === 'http') {
+        let result: any = {};
+        let qs = url.substring(url.indexOf('?') + 1).split('&');
+        for (let j = 0; j < qs.length; j++) {
+            const [kind, value] = qs[j].split('=');
+            result[kind] = value;
+        }
+        if (result['list']) {
+            return {
+                kind: SearchType.List,
+                id: result['list']
+            }
+        } else if (result['v']) {
+            return {
+                kind: SearchType.Music,
+                id: result['v']
+            }
+        }
+    }
+    return {} as { id: string, kind: SearchType };
 }
