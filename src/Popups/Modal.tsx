@@ -7,6 +7,7 @@ import youtubeSearch, { getYTPlaylistByID, SearchType, urlToId } from '../refs/y
 import Spinner from '../components/Spinner';
 import { myYTPlaylistInfosState } from '../recoilStates/YTPlaylistState';
 import { usePlaylistManager } from '../recoilStates/atoms/playlistAtoms';
+import PlaylistItem from '../components/PlaylistItem';
 
 
 function Modal() {
@@ -48,6 +49,7 @@ export default Modal;
 function ImportMyYTPlaylistForm({ closePopup }: { closePopup: () => void }) {
     const playlistManager = usePlaylistManager();
     const [selectedPlaylist, selectPlaylist] = useState("");
+    const [selectedPlaylistName, selectPlaylistName] = useState("");
     const ytPLInfo = useRecoilValue(myYTPlaylistInfosState);
     const submit = async () => {
         let info = ytPLInfo.find((element) => element.id === selectedPlaylist);
@@ -64,33 +66,44 @@ function ImportMyYTPlaylistForm({ closePopup }: { closePopup: () => void }) {
         playlistManager(createAction);
         closePopup();
     }
+    const playlistItemClickHandler = (selectedPlaylist: PlaylistInfo) => {
+        selectPlaylist(selectedPlaylist.id);
+        selectPlaylistName(selectedPlaylist.name);
+    }
     return (
         <div>
-            <h1>나의 재생목록</h1>
-            {
-                ytPLInfo.map((info: PlaylistInfo) =>
-                    <div
-                        key={info.id}
-                        onClick={() => selectPlaylist(info.id)}
-                        style={selectedPlaylist === info.id ? { border: '1px solid' } : {}}
-                    >
-                        {`${info.name}/${info.description}`}
-                    </div>)
-            }
-            <div>
-                <button onClick={closePopup}>취소</button>
-
-                {/*playlist 인터페이스로 데이터를 넘겨  */}
-                <button onClick={submit}>확인</button>
+            <h1 style={{ "padding": "0 20px" }}>나의 재생목록</h1>
+            <div style={{ "padding": "0 25px" }}>
+                <div className={styles['form-item']}>
+                    <div className={styles['form-item__label']}>
+                        <label>선택한 재생목록</label>
+                    </div>
+                    <input className={styles['playlist-form__input']}
+                        readOnly={true} value={selectedPlaylistName} ></input>
+                </div>
             </div>
 
+            <div className={styles['grid-container']}>
+                {ytPLInfo.map((info: PlaylistInfo) =>
+                    <div style={info.id === selectedPlaylist ? { "border": "1px solid white" } : {}}
+                        onClick={() => playlistItemClickHandler(info)}>
+                        <PlaylistItem key={info.id} info={info} onClick={() => { }}></PlaylistItem>
+                    </div>
+                )}
+            </div>
+            <br></br>
+            <div className={styles['playlist-form-actions']}>
+                <div className={styles['playlist-form-actions__button']} onClick={closePopup}>취소</div>
+                <div className={`${styles['playlist-form-actions__button--white']} ${styles['playlist-form-actions__button']}`}
+                    onClick={submit}>제출</div>
+            </div>
         </div>
     );
 }
 
 function ImportYTPlaylistLink({ closePopup }: { closePopup: () => void }) {
     const playlistManager = usePlaylistManager();
-    const formItems: FormItem[] = [{ id: "url", name: "재생목록 url", value: "", require: true }];
+    const formItems: FormItem[] = [{ id: "url", name: "재생목록 URL", value: "", require: true }];
     const submit = async (data: any) => {
         const url: string = data.url;
         if (!url) return;
@@ -209,7 +222,8 @@ function Form({ formItems, closePopup, submit, name, children }: FormProps) {
                     <div className={styles['form-item__label']}>
                         <label>{item.name}</label>
                     </div>
-                    <input id={item.id} defaultValue={item.value}></input>
+                    <input className={styles['playlist-form__input']}
+                        id={item.id} defaultValue={item.value}></input>
                 </div>
             )}
             {!children ? "" :

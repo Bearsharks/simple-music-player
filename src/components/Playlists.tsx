@@ -1,8 +1,8 @@
 
 import { ChangeEvent, useState } from "react";
 import { PlaylistInfo } from "../refs/constants";
+import PlaylistItem from "./PlaylistItem";
 import styles from './Playlists.module.scss';
-import Thumbnail from "./Thumbnail";
 
 export interface PlaylistsProps {
     goToPlaylistPage: (id: string) => void;
@@ -43,15 +43,12 @@ export default function Playlists(props: PlaylistsProps) {
                     <div>
                         새 재생목록
                     </div>
-                </div>{sortList().map((el: PlaylistInfo) =>
+                </div>
+                {sortList().map((el: PlaylistInfo) =>
                     <div className={styles['grid-item']} key={el.id}
                         title={el.description}
                     >
-                        <div className={styles['thumbnail']} >
-                            <Thumbnail thumbnails={el.thumbnails} name={el.name}></Thumbnail>
-                            <div className={styles['thumbnail__overlay']} onClick={() => props.goToPlaylistPage(el.id)}>
-
-                            </div>
+                        <PlaylistItem info={el} onClick={props.goToPlaylistPage}>
                             <div className={styles['thumbnail__play-btn']}>
                                 <div onClick={() => props.playPlaylist(el.id)} title="재생">
                                     <span className="material-icons md-32">play_arrow</span>
@@ -63,13 +60,7 @@ export default function Playlists(props: PlaylistsProps) {
                                 onClick={(e) => { props.openOptionsSelector(e, el.id) }}>
                                 <span className="material-icons">more_vert</span>
                             </div>
-                        </div>
-                        <div className={styles['playlist-info']} onClick={() => props.goToPlaylistPage(el.id)}>
-                            {el.name}
-                        </div>
-                        <div className={styles['playlist-info--secondary']}>
-                            노래 {el.itemCount} 곡
-                        </div>
+                        </PlaylistItem>
                     </div>)
                 }
             </div>
