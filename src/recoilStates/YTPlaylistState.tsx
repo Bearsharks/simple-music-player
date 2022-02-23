@@ -3,7 +3,7 @@ import { PlaylistInfo } from "../refs/constants";
 import { getMyYTPlaylistInfos } from "../refs/youtubeSearch";
 
 
-const YTPlaylistRequestID = atom({
+const YTPlaylistRequestIDState = atom({
     key: 'YTPlaylistRequestID',
     default: 0,
 });
@@ -11,10 +11,15 @@ export const myYTPlaylistInfosState = selector<PlaylistInfo[]>({
     key: 'myYTPlaylist',
     get: async ({ get }) => {
 
-        get(YTPlaylistRequestID);
-        const infos = await getMyYTPlaylistInfos();
-        debugger;
-        return infos
+        get(YTPlaylistRequestIDState);
+        try {
+            const infos = await getMyYTPlaylistInfos();
+            return infos
+        } catch (e) {
+            console.error(e);
+            alert("재생목록 정보를 가져오지 못했습니다.")
+            return [];
+        }
     }
 })
 
@@ -23,7 +28,7 @@ export const myYTPlaylistInfosState = selector<PlaylistInfo[]>({
 export const useRefreshYTPlaylistInfos = () => {
     return useRecoilCallback(
         ({ set }) => async () => {
-            set(YTPlaylistRequestID, (id) => id + 1);
+            set(YTPlaylistRequestIDState, (id) => id + 1);
         }
     );
 }

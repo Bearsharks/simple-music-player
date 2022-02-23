@@ -12,14 +12,23 @@ interface OptionSelectorProps {
 }
 function OptionSelector({ options }: OptionSelectorProps) {
     return (
-        <div>
+        <div className={styles["wrapper"]}>
             {
                 options.map((option) =>
                     <div
+                        className={styles["options"]}
                         key={option.name}
                         onClick={option.onClickHandler}
                     >
-                        {option.icon}{option.name}
+                        <div className={styles["options__icon"]} >
+                            <span className={"material-icons"}>
+                                {option.icon}
+                            </span>
+                        </div>
+                        <div className={styles["options__text"]} >
+                            {option.name}
+                        </div>
+
                     </div>
                 )
             }

@@ -1,18 +1,24 @@
 import styles from './PlaylistsRecoil.module.scss';
 import { useRecoilValue, useSetRecoilState } from "recoil";
 import { useMusicListManager, playlistInfosState } from "./recoilStates/atoms/playlistAtoms";
-import { useFormPopupManager, FormKind, PopupInfoState, PopupKind } from './Popups/PopupStates';
+import { useModalManager, ModalKind, popupOpenState, useOpenPlaylistOptionsPopup } from './Popups/PopupStates';
 import { MusicListAction, MusicListActionType, } from './refs/constants';
 import Playlists from './components/Playlists';
-function TestPage() {
+import Spinner from './components/Spinner';
+import { Suspense } from 'react';
+
+interface PlaylistsRecoilProps {
+    goToPlaylistPage: (id: string) => void;
+}
+function PlaylistsRecoil(props: PlaylistsRecoilProps) {
     const playlistInfos = useRecoilValue(playlistInfosState);
     const musicListManager = useMusicListManager();
-    const formPopupManager = useFormPopupManager();
-    const setPopupInfoState = useSetRecoilState(PopupInfoState);
-
+    const formPopupManager = useModalManager();
+    const setPopupInfoState = useOpenPlaylistOptionsPopup();
+    const setOpen = useSetRecoilState(popupOpenState);
     const setMusiclist = (playlistid: string) => {
         const action: MusicListAction = {
-            type: MusicListActionType.SET,
+            type: MusicListActionType.LOAD_PLAYLIST,
             payload: playlistid
         }
         musicListManager(action);
@@ -20,30 +26,26 @@ function TestPage() {
 
     const openOptionsSelector = (e: React.MouseEvent<HTMLElement>, playlistid: string) => {
         e.stopPropagation();
-        setPopupInfoState({
-            target: e.target as HTMLElement,
-            kind: PopupKind.PlaylistOptions,
-            data: playlistid
-        });
+        setPopupInfoState(e.target as HTMLElement, playlistid);
+        setOpen(true);
     }
     const openCreatePlaylistPopup = () => {
-        formPopupManager(FormKind.CreatePlaylist);
-    }
-    const openYTPlaylistPopup = () => {
-        formPopupManager(FormKind.ImportYTPlaylist);
+        formPopupManager(ModalKind.CreatePlaylist);
     }
     return (
-        <div>플레이리스트
-            <button onClick={openCreatePlaylistPopup}>새 재생목록</button>
-            <button onClick={openYTPlaylistPopup}>유튜브</button>
-            <Playlists
-                playlistInfos={playlistInfos}
-                playPlaylist={setMusiclist}
-                openOptionsSelector={openOptionsSelector}
-            ></Playlists>
+        <div>
+            <Suspense fallback={<Spinner></Spinner>}>
+                <Playlists
+                    goToPlaylistPage={props.goToPlaylistPage}
+                    openCreatePlaylistPopup={openCreatePlaylistPopup}
+                    playlistInfos={playlistInfos}
+                    playPlaylist={setMusiclist}
+                    openOptionsSelector={openOptionsSelector}
+                ></Playlists>
+            </Suspense>
         </div>
     );
 }
 
 
-export default TestPage;
+export default PlaylistsRecoil;

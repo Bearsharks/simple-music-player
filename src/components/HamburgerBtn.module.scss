@@ -1,5 +1,13 @@
+@import "../global.scss";
+
 .hamburger-btn {
-    z-index: 100;
+    height: var(--header-size);
+    width: var(--header-size);    
+    border: 0px;
+    background-color: transparent;
+    z-index: $header-z-index + 5;
+}
+.hamburger-wrapper {
     height: 100%;
     display: flex;
     align-items: center;
@@ -7,12 +15,11 @@
     margin : 1px;    
     
 }
-
 @mixin hamburger-line (){
-    width: 40px;
-    height: 3px;    
+    width: 27px;
+    height: 2.5px;    
     transition : all 0.5s ease;
-    background: black;
+    background: white;
 }
 
 @mixin hamburger-pseudo (){
@@ -23,17 +30,16 @@
 
 .hamburger {
     @include hamburger-line();
-    margin : 0px 10px 0px 10px;   
     &:after{
         @include hamburger-line();
         @include hamburger-pseudo ();
-        top : -13px;
+        top : -10px;
     }
     
     &:before {
         @include hamburger-line();
         @include hamburger-pseudo ();
-        top : 11px;
+        top : 7px;
     } 
 }
 

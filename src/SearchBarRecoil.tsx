@@ -1,17 +1,11 @@
-import { useSetRecoilState } from 'recoil'
-import SearchBar from './components/SearchBar'
-import { PopupInfo, PopupKind, PopupInfoState } from './Popups/PopupStates'
 
+import SearchBar from './components/SearchBar'
+import { useOpenSearchOptionsPopup } from './Popups/PopupStates'
+import styles from './SearchBarRecoil.module.scss';
 function SearchBarRecoil() {
-    const setPopupInfo = useSetRecoilState(PopupInfoState);
+    const openSearchOptionsPopup = useOpenSearchOptionsPopup();
     const searchOptionPopupOpen = (event: React.MouseEvent, textarea: HTMLTextAreaElement) => {
-        event.stopPropagation();
-        const popupInitInfo: PopupInfo = {
-            target: event.target as HTMLElement,
-            kind: PopupKind.SearchOptions,
-            data: textarea
-        }
-        setPopupInfo(popupInitInfo);
+        openSearchOptionsPopup(event.target as HTMLElement, textarea);
     }
     return <SearchBar search={searchOptionPopupOpen} />
 }

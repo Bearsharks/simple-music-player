@@ -1,0 +1,73 @@
+@import '../global.scss';
+$padding-size : 5px;
+.wrapper{
+    
+    width: 100%;
+    height: 100%;
+    margin:auto;
+}
+.wrapper--expand{
+    display: flex;
+    justify-content: center;
+
+    position: absolute;
+    z-index: $header-z-index + 10;
+    padding: $padding-size;
+    border: 1px solid #555555;
+    top:0px;
+    left: 0px;
+    width: calc(100vw - 2*$padding-size - 2px);
+    height: fit-content;        
+    background-color : $bg-color;
+}
+
+.closeBtn{
+    display: none;
+    position: absolute;
+    top: 0px;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba($color: #000000, $alpha: 0.5);
+}
+.closeBtn--show{
+    display: block;
+}
+
+.search-panel{
+    width: 100%;
+    max-width: 1450px;
+}
+textarea{
+    width: 250px;
+    resize: none;
+    overflow-y: hidden;
+    max-height: calc(100% - 6px);
+    
+    color:$font-color;
+    font-family: $font-family;
+    font-size: 16px;
+    background-color: $bg-secondary-color;
+}
+
+.text--expand{
+    width: calc(100% - 12px);
+    margin: 5px;
+    border: 1px solid white;
+    border-radius: 2px;
+    overflow-y:scroll;
+    max-height: 200px;
+}
+.search-button{
+    padding: 4px;
+    width: 32px;
+    height: 32px;
+}
+.search-button--expand{
+    border-radius: 10%;
+    float: right;
+}
+.expanded-menu{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
