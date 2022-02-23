@@ -174,7 +174,6 @@ export const useMusicListManager = function () {
                 break;
             }
             case MusicListActionType.APPEND_PLAYLIST: {
-
                 const musicList = await snapshot.getPromise(musicListState);
                 const playlistItems = await snapshot.getPromise(playlistItemStateFamily(action.payload));
                 set(musicListState, musicList.concat(playlistItems));
