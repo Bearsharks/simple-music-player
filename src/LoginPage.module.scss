@@ -1,0 +1,44 @@
+@import "global.scss";
+
+.wrapper{
+  display: flex;
+  margin:auto;
+    align-items: center;
+    justify-items: center;
+    width: 70vw;
+    max-width: 350px;
+    height: 100vh;
+    flex-direction: column;
+    justify-content: center;
+}
+.login-box{
+  width: 100%;
+  padding: 15px;
+  border: 1px solid grey;
+  border-radius: 3px;
+  background-color: $bg-grey;
+}
+.login-box__login-button{
+  display: grid;
+  align-items: center;
+  grid-template-columns: 1fr 5fr;
+  gap: 15px;
+  margin-bottom: 10px;
+  background-color: #4081ec;
+  border-radius: 3px;
+  justify-content: flex-start;
+  & img{
+    background-color: white;
+    border-radius: 3px 0 0 3px;
+    width: 48px;
+    height: 48px;
+  }
+  @media (max-width:350px){
+    gap: 5px;
+    font-size: 14px;
+  }
+}
+.login-box__stay{
+  margin-right: 10px;
+  float:right;
+}

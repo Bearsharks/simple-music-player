@@ -8,9 +8,11 @@ export interface MusicInfoItem extends MusicInfo {
     key: string;
 }
 export interface MusicInfo {
-    videoID: string,
-    name: string,
-    query: string
+    videoID: string;
+    name: string;
+    query: string;
+    owner: string;
+    thumbnail: string;
 }
 export interface Playlist {
     info: PlaylistInfo,
@@ -38,7 +40,7 @@ export function MusicInfoArrayCheck(params: unknown): params is MusicInfo[] {
 
 
 export enum MusicInfoActionType {
-    NEXT, PREV, SET_IDX, SET_INFO
+    NEXT, PREV, SET_IDX, SET_INFO, SET
 }
 export interface MusicInfoAction {
     type: MusicInfoActionType
@@ -46,7 +48,7 @@ export interface MusicInfoAction {
 }
 
 export enum MusicListActionType {
-    SET, APPEND_PLAYLIST, APPEND_ITEMS, DELETE, CHANGE_ORDER, ADD_TO_NEXT, ADD_TO_NEXT_PLAYLIST
+    LOAD_PLAYLIST, APPEND_PLAYLIST, APPEND_ITEMS, DELETE, CHANGE_ORDER, ADD_TO_NEXT, ADD_TO_NEXT_PLAYLIST
 }
 export interface MusicListAction {
     type: MusicListActionType
@@ -54,7 +56,7 @@ export interface MusicListAction {
 }
 
 export enum PlaylistActionType {
-    CREATE, DELETE, UPDATE, APPEND
+    CREATE, DELETE, UPDATE, APPEND, DELETE_ITEMS
 }
 export interface PlaylistAction {
     type: PlaylistActionType
@@ -64,7 +66,9 @@ export interface PlaylistAction {
 export interface PlaylistInfo {
     id: string,
     name: string,
-    description: string
+    description: string,
+    thumbnails: string[],
+    itemCount: number
 }
 
 export const INVALID_MUSIC_INFO = {

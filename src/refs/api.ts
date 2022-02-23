@@ -1,22 +1,22 @@
 
+import { API } from "./apiSelector";
 import { PlaylistInfo, MusicInfo } from "./constants";
-
-export async function getPlaylistInfos(): Promise<PlaylistInfo[]> {
+async function getPlaylistInfos(): Promise<PlaylistInfo[]> {
+    console.log("origin")
     const res = await fetch(`${process.env.REACT_APP_API_URL}/playlists`, {
         credentials: 'include'
     });
-    const playlistInfos = res.json();
+    const playlistInfos = await res.json();
     return playlistInfos;
 }
-
-export async function getPlaylistInfo(id: string): Promise<PlaylistInfo> {
+async function getPlaylistInfo(id: string): Promise<PlaylistInfo> {
     const res = await fetch(`${process.env.REACT_APP_API_URL}/playlist/${id}`, {
         credentials: 'include'
     });
     const data: PlaylistInfo = await res.json();
     return data;
 }
-export async function getPlaylistItems(id: string): Promise<MusicInfo[]> {
+async function getPlaylistItems(id: string): Promise<MusicInfo[]> {
     const res = await fetch(`${process.env.REACT_APP_API_URL}/playlist/${id}/items`, {
         credentials: 'include'
     });
@@ -24,7 +24,7 @@ export async function getPlaylistItems(id: string): Promise<MusicInfo[]> {
     return data;
 }
 
-export async function createPlaylist(info: PlaylistInfo, items: MusicInfo[]): Promise<string> {
+async function createPlaylist(info: PlaylistInfo, items: MusicInfo[]): Promise<string> {
     const body = { info: { ...info, id: null }, items: items };
     console.log(`${process.env.REACT_APP_API_URL}/playlist`);
     const res = await fetch(`${process.env.REACT_APP_API_URL}/playlist`, {
@@ -38,7 +38,7 @@ export async function createPlaylist(info: PlaylistInfo, items: MusicInfo[]): Pr
     const data: string = await res.text();
     return data;
 }
-export async function deletePlaylist(id: string): Promise<boolean> {
+async function deletePlaylist(id: string): Promise<boolean> {
     const res = await fetch(`${process.env.REACT_APP_API_URL}/playlist/${id}`, {
         method: 'DELETE',
         credentials: 'include',
@@ -46,7 +46,7 @@ export async function deletePlaylist(id: string): Promise<boolean> {
     const data: string = await res.text();
     return data === 'true';
 }
-export async function updatePlaylist(playlist: { info: PlaylistInfo, items?: MusicInfo[] }): Promise<boolean> {
+async function updatePlaylist(playlist: { info: PlaylistInfo, items?: MusicInfo[] }): Promise<boolean> {
 
     const res = await fetch(`${process.env.REACT_APP_API_URL}/playlist/${playlist.info.id}`, {
         method: 'PATCH',
@@ -72,16 +72,18 @@ export async function getToken() {
     return token;
 
 }
-
-export async function checkAuth() {
+export async function checkAuth(): Promise<boolean> {
     const res = await fetch(`${process.env.REACT_APP_API_URL}/isAuthed`, {
         credentials: 'include',
     });
-    return (res.status === 200) && 'true' === await res.text();
+    const data = await res.json();
+    if (data.isAuthed) {
+        sessionStorage.setItem("username", data.username);
+        sessionStorage.setItem("userimg", data.userimg);
+    }
+    return data.isAuthed as boolean;
 }
-
-export const doSignIn = async (staySignedIn?: boolean) => {
-    debugger;
+export async function doSignIn(staySignedIn?: boolean) {
     const loginURL = `${process.env.REACT_APP_API_URL}/login?staySignedIn=${staySignedIn}`;
     try {
         const res = await fetch(loginURL, { credentials: 'include' });
@@ -90,14 +92,10 @@ export const doSignIn = async (staySignedIn?: boolean) => {
     } catch (err) {
         console.error(err);
     }
-
 }
-// const save = new Promise((resolve) => {
-//     fetch('http://localhost:5001/simple-music-player-319201/asia-northeast3/main/playlists', {
-//         credentials: 'include',
-//     }).then((res) => {
-//         return res.json();
-//     }).then((data) => {
-//         resolve(data);
-//     })
-// })
+const _: API = {
+    getPlaylistInfos, getPlaylistInfo, getPlaylistItems,
+    createPlaylist, deletePlaylist, updatePlaylist,
+    getToken, checkAuth, doSignIn
+};
+export default _;

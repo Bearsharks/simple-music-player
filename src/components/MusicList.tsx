@@ -1,21 +1,18 @@
 import React, { memo } from "react";
 import { MusicInfo, MusicInfoItem } from "../refs/constants";
 import styles from './MusicList.module.scss';
-import { DragDropContext, Droppable, DropResult, Draggable } from "react-beautiful-dnd";
+import { DragDropContext, Droppable, DropResult, Draggable, DroppableProvided } from "react-beautiful-dnd";
+import { useRecoilValue } from "recoil";
+import { curMusicIdxState } from "../recoilStates/atoms/playlistAtoms";
 
 export interface MusicListProps {
     items: MusicInfoItem[];
-    openOptionsPopup: (event: React.MouseEvent, musicInfos: MusicInfo[]) => void;
-    addToPlaylist: (event: React.MouseEvent<Element, MouseEvent>, items: MusicInfo[]) => void;
+    openOptionsPopup: (target: HTMLElement, musicInfos: MusicInfo[]) => void;
     playMusic: (idx: number | undefined) => void;
     changeOrder: (src: number, dst: number) => void;
 }
 
 function MusicList(props: MusicListProps) {
-    const addToPlaylist = (event: React.MouseEvent<Element, MouseEvent>) => {
-        props.addToPlaylist(event, props.items);
-    }
-
     const onDragEnd = (result: DropResult) => {
         // dropped outside the list(리스트 밖으로 드랍한 경우)
         if (!result.destination || result.source.index === result.destination.index) return;
@@ -27,71 +24,114 @@ function MusicList(props: MusicListProps) {
 
     return (
         <div className={styles[`music-list`]} >
-            <button onClick={addToPlaylist}>+ 재생목록</button>
             <DragDropContext
                 onDragEnd={onDragEnd}
                 onDragStart={onDragStart}
             >
                 <Droppable droppableId="droppable">
-                    {
-                        (provided, snapshot) => (
-                            <div ref={provided.innerRef}>
-                                {
-                                    props.items.map((item: MusicInfoItem, idx) =>
-                                        <Draggable
-                                            key={item.key}
-                                            draggableId={item.key}
-                                            index={idx}
-                                        >
-                                            {(provided, snapshot) =>
-                                                <div
-                                                    ref={provided.innerRef}
-                                                    {...provided.draggableProps}
-                                                >
-                                                    <MusicItem
-                                                        idx={idx}
-                                                        item={item}
-                                                        playMusic={props.playMusic}
-                                                        openOptionsPopup={props.openOptionsPopup}
-                                                    ><div {...provided.dragHandleProps}>=</div>
-                                                    </MusicItem>
-
-                                                </div>
-                                            }
-                                        </Draggable>
-                                    )}
-                                {provided.placeholder}
-                            </div>)
-                    }
-
+                    {(provided, snapshot) => (
+                        <MusicListItems provided={provided} items={props.items}
+                            openOptionsPopup={props.openOptionsPopup}
+                            playMusic={props.playMusic}
+                        ></MusicListItems>
+                    )}
                 </Droppable>
             </DragDropContext>
         </div>
     );
 }
-
 export default memo(MusicList);
 
-interface MusicItemProps {
-    children: React.ReactChild;
+
+interface MusicListItemsProps {
+    provided: DroppableProvided
+    items: MusicInfoItem[];
+    openOptionsPopup: (target: HTMLElement, musicInfos: MusicInfo[]) => void;
+    playMusic: (idx: number | undefined) => void;
+}
+function MusicListItems({ provided, items, playMusic, openOptionsPopup }: MusicListItemsProps) {
+    const curMusicIdx = useRecoilValue(curMusicIdxState);
+    return (<div ref={provided.innerRef}>
+        {items.map((item: MusicInfoItem, idx) =>
+            <Draggable
+                key={item.key}
+                draggableId={item.key}
+                index={idx}
+            >
+                {(provided, snapshot) =>
+                    <div
+                        ref={provided.innerRef}
+                        {...provided.draggableProps}
+                        className={`${styles['wrapper']} ${curMusicIdx === idx && styles['wrapper--selected']}`}
+                    >
+                        <div
+                            className={styles[`drag_handle`]}
+                            {...provided.dragHandleProps}>
+                            <span className="material-icons md-28">drag_handle</span>
+                        </div>
+                        <MusicItem
+                            idx={idx}
+                            item={item}
+                            playMusic={playMusic}
+                            openOptionsPopup={openOptionsPopup}
+                            isCurMusic={curMusicIdx === idx}
+                        ></MusicItem>
+                    </div>
+                }
+            </Draggable>)}
+        {provided.placeholder}
+    </div>)
+}
+
+export interface MusicItemProps {
     idx: number;
     item: MusicInfoItem;
     playMusic: (idx: number | undefined) => void;
-    openOptionsPopup: (event: React.MouseEvent, musicInfos: MusicInfo[]) => void;
+    openOptionsPopup: (target: HTMLElement, musicInfos: MusicInfoItem[]) => void;
+    isCurMusic?: boolean;
 };
-function MusicItem({ children, idx, item, playMusic, openOptionsPopup }: MusicItemProps) {
+export function MusicItem({ idx, item, playMusic, openOptionsPopup, isCurMusic }: MusicItemProps) {
     const popupOpen = (event: React.MouseEvent) => {
-        openOptionsPopup(event, [item]);
+        event.stopPropagation();
+        openOptionsPopup(event.target as HTMLElement, [item]);
     }
     return (
-        <div>
-            <div className={styles[`music-list_item`]} onClick={() => { playMusic(idx) }}>
-                <img alt="사진 |" />
-                <div>{item.name}|</div>
-                <button onClick={popupOpen}>버튼</button>
-            </div>
-            {children}
-        </div>
+        <div className={styles['wrapper']} >
+            <div className={styles[`grid-container`]} onClick={() => { playMusic(idx) }}>
+                <div className={`${styles[`grid-item`]} ${styles["grid-item--fit"]}`} >
+                    {item.thumbnail ?
+                        <img className={styles["thumbnail"]} alt={item.name} src={item.thumbnail} /> :
+                        <div className={styles["thumbnail"]}>
+                            <span className="material-icons md-32">
+                                question_mark
+                            </span>
+                        </div>
+                    }
 
+                    <div className={`${styles["overlay"]} ${isCurMusic && styles["overlay--show"]}`}>
+                        <span className="material-icons md-32">
+                            play_arrow
+                        </span>
+                    </div>
+                </div>
+                <div className={styles[`grid-item`]}>
+                    <div
+                        className={styles[`grid-item__text`]}
+                        title={item.name}
+                    >
+                        {item.name}
+                    </div>
+                    <div
+                        className={`${styles[`grid-item__text`]} ${styles[`grid-item__text--light`]}`}
+                        title={item.owner}
+                    >
+                        {item.owner}
+                    </div>
+                </div>
+                <div className={styles[`grid-item`]} onClick={popupOpen}>
+                    <span className="material-icons">more_vert</span>
+                </div>
+            </div>
+        </div>
     );
 }
