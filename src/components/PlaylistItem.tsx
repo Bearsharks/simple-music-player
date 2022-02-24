@@ -20,7 +20,7 @@ function PlaylistItem({ info, children, onClick }: PlaylistItemProps) {
                 </div>
                 {children}
             </div>
-            <div className={styles['playlist-info']} onClick={() => onClick(info.id)}>
+            <div className={styles['playlist-info']} onClick={() => onClick(info.id)} title={info.name}>
                 {info.name}
             </div>
             <div className={styles['playlist-info--secondary']}>
