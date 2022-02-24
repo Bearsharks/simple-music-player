@@ -2,11 +2,14 @@ import { useRecoilValue, useSetRecoilState } from 'recoil'
 import { popupOpenState, getPopupInfoState, PopupInfo, PopupKind, useModalManager, ModalKind, useOpenSelectTgtPlaylistPopup } from './PopupStates';
 import styles from './Popup.module.scss'
 import { memo, useRef, useEffect, useState, Suspense } from 'react';
-import { MusicInfo, MusicInfoArrayCheck, MusicInfoItem, MusicListAction, MusicListActionType, Playlist, PlaylistAction, PlaylistActionType } from '../refs/constants';
+import { MusicInfo, MusicInfoArrayCheck, MusicInfoItem, MusicListAction, MusicListActionType, Playlist, PlaylistAction, PlaylistActionType, PlaylistInfo } from '../refs/constants';
 import { playlistInfosState, useMusicListManager, usePlaylistManager } from '../recoilStates/atoms/playlistAtoms';
 import { searchByQuery } from '../refs/youtubeSearch';
 import OptionSelector, { OptionInfo } from '../components/OptionSelector';
 import Spinner from '../components/Spinner';
+import PlaylistItem from '../components/PlaylistItem';
+import FormBox, { FormItem } from '../components/FormBox';
+import FormBoxPlaylist from '../components/FormBoxPlaylist';
 
 function InnerPopup() {
     const curRef = useRef<HTMLDivElement>(null);
@@ -107,39 +110,30 @@ interface AppendPlaylistPopupProps {
     musicInfos: MusicInfo[];
 }
 function AppendPlaylistPopup({ musicInfos, setPopupOpen }: AppendPlaylistPopupProps) {
-    const [selectedPlaylist, selectPlaylist] = useState("");
     const playlistInfos = useRecoilValue(playlistInfosState);
     const playlistManager = usePlaylistManager();
-    const submit = () => {
-        if (!selectedPlaylist) return;
+    const submit = (tgt: PlaylistInfo) => {
+        let info = playlistInfos.find((element) => element.id === tgt.id);
+        if (!info) throw "해당 재생목록이 존재하지 않음!";
         const appendAction: PlaylistAction = {
             type: PlaylistActionType.APPEND,
             payload: {
-                info: { id: selectedPlaylist },
+                info: { id: tgt.id },
                 items: musicInfos
             }
         }
         playlistManager(appendAction);
         setPopupOpen(false);
     }
-    return (
-        <div >
-            <label>선택 : </label><input type='text' value={selectedPlaylist} readOnly></input>
-            {
-                playlistInfos.map((info) =>
-                    <div
-                        key={info.id}
-                        onClick={() => selectPlaylist(info.id)}
-                    >
-                        {`${info.id}/${info.name}/${info.description}`}
-                    </div>)
-            }
-            <div>
-                <button onClick={() => setPopupOpen(false)}>취소</button>
-                <button onClick={submit}>확인</button>
-            </div>
-        </div>
-    );
+    //todo
+    return <div className={styles['playlist']}>
+        <FormBoxPlaylist
+            name={"재생목록에 추가"}
+            closePopup={() => setPopupOpen(false)}
+            playlistInfos={playlistInfos}
+            submit={submit}
+        />
+    </div>
 }
 
 
