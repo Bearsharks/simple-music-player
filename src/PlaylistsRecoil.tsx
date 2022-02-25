@@ -15,7 +15,6 @@ function PlaylistsRecoil(props: PlaylistsRecoilProps) {
     const musicListManager = useMusicListManager();
     const formPopupManager = useModalManager();
     const setPopupInfoState = useOpenPlaylistOptionsPopup();
-    const setOpen = useSetRecoilState(popupOpenState);
     const setMusiclist = (playlistid: string) => {
         const action: MusicListAction = {
             type: MusicListActionType.LOAD_PLAYLIST,
@@ -25,9 +24,7 @@ function PlaylistsRecoil(props: PlaylistsRecoilProps) {
     }
 
     const openOptionsSelector = (e: React.MouseEvent<HTMLElement>, playlistid: string) => {
-        e.stopPropagation();
         setPopupInfoState(e.target as HTMLElement, playlistid);
-        setOpen(true);
     }
     const openCreatePlaylistPopup = () => {
         formPopupManager(ModalKind.CreatePlaylist);
