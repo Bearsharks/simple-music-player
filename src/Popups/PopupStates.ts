@@ -56,14 +56,16 @@ export enum ModalKind {
 }
 
 const useOpenPopup = () => {
-    return useRecoilCallback(({ set }) =>
+    return useRecoilCallback(({ set, snapshot }) =>
         (kind: PopupKind, target: HTMLElement, data?: unknown) => {
+            const popupInfo: PopupInfo = snapshot.getLoadable(PopupInfoState).contents;
             set(PopupInfoState, {
                 target: target,
                 kind: kind,
                 data: data
             });
-            set(popupOpenState, true);
+            const isOpened = snapshot.getLoadable(popupOpenState).contents;
+            set(popupOpenState, (isOpened && popupInfo.target === target) ? false : true);
         }
     )
 }
