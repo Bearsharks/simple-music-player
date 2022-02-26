@@ -6,26 +6,14 @@ import styles from './PlaylistPage.module.scss';
 import { MusicItem } from "./components/MusicList";
 import { useOpenPlaylistItemOptionsPopup, useOpenPlaylistOptionsPopup } from "./Popups/PopupStates";
 import { MusicInfoActionType, MusicInfoItem } from "./refs/constants";
+import { Suspense } from "react";
+import Spinner from "./components/Spinner";
 function PlaylistPage() {
-    const curMusicManager = useCurMusicManager();
-    const openMusicOptionsPopup = useOpenPlaylistItemOptionsPopup();
     const openPlaylistOptionsPopup = useOpenPlaylistOptionsPopup();
     const param = useParams();
     const playlistID = param.id ? param.id : "";
     const playlistInfo = useRecoilValue(playlistInfoStateFamily(playlistID));
-    const playlistItems = useRecoilValue(playlistItemStateFamily(playlistID));
-    const playMusic = (idx: number | undefined) => {
-        curMusicManager({
-            type: MusicInfoActionType.SET,
-            payload: {
-                idx: idx,
-                list: playlistItems
-            }
-        });
-    }
-    const openPopup = (target: HTMLElement, musicInfos: MusicInfoItem[]) => {
-        openMusicOptionsPopup(target, playlistID, musicInfos);
-    }
+
     return <div className={styles["container"]}>
         <div className={styles["thumbnail"]}>
             <Thumbnail thumbnails={playlistInfo.thumbnails} name={playlistInfo.name}></Thumbnail>
@@ -46,20 +34,44 @@ function PlaylistPage() {
         </div>
         <div className={styles["playlist"]}>
             <br></br>
-            {playlistItems.map((item, idx) =>
-                <div key={item.key} className={styles["playlist__item"]}>
-                    <div>{idx + 1}.</div>
-                    <MusicItem
-                        idx={idx}
-                        item={item}
-                        playMusic={playMusic}
-                        openOptionsPopup={openPopup}
-                    ></MusicItem>
-                </div>
-            )}
+            <Suspense fallback={<Spinner></Spinner>}>
+                <PlaylistItems playlistID={playlistID} />
+            </Suspense>
+
         </div>
         <br></br><br></br><br></br>
     </div>
 }
 
 export default PlaylistPage;
+
+function PlaylistItems({ playlistID }: { playlistID: string }) {
+    const curMusicManager = useCurMusicManager();
+    const openMusicOptionsPopup = useOpenPlaylistItemOptionsPopup();
+    const items = useRecoilValue(playlistItemStateFamily(playlistID));
+    const playMusic = (idx: number | undefined) => {
+        curMusicManager({
+            type: MusicInfoActionType.SET,
+            payload: {
+                idx: idx,
+                list: items
+            }
+        });
+    }
+    const openPopup = (target: HTMLElement, musicInfos: MusicInfoItem[]) => {
+        openMusicOptionsPopup(target, playlistID, musicInfos);
+    }
+    return <>
+        {items.map((item, idx) =>
+            <div key={item.key} className={styles["playlist__item"]}>
+                <div>{idx + 1}.</div>
+                <MusicItem
+                    idx={idx}
+                    item={item}
+                    playMusic={playMusic}
+                    openOptionsPopup={openPopup}
+                ></MusicItem>
+            </div>
+        )}
+    </>
+}
