@@ -273,10 +273,6 @@ export const useMusicListManager = function () {
     });
 }
 
-function MusicInfoActionCheck(params: unknown): params is MusicInfoAction {
-    return !!((params as MusicInfoAction).type);
-}
-
 export const useCurMusicManager = function () {
     const setListCurIdx = useRecoilTransaction_UNSTABLE(({ set }) => (list: MusicInfoItem[], idx: number) => {
         set(musicListState, list);

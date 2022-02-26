@@ -1,7 +1,7 @@
-import styles from './PlaylistsRecoil.module.scss';
-import { useRecoilValue, useSetRecoilState } from "recoil";
+
+import { useRecoilValue } from "recoil";
 import { useMusicListManager, playlistInfosState } from "./recoilStates/atoms/playlistAtoms";
-import { useModalManager, ModalKind, popupOpenState, useOpenPlaylistOptionsPopup } from './Popups/PopupStates';
+import { useModalManager, ModalKind, useOpenPlaylistOptionsPopup } from './Popups/PopupStates';
 import { MusicListAction, MusicListActionType, } from './refs/constants';
 import Playlists from './components/Playlists';
 import Spinner from './components/Spinner';

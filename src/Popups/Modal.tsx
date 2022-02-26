@@ -1,13 +1,12 @@
 import { useRecoilState, useRecoilValue, } from 'recoil'
 import { ModalInfoState, ModalKind, ModalOpenState, useOpenYTOptionsPopup } from './PopupStates';
 import styles from './Modal.module.scss'
-import React, { useState, Suspense } from 'react';
+import React, { Suspense } from 'react';
 import { Playlist, PlaylistAction, PlaylistActionType, PlaylistInfo } from '../refs/constants';
 import youtubeSearch, { getYTPlaylistByID, SearchType, urlToId } from '../refs/youtubeSearch';
 import Spinner from '../components/Spinner';
 import { myYTPlaylistInfosState } from '../recoilStates/YTPlaylistState';
 import { usePlaylistManager } from '../recoilStates/atoms/playlistAtoms';
-import PlaylistItem from '../components/PlaylistItem';
 import FormBox, { FormItem } from '../components/FormBox';
 import FormBoxPlaylist from '../components/FormBoxPlaylist';
 

@@ -1,5 +1,5 @@
 import styles from './HamburgerBtn.module.scss';
-import React, { useState } from 'react';
+import React from 'react';
 import { sideMenuOpenState } from '../recoilStates/sideMenu';
 import { useRecoilState } from 'recoil';
 

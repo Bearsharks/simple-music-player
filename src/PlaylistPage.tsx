@@ -5,7 +5,7 @@ import { playlistInfoStateFamily, playlistItemStateFamily, useCurMusicManager } 
 import styles from './PlaylistPage.module.scss';
 import { MusicItem } from "./components/MusicList";
 import { useOpenPlaylistItemOptionsPopup, useOpenPlaylistOptionsPopup } from "./Popups/PopupStates";
-import { MusicInfo, MusicInfoActionType, MusicInfoItem } from "./refs/constants";
+import { MusicInfoActionType, MusicInfoItem } from "./refs/constants";
 function PlaylistPage() {
     const curMusicManager = useCurMusicManager();
     const openMusicOptionsPopup = useOpenPlaylistItemOptionsPopup();
