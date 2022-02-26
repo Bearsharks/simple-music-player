@@ -1,14 +1,12 @@
 import { useRecoilValue, useSetRecoilState } from 'recoil'
 import { popupOpenState, getPopupInfoState, PopupInfo, PopupKind, useModalManager, ModalKind, useOpenSelectTgtPlaylistPopup } from './PopupStates';
 import styles from './Popup.module.scss'
-import { memo, useRef, useEffect, useState, Suspense } from 'react';
+import { memo, useRef, useEffect, Suspense } from 'react';
 import { MusicInfo, MusicInfoArrayCheck, MusicInfoItem, MusicListAction, MusicListActionType, Playlist, PlaylistAction, PlaylistActionType, PlaylistInfo } from '../refs/constants';
 import { playlistInfosState, useMusicListManager, usePlaylistManager } from '../recoilStates/atoms/playlistAtoms';
 import { searchByQuery } from '../refs/youtubeSearch';
 import OptionSelector, { OptionInfo } from '../components/OptionSelector';
 import Spinner from '../components/Spinner';
-import PlaylistItem from '../components/PlaylistItem';
-import FormBox, { FormItem } from '../components/FormBox';
 import FormBoxPlaylist from '../components/FormBoxPlaylist';
 
 function InnerPopup() {

@@ -17,6 +17,7 @@ function HamburgerBtn(props: HamburgerBtnProps) {
     }
     return (
         <button className={styles[`hamburger-btn`]}
+            aria-label="menu togle"
             onClick={togleActive}>
             <div
                 className={styles[`hamburger-wrapper`]}
