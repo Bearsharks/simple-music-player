@@ -1,6 +1,5 @@
 import styles from './MusicPlayer.module.scss'
 import PlayerController from './components/PlayerController';
-import { useState } from 'react'
 import { useRecoilState, useRecoilValue } from 'recoil';
 import { curMusicInfoState, musicListState, musicPlayerState, useCurMusicManager } from './recoilStates/atoms/playlistAtoms';
 import { MusicInfoActionType, PlayerState } from './refs/constants';

@@ -4,7 +4,7 @@ import { MusicInfoActionType, MusicInfoItem, PlayerState } from './refs/constant
 import { ytPlayerInitedState } from './recoilStates/atoms/ytplayerStates'
 import youtubeSearch, { SearchType } from './refs/youtubeSearch';
 import { musicPlayerState, useCurMusicManager, curMusicInfoState, musicPlayerProgressState } from './recoilStates/atoms/playlistAtoms';
-import styles from './YoutubePlayer.module.scss';
+
 function YoutubePlayer() {
 	const [ytPlayerInited, setYTPlayerInited] = useRecoilState(ytPlayerInitedState);
 	const setPlayState = useSetRecoilState(musicPlayerState);

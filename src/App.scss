@@ -1,4 +1,6 @@
-@import './global.scss';
+@import "material-icons/iconfont/material-icons.css";
+@import "noto-sans-kr/styles.css";
+@import "./global.scss";
 
 
 .App {
@@ -20,6 +22,7 @@ body{
   color: $font-color;
   background-color: $bg-color;
   font-family: $font-family;
+  font-display: swap;
   overflow: hidden;
   --header-size : 64px;
   @media (max-width: 400px){
