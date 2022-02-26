@@ -1,13 +1,30 @@
 {
   "files": {
-    "main.css": "/simple-music-player/static/css/main.060e80e1.css",
-    "main.js": "/simple-music-player/static/js/main.d9780309.js",
-    "index.html": "/simple-music-player/index.html",
-    "main.060e80e1.css.map": "/simple-music-player/static/css/main.060e80e1.css.map",
-    "main.d9780309.js.map": "/simple-music-player/static/js/main.d9780309.js.map"
+    "main.css": "/simple-music-player/static/css/main.2f67e234.css",
+    "main.js": "/simple-music-player/static/js/main.783f63ae.js",
+    "static/media/material-icons-two-tone.woff": "/simple-music-player/static/media/material-icons-two-tone.169d9845612b754f6086.woff",
+    "static/media/NotoSans-Regular.eot": "/simple-music-player/static/media/NotoSans-Regular.7c7f50cbc536eb2b68e9.eot",
+    "static/media/NotoSans-Regular.woff": "/simple-music-player/static/media/NotoSans-Regular.d19c129f30e0373f60b6.woff",
+    "static/media/NotoSans-Light.eot": "/simple-music-player/static/media/NotoSans-Light.516f7bce44bf65da2463.eot",
+    "static/media/NotoSans-Light.woff": "/simple-music-player/static/media/NotoSans-Light.1214e1a50a7c03f7940e.woff",
+    "static/media/NotoSans-Thin.eot": "/simple-music-player/static/media/NotoSans-Thin.5f9a1e0f54e8a2bcdbc2.eot",
+    "static/media/NotoSans-Thin.woff": "/simple-music-player/static/media/NotoSans-Thin.7a561ac968999a5dade3.woff",
+    "static/media/material-icons-two-tone.woff2": "/simple-music-player/static/media/material-icons-two-tone.20196d7544af60588088.woff2",
+    "static/media/material-icons-round.woff": "/simple-music-player/static/media/material-icons-round.da8b129efeb630b26ed6.woff",
+    "static/media/NotoSans-Regular.woff2": "/simple-music-player/static/media/NotoSans-Regular.12c5f3f9045594368915.woff2",
+    "static/media/NotoSans-Light.woff2": "/simple-music-player/static/media/NotoSans-Light.d3283d226f8f74e7a8d5.woff2",
+    "static/media/material-icons-outlined.woff": "/simple-music-player/static/media/material-icons-outlined.87cab673c66feef0fff5.woff",
+    "static/media/NotoSans-Thin.woff2": "/simple-music-player/static/media/NotoSans-Thin.9a72164420c5bea92570.woff2",
+    "static/media/material-icons-round.woff2": "/simple-music-player/static/media/material-icons-round.d2bed20c07ba3474734b.woff2",
+    "static/media/material-icons.woff": "/simple-music-player/static/media/material-icons.bd61fe012dd9177e7cc9.woff",
+    "static/media/material-icons-sharp.woff": "/simple-music-player/static/media/material-icons-sharp.1ce995aceb7a022c2148.woff",
+    "static/media/material-icons-outlined.woff2": "/simple-music-player/static/media/material-icons-outlined.5520f2737f1bb3d8a011.woff2",
+    "static/media/material-icons-sharp.woff2": "/simple-music-player/static/media/material-icons-sharp.74f9d37f0ed879edf5af.woff2",
+    "static/media/material-icons.woff2": "/simple-music-player/static/media/material-icons.a3e4b8576868d394c1da.woff2",
+    "index.html": "/simple-music-player/index.html"
   },
   "entrypoints": [
-    "static/css/main.060e80e1.css",
-    "static/js/main.d9780309.js"
+    "static/css/main.2f67e234.css",
+    "static/js/main.783f63ae.js"
   ]
 }
