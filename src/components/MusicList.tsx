@@ -92,13 +92,12 @@ export interface MusicItemProps {
 };
 export function MusicItem({ idx, item, playMusic, openOptionsPopup, isCurMusic }: MusicItemProps) {
     const popupOpen = (event: React.MouseEvent) => {
-        event.stopPropagation();
         openOptionsPopup(event.target as HTMLElement, [item]);
     }
     return (
         <div className={styles['wrapper']} >
-            <div className={styles[`grid-container`]} onClick={() => { playMusic(idx) }}>
-                <div className={`${styles[`grid-item`]} ${styles["grid-item--fit"]}`} >
+            <div className={styles[`grid-container`]}>
+                <div className={`${styles[`grid-item`]} ${styles["grid-item--fit"]}`} onClick={() => { playMusic(idx) }}>
                     {item.thumbnail ?
                         <img className={styles["thumbnail"]} alt={item.name} src={item.thumbnail} /> :
                         <div className={styles["thumbnail"]}>
@@ -114,7 +113,7 @@ export function MusicItem({ idx, item, playMusic, openOptionsPopup, isCurMusic }
                         </span>
                     </div>
                 </div>
-                <div className={styles[`grid-item`]}>
+                <div className={styles[`grid-item`]} onClick={() => { playMusic(idx) }}>
                     <div
                         className={styles[`grid-item__text`]}
                         title={item.name}
