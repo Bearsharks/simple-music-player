@@ -9,6 +9,7 @@ function OuterClickEventCatcher({ wrapper, setOpen, onClickHandler }: OuterClick
     useEffect(() => {
         const onClickOutsideHandler = (event: MouseEvent | TouchEvent) => {
             if (wrapper && wrapper.contains(event.target as Node)) {
+
                 return;
             }
             if (onClickHandler) onClickHandler(event);

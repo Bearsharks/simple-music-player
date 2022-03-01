@@ -1,17 +1,16 @@
-import { useRecoilValue, useSetRecoilState } from 'recoil'
+import { useRecoilSnapshot, useRecoilValue, useSetRecoilState } from 'recoil'
 import { popupOpenState, getPopupInfoState, PopupInfo, PopupKind, useModalManager, ModalKind, useOpenSelectTgtPlaylistPopup } from './PopupStates';
 import styles from './Popup.module.scss'
 import { memo, useRef, useEffect, Suspense } from 'react';
 import { MusicInfo, MusicInfoArrayCheck, MusicInfoItem, MusicListAction, MusicListActionType, PlaylistAction, PlaylistActionType, PlaylistInfo } from '../refs/constants';
-import { playlistInfosState, useMusicListManager, usePlaylistManager } from '../recoilStates/atoms/playlistAtoms';
+import { playlistInfosState, playlistItemStateFamily, useMusicListManager, usePlaylistManager } from '../recoilStates/atoms/playlistAtoms';
 import { searchByQuery } from '../refs/youtubeSearch';
 import OptionSelector, { OptionInfo } from '../components/OptionSelector';
 import Spinner from '../components/Spinner';
 import FormBoxPlaylist from '../components/FormBoxPlaylist';
 import OuterClickEventCatcher from '../components/OuterClickEventCatcher';
 
-function InnerPopup() {
-    const curRef = useRef<HTMLDivElement>(null);
+function InnerPopup({ wrapper }: { wrapper: HTMLDivElement | null }) {
     const info: PopupInfo = useRecoilValue(getPopupInfoState);
     const setOpen = useSetRecoilState(popupOpenState);
     const prevTarget = useRef<HTMLElement | null>(null);
@@ -19,7 +18,7 @@ function InnerPopup() {
         switch (info.kind) {
             case PopupKind.PlaylistOptions:
                 if (typeof info.data === 'string') {
-                    return <PlaylistOptions setPopupOpen={setOpen} playlistid={info.data}></PlaylistOptions>
+                    return <PlaylistOptions evTarget={info.target} setPopupOpen={setOpen} playlistid={info.data}></PlaylistOptions>
                 }
                 throw "playlistID is not valid can't render PlaylistOptions";
             case PopupKind.MusicOptions:
@@ -64,33 +63,36 @@ function InnerPopup() {
 
     useEffect(() => {
         const target: HTMLElement = info.target as HTMLElement;
-        if (!curRef.current || !target) return;
+        if (!wrapper || !target) return;
         if (target === prevTarget.current) return;
 
         const { left, width, top } = target.getBoundingClientRect();
         const tgtRight = left + width;
-        const x = window.innerWidth >= tgtRight + curRef.current.offsetWidth ?
-            tgtRight : left - curRef.current.offsetWidth;
-        const y = window.innerHeight >= top + curRef.current.offsetHeight ?
-            top : top - curRef.current.offsetHeight;
-        curRef.current.style.transform = `translate(${x}px, ${y}px)`;
-        curRef.current.style.visibility = "initial";
+        const x = window.innerWidth >= tgtRight + wrapper.offsetWidth ?
+            tgtRight : left - wrapper.offsetWidth;
+        const y = window.innerHeight >= top + wrapper.offsetHeight ?
+            top : top - wrapper.offsetHeight;
+        wrapper.style.transform = `translate(${x}px, ${y}px)`;
+        wrapper.style.visibility = "initial";
         prevTarget.current = target;
     }, [info]);
     return (
-        <div
-            className={`${styles['wrapper']}`}
-            ref={curRef}
-        >
+        <>
             {children}
-            <OuterClickEventCatcher setOpen={setOpen} wrapper={curRef.current}></OuterClickEventCatcher>
-        </div>
+            <OuterClickEventCatcher setOpen={setOpen} wrapper={wrapper}></OuterClickEventCatcher>
+        </>
     );
 }
 
 function Popup() {
     const isOpen = useRecoilValue(popupOpenState);
-    return isOpen ? <InnerPopup></InnerPopup> : <></>
+    const curRef = useRef<HTMLDivElement>(null);
+    return <div
+        className={`${styles['wrapper']}`}
+        ref={curRef}
+    >
+        {isOpen ? <InnerPopup wrapper={curRef.current}></InnerPopup> : <></>}
+    </div>
 }
 export default Popup;
 
@@ -207,21 +209,20 @@ const PlaylistItemOptions = memo(function ({ setPopupOpen, evTarget, musicInfos,
 
 interface PlaylistOptionsProps {
     setPopupOpen: (isOpen: boolean) => void;
+    evTarget: HTMLElement;
     playlistid: string;
 }
-const PlaylistOptions = memo(function ({ setPopupOpen, playlistid }: PlaylistOptionsProps) {
+const PlaylistOptions = memo(function ({ evTarget, setPopupOpen, playlistid }: PlaylistOptionsProps) {
     const playlistManager = usePlaylistManager();
     const musicListManager = useMusicListManager();
     const modalManager = useModalManager();
-    const appendMusiclist = (playlistid: string) => {
-        const action: MusicListAction = {
-            type: MusicListActionType.APPEND_PLAYLIST,
-            payload: playlistid
-        }
-        musicListManager(action);
+    const snapshot = useRecoilSnapshot();
+    const openSelectTgtPlaylistPopup = useOpenSelectTgtPlaylistPopup();
+    const addToPlaylist = async () => {
+        const items = await snapshot.getPromise(playlistItemStateFamily(playlistid));
+        openSelectTgtPlaylistPopup(evTarget, items);
     }
     const addToNextMusic = (playlistid: string) => {
-
         const action: MusicListAction = {
             type: MusicListActionType.ADD_TO_NEXT_PLAYLIST,
             payload: playlistid
@@ -244,7 +245,7 @@ const PlaylistOptions = memo(function ({ setPopupOpen, playlistid }: PlaylistOpt
         }
     }
     const options = [
-        { icon: "playlist_add", name: "재생목록에 추가", onClickHandler: onClickHandlerWrapper(appendMusiclist) },
+        { icon: "playlist_add", name: "재생목록에 추가", onClickHandler: onClickHandlerWrapper(addToPlaylist) },
         { icon: "playlist_play", name: "다음 음악으로 추가", onClickHandler: onClickHandlerWrapper(addToNextMusic) },
         { icon: "edit", name: "재생목록 수정", onClickHandler: onClickHandlerWrapper(updatePlaylistInfo) },
         { icon: "library_add_check", name: "재생목록 삭제", onClickHandler: onClickHandlerWrapper(deletePlaylist) },
