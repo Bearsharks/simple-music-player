@@ -1,6 +1,8 @@
 import { useEffect } from "react";
 
+
 interface OuterClickEventCatcherProps {
+    isOpen: boolean;
     setOpen: (arg0: boolean) => void;
     wrapper: HTMLElement | null;
     onClickHandler?: (arg0: MouseEvent | TouchEvent) => void;
@@ -23,6 +25,9 @@ function OuterClickEventCatcher({ wrapper, setOpen, onClickHandler }: OuterClick
             document.removeEventListener('touchend', onClickOutsideHandler);
         };
     }, [setOpen, wrapper, onClickHandler]);
-    return <></>
+    return <></>;
 }
-export default OuterClickEventCatcher;
+function Wrapper(props: OuterClickEventCatcherProps) {
+    return props.isOpen ? <OuterClickEventCatcher {...props}></OuterClickEventCatcher> : <></>;
+}
+export default Wrapper;
