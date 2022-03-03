@@ -68,10 +68,9 @@ function SearchBar(props: SearchBarProps) {
                             </div>
                         </div>
                         <OuterClickEventCatcher
-                            isOpen={isExpanded}
+                            openState={[isExpanded, setExpended]}
                             onClickHandler={shirinkTextBox}
                             wrapper={curRef.current}
-                            setOpen={setExpended}
                         ></OuterClickEventCatcher>
                     </div>
                 }

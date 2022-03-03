@@ -63,9 +63,6 @@ const useOpenPopup = () => {
                 kind: kind,
                 data: data
             });
-            const popupInfo: PopupInfo = snapshot.getLoadable(PopupInfoState).contents;
-            const isOpened = snapshot.getLoadable(popupOpenState).contents;
-            set(popupOpenState, (isOpened && popupInfo.target === target && popupInfo.kind === kind) ? false : true);
         }
     )
 }

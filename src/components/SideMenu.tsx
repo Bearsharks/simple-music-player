@@ -52,7 +52,7 @@ function SideMenu({ children }: { children?: React.ReactNode }) {
                     </div>
                 </div>
                 {children}
-                <OuterClickEventCatcher isOpen={isActive} wrapper={curRef.current} setOpen={setActive}></OuterClickEventCatcher>
+                <OuterClickEventCatcher openState={[isActive, setActive]} wrapper={curRef.current}></OuterClickEventCatcher>
 
             </div>
         </div>
