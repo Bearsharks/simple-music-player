@@ -35,8 +35,9 @@ function SignInPage() {
                 <div className={styles['login-box__stay']}>
                     <input type="checkbox" ref={inputRef} name="chk_info"></input>
                     <label>로그인 유지</label>
-                    <button onClick={testSignIn}>테스트 계정으로 로그인</button>
+
                 </div>
+                <button onClick={testSignIn}>테스트 계정으로 로그인</button>
             </div>
         </div>
     );
