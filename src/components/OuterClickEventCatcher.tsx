@@ -2,12 +2,12 @@ import { useEffect } from "react";
 
 
 interface OuterClickEventCatcherProps {
-    isOpen: boolean;
-    setOpen: (arg0: boolean) => void;
+    openState: [boolean, (_: boolean) => void];
     wrapper: HTMLElement | null;
     onClickHandler?: (arg0: MouseEvent | TouchEvent) => void;
 }
-function OuterClickEventCatcher({ wrapper, setOpen, onClickHandler }: OuterClickEventCatcherProps) {
+function OuterClickEventCatcher({ wrapper, openState, onClickHandler }: OuterClickEventCatcherProps) {
+    const [isOpen, setOpen] = openState;
     useEffect(() => {
         const onClickOutsideHandler = (event: MouseEvent | TouchEvent) => {
             if (wrapper && wrapper.contains(event.target as Node)) {
@@ -28,6 +28,7 @@ function OuterClickEventCatcher({ wrapper, setOpen, onClickHandler }: OuterClick
     return <></>;
 }
 function Wrapper(props: OuterClickEventCatcherProps) {
-    return props.isOpen ? <OuterClickEventCatcher {...props}></OuterClickEventCatcher> : <></>;
+    const [isOpen, setOpen] = props.openState;
+    return isOpen ? <OuterClickEventCatcher {...props}></OuterClickEventCatcher> : <></>;
 }
 export default Wrapper;

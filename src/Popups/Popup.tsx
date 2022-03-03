@@ -1,7 +1,7 @@
-import { useRecoilSnapshot, useRecoilValue, useSetRecoilState } from 'recoil'
+import { useRecoilSnapshot, useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil'
 import { popupOpenState, getPopupInfoState, PopupInfo, PopupKind, useModalManager, ModalKind, useOpenSelectTgtPlaylistPopup } from './PopupStates';
 import styles from './Popup.module.scss'
-import { memo, useRef, useEffect, Suspense } from 'react';
+import { memo, useRef, useEffect, Suspense, useState } from 'react';
 import { MusicInfo, MusicInfoArrayCheck, MusicInfoItem, MusicListAction, MusicListActionType, PlaylistAction, PlaylistActionType, PlaylistInfo } from '../refs/constants';
 import { playlistInfosState, playlistItemStateFamily, useMusicListManager, usePlaylistManager } from '../recoilStates/atoms/playlistAtoms';
 import { searchByQuery } from '../refs/youtubeSearch';
@@ -10,10 +10,8 @@ import Spinner from '../components/Spinner';
 import FormBoxPlaylist from '../components/FormBoxPlaylist';
 import OuterClickEventCatcher from '../components/OuterClickEventCatcher';
 
-function InnerPopup({ wrapper }: { wrapper: HTMLDivElement | null }) {
-    const info: PopupInfo = useRecoilValue(getPopupInfoState);
-    const setOpen = useSetRecoilState(popupOpenState);
-    const prevTarget = useRef<HTMLElement | null>(null);
+function InnerPopup({ setOpen, info }: { setOpen: (_: boolean) => void, info: PopupInfo }) {
+    const prevInfo = useRef<PopupInfo>({} as PopupInfo);
     const children = (() => {
         switch (info.kind) {
             case PopupKind.PlaylistOptions:
@@ -56,42 +54,36 @@ function InnerPopup({ wrapper }: { wrapper: HTMLDivElement | null }) {
                 return "";
         }
     })();
-
     useEffect(() => {
-        setOpen((isOpen) => (isOpen && info.target === prevTarget.current) ? false : true);
-    }, [info, setOpen]);
-
-    useEffect(() => {
-        const target: HTMLElement = info.target as HTMLElement;
-        if (!wrapper || !target) return;
-        if (target === prevTarget.current) return;
-
-        const { left, width, top } = target.getBoundingClientRect();
-        const tgtRight = left + width;
-        const x = window.innerWidth >= tgtRight + wrapper.offsetWidth ?
-            tgtRight : left - wrapper.offsetWidth;
-        const y = window.innerHeight >= top + wrapper.offsetHeight ?
-            top : top - wrapper.offsetHeight;
-        wrapper.style.transform = `translate(${x}px, ${y}px)`;
-        wrapper.style.visibility = "initial";
-        prevTarget.current = target;
-    }, [info]);
-    return (
-        <>
-            {children}
-            <OuterClickEventCatcher setOpen={setOpen} wrapper={wrapper}></OuterClickEventCatcher>
-        </>
-    );
+        setOpen((info.target === prevInfo.current.target && info.kind === prevInfo.current.kind) ? false : true);
+        prevInfo.current = info;
+    }, [info, setOpen])
+    return <>{children}</>;
 }
 
 function Popup() {
-    const isOpen = useRecoilValue(popupOpenState);
+    const [isOpen, setOpen] = useRecoilState(popupOpenState);
+    const popupInfo: PopupInfo = useRecoilValue(getPopupInfoState);
     const curRef = useRef<HTMLDivElement>(null);
+    useEffect(() => {
+        const target: HTMLElement = popupInfo.target as HTMLElement;
+        if (!curRef.current || !target) return;
+        const { innerWidth, innerHeight } = window;
+        const { offsetWidth, offsetHeight } = curRef.current;
+        const { left, top, bottom } = target.getBoundingClientRect();
+        const x = innerWidth >= left + offsetWidth ? left : (innerWidth - offsetWidth);
+        const y = innerHeight >= bottom + offsetHeight ? bottom :
+            (top - offsetHeight >= 0 ? top - offsetHeight : innerHeight - offsetHeight);
+        curRef.current.style.transform = `translate(${x}px, ${y}px)`;
+        //curRef.current.style.visibility = "initial";
+    }, [popupInfo]);
     return <div
         className={`${styles['wrapper']}`}
         ref={curRef}
+        style={isOpen ? { 'visibility': 'initial' } : { 'visibility': 'hidden' }}
     >
-        {isOpen ? <InnerPopup wrapper={curRef.current}></InnerPopup> : <></>}
+        <InnerPopup info={popupInfo} setOpen={setOpen}></InnerPopup>
+        <OuterClickEventCatcher openState={[isOpen, setOpen]} wrapper={curRef.current}></OuterClickEventCatcher>
     </div>
 }
 export default Popup;
@@ -309,3 +301,7 @@ const YTOptions = memo(function ({ setPopupOpen }: { setPopupOpen: (isOpen: bool
     ]
     return <OptionSelector options={options} />;
 });
+
+function PopupInfoState(PopupInfoState: any) {
+    throw new Error('Function not implemented.');
+}
