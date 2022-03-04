@@ -1,7 +1,7 @@
-import { useRecoilSnapshot, useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil'
-import { popupOpenState, getPopupInfoState, PopupInfo, PopupKind, useModalManager, ModalKind, useOpenSelectTgtPlaylistPopup } from './PopupStates';
+import { useRecoilSnapshot, useRecoilValue } from 'recoil'
+import { getPopupInfoState, PopupInfo, PopupKind, useModalManager, ModalKind, useOpenSelectTgtPlaylistPopup, useClosePopup } from './PopupStates';
 import styles from './Popup.module.scss'
-import { memo, useRef, useEffect, Suspense, useState } from 'react';
+import { memo, useRef, useEffect, Suspense } from 'react';
 import { MusicInfo, MusicInfoArrayCheck, MusicInfoItem, MusicListAction, MusicListActionType, PlaylistAction, PlaylistActionType, PlaylistInfo } from '../refs/constants';
 import { playlistInfosState, playlistItemStateFamily, useMusicListManager, usePlaylistManager } from '../recoilStates/atoms/playlistAtoms';
 import { searchByQuery } from '../refs/youtubeSearch';
@@ -11,7 +11,6 @@ import FormBoxPlaylist from '../components/FormBoxPlaylist';
 import OuterClickEventCatcher from '../components/OuterClickEventCatcher';
 
 function InnerPopup({ setOpen, info }: { setOpen: (_: boolean) => void, info: PopupInfo }) {
-    const prevInfo = useRef<PopupInfo>({} as PopupInfo);
     const children = (() => {
         switch (info.kind) {
             case PopupKind.PlaylistOptions:
@@ -54,17 +53,15 @@ function InnerPopup({ setOpen, info }: { setOpen: (_: boolean) => void, info: Po
                 return "";
         }
     })();
-    useEffect(() => {
-        setOpen((info.target === prevInfo.current.target && info.kind === prevInfo.current.kind) ? false : true);
-        prevInfo.current = info;
-    }, [info, setOpen])
     return <>{children}</>;
 }
 
-function Popup() {
-    const [isOpen, setOpen] = useRecoilState(popupOpenState);
-    const popupInfo: PopupInfo = useRecoilValue(getPopupInfoState);
+function Popup({ popupInfo }: { popupInfo: PopupInfo }) {
     const curRef = useRef<HTMLDivElement>(null);
+    const closePopup = useClosePopup();
+    const close = () => {
+        closePopup(popupInfo.key);
+    }
     useEffect(() => {
         const target: HTMLElement = popupInfo.target as HTMLElement;
         if (!curRef.current || !target) return;
@@ -75,19 +72,25 @@ function Popup() {
         const y = innerHeight >= bottom + offsetHeight ? bottom :
             (top - offsetHeight >= 0 ? top - offsetHeight : innerHeight - offsetHeight);
         curRef.current.style.transform = `translate(${x}px, ${y}px)`;
-        //curRef.current.style.visibility = "initial";
-    }, [popupInfo]);
+        curRef.current.style.visibility = "initial";
+    }, [popupInfo.target]);
     return <div
         className={`${styles['wrapper']}`}
         ref={curRef}
-        style={isOpen ? { 'visibility': 'initial' } : { 'visibility': 'hidden' }}
+        style={{ 'visibility': 'hidden' }}
     >
-        <InnerPopup info={popupInfo} setOpen={setOpen}></InnerPopup>
-        <OuterClickEventCatcher openState={[isOpen, setOpen]} wrapper={curRef.current}></OuterClickEventCatcher>
+        <InnerPopup info={popupInfo} setOpen={close}></InnerPopup>
+        <OuterClickEventCatcher openState={[true, close]} wrapper={curRef.current}></OuterClickEventCatcher>
     </div>
 }
-export default Popup;
+export default PopupWrapper;
 
+function PopupWrapper() {
+    const popupInfo: PopupInfo[] = useRecoilValue(getPopupInfoState);
+    return <>
+        {popupInfo.map((info) => <Popup key={info.key} popupInfo={info}></Popup>)}
+    </>
+}
 
 
 
