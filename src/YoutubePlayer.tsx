@@ -28,9 +28,8 @@ function YoutubePlayer() {
 					events: {
 						'onStateChange': (event: any) => {
 							if (event.data === (window as any).YT.PlayerState.ENDED) {
+								setProgress({ duration: (window as any).player.getDuration(), currentTime: (window as any).player.getDuration() });
 								curMusicManager({ type: MusicInfoActionType.NEXT })
-								const progress = { duration: 1, currentTime: 0 };
-								setProgress(progress);
 							} else if (event.data === (window as any).YT.PlayerState.PLAYING) {
 								setPlayState(PlayerState.PLAYING);
 								const progress = { duration: (window as any).player.getDuration(), currentTime: (window as any).player.getCurrentTime() };
