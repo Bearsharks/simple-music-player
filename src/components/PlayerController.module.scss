@@ -60,15 +60,7 @@ $button-size : 32px;
 .cur-music-info--secondary{
     color:$font-secondary-color;
 }
-.more-vert-button{
-    width: 32px;
-    height: 32px;
-    padding: 4px;
-    border-radius: 50%;
-    &:hover{
-        background-color: rgba(255,255,255,0.1);
-    }
-}
+
 
 .left-control{    
     display: flex;
