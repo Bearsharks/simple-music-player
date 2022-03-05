@@ -1,11 +1,18 @@
 .more-vert{
-    padding: 4px;
+    
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 50%;
     cursor: pointer;
-    &:hover{
-        background-color: rgba(255,255,255,0.1);
+    & div{
+        display: flex;
+    align-items: center;
+    justify-content: center;
+        border-radius: 50%;
+        padding: 4px;
+        &:hover{
+            background-color: rgba(255,255,255,0.12);
+        }
     }
+    
 }

@@ -31,7 +31,9 @@
     font-size: 24px;
     font-family: initial;
     display: flex;
-
+    & div{
+        margin: 0 7px 0 0;
+    }
 }
 
 .metadata__description{
