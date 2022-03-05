@@ -17,7 +17,7 @@ html {
 .material-icons.md-28 { font-size: 28px; }
 .material-icons.md-32 { font-size: 32px; }
 .material-icons.md-48 { font-size: 48px; }
-
+.material-icons.md-38 { font-size: 38px; }
 body{
   color: $font-color;
   background-color: $bg-color;
@@ -30,7 +30,10 @@ body{
   }
 
 }
-
+.material-icons{
+  cursor:pointer;
+  -webkit-user-select:none; -moz-user-select:none; -ms-user-select:none; user-select:none;
+}
 main{
   width: 100vw;
   height: calc(100vh - var(--header-size));
