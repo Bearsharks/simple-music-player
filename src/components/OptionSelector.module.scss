@@ -2,7 +2,7 @@
 .wrapper{
     background-color: $bg-secondary-color;
     width: 240px;
-    padding: 8px 0px 8px 8px;
+    padding: 8px 0;
     border: 1px solid rgba(255,255,255,0.1);
     border-radius: 2px;
 }
@@ -11,6 +11,11 @@
     display: flex;
     height: 48px;
     align-items: center;
+    padding: 8px 0;
+    &:hover{
+        background-color: rgba(255,255,255,0.1);
+        cursor: pointer;
+    }
 }
 .options__icon{
     width: 24px;
