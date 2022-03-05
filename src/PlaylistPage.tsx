@@ -22,7 +22,7 @@ function PlaylistPage() {
 
         <div className={styles["metadata"]}>
             <div className={styles["metadata__name"]}>
-                {playlistInfo.name}
+                <div>{playlistInfo.name}</div>
                 <MoreVert size={32} onClick={(e) => openPlaylistOptionsPopup(e.target as HTMLElement, playlistID)} />
             </div>
             <div className={styles["metadata__item-count"]}>노래 {playlistInfo.itemCount}곡</div>
