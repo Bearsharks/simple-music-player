@@ -80,7 +80,7 @@ function Popup({ popupInfo }: { popupInfo: PopupInfo }) {
         style={{ 'visibility': 'hidden' }}
     >
         <InnerPopup info={popupInfo} setOpen={close}></InnerPopup>
-        <OuterClickEventCatcher openState={[true, close]} wrapper={curRef.current}></OuterClickEventCatcher>
+        <OuterClickEventCatcher openState={[true, close]} wrapper={curRef}></OuterClickEventCatcher>
     </div>
 }
 export default PopupWrapper;
