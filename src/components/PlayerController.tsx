@@ -3,6 +3,7 @@ import { useOpenMusicOptionsPopup } from "../Popups/PopupStates";
 import ProgressBar from "../ProgressBar";
 import { MusicInfo } from "../refs/constants";
 import SoundController from "../SoundController";
+import MoreVert from "./MoreVert";
 import styles from './PlayerController.module.scss';
 
 export interface PlayerControllerProps {
@@ -46,10 +47,7 @@ function PlayerController(props: PlayerControllerProps) {
                             <div className={styles["cur-music-info--secondary"]}
                             >{props.musicInfo.owner}</div>
                         </div>
-
-                        <div className={styles["more-vert-button"]} onClick={popupOpen}>
-                            <span className="material-icons">more_vert</span>
-                        </div>
+                        <MoreVert onClick={popupOpen} size={24}></MoreVert>
                     </div>
                     <div className={styles["right-control"]}>
                         <ExpandMenus></ExpandMenus>

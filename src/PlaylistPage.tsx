@@ -8,6 +8,7 @@ import { useOpenPlaylistItemOptionsPopup, useOpenPlaylistOptionsPopup } from "./
 import { MusicInfoActionType, MusicInfoItem } from "./refs/constants";
 import { Suspense } from "react";
 import Spinner from "./components/Spinner";
+import MoreVert from "./components/MoreVert";
 function PlaylistPage() {
     const openPlaylistOptionsPopup = useOpenPlaylistOptionsPopup();
     const param = useParams();
@@ -21,12 +22,8 @@ function PlaylistPage() {
 
         <div className={styles["metadata"]}>
             <div className={styles["metadata__name"]}>
-                {playlistInfo.name}
-                <div className={styles["morevert"]} onClick={(e) => openPlaylistOptionsPopup(e.target as HTMLElement, playlistID)}>
-                    <span className="material-icons">
-                        more_vert
-                    </span>
-                </div>
+                <div>{playlistInfo.name}</div>
+                <MoreVert size={32} onClick={(e) => openPlaylistOptionsPopup(e.target as HTMLElement, playlistID)} />
             </div>
             <div className={styles["metadata__item-count"]}>노래 {playlistInfo.itemCount}곡</div>
             <div className={styles["metadata__description"]} title={playlistInfo.description}>{playlistInfo.description}</div>

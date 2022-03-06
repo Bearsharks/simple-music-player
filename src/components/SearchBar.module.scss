@@ -21,16 +21,11 @@ $padding-size : 5px;
     background-color : $bg-color;
 }
 
-.closeBtn{
-    display: none;
+.close-btn{
     position: absolute;
-    top: 0px;
-    width: 100vw;
-    height: 100vh;
-    background-color: rgba($color: #000000, $alpha: 0.5);
-}
-.closeBtn--show{
-    display: block;
+    top: 5px;
+    right: 20px;
+    padding: 4px;
 }
 
 .search-panel{
@@ -38,24 +33,20 @@ $padding-size : 5px;
     max-width: 1450px;
 }
 textarea{
-    width: 250px;
-    resize: none;
-    overflow-y: hidden;
-    max-height: calc(100% - 6px);
-    
-    color:$font-color;
-    font-family: $font-family;
-    font-size: 16px;
-    background-color: $bg-secondary-color;
-}
-
-.text--expand{
     width: calc(100% - 12px);
-    margin: 5px;
+    margin: 7px;
     border: 1px solid white;
     border-radius: 2px;
     overflow-y:scroll;
     max-height: 200px;
+    resize: none;
+    color:$font-color;
+    font-size: 16px;
+    background-color: $bg-secondary-color;
+}
+
+.text-wrapper{
+    position: relative;    
 }
 .search-button{
     padding: 4px;

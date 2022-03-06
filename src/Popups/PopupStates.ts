@@ -1,6 +1,7 @@
 import { atom, selector, useRecoilCallback } from "recoil";
 import { playlistInfoStateFamily } from '../recoilStates/atoms/playlistAtoms'
 import { MusicInfo, MusicInfoItem } from "../refs/constants";
+import keyGenerator from "../refs/keyGenerator";
 export const ModalOpenState = atom<boolean>({
     key: "ModalOpen",
     default: false
@@ -23,6 +24,7 @@ export enum PopupKind {
     PlaylistOptions, MusicOptions, SelectTgtPlaylist, SearchOptions, YTOptions, PlaylistItemOptions
 }
 export interface PopupInfo {
+    key: string,
     target: HTMLElement,
     kind: PopupKind,
     data?: unknown
@@ -30,11 +32,11 @@ export interface PopupInfo {
 
 
 
-const PopupInfoState = atom<PopupInfo>({
+const PopupInfoState = atom<PopupInfo[]>({
     key: "popupInfoState",
-    default: {} as PopupInfo
+    default: []
 })
-export const getPopupInfoState = selector<PopupInfo>({
+export const getPopupInfoState = selector<PopupInfo[]>({
     key: "getPopupInfo",
     get: ({ get }) => {
         return get(PopupInfoState);
@@ -58,14 +60,26 @@ export enum ModalKind {
 const useOpenPopup = () => {
     return useRecoilCallback(({ set, snapshot }) =>
         (kind: PopupKind, target: HTMLElement, data?: unknown) => {
-            const popupInfo: PopupInfo = snapshot.getLoadable(PopupInfoState).contents;
-            set(PopupInfoState, {
-                target: target,
-                kind: kind,
-                data: data
+            set(PopupInfoState, (prev) => {
+                const samePopup = prev.filter((info) => info.target === target && info.kind === kind);
+                if (samePopup.length) {
+                    return prev;
+                }
+                return [...prev, {
+                    key: keyGenerator()[0],
+                    target: target,
+                    kind: kind,
+                    data: data
+                }];
+
             });
-            const isOpened = snapshot.getLoadable(popupOpenState).contents;
-            set(popupOpenState, (isOpened && popupInfo.target === target) ? false : true);
+        }
+    )
+}
+export const useClosePopup = () => {
+    return useRecoilCallback(({ set }) =>
+        (key: string) => {
+            set(PopupInfoState, (prev) => prev.filter((info) => key !== info.key));
         }
     )
 }

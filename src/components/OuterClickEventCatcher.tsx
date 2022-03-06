@@ -1,14 +1,17 @@
-import { useEffect } from "react";
+import { RefObject, useEffect } from "react";
+
 
 interface OuterClickEventCatcherProps {
-    setOpen: (arg0: boolean) => void;
-    wrapper: HTMLElement | null;
+    openState: [boolean, (_: boolean) => void];
+    wrapper: RefObject<HTMLDivElement>;
     onClickHandler?: (arg0: MouseEvent | TouchEvent) => void;
 }
-function OuterClickEventCatcher({ wrapper, setOpen, onClickHandler }: OuterClickEventCatcherProps) {
+function OuterClickEventCatcher({ wrapper, openState, onClickHandler }: OuterClickEventCatcherProps) {
+    const [isOpen, setOpen] = openState;
     useEffect(() => {
         const onClickOutsideHandler = (event: MouseEvent | TouchEvent) => {
-            if (wrapper && wrapper.contains(event.target as Node)) {
+            if (wrapper.current && wrapper.current.contains(event.target as Node)) {
+
                 return;
             }
             if (onClickHandler) onClickHandler(event);
@@ -22,6 +25,10 @@ function OuterClickEventCatcher({ wrapper, setOpen, onClickHandler }: OuterClick
             document.removeEventListener('touchend', onClickOutsideHandler);
         };
     }, [setOpen, wrapper, onClickHandler]);
-    return <></>
+    return <></>;
 }
-export default OuterClickEventCatcher;
+function Wrapper(props: OuterClickEventCatcherProps) {
+    const [isOpen, setOpen] = props.openState;
+    return isOpen ? <OuterClickEventCatcher {...props}></OuterClickEventCatcher> : <></>;
+}
+export default Wrapper;
