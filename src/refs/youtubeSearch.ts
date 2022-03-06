@@ -98,6 +98,10 @@ export default async function youtubeSearch(value: string, type: SearchType, pag
 
 //파람만들기 파람으로 패스 만들기 결과 반환하기
 const YTFetch = async (url: string, pageToken?: string): Promise<any> => {
+    if (sessionStorage.getItem("mode") === 'test') {
+        alert("테스트 계정에선 유튜브 api를 사용 할 수 없습니다. 로그인이 필요합니다.");
+        throw new Error("테스트 계정에선 유튜브 api를 사용 할 수 없습니다. 로그인이 필요합니다.");
+    }
     if (!sessionStorage.getItem("access_token")) {
         const token = await getToken();
         if (token === "") return;

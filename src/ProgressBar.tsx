@@ -30,7 +30,7 @@ function ProgressBar() {
     }, [progress]);
 
     const progressClickHandler = (event: React.MouseEvent) => {
-        const time = (event.clientX / document.body.offsetWidth) * progress.duration;
+        const time = (event.clientX / (document.body.offsetWidth - 12)) * progress.duration;
         (window as any).player?.seekTo(time);
     }
 

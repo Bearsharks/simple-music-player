@@ -4,6 +4,7 @@ import styles from './MusicList.module.scss';
 import { DragDropContext, Droppable, DropResult, Draggable, DroppableProvided } from "react-beautiful-dnd";
 import { useRecoilValue } from "recoil";
 import { curMusicIdxState } from "../recoilStates/atoms/playlistAtoms";
+import MoreVert from "./MoreVert";
 
 export interface MusicListProps {
     items: MusicInfoItem[];
@@ -127,9 +128,7 @@ export function MusicItem({ idx, item, playMusic, openOptionsPopup, isCurMusic }
                         {item.owner}
                     </div>
                 </div>
-                <div className={styles[`grid-item`]} onClick={popupOpen}>
-                    <span className="material-icons">more_vert</span>
-                </div>
+                <MoreVert onClick={popupOpen} ></MoreVert>
             </div>
         </div>
     );

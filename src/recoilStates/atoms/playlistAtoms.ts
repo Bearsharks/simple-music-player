@@ -55,7 +55,6 @@ export const usePlaylistManager = function () {
                 if (isSuccess) {
                     const newOne: string[] = playlistIDs.filter((item) => item !== tgt);
                     set(playlistIDsState, newOne);
-                    debugger;
                     reset(playlistItemStateFamily(tgt));
                     reset(playlistInfoStateFamily(tgt));
                 }

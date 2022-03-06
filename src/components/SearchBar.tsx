@@ -51,11 +51,17 @@ function SearchBar(props: SearchBarProps) {
             <div ref={curRef} className={`${styles['wrapper']} ${isExpanded && styles['wrapper--expand']}`}>
                 {isExpanded &&
                     <div className={styles['search-panel']}>
-                        <textarea
-                            className={styles['text--expand']}
-                            ref={textInput}
-                            onKeyDown={resize} onKeyUp={resize}
-                        ></textarea >
+                        <div className={styles['text-wrapper']}>
+                            <textarea
+                                ref={textInput}
+                                onKeyDown={resize} onKeyUp={resize}
+                            ></textarea>
+                            <div className={styles['close-btn']}
+                                onClick={() => setExpended(false)}
+                            ><span className="material-icons md-38">
+                                    close
+                                </span></div>
+                        </div>
                         <div className={`${styles['expanded-menu']}`}>
                             <div>ex)노래명 - 가수명 / 유튜브 url(재생목록, 동영상)</div>
                             <div
@@ -68,9 +74,9 @@ function SearchBar(props: SearchBarProps) {
                             </div>
                         </div>
                         <OuterClickEventCatcher
+                            openState={[isExpanded, setExpended]}
                             onClickHandler={shirinkTextBox}
-                            wrapper={curRef.current}
-                            setOpen={setExpended}
+                            wrapper={curRef}
                         ></OuterClickEventCatcher>
                     </div>
                 }

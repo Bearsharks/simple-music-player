@@ -11,11 +11,13 @@ function SideMenu({ children }: { children?: React.ReactNode }) {
     const navigate = useNavigate();
     const logoutBtnClicked = (e: React.MouseEvent) => {
         e.stopPropagation();
+
         const logoutURL = `${process.env.REACT_APP_API_URL}/logout`;
         fetch(logoutURL, {
             credentials: 'include',
             cache: 'no-cache'
         }).then(() => {
+            sessionStorage.clear();
             navigate('/login');
         }).catch((err) => {
             console.log(err);
@@ -50,7 +52,7 @@ function SideMenu({ children }: { children?: React.ReactNode }) {
                     </div>
                 </div>
                 {children}
-                {isActive && <OuterClickEventCatcher wrapper={curRef.current} setOpen={setActive}></OuterClickEventCatcher>}
+                <OuterClickEventCatcher openState={[isActive, setActive]} wrapper={curRef}></OuterClickEventCatcher>
 
             </div>
         </div>
