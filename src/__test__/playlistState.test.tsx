@@ -1,7 +1,7 @@
 import { Suspense, useState } from 'react'
 import { act, Renderer, renderHook, RenderHookResult } from '@testing-library/react-hooks';
 import { MutableSnapshot, RecoilRoot, useRecoilCallback, useRecoilSnapshot, useRecoilValue } from 'recoil';
-import { playlistIDsState, playlistInfosState, playlistInfoStateFamily, playlistItemStateFamily, usePlaylistManager } from '../recoilStates/atoms/playlistAtoms';
+import { playlistIDsState, playlistInfosState, playlistInfoStateFamily, playlistItemStateFamily, usePlaylistManager } from '../recoilStates/playlistAtoms';
 import { MusicInfo, MusicInfoItem, Playlist, PlaylistAction, PlaylistActionType, PlaylistInfo } from '../refs/constants';
 import { reset, testAPIget } from '../refs/testAPI';
 
