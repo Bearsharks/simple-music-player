@@ -1,11 +1,11 @@
 import styles from './MusicPlayer.module.scss'
-import PlayerController from './components/PlayerController';
+import PlayerController from '../components/PlayerController';
 import { useRecoilState, useRecoilValue } from 'recoil';
-import { curMusicInfoState, musicListState, musicPlayerState, useCurMusicManager } from './recoilStates/atoms/playlistAtoms';
-import { MusicInfoActionType, PlayerState } from './refs/constants';
+import { curMusicInfoState, musicListState, musicPlayerState, useCurMusicManager } from '../recoilStates/playlistAtoms';
+import { MusicInfoActionType, PlayerState } from '../refs/constants';
 
-import PlayerDetail from './components/PlayerDetail';
-import musiclistOpenState from './recoilStates/musiclistOpenState';
+import PlayerDetail from '../components/PlayerDetail';
+import musiclistOpenState from '../recoilStates/musiclistOpenState';
 
 function MusicPlayer() {
     const [playerVisiblity, setPlayerVisiblity] = useRecoilState(musiclistOpenState);

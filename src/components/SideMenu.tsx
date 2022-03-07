@@ -1,13 +1,15 @@
 import React, { useRef } from "react"
 import styles from './SideMenu.module.scss';
-import { useRecoilState } from 'recoil';
-import { sideMenuOpenState } from '../recoilStates/sideMenu'
 import OuterClickEventCatcher from "./OuterClickEventCatcher";
 import { useNavigate } from "react-router-dom";
 
-function SideMenu({ children }: { children?: React.ReactNode }) {
+export interface SideMenuProps {
+    isActive: boolean;
+    setActive: (arg0: boolean) => void;
+    children?: React.ReactNode
+}
+function SideMenu({ children, isActive, setActive }: SideMenuProps) {
     const curRef = useRef<HTMLDivElement>(null);
-    const [isActive, setActive] = useRecoilState(sideMenuOpenState);
     const navigate = useNavigate();
     const logoutBtnClicked = (e: React.MouseEvent) => {
         e.stopPropagation();

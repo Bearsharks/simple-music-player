@@ -98,16 +98,19 @@ export default async function youtubeSearch(value: string, type: SearchType, pag
 
 //파람만들기 파람으로 패스 만들기 결과 반환하기
 const YTFetch = async (url: string, pageToken?: string): Promise<any> => {
+    let curURL = url;
     if (sessionStorage.getItem("mode") === 'test') {
-        alert("테스트 계정에선 유튜브 api를 사용 할 수 없습니다. 로그인이 필요합니다.");
-        throw new Error("테스트 계정에선 유튜브 api를 사용 할 수 없습니다. 로그인이 필요합니다.");
+        const key = sessionStorage.getItem("key");
+        if (key === "") return;
+        curURL = `${curURL}&key=${sessionStorage.getItem("key")}`;
     }
-    if (!sessionStorage.getItem("access_token")) {
+    else if (!sessionStorage.getItem("access_token")) {
         const token = await getToken();
         if (token === "") return;
         sessionStorage.setItem("access_token", token);
+        curURL = `${curURL}&access_token=${sessionStorage.getItem("access_token")}`;
     }
-    let curURL = url + `&access_token=${sessionStorage.getItem("access_token")}`;
+
     if (pageToken) curURL += `&pageToken=${pageToken}`;
     let res = await fetch(curURL);
     if (res.status === 200) {
@@ -116,6 +119,8 @@ const YTFetch = async (url: string, pageToken?: string): Promise<any> => {
             return data.items.concat(await YTFetch(url, data.nextPageToken));
         }
         return data.items;
+    } else if (sessionStorage.getItem("mode") === 'test') {
+        alert('해당기능은 테스트 계정에서는 사용 할 수 없습니다.');
     } else if (res.status === 403 || res.status === 401) {
         //유튜브 읽기 권한이 없다면 무한루프가 발생하기 때문에 없다면 확인후 권한을 달라고 하자
         console.log(await res.text());
