@@ -1,8 +1,8 @@
 import React, { useEffect, useRef } from "react";
-import { PlayerState } from "./refs/constants";
+import { PlayerState } from "../refs/constants";
 import styles from "./ProgressBar.module.scss"
 import { useRecoilState } from "recoil";
-import { musicPlayerProgressState } from "./recoilStates/atoms/playlistAtoms";
+import { musicPlayerProgressState } from "../recoilStates/playlistAtoms";
 
 function ProgressBar() {
     const thisElement = useRef<HTMLDivElement>(null);

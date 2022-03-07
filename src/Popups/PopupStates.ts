@@ -1,5 +1,5 @@
 import { atom, selector, useRecoilCallback } from "recoil";
-import { playlistInfoStateFamily } from '../recoilStates/atoms/playlistAtoms'
+import { playlistInfoStateFamily } from '../recoilStates/playlistAtoms'
 import { MusicInfo, MusicInfoItem } from "../refs/constants";
 import keyGenerator from "../refs/keyGenerator";
 export const ModalOpenState = atom<boolean>({

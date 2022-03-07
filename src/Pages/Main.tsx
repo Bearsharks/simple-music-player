@@ -1,16 +1,16 @@
 import styles from './Main.module.scss';
 import PlaylistsRecoil from './PlaylistsRecoil'
-import FormPopup from './Popups/Modal';
+import FormPopup from '../Popups/Modal';
 import SearchBarRecoil from './SearchBarRecoil';
 import MusicPlayer from './MusicPlayer';
 import { Route, Routes, useNavigate } from 'react-router-dom';
 import { Suspense } from 'react';
-import Spinner from './components/Spinner';
-import Popup from './Popups/Popup';
-import HamburgerBtn from './components/HamburgerBtn';
-import SideMenu from './components/SideMenu';
+import Spinner from '../components/Spinner';
+import Popup from '../Popups/Popup';
+import HamburgerBtn from '../components/Recoil/HamburgerBtn';
+import SideMenu from '../components/Recoil/SideMenu';
 import PlaylistPage from './PlaylistPage';
-import musiclistOpenState from './recoilStates/musiclistOpenState';
+import musiclistOpenState from '../recoilStates/musiclistOpenState';
 import { useSetRecoilState } from 'recoil';
 function Main() {
     const navigate = useNavigate();

@@ -1,8 +1,8 @@
 import React from "react";
 import { useOpenMusicOptionsPopup } from "../Popups/PopupStates";
-import ProgressBar from "../ProgressBar";
+import ProgressBar from "../Pages/ProgressBar";
 import { MusicInfo } from "../refs/constants";
-import SoundController from "../SoundController";
+import SoundController from "./SoundController";
 import MoreVert from "./MoreVert";
 import styles from './PlayerController.module.scss';
 
