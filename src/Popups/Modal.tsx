@@ -6,7 +6,7 @@ import { Playlist, PlaylistAction, PlaylistActionType, PlaylistInfo } from '../r
 import youtubeSearch, { getYTPlaylistByID, SearchType, urlToId } from '../refs/youtubeSearch';
 import Spinner from '../components/Spinner';
 import { myYTPlaylistInfosState } from '../recoilStates/YTPlaylistState';
-import { usePlaylistManager } from '../recoilStates/atoms/playlistAtoms';
+import { usePlaylistManager } from '../recoilStates/playlistAtoms';
 import FormBox, { FormItem } from '../components/FormBox';
 import FormBoxPlaylist from '../components/FormBoxPlaylist';
 

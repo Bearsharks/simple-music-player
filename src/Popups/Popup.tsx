@@ -3,7 +3,7 @@ import { getPopupInfoState, PopupInfo, PopupKind, useModalManager, ModalKind, us
 import styles from './Popup.module.scss'
 import { memo, useRef, useEffect, Suspense } from 'react';
 import { MusicInfo, MusicInfoArrayCheck, MusicInfoItem, MusicListAction, MusicListActionType, PlaylistAction, PlaylistActionType, PlaylistInfo } from '../refs/constants';
-import { playlistInfosState, playlistItemStateFamily, useMusicListManager, usePlaylistManager } from '../recoilStates/atoms/playlistAtoms';
+import { playlistInfosState, playlistItemStateFamily, useMusicListManager, usePlaylistManager } from '../recoilStates/playlistAtoms';
 import { searchByQuery } from '../refs/youtubeSearch';
 import OptionSelector, { OptionInfo } from '../components/OptionSelector';
 import Spinner from '../components/Spinner';
