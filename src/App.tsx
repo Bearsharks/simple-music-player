@@ -5,10 +5,10 @@ import OauthCallback from 'pages/OauthCallback';
 import Login from 'pages/LoginPage';
 import Main from 'pages/Main';
 import { checkAuth } from 'refs/api'
-import { useEffect, useState } from 'react';
+import { ReactElement, useEffect, useState } from 'react';
 import Spinner from 'components/Spinner';
 
-function PrivateRoute({ children }) {
+function PrivateRoute({ children }: { children: ReactElement }) {
     const [auth, setAuth] = useState('pending');
     useEffect(() => {
         const check = async () => {
@@ -17,7 +17,7 @@ function PrivateRoute({ children }) {
         }
         check();
     }, [])
-    return auth === 'pending' ? <Spinner /> : auth === 'true' ? children : <Navigate to="/login" replace={true} />;
+    return (auth === 'pending' ? <Spinner /> : auth === 'true' ? children : <Navigate to="/login" replace={true} />);
 }
 
 function App() {
