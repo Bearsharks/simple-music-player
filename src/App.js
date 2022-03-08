@@ -1,12 +1,12 @@
 
 import './App.scss';
 import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
-import OauthCallback from './pages/OauthCallback';
-import Login from './pages/LoginPage';
-import { checkAuth } from './refs/api'
-import Main from './pages/Main';
+import OauthCallback from 'pages/OauthCallback';
+import Login from 'pages/LoginPage';
+import Main from 'pages/Main';
+import { checkAuth } from 'refs/api'
 import { useEffect, useState } from 'react';
-import Spinner from './components/Spinner';
+import Spinner from 'components/Spinner';
 
 function PrivateRoute({ children }) {
     const [auth, setAuth] = useState('pending');
