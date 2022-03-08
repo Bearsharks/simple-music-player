@@ -7,7 +7,7 @@ import { playlistInfosState, playlistItemStateFamily, useMusicListManager, usePl
 import { searchByQuery } from 'refs/youtubeSearch';
 import OptionSelector, { OptionInfo } from 'components/OptionSelector';
 import Spinner from 'components/Spinner';
-import FormBoxPlaylist from 'components/FormBox/FormBoxPlaylist';
+import FormBoxPlaylist from 'components/formBox/FormBoxPlaylist';
 import OuterClickEventCatcher from 'components/OuterClickEventCatcher';
 
 function InnerPopup({ setOpen, info }: { setOpen: (_: boolean) => void, info: PopupInfo }) {

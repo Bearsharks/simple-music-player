@@ -1,7 +1,7 @@
 
 import { ChangeEvent, useState } from "react";
 import { PlaylistInfo } from "refs/constants";
-import PlaylistItem from "./PlaylistItem";
+import PlaylistItem from "../PlaylistItem";
 import styles from './Playlists.module.scss';
 
 export interface PlaylistsProps {

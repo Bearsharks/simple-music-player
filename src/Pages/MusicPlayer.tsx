@@ -1,10 +1,10 @@
 import styles from './MusicPlayer.module.scss'
-import PlayerController from 'components/PlayerController/PlayerController';
+import PlayerController from 'components/playerController/PlayerController';
 import { useRecoilState, useRecoilValue } from 'recoil';
 import { curMusicInfoState, musicListState, musicPlayerState, useCurMusicManager } from 'recoilStates/playlistAtoms';
 import { MusicInfoActionType, PlayerState } from 'refs/constants';
 
-import PlayerDetail from 'components/PlayerDetail/PlayerDetail';
+import PlayerDetail from 'components/playerDetail/PlayerDetail';
 import musiclistOpenState from 'recoilStates/musiclistOpenState';
 
 function MusicPlayer() {

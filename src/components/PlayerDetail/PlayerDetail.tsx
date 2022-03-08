@@ -1,8 +1,8 @@
 import styles from './PlayerDetail.module.scss';
 import { MusicInfoItem } from 'refs/constants';
-import YoutubePlayer from 'components/Recoil/YoutubePlayer';
+import YoutubePlayer from 'components/recoil/YoutubePlayer';
 import { useOpenSelectTgtPlaylistPopup } from 'popups/PopupStates';
-import MusicList from 'components/Recoil/MusicList';
+import MusicList from 'components/recoil/MusicList';
 
 export interface PlayerDetailProps {
     playerVisiblity: boolean;

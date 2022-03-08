@@ -1,10 +1,10 @@
 
 import './App.scss';
 import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
-import OauthCallback from './Pages/OauthCallback';
-import Login from './Pages/LoginPage';
+import OauthCallback from './pages/OauthCallback';
+import Login from './pages/LoginPage';
 import { checkAuth } from './refs/api'
-import Main from './Pages/Main';
+import Main from './pages/Main';
 import { useEffect, useState } from 'react';
 import Spinner from './components/Spinner';
 

@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { PlaylistInfo } from "refs/constants";
-import FormBox, { FormItem } from "components/FormBox/FormBox";
+import FormBox, { FormItem } from "components/formBox/FormBox";
 import styles from './FormBoxPlaylist.module.scss';
-import PlaylistItem from "components/Playlists/PlaylistItem";
+import PlaylistItem from "components/PlaylistItem";
 
 export interface FormBoxPlaylistProps {
     name: string;
