@@ -18,9 +18,6 @@ function SignInPage() {
         try {
             const res = await fetch(loginURL, { credentials: 'include' });
             if (res.status !== 200) throw new Error("500");
-            sessionStorage.setItem("mode", "test");
-            const key = await res.text();
-            sessionStorage.setItem("key", key);
             (window as any).location = "/simple-music-player";
         } catch (err) {
             console.error(err);
