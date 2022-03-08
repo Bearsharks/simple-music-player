@@ -1,6 +1,6 @@
 import React, { useRef } from "react"
 import styles from './SideMenu.module.scss';
-import OuterClickEventCatcher from "./OuterClickEventCatcher";
+import OuterClickEventCatcher from "components/OuterClickEventCatcher";
 import { useNavigate } from "react-router-dom";
 
 export interface SideMenuProps {
@@ -22,7 +22,7 @@ function SideMenu({ children, isActive, setActive }: SideMenuProps) {
             sessionStorage.clear();
             navigate('/login');
         }).catch((err) => {
-            console.log(err);
+            console.error(err);
         });
     }
     return (

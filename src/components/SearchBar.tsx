@@ -1,5 +1,5 @@
 import React, { useRef, useState } from "react";
-import OuterClickEventCatcher from "./OuterClickEventCatcher";
+import OuterClickEventCatcher from "components/OuterClickEventCatcher";
 import styles from './SearchBar.module.scss';
 export interface SearchBarProps {
     search: (event: React.MouseEvent, textarea: HTMLTextAreaElement) => void;

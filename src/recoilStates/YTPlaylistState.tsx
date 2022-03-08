@@ -1,6 +1,6 @@
 import { atom, selector, useRecoilCallback } from "recoil";
-import { PlaylistInfo } from "../refs/constants";
-import { getMyYTPlaylistInfos } from "../refs/youtubeSearch";
+import { PlaylistInfo } from "refs/constants";
+import { getMyYTPlaylistInfos } from "refs/youtubeSearch";
 
 
 const YTPlaylistRequestIDState = atom({
