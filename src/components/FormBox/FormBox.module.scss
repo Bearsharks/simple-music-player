@@ -1,12 +1,10 @@
-@import '../global.scss';
-
+@import '/src/global.scss';
 .wrapper{
     padding: 24px;
     @media (max-width:500px){
       padding:12px;
     }
   }
-  
   
 .formbox-item{
     margin-bottom: 24px;

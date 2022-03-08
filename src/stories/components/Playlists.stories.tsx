@@ -1,6 +1,6 @@
 import React from 'react';
 import { ComponentStory, ComponentMeta } from '@storybook/react';
-import Playlists from '../../components/Playlists';
+import Playlists from 'components/Playlists/Playlists';
 
 export default {
     title: 'components/Playlists',

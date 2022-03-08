@@ -2,7 +2,6 @@
 import { API } from "./apiSelector";
 import { PlaylistInfo, MusicInfo } from "./constants";
 async function getPlaylistInfos(): Promise<PlaylistInfo[]> {
-    console.log("origin")
     const res = await fetch(`${process.env.REACT_APP_API_URL}/playlists`, {
         credentials: 'include'
     });
@@ -26,7 +25,6 @@ async function getPlaylistItems(id: string): Promise<MusicInfo[]> {
 
 async function createPlaylist(info: PlaylistInfo, items: MusicInfo[]): Promise<string> {
     const body = { info: { ...info, id: null }, items: items };
-    console.log(`${process.env.REACT_APP_API_URL}/playlist`);
     const res = await fetch(`${process.env.REACT_APP_API_URL}/playlist`, {
         method: 'POST',
         credentials: 'include',

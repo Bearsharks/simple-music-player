@@ -2,13 +2,13 @@ import { useRecoilSnapshot, useRecoilValue } from 'recoil'
 import { getPopupInfoState, PopupInfo, PopupKind, useModalManager, ModalKind, useOpenSelectTgtPlaylistPopup, useClosePopup } from './PopupStates';
 import styles from './Popup.module.scss'
 import { memo, useRef, useEffect, Suspense } from 'react';
-import { MusicInfo, MusicInfoArrayCheck, MusicInfoItem, MusicListAction, MusicListActionType, PlaylistAction, PlaylistActionType, PlaylistInfo } from '../refs/constants';
-import { playlistInfosState, playlistItemStateFamily, useMusicListManager, usePlaylistManager } from '../recoilStates/playlistAtoms';
-import { searchByQuery } from '../refs/youtubeSearch';
-import OptionSelector, { OptionInfo } from '../components/OptionSelector';
-import Spinner from '../components/Spinner';
-import FormBoxPlaylist from '../components/FormBoxPlaylist';
-import OuterClickEventCatcher from '../components/OuterClickEventCatcher';
+import { MusicInfo, MusicInfoArrayCheck, MusicInfoItem, MusicListAction, MusicListActionType, PlaylistAction, PlaylistActionType, PlaylistInfo } from 'refs/constants';
+import { playlistInfosState, playlistItemStateFamily, useMusicListManager, usePlaylistManager } from 'recoilStates/playlistAtoms';
+import { searchByQuery } from 'refs/youtubeSearch';
+import OptionSelector, { OptionInfo } from 'components/OptionSelector';
+import Spinner from 'components/Spinner';
+import FormBoxPlaylist from 'components/FormBox/FormBoxPlaylist';
+import OuterClickEventCatcher from 'components/OuterClickEventCatcher';
 
 function InnerPopup({ setOpen, info }: { setOpen: (_: boolean) => void, info: PopupInfo }) {
     const children = (() => {

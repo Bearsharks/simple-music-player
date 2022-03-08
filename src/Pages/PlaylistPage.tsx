@@ -1,14 +1,14 @@
 import { useParams } from "react-router-dom";
 import { useRecoilValue } from "recoil";
-import Thumbnail from "../components/Thumbnail";
-import { playlistInfoStateFamily, playlistItemStateFamily, useCurMusicManager } from "../recoilStates/playlistAtoms";
+import Thumbnail from "components/Thumbnail";
+import { playlistInfoStateFamily, playlistItemStateFamily, useCurMusicManager } from "recoilStates/playlistAtoms";
 import styles from './PlaylistPage.module.scss';
-import { MusicItem } from "../components/MusicList";
-import { useOpenPlaylistItemOptionsPopup, useOpenPlaylistOptionsPopup } from "../Popups/PopupStates";
-import { MusicInfoActionType, MusicInfoItem } from "../refs/constants";
+import { MusicItem } from "components/MusicList/MusicList";
+import { useOpenPlaylistItemOptionsPopup, useOpenPlaylistOptionsPopup } from "popups/PopupStates";
+import { MusicInfoActionType, MusicInfoItem } from "refs/constants";
 import { Suspense } from "react";
-import Spinner from "../components/Spinner";
-import MoreVert from "../components/MoreVert";
+import Spinner from "components/Spinner";
+import MoreVert from "components/MoreVert";
 function PlaylistPage() {
     const openPlaylistOptionsPopup = useOpenPlaylistOptionsPopup();
     const param = useParams();

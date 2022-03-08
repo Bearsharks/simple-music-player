@@ -1,6 +1,6 @@
 
-import SearchBar from '../components/SearchBar'
-import { useOpenSearchOptionsPopup } from '../Popups/PopupStates'
+import SearchBar from 'components/SearchBar'
+import { useOpenSearchOptionsPopup } from 'popups/PopupStates'
 function SearchBarRecoil() {
     const openSearchOptionsPopup = useOpenSearchOptionsPopup();
     const searchOptionPopupOpen = (event: React.MouseEvent, textarea: HTMLTextAreaElement) => {
