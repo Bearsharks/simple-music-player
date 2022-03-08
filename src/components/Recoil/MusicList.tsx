@@ -1,7 +1,7 @@
-import MusicList from '../components/MusicList';
-import { useOpenMusicOptionsPopup } from '../Popups/PopupStates';
-import { useCurMusicManager, useMusicListManager } from '../recoilStates/playlistAtoms';
-import { MusicInfoActionType, MusicInfoItem, MusicListActionType } from '../refs/constants';
+import MusicList from 'components/MusicList/MusicList';
+import { useOpenMusicOptionsPopup } from 'popups/PopupStates';
+import { useCurMusicManager, useMusicListManager } from 'recoilStates/playlistAtoms';
+import { MusicInfoActionType, MusicInfoItem, MusicListActionType } from 'refs/constants';
 function MusicListRecoil({ items }: { items: MusicInfoItem[] }) {
     const openMusicOptionsPopup = useOpenMusicOptionsPopup();
     const musicListManager = useMusicListManager();

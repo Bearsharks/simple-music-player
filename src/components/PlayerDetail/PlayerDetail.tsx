@@ -1,9 +1,8 @@
 import styles from './PlayerDetail.module.scss';
-
-import { MusicInfoItem } from '../refs/constants';
-import YoutubePlayer from '../Pages/YoutubePlayer';
-import { useOpenSelectTgtPlaylistPopup } from '../Popups/PopupStates';
-import MusicListRecoil from '../Pages/MusicListRecoil';
+import { MusicInfoItem } from 'refs/constants';
+import YoutubePlayer from 'components/Recoil/YoutubePlayer';
+import { useOpenSelectTgtPlaylistPopup } from 'popups/PopupStates';
+import MusicList from 'components/Recoil/MusicList';
 
 export interface PlayerDetailProps {
     playerVisiblity: boolean;
@@ -30,7 +29,7 @@ function PlayerDetail({ playerVisiblity, musicList }: PlayerDetailProps) {
                     </button>
                 </div>
                 <div className={styles['music-list']}>
-                    <MusicListRecoil items={musicList}></MusicListRecoil>
+                    <MusicList items={musicList}></MusicList>
                 </div>
             </div>
         </div>

@@ -1,10 +1,10 @@
 import React, { memo } from "react";
-import { MusicInfo, MusicInfoItem } from "../refs/constants";
+import { MusicInfo, MusicInfoItem } from "refs/constants";
 import styles from './MusicList.module.scss';
 import { DragDropContext, Droppable, DropResult, Draggable, DroppableProvided } from "react-beautiful-dnd";
 import { useRecoilValue } from "recoil";
-import { curMusicIdxState } from "../recoilStates/playlistAtoms";
-import MoreVert from "./MoreVert";
+import { curMusicIdxState } from "recoilStates/playlistAtoms";
+import MoreVert from "components/MoreVert";
 
 export interface MusicListProps {
     items: MusicInfoItem[];

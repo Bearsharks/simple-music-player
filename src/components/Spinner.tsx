@@ -1,6 +1,6 @@
 
 
-import styles from './Spinner.module.css';
+import styles from './Spinner.module.scss';
 function Spinner() {
     return (
         <div className={styles.spinnerWrapper} >

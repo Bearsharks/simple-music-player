@@ -1,7 +1,7 @@
 
-import { PlaylistInfo } from "../refs/constants";
+import { PlaylistInfo } from "refs/constants";
 import styles from "./PlaylistItem.module.scss";
-import Thumbnail from "./Thumbnail";
+import Thumbnail from "components/Thumbnail";
 
 interface PlaylistItemProps {
     info: PlaylistInfo;

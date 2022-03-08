@@ -2,13 +2,13 @@ import { useRecoilState, useRecoilValue, } from 'recoil'
 import { ModalInfoState, ModalKind, ModalOpenState, useOpenYTOptionsPopup } from './PopupStates';
 import styles from './Modal.module.scss'
 import React, { Suspense } from 'react';
-import { Playlist, PlaylistAction, PlaylistActionType, PlaylistInfo } from '../refs/constants';
-import youtubeSearch, { getYTPlaylistByID, SearchType, urlToId } from '../refs/youtubeSearch';
-import Spinner from '../components/Spinner';
-import { myYTPlaylistInfosState } from '../recoilStates/YTPlaylistState';
-import { usePlaylistManager } from '../recoilStates/playlistAtoms';
-import FormBox, { FormItem } from '../components/FormBox';
-import FormBoxPlaylist from '../components/FormBoxPlaylist';
+import { Playlist, PlaylistAction, PlaylistActionType, PlaylistInfo } from 'refs/constants';
+import youtubeSearch, { getYTPlaylistByID, SearchType, urlToId } from 'refs/youtubeSearch';
+import Spinner from 'components/Spinner';
+import { myYTPlaylistInfosState } from 'recoilStates/YTPlaylistState';
+import { usePlaylistManager } from 'recoilStates/playlistAtoms';
+import FormBox, { FormItem } from 'components/FormBox/FormBox';
+import FormBoxPlaylist from 'components/FormBox/FormBoxPlaylist';
 
 function Modal() {
     const [isOpen, setOpen] = useRecoilState(ModalOpenState);

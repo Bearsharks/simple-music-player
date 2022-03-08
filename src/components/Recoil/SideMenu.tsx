@@ -1,5 +1,5 @@
-import SideMenu from '../SideMenu';
-import { sideMenuOpenState } from '../../recoilStates/sideMenu';
+import SideMenu from 'components/SideMenu';
+import { sideMenuOpenState } from 'recoilStates/sideMenu';
 import { useRecoilState } from 'recoil';
 
 function SideMenuRecoil({ children }: { children?: React.ReactNode }) {

@@ -1,9 +1,9 @@
 import React from "react";
-import { useOpenMusicOptionsPopup } from "../Popups/PopupStates";
-import ProgressBar from "../Pages/ProgressBar";
-import { MusicInfo } from "../refs/constants";
+import { useOpenMusicOptionsPopup } from "popups/PopupStates";
+import ProgressBar from "components/Recoil/ProgressBar";
+import { MusicInfo } from "refs/constants";
 import SoundController from "./SoundController";
-import MoreVert from "./MoreVert";
+import MoreVert from "components/MoreVert";
 import styles from './PlayerController.module.scss';
 
 export interface PlayerControllerProps {

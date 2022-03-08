@@ -1,8 +1,9 @@
 import { useState } from "react";
-import { PlaylistInfo } from "../refs/constants";
-import FormBox, { FormItem } from "./FormBox";
+import { PlaylistInfo } from "refs/constants";
+import FormBox, { FormItem } from "components/FormBox/FormBox";
 import styles from './FormBoxPlaylist.module.scss';
-import PlaylistItem from "./PlaylistItem";
+import PlaylistItem from "components/Playlists/PlaylistItem";
+
 export interface FormBoxPlaylistProps {
     name: string;
     closePopup: () => void;

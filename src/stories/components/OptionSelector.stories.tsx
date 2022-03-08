@@ -1,6 +1,6 @@
 import React from 'react';
 import { ComponentStory, ComponentMeta } from '@storybook/react';
-import OptionSelector from '../../components/OptionSelector';
+import OptionSelector from 'components/OptionSelector';
 export default {
     title: 'components/OptionSelector',
     component: OptionSelector,

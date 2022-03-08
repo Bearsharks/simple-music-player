@@ -1,9 +1,9 @@
 import { useEffect, useRef, } from 'react';
 import { useRecoilValue, useSetRecoilState, useRecoilState } from 'recoil';
-import { MusicInfoActionType, MusicInfoItem, PlayerState } from '../refs/constants';
-import { ytPlayerInitedState } from '../recoilStates/ytplayerStates'
-import youtubeSearch, { SearchType } from '../refs/youtubeSearch';
-import { musicPlayerState, useCurMusicManager, curMusicInfoState, musicPlayerProgressState } from '../recoilStates/playlistAtoms';
+import { MusicInfoActionType, MusicInfoItem, PlayerState } from 'refs/constants';
+import { ytPlayerInitedState } from 'recoilStates/ytplayerStates'
+import youtubeSearch, { SearchType } from 'refs/youtubeSearch';
+import { musicPlayerState, useCurMusicManager, curMusicInfoState, musicPlayerProgressState } from 'recoilStates/playlistAtoms';
 
 function YoutubePlayer() {
 	const [ytPlayerInited, setYTPlayerInited] = useRecoilState(ytPlayerInitedState);

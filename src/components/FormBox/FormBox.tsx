@@ -18,6 +18,7 @@ function FormBox({ formItems, closePopup, submit, name, children }: FormBoxProps
     const curRef = useRef<HTMLFormElement>(null);
     const onClickHandler = (e: React.MouseEvent) => {
         e.preventDefault();
+        debugger;
         if (curRef.current) {
             const formEle = curRef.current;
             let data = {} as any;

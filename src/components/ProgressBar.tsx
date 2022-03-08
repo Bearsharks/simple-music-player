@@ -1,13 +1,11 @@
 import React, { useEffect, useRef } from "react";
-import { PlayerState } from "../refs/constants";
+import { PlayerState, Progress } from "refs/constants";
 import styles from "./ProgressBar.module.scss"
-import { useRecoilState } from "recoil";
-import { musicPlayerProgressState } from "../recoilStates/playlistAtoms";
 
-function ProgressBar() {
+
+function ProgressBar({ progress, setProgress }: { progress: Progress, setProgress: (_: Progress) => void }) {
     const thisElement = useRef<HTMLDivElement>(null);
     const timeInfo = useRef<HTMLSpanElement>(null);
-    const [progress, setProgress] = useRecoilState(musicPlayerProgressState);
     useEffect(() => {
         const mytimer = setInterval(function () {
             const player = (window as any).player;
@@ -33,7 +31,6 @@ function ProgressBar() {
         const time = (event.clientX / (document.body.offsetWidth - 12)) * progress.duration;
         (window as any).player?.seekTo(time);
     }
-
 
     let needForRAF = true;
     const updateTimeInfo = (posX: number) => {
