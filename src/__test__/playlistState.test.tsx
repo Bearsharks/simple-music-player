@@ -1,9 +1,9 @@
 import { Suspense, useState } from 'react'
 import { act, Renderer, renderHook, RenderHookResult } from '@testing-library/react-hooks';
 import { MutableSnapshot, RecoilRoot, useRecoilCallback, useRecoilSnapshot, useRecoilValue } from 'recoil';
-import { playlistIDsState, playlistInfosState, playlistInfoStateFamily, playlistItemStateFamily, usePlaylistManager } from '../recoilStates/playlistAtoms';
-import { MusicInfo, MusicInfoItem, Playlist, PlaylistAction, PlaylistActionType, PlaylistInfo } from '../refs/constants';
-import { reset, testAPIget } from '../refs/testAPI';
+import { playlistIDsState, playlistInfosState, playlistInfoStateFamily, playlistItemStateFamily, usePlaylistManager } from 'recoilStates/playlistAtoms';
+import { MusicInfo, MusicInfoItem, Playlist, PlaylistAction, PlaylistActionType, PlaylistInfo } from 'refs/constants';
+import { reset, testAPIget } from 'refs/testAPI';
 
 const getRenderHook = <TProps, TResult>(callback: (arg0: TProps) => TResult): RenderHookResult<TProps, TResult, Renderer<TProps>> => {
     return renderHook(callback,

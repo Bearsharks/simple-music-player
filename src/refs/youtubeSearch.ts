@@ -40,7 +40,7 @@ export const searchByQuery = async (query: string): Promise<MusicInfo[]> => {
     for (let i = 0; i < queryList.length; i++) {
         if (queryList[i].substring(0, 4) === 'http') {
             const { id, kind } = urlToId(queryList[i])
-            if (!id) console.log(`${i}번째 검색어 잘 못된 url`);
+            if (!id) console.error(`${i}번째 검색어 잘 못된 url`);
             const searchResult: MusicInfo[] = await youtubeSearch(id, kind);
             newMusicList.push(...searchResult);
         } else {
@@ -109,6 +109,8 @@ const YTFetch = async (url: string, pageToken?: string): Promise<any> => {
         if (token === "") return;
         sessionStorage.setItem("access_token", token);
         curURL = `${curURL}&access_token=${sessionStorage.getItem("access_token")}`;
+    } else {
+        curURL = `${curURL}&access_token=${sessionStorage.getItem("access_token")}`;
     }
 
     if (pageToken) curURL += `&pageToken=${pageToken}`;
@@ -123,7 +125,6 @@ const YTFetch = async (url: string, pageToken?: string): Promise<any> => {
         alert('해당기능은 테스트 계정에서는 사용 할 수 없습니다.');
     } else if (res.status === 403 || res.status === 401) {
         //유튜브 읽기 권한이 없다면 무한루프가 발생하기 때문에 없다면 확인후 권한을 달라고 하자
-        console.log(await res.text());
         sessionStorage.setItem("access_token", "");
         return YTFetch(url, pageToken);
     }

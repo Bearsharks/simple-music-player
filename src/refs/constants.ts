@@ -7,6 +7,10 @@ export enum ListEleType {
 export interface MusicInfoItem extends MusicInfo {
     key: string;
 }
+export interface Progress {
+    duration: number,
+    currentTime: number
+}
 export interface MusicInfo {
     videoID: string;
     name: string;
