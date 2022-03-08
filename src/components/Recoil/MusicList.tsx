@@ -1,4 +1,4 @@
-import MusicList from 'components/MusicList/MusicList';
+import MusicList from 'components/musicList/MusicList';
 import { useOpenMusicOptionsPopup } from 'popups/PopupStates';
 import { useCurMusicManager, useMusicListManager } from 'recoilStates/playlistAtoms';
 import { MusicInfoActionType, MusicInfoItem, MusicListActionType } from 'refs/constants';

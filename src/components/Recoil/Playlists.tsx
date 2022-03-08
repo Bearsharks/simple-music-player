@@ -3,7 +3,7 @@ import { useRecoilValue } from "recoil";
 import { useMusicListManager, playlistInfosState } from "recoilStates/playlistAtoms";
 import { useModalManager, ModalKind, useOpenPlaylistOptionsPopup } from 'popups/PopupStates';
 import { MusicListAction, MusicListActionType, } from 'refs/constants';
-import Playlists from 'components/Playlists/Playlists';
+import Playlists from 'components/playlists/Playlists';
 import Spinner from 'components/Spinner';
 import { Suspense } from 'react';
 

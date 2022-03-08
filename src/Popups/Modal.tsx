@@ -7,8 +7,8 @@ import youtubeSearch, { getYTPlaylistByID, SearchType, urlToId } from 'refs/yout
 import Spinner from 'components/Spinner';
 import { myYTPlaylistInfosState } from 'recoilStates/YTPlaylistState';
 import { usePlaylistManager } from 'recoilStates/playlistAtoms';
-import FormBox, { FormItem } from 'components/FormBox/FormBox';
-import FormBoxPlaylist from 'components/FormBox/FormBoxPlaylist';
+import FormBox, { FormItem } from 'components/formBox/FormBox';
+import FormBoxPlaylist from 'components/formBox/FormBoxPlaylist';
 
 function Modal() {
     const [isOpen, setOpen] = useRecoilState(ModalOpenState);

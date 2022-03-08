@@ -1,14 +1,14 @@
 import styles from './Main.module.scss';
-import PlaylistsRecoil from 'components/Recoil/Playlists'
+import PlaylistsRecoil from 'components/recoil/Playlists'
 import FormPopup from 'popups/Modal';
-import SearchBarRecoil from 'components/Recoil/SearchBar';
+import SearchBarRecoil from 'components/recoil/SearchBar';
 import MusicPlayer from './MusicPlayer';
 import { Route, Routes, useNavigate } from 'react-router-dom';
 import { Suspense } from 'react';
 import Spinner from 'components/Spinner';
 import Popup from 'popups/Popup';
-import HamburgerBtn from 'components/Recoil/HamburgerBtn';
-import SideMenu from 'components/Recoil/SideMenu';
+import HamburgerBtn from 'components/recoil/HamburgerBtn';
+import SideMenu from 'components/recoil/SideMenu';
 import PlaylistPage from './PlaylistPage';
 import musiclistOpenState from 'recoilStates/musiclistOpenState';
 import { useSetRecoilState } from 'recoil';

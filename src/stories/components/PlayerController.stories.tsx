@@ -1,6 +1,6 @@
 import React from 'react';
 import { ComponentStory, ComponentMeta } from '@storybook/react';
-import PlayerController from 'components/PlayerController/PlayerController';
+import PlayerController from 'components/playerController/PlayerController';
 
 export default {
     title: 'components/PlayerController',
