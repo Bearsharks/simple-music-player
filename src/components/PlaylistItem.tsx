@@ -23,9 +23,12 @@ function PlaylistItem({ info, children, onClick }: PlaylistItemProps) {
             <div className={styles['playlist-info']} onClick={() => onClick(info.id)} title={info.name}>
                 {info.name}
             </div>
-            <div className={styles['playlist-info--secondary']}>
-                노래 {info.itemCount} 곡
-            </div>
+            {info.itemCount >= 0 &&
+                <div className={styles['playlist-info--secondary']}>
+                    노래 {info.itemCount} 곡
+                </div>
+            }
+
         </div>
     )
 }
