@@ -9,6 +9,7 @@ import OptionSelector, { OptionInfo } from 'components/OptionSelector';
 import Spinner from 'components/Spinner';
 import FormBoxPlaylist from 'components/formBox/FormBoxPlaylist';
 import OuterClickEventCatcher from 'components/OuterClickEventCatcher';
+import Modal from './Modal';
 
 function InnerPopup({ setOpen, info }: { setOpen: (_: boolean) => void, info: PopupInfo }) {
     const children = (() => {
@@ -101,7 +102,22 @@ interface AppendPlaylistPopupProps {
 function AppendPlaylistPopup({ musicInfos, setPopupOpen }: AppendPlaylistPopupProps) {
     const playlistInfos = useRecoilValue(playlistInfosState);
     const playlistManager = usePlaylistManager();
+    const modalManager = useModalManager();
+    const openNewPlaylistModal = () => {
+        modalManager(ModalKind.CreatePlaylist, musicInfos);
+        setPopupOpen(false);
+    }
+    const playlistDummy: PlaylistInfo = {
+        id: "newPlaylist", name: '새 재생목록', description: "",
+        thumbnails: ["https://www.gstatic.com/youtube/media/ytm/images/pbg/create-playlist-@210.png"]
+        , itemCount: -1
+    }
+
     const submit = (tgt: PlaylistInfo) => {
+        if (tgt.id === playlistDummy.id) {
+            openNewPlaylistModal();
+            return;
+        }
         let info = playlistInfos.find((element) => element.id === tgt.id);
         if (!info) throw "해당 재생목록이 존재하지 않음!";
         const appendAction: PlaylistAction = {
@@ -114,12 +130,12 @@ function AppendPlaylistPopup({ musicInfos, setPopupOpen }: AppendPlaylistPopupPr
         playlistManager(appendAction);
         setPopupOpen(false);
     }
-    //todo
+
     return <div className={styles['playlist']}>
         <FormBoxPlaylist
             name={"재생목록에 추가"}
             closePopup={() => setPopupOpen(false)}
-            playlistInfos={playlistInfos}
+            playlistInfos={[playlistDummy, ...playlistInfos]}
             submit={submit}
         />
     </div>
