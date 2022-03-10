@@ -219,15 +219,11 @@ export const useMusicListManager = function () {
                 break;
             case MusicListActionType.DELETE: {
                 const curIdx = await snapshot.getPromise(curMusicIdxState);
-                let tgtInfos: MusicInfoItem[] = (action.payload).reverse();
+                let tgtInfos: Set<string> = new Set(action.payload.map((item: MusicInfoItem) => item.key));
                 let list = (await snapshot.getPromise(musicListState)).slice();
                 let tgtIdxs = [];
                 for (let i = 0; i < list.length; i++) {
-                    if (list[i].key === tgtInfos[tgtInfos.length - 1].key) {
-                        tgtIdxs.push(i);
-                        if (tgtInfos.length === 1) break;
-                        tgtInfos.pop();
-                    }
+                    if (tgtInfos.has(list[i].key)) tgtIdxs.push(i);
                 }
                 for (let idx of tgtIdxs) {
                     list[idx] = {} as MusicInfoItem;
@@ -238,7 +234,7 @@ export const useMusicListManager = function () {
                     if (i === curIdx) nextIdx = emptyIdx;
                     if (list[i].key) list[emptyIdx++] = list[i];
                 }
-                for (let i = 0; i < tgtInfos.length; i++) list.pop();
+                for (let i = 0; i < tgtIdxs.length; i++) list.pop();
 
                 if (curIdx !== nextIdx) set(curMusicIdxState, nextIdx);
                 set(musicListState, list);

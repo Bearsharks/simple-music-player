@@ -9,7 +9,6 @@ import OptionSelector, { OptionInfo } from 'components/OptionSelector';
 import Spinner from 'components/Spinner';
 import FormBoxPlaylist from 'components/formBox/FormBoxPlaylist';
 import OuterClickEventCatcher from 'components/OuterClickEventCatcher';
-import Modal from './Modal';
 
 function InnerPopup({ setOpen, info }: { setOpen: (_: boolean) => void, info: PopupInfo }) {
     const children = (() => {
@@ -174,8 +173,8 @@ const useGetMusicOptions = (musicInfos: MusicInfo[], setPopupOpen: (isOpen: bool
     { icon: "playlist_add", name: "재생목록에 추가", onClickHandler: () => addToPlaylist(musicInfos) }];
 }
 const MusicOptions = memo(function ({ setPopupOpen, musicInfos, evTarget }: MusicOptionsProps) {
-    const musicListManager = useMusicListManager();
     const musicOptions = useGetMusicOptions(musicInfos, setPopupOpen, evTarget);
+    const musicListManager = useMusicListManager();
     const deleteMusic = (items: MusicInfo[]) => {
         const delAction: MusicListAction = {
             type: MusicListActionType.DELETE,
