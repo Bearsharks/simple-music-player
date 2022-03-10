@@ -1,7 +1,7 @@
 {
   "files": {
-    "main.css": "/simple-music-player/static/css/main.98f4bb17.css",
-    "main.js": "/simple-music-player/static/js/main.f89173bf.js",
+    "main.css": "/simple-music-player/static/css/main.657db9ed.css",
+    "main.js": "/simple-music-player/static/js/main.15269588.js",
     "static/media/material-icons-two-tone.woff": "/simple-music-player/static/media/material-icons-two-tone.169d9845612b754f6086.woff",
     "static/media/NotoSans-Regular.eot": "/simple-music-player/static/media/NotoSans-Regular.7c7f50cbc536eb2b68e9.eot",
     "static/media/NotoSans-Regular.woff": "/simple-music-player/static/media/NotoSans-Regular.d19c129f30e0373f60b6.woff",
@@ -24,7 +24,7 @@
     "index.html": "/simple-music-player/index.html"
   },
   "entrypoints": [
-    "static/css/main.98f4bb17.css",
-    "static/js/main.f89173bf.js"
+    "static/css/main.657db9ed.css",
+    "static/js/main.15269588.js"
   ]
 }
