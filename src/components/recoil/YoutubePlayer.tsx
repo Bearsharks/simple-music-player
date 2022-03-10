@@ -45,8 +45,12 @@ function YoutubePlayer() {
 		}
 	}, []);
 	useEffect(() => {
-		if (!ytPlayerInited || (!curMusic.query && !curMusic.videoID)) return;
+		if (!ytPlayerInited) return;
 		const player = (window as any).player;
+		if (!curMusic.query && !curMusic.videoID) {
+			player.stopVideo();
+			return;
+		}
 		if (player.getPlayerState() !== PlayerState.ENDED &&
 			prevMusicRef.current &&
 			curMusic.key === prevMusicRef.current.key &&
