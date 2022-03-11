@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunksimple_music_player=self.webpackChunksimple_music_player||[]).push([[748],{6748:function(e,s,t){t.r(s);var n=t(7890),u=t(7313),c=t(6417);function a(){var e=(0,n.UO)();sessionStorage.setItem("access_token",e.token?e.token:"");var s=(0,n.s0)();return(0,u.useEffect)((function(){s("/")}),[s]),(0,c.jsx)("div",{})}s.default=(0,u.memo)(a)}}]);
