@@ -1,10 +1,9 @@
 import styles from './PlayerDetail.module.scss';
-import React from 'react';
 import { MusicInfoItem, MusicListActionType } from 'refs/constants';
-import { useOpenSelectTgtPlaylistPopup } from 'popups/PopupStates';
-import { useMusicListManager } from 'recoilStates/playlistAtoms';
 import YoutubePlayer from 'components/recoil/YoutubePlayer';
-const MusicList = React.lazy(() => import('components/recoil/MusicList'));
+import { useOpenSelectTgtPlaylistPopup } from 'popups/PopupStates';
+import MusicList from 'components/recoil/MusicList';
+import { useMusicListManager } from 'recoilStates/playlistAtoms';
 
 export interface PlayerDetailProps {
     playerVisiblity: boolean;
@@ -29,34 +28,31 @@ function PlayerDetail({ playerVisiblity, musicList }: PlayerDetailProps) {
                 <div className={styles['player']}>
                     <YoutubePlayer></YoutubePlayer>
                 </div>
-                {musicList.length > 0 && <>
-                    <div className={styles['menus']}>
-                        <div>
-                            다음 트랙
-                        </div>
-                        <div className={styles['menus-options']}>
-                            <div
-                                className={styles['menus-options__button']}
-                                onClick={addToPlaylistBtnClickHandler}
-                                title={`재생목록에 추가`}
-                            >
-                                <span className="material-icons md-32">playlist_add</span>
-                            </div>
-                            <div
-                                className={styles['menus-options__button']}
-                                onClick={clearPlaylistBtnClickHandler}
-                                title={`재생목록 비우기`}
-                            >
-                                <span className="material-icons md-32">playlist_remove</span>
-                            </div>
-                        </div>
-
+                <div className={styles['menus']}>
+                    <div>
+                        다음 트랙
                     </div>
-                    <div className={styles['music-list']}>
-                        <MusicList items={musicList}></MusicList>
+                    <div className={styles['menus-options']}>
+                        <div
+                            className={styles['menus-options__button']}
+                            onClick={addToPlaylistBtnClickHandler}
+                            title={`재생목록에 추가`}
+                        >
+                            <span className="material-icons md-32">playlist_add</span>
+                        </div>
+                        <div
+                            className={styles['menus-options__button']}
+                            onClick={clearPlaylistBtnClickHandler}
+                            title={`재생목록 비우기`}
+                        >
+                            <span className="material-icons md-32">playlist_remove</span>
+                        </div>
                     </div>
-                </>}
 
+                </div>
+                <div className={styles['music-list']}>
+                    <MusicList items={musicList}></MusicList>
+                </div>
             </div>
         </div>
     );
