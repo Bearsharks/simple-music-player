@@ -1,12 +1,13 @@
 
 import './App.scss';
+import React, { Suspense } from 'react';
 import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
-import OauthCallback from 'pages/OauthCallback';
-import Login from 'pages/LoginPage';
-import Main from 'pages/Main';
 import { checkAuth } from 'refs/api'
 import { ReactElement, useEffect, useState } from 'react';
 import Spinner from 'components/Spinner';
+import Login from 'pages/LoginPage';
+const OauthCallback = React.lazy(() => import('pages/OauthCallback'));
+const Main = React.lazy(() => import('pages/Main'));
 
 function PrivateRoute({ children }: { children: ReactElement }) {
     const [auth, setAuth] = useState('pending');
@@ -23,11 +24,14 @@ function PrivateRoute({ children }: { children: ReactElement }) {
 function App() {
     return (
         <BrowserRouter basename='/simple-music-player'>
-            <Routes>
-                <Route path="/login" element={<Login />}></Route>
-                <Route path="/callback/:token" element={<OauthCallback />}></Route>
-                <Route path="*" element={<PrivateRoute><Main /></PrivateRoute>}></Route>
-            </Routes>
+            <Suspense fallback={<Spinner />}>
+                <Routes>
+                    <Route path="/login" element={<Login />}></Route>
+                    <Route path="/callback/:token" element={<OauthCallback />}></Route>
+                    <Route path="*" element={<PrivateRoute><Main /></PrivateRoute>}></Route>
+                </Routes>
+            </Suspense>
+
         </BrowserRouter >
     );
 };

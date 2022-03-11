@@ -32,8 +32,10 @@ function SignInPage() {
                     <label>Google 계정으로 로그인</label>
                 </div>
                 <div className={styles['login-box__stay']}>
-                    <input type="checkbox" ref={inputRef} name="chk_info"></input>
-                    <label>로그인 유지</label>
+                    <label>
+                        로그인 유지
+                        <input type="checkbox" ref={inputRef} name="chk_info"></input>
+                    </label>
 
                 </div>
                 <button onClick={testSignIn}>테스트 계정으로 로그인</button>
