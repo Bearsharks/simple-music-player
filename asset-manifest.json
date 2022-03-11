@@ -1,16 +1,14 @@
 {
   "files": {
     "main.css": "/simple-music-player/static/css/main.592e1060.css",
-    "main.js": "/simple-music-player/static/js/main.96eef3e4.js",
+    "main.js": "/simple-music-player/static/js/main.770fa097.js",
     "static/js/748.f2ff358a.chunk.js": "/simple-music-player/static/js/748.f2ff358a.chunk.js",
-    "static/css/410.dded651d.chunk.css": "/simple-music-player/static/css/410.dded651d.chunk.css",
-    "static/js/410.ff036ffc.chunk.js": "/simple-music-player/static/js/410.ff036ffc.chunk.js",
+    "static/css/56.42e69167.chunk.css": "/simple-music-player/static/css/56.42e69167.chunk.css",
+    "static/js/56.7502f489.chunk.js": "/simple-music-player/static/js/56.7502f489.chunk.js",
     "static/css/477.5af9104f.chunk.css": "/simple-music-player/static/css/477.5af9104f.chunk.css",
     "static/js/477.c0b5aaf4.chunk.js": "/simple-music-player/static/js/477.c0b5aaf4.chunk.js",
-    "static/css/848.bd1acdf6.chunk.css": "/simple-music-player/static/css/848.bd1acdf6.chunk.css",
-    "static/js/848.cd9ab844.chunk.js": "/simple-music-player/static/js/848.cd9ab844.chunk.js",
-    "static/css/825.c89ebc41.chunk.css": "/simple-music-player/static/css/825.c89ebc41.chunk.css",
-    "static/js/825.d730609e.chunk.js": "/simple-music-player/static/js/825.d730609e.chunk.js",
+    "static/css/848.f05f641a.chunk.css": "/simple-music-player/static/css/848.f05f641a.chunk.css",
+    "static/js/848.bd5b7144.chunk.js": "/simple-music-player/static/js/848.bd5b7144.chunk.js",
     "static/js/578.996bb23e.chunk.js": "/simple-music-player/static/js/578.996bb23e.chunk.js",
     "static/media/material-icons-two-tone.woff": "/simple-music-player/static/media/material-icons-two-tone.169d9845612b754f6086.woff",
     "static/media/NotoSans-Regular.eot": "/simple-music-player/static/media/NotoSans-Regular.7c7f50cbc536eb2b68e9.eot",
@@ -35,6 +33,6 @@
   },
   "entrypoints": [
     "static/css/main.592e1060.css",
-    "static/js/main.96eef3e4.js"
+    "static/js/main.770fa097.js"
   ]
 }
