@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import OuterClickEventCatcher from "components/OuterClickEventCatcher";
 import styles from './SearchBar.module.scss';
 export interface SearchBarProps {
@@ -26,16 +26,12 @@ function SearchBar(props: SearchBarProps) {
             textInput.current.style.height = `${nextHeight}px`;
         }
     }
+
     const expandTextArea = () => {
-        if (isExpanded) return;
-        resize();
-        setExpended(true);
+        if (!isExpanded) setExpended(true);
     }
     const shirinkTextBox = () => {
-        setExpended(false);
-        if (textInput.current !== null) {
-            textInput.current.style.height = "";
-        }
+        if (isExpanded) setExpended(false);
     }
     const curRef = useRef<HTMLDivElement>(null);
     return (
@@ -49,37 +45,35 @@ function SearchBar(props: SearchBarProps) {
                 </span>
             </div>
             <div ref={curRef} className={`${styles['wrapper']} ${isExpanded && styles['wrapper--expand']}`}>
-                {isExpanded &&
-                    <div className={styles['search-panel']}>
-                        <div className={styles['text-wrapper']}>
-                            <textarea
-                                ref={textInput}
-                                onKeyDown={resize} onKeyUp={resize}
-                            ></textarea>
-                            <div className={styles['close-btn']}
-                                onClick={() => setExpended(false)}
-                            ><span className="material-icons md-38">
-                                    close
-                                </span></div>
-                        </div>
-                        <div className={`${styles['expanded-menu']}`}>
-                            <div>ex)노래명 - 가수명 / 유튜브 url(재생목록, 동영상)</div>
-                            <div
-                                className={`${styles['search-button']} ${styles['search-button--expand']}`}
-                                onClick={search}
-                            >
-                                <span className="material-icons md-28">
-                                    search
-                                </span>
-                            </div>
-                        </div>
-                        <OuterClickEventCatcher
-                            openState={[isExpanded, setExpended]}
-                            onClickHandler={shirinkTextBox}
-                            wrapper={curRef}
-                        ></OuterClickEventCatcher>
+                <div className={styles['search-panel']}>
+                    <div className={styles['text-wrapper']}>
+                        <textarea
+                            ref={textInput}
+                            onKeyDown={resize} onKeyUp={resize}
+                        ></textarea>
+                        <div className={styles['close-btn']}
+                            onClick={() => setExpended(false)}
+                        ><span className="material-icons md-38">
+                                close
+                            </span></div>
                     </div>
-                }
+                    <div className={`${styles['expanded-menu']}`}>
+                        <div>ex)노래명 - 가수명 / 유튜브 url(재생목록, 동영상)</div>
+                        <div
+                            className={`${styles['search-button']} ${styles['search-button--expand']}`}
+                            onClick={search}
+                        >
+                            <span className="material-icons md-28">
+                                search
+                            </span>
+                        </div>
+                    </div>
+                    <OuterClickEventCatcher
+                        openState={[isExpanded, setExpended]}
+                        onClickHandler={shirinkTextBox}
+                        wrapper={curRef}
+                    ></OuterClickEventCatcher>
+                </div>
             </div>
         </div>
 
