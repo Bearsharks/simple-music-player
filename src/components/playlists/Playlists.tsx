@@ -15,6 +15,7 @@ enum SortBy_ {
     Lastest, ABC
 }
 export default function Playlists(props: PlaylistsProps) {
+    debugger;
     const [sortBy, setSortBy] = useState(SortBy_.Lastest);
     const handleChange = (e: ChangeEvent<HTMLSelectElement>) => {
         setSortBy(parseInt(e.target.value));

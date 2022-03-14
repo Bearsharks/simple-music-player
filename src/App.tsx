@@ -1,4 +1,3 @@
-
 import './App.scss';
 import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
 import OauthCallback from 'pages/OauthCallback';

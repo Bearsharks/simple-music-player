@@ -11,6 +11,7 @@ function SearchBar(props: SearchBarProps) {
     const [isExpanded, setExpended] = useState(false);
     const search = (event: React.MouseEvent) => {
         if (textInput.current !== null && textInput.current.value) {
+            debugger;
             props.search(event, textInput.current);
         }
     }
