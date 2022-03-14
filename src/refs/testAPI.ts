@@ -18,12 +18,15 @@ const getToken = async (): Promise<string> => {
     return "aasdfasfasdf";
 }
 const getPlaylistInfos = async (): Promise<PlaylistInfo[]> => {
+    debugger;
     return Object.entries(a).map(el => el[1]) as any;
 }
 const getPlaylistInfo = async (id: string): Promise<PlaylistInfo> => {
+    debugger;
     return a[id];
 }
 const getPlaylistItems = async (id: string): Promise<MusicInfo[]> => {
+    debugger;
     return a[id].items;
 };
 const createPlaylist = async (info: PlaylistInfo, items: MusicInfo[]): Promise<string> => {
