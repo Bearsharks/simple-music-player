@@ -13,6 +13,21 @@ function YoutubePlayer() {
 	const setProgress = useSetRecoilState(musicPlayerProgressState);
 	const prevMusicRef = useRef<MusicInfoItem>();
 	useEffect(() => {
+		const togglePlayState = (e: KeyboardEvent) => {
+			if (e.key === ' ') {
+				if ((window as any).player?.getPlayerState() === PlayerState.PLAYING) {
+					(window as any).player.pauseVideo();
+				} else {
+					(window as any).player.playVideo();
+				}
+			}
+		}
+		window.addEventListener('keydown', togglePlayState);
+		return () => {
+			window.removeEventListener('keydown', togglePlayState);
+		}
+	}, []);
+	useEffect(() => {
 		if (!(window as any).YT) { // If not, load the youtube ifram api script asynchronously
 			const tag = document.createElement('script');
 			tag.src = 'https://www.youtube.com/iframe_api';
