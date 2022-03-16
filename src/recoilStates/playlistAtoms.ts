@@ -152,12 +152,10 @@ export const playlistItemStateFamily = atomFamily<MusicInfoItem[], string>({
     },
 });
 
-//훅으로 셔플일때 정상일때 처리를 하게
 export const musicListState = atom<MusicInfoItem[]>({
     key: "musicList_",
     default: []
 })
-
 
 export const useMusicListManager = function () {
     const setListCurIdx = useRecoilTransaction_UNSTABLE(({ set }) => (list: MusicInfoItem[], idx: number) => {
@@ -235,9 +233,11 @@ export const useMusicListManager = function () {
                     if (list[i].key) list[emptyIdx++] = list[i];
                 }
                 for (let i = 0; i < tgtIdxs.length; i++) list.pop();
-
-                if (curIdx !== nextIdx) set(curMusicIdxState, nextIdx);
-                set(musicListState, list);
+                if (curIdx !== nextIdx) {
+                    setListCurIdx(list, nextIdx);
+                } else {
+                    set(musicListState, list);
+                }
                 break;
             }
             case MusicListActionType.CHANGE_ORDER: {
