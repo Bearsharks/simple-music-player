@@ -10,10 +10,8 @@ import Popup from 'popups/Popup';
 import musiclistOpenState from 'recoilStates/musiclistOpenState';
 import { useSetRecoilState } from 'recoil';
 import MusicPlayer from './MusicPlayer';
-
-const Playlists = React.lazy(() => import('pages/Playlists'));
+const Playlists = React.lazy(() => import('components/recoil/Playlists'));
 const PlaylistPage = React.lazy(() => import('./PlaylistPage'));
-
 
 function Main() {
     const navigate = useNavigate();
@@ -45,7 +43,8 @@ function Main() {
                 <div className={styles["main-contents"]}>
                     <Suspense fallback={<Spinner></Spinner>}>
                         <Routes>
-                            <Route path="*" element={<Playlists goToPlaylistPage={goToPlaylistPage} />} />
+                            <Route path="*" element={<Playlists goToPlaylistPage={goToPlaylistPage} />}
+                            ></Route>
                             <Route path="playlist/:id" element={<PlaylistPage />} />
                         </Routes>
                     </Suspense>

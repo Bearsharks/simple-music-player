@@ -12,6 +12,5 @@ export interface API {
     checkAuth: () => Promise<boolean>;
     doSignIn: (staySignedIn?: boolean) => Promise<void>;
 }
-
-const api: API = (process.env.MODE === "TEST") ? testAPI : smpServerAPI;
+const api: API = (process.env.MODE === "TEST" || process.env.STORYBOOK_MODE === "TEST") ? testAPI : smpServerAPI;
 export default api;
