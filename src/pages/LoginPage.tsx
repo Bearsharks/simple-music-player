@@ -18,9 +18,6 @@ function SignInPage() {
         try {
             const res = await fetch(loginURL, { credentials: 'include' });
             if (res.status !== 200) throw new Error("500");
-            sessionStorage.setItem("mode", "test");
-            const key = await res.text();
-            sessionStorage.setItem("key", key);
             (window as any).location = "/simple-music-player";
         } catch (err) {
             console.error(err);
@@ -35,8 +32,10 @@ function SignInPage() {
                     <label>Google 계정으로 로그인</label>
                 </div>
                 <div className={styles['login-box__stay']}>
-                    <input type="checkbox" ref={inputRef} name="chk_info"></input>
-                    <label>로그인 유지</label>
+                    <label>
+                        로그인 유지
+                        <input type="checkbox" ref={inputRef} name="chk_info"></input>
+                    </label>
 
                 </div>
                 <button onClick={testSignIn}>테스트 계정으로 로그인</button>
