@@ -78,6 +78,10 @@ export async function checkAuth(): Promise<boolean> {
     if (data.isAuthed) {
         sessionStorage.setItem("username", data.username);
         sessionStorage.setItem("userimg", data.userimg);
+        if (data.key) {
+            sessionStorage.setItem("mode", "test");
+            sessionStorage.setItem("key", data.key);
+        }
     }
     return data.isAuthed as boolean;
 }

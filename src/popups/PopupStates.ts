@@ -1,6 +1,6 @@
 import { atom, selector, useRecoilCallback } from "recoil";
 import { playlistInfoStateFamily } from 'recoilStates/playlistAtoms'
-import { MusicInfo, MusicInfoItem } from "refs/constants";
+import { MusicInfo, MusicInfoArrayCheck, MusicInfoItem } from "refs/constants";
 import keyGenerator from "refs/keyGenerator";
 export const ModalOpenState = atom<boolean>({
     key: "ModalOpen",
@@ -118,13 +118,17 @@ export const useOpenSearchOptionsPopup = () => {
 export const useModalManager = function () {
     return useRecoilCallback(({ set, snapshot }) => async (kind: ModalKind, data?: unknown) => {
         switch (kind) {
-            case ModalKind.CreatePlaylist: {
-                const popupData: ModalInfoData = {
-                    kind: ModalKind.CreatePlaylist,
+            case ModalKind.CreatePlaylist:
+                if (data && !MusicInfoArrayCheck(data)) {
+                    throw "musicInfo is not valid";
                 }
+                const popupData: ModalInfoData = data ? {
+                    kind: ModalKind.CreatePlaylist,
+                    data: data
+                } : { kind: ModalKind.CreatePlaylist }
                 set(ModalInfoState, popupData);
                 set(ModalOpenState, true);
-            } break;
+                break;
             case ModalKind.UpdatePlaylist: {
                 if (typeof data !== "string") {
                     throw "playlist id is not string";

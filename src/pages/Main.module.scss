@@ -5,6 +5,8 @@
     display : flex;
     padding : $header-padding-size;
     z-index: $header-z-index;
+    max-width: 1500px;
+    margin:auto;
     justify-content: space-between;
     align-items: center;
 }
