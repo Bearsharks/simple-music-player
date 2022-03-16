@@ -101,7 +101,22 @@ interface AppendPlaylistPopupProps {
 function AppendPlaylistPopup({ musicInfos, setPopupOpen }: AppendPlaylistPopupProps) {
     const playlistInfos = useRecoilValue(playlistInfosState);
     const playlistManager = usePlaylistManager();
+    const modalManager = useModalManager();
+    const openNewPlaylistModal = () => {
+        modalManager(ModalKind.CreatePlaylist, musicInfos);
+        setPopupOpen(false);
+    }
+    const playlistDummy: PlaylistInfo = {
+        id: "newPlaylist", name: '새 재생목록', description: "",
+        thumbnails: ["https://www.gstatic.com/youtube/media/ytm/images/pbg/create-playlist-@210.png"]
+        , itemCount: -1
+    }
+
     const submit = (tgt: PlaylistInfo) => {
+        if (tgt.id === playlistDummy.id) {
+            openNewPlaylistModal();
+            return;
+        }
         let info = playlistInfos.find((element) => element.id === tgt.id);
         if (!info) throw "해당 재생목록이 존재하지 않음!";
         const appendAction: PlaylistAction = {
@@ -114,12 +129,12 @@ function AppendPlaylistPopup({ musicInfos, setPopupOpen }: AppendPlaylistPopupPr
         playlistManager(appendAction);
         setPopupOpen(false);
     }
-    //todo
+
     return <div className={styles['playlist']}>
         <FormBoxPlaylist
             name={"재생목록에 추가"}
             closePopup={() => setPopupOpen(false)}
-            playlistInfos={playlistInfos}
+            playlistInfos={[playlistDummy, ...playlistInfos]}
             submit={submit}
         />
     </div>
@@ -158,8 +173,8 @@ const useGetMusicOptions = (musicInfos: MusicInfo[], setPopupOpen: (isOpen: bool
     { icon: "playlist_add", name: "재생목록에 추가", onClickHandler: () => addToPlaylist(musicInfos) }];
 }
 const MusicOptions = memo(function ({ setPopupOpen, musicInfos, evTarget }: MusicOptionsProps) {
-    const musicListManager = useMusicListManager();
     const musicOptions = useGetMusicOptions(musicInfos, setPopupOpen, evTarget);
+    const musicListManager = useMusicListManager();
     const deleteMusic = (items: MusicInfo[]) => {
         const delAction: MusicListAction = {
             type: MusicListActionType.DELETE,
