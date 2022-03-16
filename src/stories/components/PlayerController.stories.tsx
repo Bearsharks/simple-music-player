@@ -1,6 +1,6 @@
-import React from 'react';
 import { ComponentStory, ComponentMeta } from '@storybook/react';
 import PlayerController from 'components/playerController/PlayerController';
+import { RecoilRoot } from 'recoil';
 
 export default {
     title: 'components/PlayerController',
@@ -8,7 +8,7 @@ export default {
     argTypes: { openPopUpBox: { action: 'clicked' } },
 } as ComponentMeta<typeof PlayerController>;
 
-const Template: ComponentStory<typeof PlayerController> = (args) => <PlayerController {...args} />;
+const Template: ComponentStory<typeof PlayerController> = (args) => <RecoilRoot><PlayerController {...args} /></RecoilRoot>;
 
 export const Inited = Template.bind({});
 Inited.args = {

@@ -1,4 +1,3 @@
-
 import './App.scss';
 import React, { Suspense } from 'react';
 import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";

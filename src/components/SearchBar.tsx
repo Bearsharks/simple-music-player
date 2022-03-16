@@ -3,12 +3,12 @@ import OuterClickEventCatcher from "components/OuterClickEventCatcher";
 import styles from './SearchBar.module.scss';
 export interface SearchBarProps {
     search: (event: React.MouseEvent, textarea: HTMLTextAreaElement) => void;
-    //searchPopupOpen: (event: React.MouseEvent, textarea: HTMLTextAreaElement) => void;
+    initialExpand?: boolean;
 }
 
 function SearchBar(props: SearchBarProps) {
     const textInput = useRef<HTMLTextAreaElement>(null);
-    const [isExpanded, setExpended] = useState(false);
+    const [isExpanded, setExpended] = useState(props.initialExpand ? props.initialExpand : false);
     const search = (event: React.MouseEvent) => {
         if (textInput.current !== null && textInput.current.value) {
             props.search(event, textInput.current);

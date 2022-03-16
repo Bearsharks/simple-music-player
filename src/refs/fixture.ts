@@ -1,3 +1,5 @@
+import { PlaylistInfo } from "./constants"
+
 export const playlistFixture = {
     id: "id1",
     name: "name",
@@ -18,3 +20,16 @@ export const playlistFixture = {
         videoID: "_sQhN4dLC60"
     }]
 }
+export const playlistInfosFixture: PlaylistInfo[] = [{
+    id: "id1",
+    name: "재생목록1",
+    description: "description",
+    thumbnails: ["https://i.ytimg.com/vi/_sQhN4dLC60/default.jpg", "https://i.ytimg.com/vi/RRwLiAGZfc0/default.jpg"],
+    itemCount: 2
+}, {
+    id: "id2",
+    name: "재생목록2",
+    description: "description",
+    thumbnails: ["https://i.ytimg.com/vi/RRwLiAGZfc0/default.jpg", "https://i.ytimg.com/vi/_sQhN4dLC60/default.jpg", "https://i.ytimg.com/vi/RRwLiAGZfc0/default.jpg"],
+    itemCount: 3
+}]
