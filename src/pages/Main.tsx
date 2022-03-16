@@ -1,5 +1,5 @@
 import styles from './Main.module.scss';
-import PlaylistsRecoil from 'components/recoil/Playlists'
+import Playlists from 'components/recoil/Playlists'
 import FormPopup from 'popups/Modal';
 import SearchBarRecoil from 'components/recoil/SearchBar';
 import MusicPlayer from './MusicPlayer';
@@ -42,7 +42,7 @@ function Main() {
                 <div className={styles["main-contents"]}>
                     <Suspense fallback={<Spinner></Spinner>}>
                         <Routes>
-                            <Route path="*" element={<PlaylistsRecoil goToPlaylistPage={goToPlaylistPage} />}
+                            <Route path="*" element={<Playlists goToPlaylistPage={goToPlaylistPage} />}
                             ></Route>
                             <Route path="playlist/:id" element={<PlaylistPage />} />
                         </Routes>

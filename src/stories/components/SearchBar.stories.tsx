@@ -11,6 +11,12 @@ export default {
 
 const Template: ComponentStory<typeof SearchBar> = (args) => <RecoilRoot><SearchBar {...args} /></RecoilRoot>;
 
-export const Inited = Template.bind({});
-Inited.args = {
+export const Shirinked = Template.bind({});
+Shirinked.args = {
+    initialExpand: false
+};
+
+export const Expanded = Template.bind({});
+Expanded.args = {
+    initialExpand: true
 };
