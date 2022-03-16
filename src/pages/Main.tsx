@@ -1,17 +1,18 @@
 import styles from './Main.module.scss';
-import Playlists from 'components/recoil/Playlists'
-import FormPopup from 'popups/Modal';
-import SearchBarRecoil from 'components/recoil/SearchBar';
-import MusicPlayer from './MusicPlayer';
+import React, { Suspense } from 'react';
 import { Route, Routes, useNavigate } from 'react-router-dom';
-import { Suspense } from 'react';
-import Spinner from 'components/Spinner';
-import Popup from 'popups/Popup';
+import SearchBarRecoil from 'components/recoil/SearchBar';
 import HamburgerBtn from 'components/recoil/HamburgerBtn';
 import SideMenu from 'components/recoil/SideMenu';
-import PlaylistPage from './PlaylistPage';
+import Spinner from 'components/Spinner';
+import FormPopup from 'popups/Modal';
+import Popup from 'popups/Popup';
 import musiclistOpenState from 'recoilStates/musiclistOpenState';
 import { useSetRecoilState } from 'recoil';
+import MusicPlayer from './MusicPlayer';
+const Playlists = React.lazy(() => import('components/recoil/Playlists'));
+const PlaylistPage = React.lazy(() => import('./PlaylistPage'));
+
 function Main() {
     const navigate = useNavigate();
     const setMusicListOpen = useSetRecoilState(musiclistOpenState);
