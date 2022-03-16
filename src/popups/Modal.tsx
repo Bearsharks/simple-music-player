@@ -2,7 +2,7 @@ import { useRecoilState, useRecoilValue, } from 'recoil'
 import { ModalInfoState, ModalKind, ModalOpenState, useOpenYTOptionsPopup } from './PopupStates';
 import styles from './Modal.module.scss'
 import React, { Suspense } from 'react';
-import { Playlist, PlaylistAction, PlaylistActionType, PlaylistInfo } from 'refs/constants';
+import { MusicInfo, Playlist, PlaylistAction, PlaylistActionType, PlaylistInfo } from 'refs/constants';
 import youtubeSearch, { getYTPlaylistByID, SearchType, urlToId } from 'refs/youtubeSearch';
 import Spinner from 'components/Spinner';
 import { myYTPlaylistInfosState } from 'recoilStates/YTPlaylistState';
@@ -30,6 +30,7 @@ function ModalForm({ setModalOpen }: { setModalOpen: (bool: boolean) => void }) 
     const children = (() => {
         switch (modalState.kind) {
             case ModalKind.CreatePlaylist:
+                return <PlaylistForm kind={modalState.kind} closePopup={closePopup} musicInfos={modalState.data} />;
             case ModalKind.UpdatePlaylist:
                 return <PlaylistForm kind={modalState.kind} closePopup={closePopup} playlistInfo={modalState.data} />;
             case ModalKind.ImportMyYTPlaylist:
@@ -110,9 +111,10 @@ interface PlaylistFormProps {
     closePopup: () => void;
     kind: ModalKind;
     playlistInfo?: PlaylistInfo;
+    musicInfos?: MusicInfo[];
 }
 
-function PlaylistForm({ closePopup, kind, playlistInfo }: PlaylistFormProps) {
+function PlaylistForm({ closePopup, kind, playlistInfo, musicInfos }: PlaylistFormProps) {
     const formItems: FormItem[] = [
         { id: "name", name: "제목", value: playlistInfo ? playlistInfo.name : "", require: true },
         { id: "description", name: "설명", value: playlistInfo ? playlistInfo.description : "" },
@@ -126,11 +128,15 @@ function PlaylistForm({ closePopup, kind, playlistInfo }: PlaylistFormProps) {
         for (let item of formItems) {
             info[item.id] = data[item.id];
         }
+
+        const payload = musicInfos ? {
+            info: info as PlaylistInfo,
+            items: musicInfos
+        } : { info: info as PlaylistInfo };
+
         const action: PlaylistAction = {
             type: kind === ModalKind.CreatePlaylist ? PlaylistActionType.CREATE : PlaylistActionType.UPDATE,
-            payload: {
-                info: info as PlaylistInfo
-            }
+            payload: payload
         }
         playlistManager(action);
         closePopup();
