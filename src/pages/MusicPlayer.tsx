@@ -17,9 +17,14 @@ function MusicPlayer() {
         playerVisiblity ? setPlayerVisiblity(false) : setPlayerVisiblity(true);
     }
     const goNext = () => {
+
         curMusicManager({ type: MusicInfoActionType.NEXT })
     }
     const goPrev = () => {
+        if ((window as any).player?.getCurrentTime() >= 2) {
+            (window as any).player?.seekTo(0);
+            return;
+        }
         curMusicManager({ type: MusicInfoActionType.PREV })
     }
     const togglePlayState = () => {
