@@ -100,12 +100,19 @@ export const usePlaylistManager = function () {
             case APPEND: {
                 if (!action.payload.info || !action.payload.info.id || !action.payload.items) return;
                 const tgt: string = action.payload.info.id;
+                const info: PlaylistInfo = snapshot.getLoadable(playlistInfoStateFamily(tgt)).contents;
                 const playlistItems: MusicInfoItem[] = await snapshot.getPromise(playlistItemStateFamily(tgt));
                 const newList = playlistItems.concat(toMusicInfoItems(action.payload.items));
                 const result = await updatePlaylist({ info: action.payload.info, items: newList });
                 if (result) {
                     set(playlistItemStateFamily(tgt), newList);
                     alert("추가 성공!")
+                    let newThumbnails = [...info.thumbnails];
+                    for (let i = 0; i < action.payload.items.length && newThumbnails.length < 4; i++) {
+                        const cur = action.payload.items[i]?.thumbnail;
+                        if (cur) newThumbnails.push(cur);
+                    }
+                    set(playlistInfoStateFamily(tgt), { ...info, itemCount: newList.length, thumbnails: newThumbnails });
                 }
             } break;
         }
