@@ -1,6 +1,6 @@
 # [간단 노래 재생기](https://bearsharks.github.io/simple-music-player)
 유튜브 뮤직 클론 프로젝트로 검색, 재생목록URL, 동영상URL로 재생목록을 만들 수 있는 간단한 뮤직플레이어 입니다. \
-**[직접 해보기](https://bearsharks.github.io/simple-music-player)**  \
+**[링크](https://bearsharks.github.io/simple-music-player)**  \
 \
 <img src="https://user-images.githubusercontent.com/47706141/157233119-8e2f398f-7b3b-4cf6-9df0-7e9884595936.PNG"  width="310"/>
 <img src="https://user-images.githubusercontent.com/47706141/157233121-e6e9a433-879a-4c5e-8e67-61cd8f0c65b9.PNG"  width="310" />
