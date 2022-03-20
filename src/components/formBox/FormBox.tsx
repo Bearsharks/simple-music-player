@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import React, { useRef } from "react";
 import styles from './FormBox.module.scss';
 export interface FormItem {
     id: string,
@@ -31,8 +31,13 @@ function FormBox({ formItems, closePopup, submit, name, children }: FormBoxProps
             submit(data);
         }
     }
+    const stopPropa = (e: React.KeyboardEvent) => {
+        e.stopPropagation();
+    }
     return (
-        <form ref={curRef} className={styles['wrapper']}>
+        <form ref={curRef}
+            onKeyDown={stopPropa}
+            className={styles['wrapper']}>
             <h2>
                 {name}
             </h2>
