@@ -14,7 +14,8 @@ function SearchBar(props: SearchBarProps) {
             props.search(event, textInput.current);
         }
     }
-    function resize() {
+    function resize(e: React.KeyboardEvent) {
+        e.stopPropagation();
         if (textInput.current !== null) {
             const height: number = parseInt(textInput.current.style.height);
             if (height > 200) return;
@@ -49,7 +50,7 @@ function SearchBar(props: SearchBarProps) {
                     <div className={styles['text-wrapper']}>
                         <textarea
                             ref={textInput}
-                            onKeyDown={resize} onKeyUp={resize}
+                            onKeyDown={resize}
                         ></textarea>
                         <div className={styles['close-btn']}
                             onClick={() => setExpended(false)}
