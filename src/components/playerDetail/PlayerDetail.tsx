@@ -16,6 +16,8 @@ function PlayerDetail({ playerVisiblity, musicList }: PlayerDetailProps) {
         openSelectTgtPlaylistPopup(event.target as HTMLElement, musicList)
     }
     const clearPlaylistBtnClickHandler = (event: React.MouseEvent) => {
+        const shouldClear = window.confirm('재생목록을 정말로 비우시겠습니까?');
+        if (!shouldClear) return;
         musiclistManger({
             type: MusicListActionType.DELETE,
             payload: musicList
