@@ -131,6 +131,7 @@ export const playlistInfoStateFamily = atomFamily<PlaylistInfo, string>({
         return {} as PlaylistInfo;
     },
 });
+
 export const playlistInfosState = selector<PlaylistInfo[]>({
     key: 'playlistInfos',
     get: async ({ get }): Promise<PlaylistInfo[]> => {

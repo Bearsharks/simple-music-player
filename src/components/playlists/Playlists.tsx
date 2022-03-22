@@ -45,9 +45,7 @@ export default function Playlists(props: PlaylistsProps) {
                     </div>
                 </div>
                 {sortList().map((el: PlaylistInfo) =>
-                    <div className={styles['grid-item']} key={el.id}
-                        title={el.description}
-                    >
+                    <div className={styles['grid-item']} key={el.id}>
                         <PlaylistItem info={el} onClick={props.goToPlaylistPage}>
                             <div className={styles['thumbnail__play-btn']}>
                                 <div onClick={() => props.playPlaylist(el.id)} title="재생">
