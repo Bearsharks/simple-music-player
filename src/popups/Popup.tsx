@@ -1,7 +1,7 @@
 import { useRecoilSnapshot, useRecoilValue } from 'recoil'
 import { getPopupInfoState, PopupInfo, PopupKind, useModalManager, ModalKind, useOpenSelectTgtPlaylistPopup, useClosePopup } from './PopupStates';
 import styles from './Popup.module.scss'
-import { memo, useRef, useEffect, Suspense } from 'react';
+import { memo, useRef, useEffect, Suspense, useCallback } from 'react';
 import { MusicInfo, MusicInfoArrayCheck, MusicInfoItem, MusicListAction, MusicListActionType, PlaylistAction, PlaylistActionType, PlaylistInfo } from 'refs/constants';
 import { playlistInfosState, playlistItemStateFamily, useMusicListManager, usePlaylistManager } from 'recoilStates/playlistAtoms';
 import { searchByQuery } from 'refs/youtubeSearch';
@@ -9,6 +9,7 @@ import OptionSelector, { OptionInfo } from 'components/OptionSelector';
 import Spinner from 'components/Spinner';
 import FormBoxPlaylist from 'components/formBox/FormBoxPlaylist';
 import OuterClickEventCatcher from 'components/OuterClickEventCatcher';
+import ResizeEventCatcher from 'components/ResizeEventCatcher';
 
 function InnerPopup({ setOpen, info }: { setOpen: (_: boolean) => void, info: PopupInfo }) {
     const children = (() => {
@@ -62,18 +63,23 @@ function Popup({ popupInfo }: { popupInfo: PopupInfo }) {
     const close = () => {
         closePopup(popupInfo.key);
     }
-    useEffect(() => {
+    const handleResize = useCallback((width: number, height: number) => {
         const target: HTMLElement = popupInfo.target as HTMLElement;
         if (!curRef.current || !target) return;
-        const { innerWidth, innerHeight } = window;
         const { offsetWidth, offsetHeight } = curRef.current;
         const { left, top, bottom } = target.getBoundingClientRect();
-        const x = innerWidth >= left + offsetWidth ? left : (innerWidth - offsetWidth);
-        const y = innerHeight >= bottom + offsetHeight ? bottom :
-            (top - offsetHeight >= 0 ? top - offsetHeight : innerHeight - offsetHeight);
+        const x = width >= left + offsetWidth ? left : (width - offsetWidth);
+        const y = height >= bottom + offsetHeight ? bottom :
+            (top - offsetHeight >= 0 ? top - offsetHeight : height - offsetHeight);
         curRef.current.style.transform = `translate(${x}px, ${y}px)`;
         curRef.current.style.visibility = "initial";
     }, [popupInfo.target]);
+
+    useEffect(() => {
+        const { innerWidth, innerHeight } = window;
+        handleResize(innerWidth, innerHeight);
+    }, [popupInfo.target, handleResize]);
+
     return <div
         className={`${styles['wrapper']}`}
         ref={curRef}
@@ -81,6 +87,10 @@ function Popup({ popupInfo }: { popupInfo: PopupInfo }) {
     >
         <InnerPopup info={popupInfo} setOpen={close}></InnerPopup>
         <OuterClickEventCatcher openState={[true, close]} wrapper={curRef}></OuterClickEventCatcher>
+        <ResizeEventCatcher
+            target={window.document.getElementById("root") as Element}
+            onResizeHandler={handleResize}
+        ></ResizeEventCatcher>
     </div>
 }
 export default PopupWrapper;
