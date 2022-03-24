@@ -7,10 +7,10 @@ const YTPlaylistRequestIDState = atom({
     key: 'YTPlaylistRequestID',
     default: 0,
 });
+
 export const myYTPlaylistInfosState = selector<PlaylistInfo[]>({
     key: 'myYTPlaylist',
     get: async ({ get }) => {
-
         get(YTPlaylistRequestIDState);
         try {
             const infos = await getMyYTPlaylistInfos();
@@ -22,7 +22,6 @@ export const myYTPlaylistInfosState = selector<PlaylistInfo[]>({
         }
     }
 })
-
 
 // React component to refresh query
 export const useRefreshYTPlaylistInfos = () => {
