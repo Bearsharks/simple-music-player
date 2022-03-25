@@ -188,6 +188,11 @@ export const urlToId = (url: string): { id: string, kind: SearchType } => {
                 kind: SearchType.Music,
                 id: result['v']
             }
+        } else if (url.indexOf('youtu.be/') !== -1) {
+            return {
+                kind: SearchType.Music,
+                id: url.split('youtu.be/')[1]
+            }
         }
     }
     return {} as { id: string, kind: SearchType };
