@@ -20,12 +20,6 @@
     padding: 10px;
 }
 .main-contents{
-    margin: auto;
-  max-width: 1450px;
-  @media (min-width: 950px) and (max-width: 1200px){
-    max-width: 950px;    
-  }
-  @media (min-width: 1201px) and (max-width: 1570px){
-    max-width: 1200px;    
-  }
+  height: calc(100vh - var(--header-size));
+  @include append_scrollbar;
 }

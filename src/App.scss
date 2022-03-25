@@ -35,9 +35,16 @@ body{
   -webkit-user-select:none; -moz-user-select:none; -ms-user-select:none; user-select:none;
 }
 main{
-  width: 100vw;
-  height: calc(100vh - var(--header-size));
-  @include append_scrollbar;
+  width: 100vw;  
+  margin: auto;
+  max-width: 1450px;
+  position:relative;
+  @media (min-width: 950px) and (max-width: 1200px){
+    max-width: 950px;    
+  }
+  @media (min-width: 1201px) and (max-width: 1570px){
+    max-width: 1200px;    
+  }
   
 }
 //1200px; 

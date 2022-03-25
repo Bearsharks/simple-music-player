@@ -1,3 +1,4 @@
+import { useNotice } from 'popups/Notice';
 import { atom, atomFamily, selector, useRecoilCallback, useRecoilTransaction_UNSTABLE } from 'recoil';
 import api from 'refs/apiSelector';
 import { PlaylistAction, PlaylistActionType, MusicInfoAction, MusicInfoActionType, MusicListActionType, MusicListAction, PlaylistInfo, PlayerState, MusicInfo, MusicInfoItem } from 'refs/constants';
@@ -38,6 +39,7 @@ export const playlistIDsState = atom<string[]>({
 //리코일 콜백으로 정보와 아이템을 아우르는 수정하는 것을 만든다.
 export const usePlaylistManager = function () {
     //create, delete, update
+    const setNotice = useNotice();
     return useRecoilCallback(({ set, reset, snapshot }) => async (action: PlaylistAction) => {
         const { CREATE, DELETE, UPDATE, APPEND, DELETE_ITEMS } = PlaylistActionType;
         switch (action.type) {
@@ -106,13 +108,13 @@ export const usePlaylistManager = function () {
                 const result = await updatePlaylist({ info: action.payload.info, items: newList });
                 if (result) {
                     set(playlistItemStateFamily(tgt), newList);
-                    alert("추가 성공!")
                     let newThumbnails = [...info.thumbnails];
                     for (let i = 0; i < action.payload.items.length && newThumbnails.length < 4; i++) {
                         const cur = action.payload.items[i]?.thumbnail;
                         if (cur) newThumbnails.push(cur);
                     }
                     set(playlistInfoStateFamily(tgt), { ...info, itemCount: newList.length, thumbnails: newThumbnails });
+                    setNotice("추가 성공!");
                 }
             } break;
         }
