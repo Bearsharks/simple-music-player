@@ -10,6 +10,7 @@ import Popup from 'popups/Popup';
 import musiclistOpenState from 'recoilStates/musiclistOpenState';
 import { useSetRecoilState } from 'recoil';
 import MusicPlayer from './MusicPlayer';
+import Notice from 'popups/Notice';
 const Playlists = React.lazy(() => import('components/recoil/Playlists'));
 const PlaylistPage = React.lazy(() => import('./PlaylistPage'));
 
@@ -26,7 +27,7 @@ function Main() {
 
     }
     return (
-        <div >
+        <div>
             <header className={styles["header"]}>
                 <div className={styles["header__left-contents"]} onClick={goToHome}>
                     <span className="material-icons md-32">
@@ -49,6 +50,7 @@ function Main() {
                         </Routes>
                     </Suspense>
                 </div>
+                <Notice></Notice>
             </main>
             <FormPopup></FormPopup>
             <Popup></Popup>

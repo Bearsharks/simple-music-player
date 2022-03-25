@@ -1,0 +1,14 @@
+@import '/src/global.scss';
+.wrapper {
+  position:absolute;
+  bottom: 95px;
+  left:10px;
+  z-index: $popup-z-index;
+  background-color: $bg-light-grey;
+
+  padding: 10px;
+  border-radius: 5px;
+}
+.hide{
+  display: none;
+}
