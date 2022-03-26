@@ -14,12 +14,18 @@ function YoutubePlayer() {
 	const prevMusicRef = useRef<MusicInfoItem>();
 	useEffect(() => {
 		const togglePlayState = (e: KeyboardEvent) => {
+			const player = (window as any).player;
+			if (!player) return;
 			if (e.key === ' ') {
-				if ((window as any).player?.getPlayerState() === PlayerState.PLAYING) {
-					(window as any).player.pauseVideo();
+				if (player.getPlayerState() === PlayerState.PLAYING) {
+					player.pauseVideo();
 				} else {
-					(window as any).player.playVideo();
+					player.playVideo();
 				}
+			} else if (e.key === 'ArrowRight') {
+				player.seekTo(player.getCurrentTime() + 5);
+			} else if (e.key === 'ArrowLeft') {
+				player.seekTo(player.getCurrentTime() - 5);
 			}
 		}
 		window.addEventListener('keydown', togglePlayState);
