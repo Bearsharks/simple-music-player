@@ -52,11 +52,11 @@ function SearchBar(props: SearchBarProps) {
                             ref={textInput}
                             onKeyDown={resize}
                         ></textarea>
-                        <div className={styles['close-btn']}
-                            onClick={() => setExpended(false)}
-                        ><span className="material-icons md-38">
-                                close
-                            </span></div>
+                        <div
+                            className={styles['close-btn']}
+                            onClick={() => setExpended(false)}>
+                            <span className="material-icons md-38">close</span>
+                        </div>
                     </div>
                     <div className={`${styles['expanded-menu']}`}>
                         <div>ex)노래명 - 가수명 / 유튜브 url(재생목록, 동영상)</div>
