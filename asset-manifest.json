@@ -1,14 +1,14 @@
 {
   "files": {
     "main.css": "/simple-music-player/static/css/main.8a78aa16.css",
-    "main.js": "/simple-music-player/static/js/main.b439170e.js",
+    "main.js": "/simple-music-player/static/js/main.6e236ab4.js",
     "static/js/748.f2ff358a.chunk.js": "/simple-music-player/static/js/748.f2ff358a.chunk.js",
-    "static/css/907.2823bf7d.chunk.css": "/simple-music-player/static/css/907.2823bf7d.chunk.css",
-    "static/js/907.8c290c1d.chunk.js": "/simple-music-player/static/js/907.8c290c1d.chunk.js",
+    "static/css/458.12cf4911.chunk.css": "/simple-music-player/static/css/458.12cf4911.chunk.css",
+    "static/js/458.4c8c1d52.chunk.js": "/simple-music-player/static/js/458.4c8c1d52.chunk.js",
     "static/css/326.5af9104f.chunk.css": "/simple-music-player/static/css/326.5af9104f.chunk.css",
     "static/js/326.e2396982.chunk.js": "/simple-music-player/static/js/326.e2396982.chunk.js",
     "static/css/848.f05f641a.chunk.css": "/simple-music-player/static/css/848.f05f641a.chunk.css",
-    "static/js/848.bd5b7144.chunk.js": "/simple-music-player/static/js/848.bd5b7144.chunk.js",
+    "static/js/848.1403e23d.chunk.js": "/simple-music-player/static/js/848.1403e23d.chunk.js",
     "static/js/578.996bb23e.chunk.js": "/simple-music-player/static/js/578.996bb23e.chunk.js",
     "static/media/material-icons-two-tone.woff": "/simple-music-player/static/media/material-icons-two-tone.169d9845612b754f6086.woff",
     "static/media/NotoSans-Regular.eot": "/simple-music-player/static/media/NotoSans-Regular.7c7f50cbc536eb2b68e9.eot",
@@ -33,6 +33,6 @@
   },
   "entrypoints": [
     "static/css/main.8a78aa16.css",
-    "static/js/main.b439170e.js"
+    "static/js/main.6e236ab4.js"
   ]
 }
