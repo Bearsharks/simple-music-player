@@ -1,10 +1,10 @@
-import React, { memo } from "react";
+import { memo } from "react";
 import { MusicInfo, MusicInfoItem } from "refs/constants";
 import styles from './MusicList.module.scss';
 import { DragDropContext, Droppable, DropResult, Draggable, DroppableProvided } from "react-beautiful-dnd";
 import { useRecoilValue } from "recoil";
 import { curMusicIdxState } from "recoilStates/playlistAtoms";
-import MoreVert from "components/MoreVert";
+import { MusicItem } from "./MusicItem";
 
 export interface MusicListProps {
     items: MusicInfoItem[];
@@ -52,84 +52,32 @@ interface MusicListItemsProps {
 }
 function MusicListItems({ provided, items, playMusic, openOptionsPopup }: MusicListItemsProps) {
     const curMusicIdx = useRecoilValue(curMusicIdxState);
-    return (<div ref={provided.innerRef}>
+    return <div ref={provided.innerRef}>
         {items.map((item: MusicInfoItem, idx) =>
             <Draggable
                 key={item.key}
                 draggableId={item.key}
                 index={idx}
-            >
-                {(provided, snapshot) =>
+            >{(provided, snapshot) =>
+                <div
+                    ref={provided.innerRef}
+                    {...provided.draggableProps}
+                    className={`${styles['wrapper']} ${curMusicIdx === idx && styles['wrapper--selected']}`}
+                >
                     <div
-                        ref={provided.innerRef}
-                        {...provided.draggableProps}
-                        className={`${styles['wrapper']} ${curMusicIdx === idx && styles['wrapper--selected']}`}
-                    >
-                        <div
-                            className={styles[`drag_handle`]}
-                            {...provided.dragHandleProps}>
-                            <span className="material-icons md-28">drag_handle</span>
-                        </div>
-                        <MusicItem
-                            idx={idx}
-                            item={item}
-                            playMusic={playMusic}
-                            openOptionsPopup={openOptionsPopup}
-                            isCurMusic={curMusicIdx === idx}
-                        ></MusicItem>
+                        className={styles[`drag_handle`]}
+                        {...provided.dragHandleProps}>
+                        <span className="material-icons md-28">drag_handle</span>
                     </div>
-                }
+                    <MusicItem
+                        idx={idx}
+                        item={item}
+                        playMusic={playMusic}
+                        openOptionsPopup={openOptionsPopup}
+                        isCurMusic={curMusicIdx === idx}
+                    ></MusicItem>
+                </div>}
             </Draggable>)}
         {provided.placeholder}
-    </div>)
-}
-
-export interface MusicItemProps {
-    idx: number;
-    item: MusicInfoItem;
-    playMusic: (idx: number | undefined) => void;
-    openOptionsPopup: (target: HTMLElement, musicInfos: MusicInfoItem[]) => void;
-    isCurMusic?: boolean;
-};
-export function MusicItem({ idx, item, playMusic, openOptionsPopup, isCurMusic }: MusicItemProps) {
-    const popupOpen = (event: React.MouseEvent) => {
-        openOptionsPopup(event.target as HTMLElement, [item]);
-    }
-    return (
-        <div className={styles['wrapper']} >
-            <div className={styles[`grid-container`]}>
-                <div className={`${styles[`grid-item`]} ${styles["grid-item--fit"]}`} onClick={() => { playMusic(idx) }}>
-                    {item.thumbnail ?
-                        <img className={styles["thumbnail"]} alt={item.name} src={item.thumbnail} /> :
-                        <div className={styles["thumbnail"]}>
-                            <span className="material-icons md-32">
-                                question_mark
-                            </span>
-                        </div>
-                    }
-
-                    <div className={`${styles["overlay"]} ${isCurMusic && styles["overlay--show"]}`}>
-                        <span className="material-icons md-32">
-                            play_arrow
-                        </span>
-                    </div>
-                </div>
-                <div className={styles[`grid-item`]} onClick={() => { playMusic(idx) }}>
-                    <div
-                        className={styles[`grid-item__text`]}
-                        title={item.name}
-                    >
-                        {item.name}
-                    </div>
-                    <div
-                        className={`${styles[`grid-item__text`]} ${styles[`grid-item__text--light`]}`}
-                        title={item.owner}
-                    >
-                        {item.owner}
-                    </div>
-                </div>
-                <MoreVert onClick={popupOpen} ></MoreVert>
-            </div>
-        </div>
-    );
+    </div>
 }
