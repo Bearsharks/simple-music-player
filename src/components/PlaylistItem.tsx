@@ -26,9 +26,7 @@ function PlaylistItem({ info, children, onClick }: PlaylistItemProps) {
             {info.itemCount >= 0 &&
                 <div className={styles['playlist-info--secondary']}>
                     노래 {info.itemCount} 곡
-                </div>
-            }
-
+                </div>}
         </div>
     )
 }

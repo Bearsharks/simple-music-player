@@ -3,12 +3,12 @@ import { useRecoilValue } from "recoil";
 import Thumbnail from "components/Thumbnail";
 import { playlistInfoStateFamily, playlistItemStateFamily, useCurMusicManager } from "recoilStates/playlistAtoms";
 import styles from './PlaylistPage.module.scss';
-import { MusicItem } from "components/musicList/MusicList";
 import { useOpenPlaylistItemOptionsPopup, useOpenPlaylistOptionsPopup } from "popups/PopupStates";
 import { MusicInfoActionType, MusicInfoItem } from "refs/constants";
 import { Suspense } from "react";
 import Spinner from "components/Spinner";
 import MoreVert from "components/MoreVert";
+import MusicItem from "components/musicList/MusicItem";
 function PlaylistPage() {
     const openPlaylistOptionsPopup = useOpenPlaylistOptionsPopup();
     const param = useParams();
