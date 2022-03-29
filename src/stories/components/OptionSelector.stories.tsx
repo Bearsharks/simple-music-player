@@ -2,6 +2,7 @@ import React from 'react';
 import { ComponentStory, ComponentMeta } from '@storybook/react';
 import OptionSelector from 'components/OptionSelector';
 import { RecoilRoot } from 'recoil';
+import { options } from 'refs/fixture';
 export default {
     title: 'components/OptionSelector',
     component: OptionSelector,
@@ -12,5 +13,5 @@ const Template: ComponentStory<typeof OptionSelector> = (args) => <RecoilRoot><O
 
 export const Inited = Template.bind({});
 Inited.args = {
-    options: []
+    options: options
 };
