@@ -20,3 +20,10 @@ Inited.args = {
     musicInfo: musicInfosFixture[0],
     isPlaying: false
 };
+
+export const Detail = Template.bind({});
+Detail.args = {
+    playerVisiblity: true,
+    musicInfo: musicInfosFixture[0],
+    isPlaying: true
+};
