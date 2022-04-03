@@ -26,6 +26,9 @@ function YoutubePlayer() {
 				player.seekTo(player.getCurrentTime() + 5);
 			} else if (e.key === 'ArrowLeft') {
 				player.seekTo(player.getCurrentTime() - 5);
+			} else if (e.key === 'm') {
+				if (player.isMuted) player.unMute();
+				else player.mute();
 			}
 		}
 		window.addEventListener('keydown', togglePlayState);
