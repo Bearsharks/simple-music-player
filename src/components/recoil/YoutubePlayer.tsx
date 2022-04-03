@@ -16,6 +16,7 @@ function YoutubePlayer() {
 		const togglePlayState = (e: KeyboardEvent) => {
 			const player = (window as any).player;
 			if (!player) return;
+			debugger;
 			if (e.key === ' ') {
 				if (player.getPlayerState() === PlayerState.PLAYING) {
 					player.pauseVideo();
@@ -27,7 +28,7 @@ function YoutubePlayer() {
 			} else if (e.key === 'ArrowLeft') {
 				player.seekTo(player.getCurrentTime() - 5);
 			} else if (e.key === 'm') {
-				if (player.isMuted) player.unMute();
+				if (player.isMuted()) player.unMute();
 				else player.mute();
 			}
 		}
