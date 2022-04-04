@@ -35,12 +35,12 @@ function FormBox({ formItems, closePopup, submit, name, children }: FormBoxProps
         e.stopPropagation();
     }
     return (
-        <form ref={curRef}
+        <form
+            ref={curRef}
             onKeyDown={stopPropa}
-            className={styles['wrapper']}>
-            <h2>
-                {name}
-            </h2>
+            className={styles['wrapper']}
+        >
+            <h2>{name}</h2>
             <br />
             {formItems.map((item: FormItem) =>
                 <div key={item.id}
@@ -56,7 +56,7 @@ function FormBox({ formItems, closePopup, submit, name, children }: FormBoxProps
                     <br></br>
                 </div>
             )}
-            {!children ? "" :
+            {children &&
                 <div>
                     {children}
                 </div>

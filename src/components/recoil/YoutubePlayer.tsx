@@ -5,6 +5,26 @@ import { ytPlayerInitedState } from 'recoilStates/ytplayerStates'
 import youtubeSearch, { SearchType } from 'refs/youtubeSearch';
 import { musicPlayerState, useCurMusicManager, curMusicInfoState, musicPlayerProgressState } from 'recoilStates/playlistAtoms';
 
+const handleKeyboardEvent = (e: KeyboardEvent) => {
+	const player = (window as any).player;
+	if (!player) return;
+	debugger;
+	if (e.key === ' ') {
+		if (player.getPlayerState() === PlayerState.PLAYING) {
+			player.pauseVideo();
+		} else {
+			player.playVideo();
+		}
+	} else if (e.key === 'ArrowRight') {
+		player.seekTo(player.getCurrentTime() + 5);
+	} else if (e.key === 'ArrowLeft') {
+		player.seekTo(player.getCurrentTime() - 5);
+	} else if (e.key === 'm') {
+		if (player.isMuted()) player.unMute();
+		else player.mute();
+	}
+}
+
 function YoutubePlayer() {
 	const [ytPlayerInited, setYTPlayerInited] = useRecoilState(ytPlayerInitedState);
 	const setPlayState = useSetRecoilState(musicPlayerState);
@@ -13,28 +33,9 @@ function YoutubePlayer() {
 	const setProgress = useSetRecoilState(musicPlayerProgressState);
 	const prevMusicRef = useRef<MusicInfoItem>();
 	useEffect(() => {
-		const togglePlayState = (e: KeyboardEvent) => {
-			const player = (window as any).player;
-			if (!player) return;
-			debugger;
-			if (e.key === ' ') {
-				if (player.getPlayerState() === PlayerState.PLAYING) {
-					player.pauseVideo();
-				} else {
-					player.playVideo();
-				}
-			} else if (e.key === 'ArrowRight') {
-				player.seekTo(player.getCurrentTime() + 5);
-			} else if (e.key === 'ArrowLeft') {
-				player.seekTo(player.getCurrentTime() - 5);
-			} else if (e.key === 'm') {
-				if (player.isMuted()) player.unMute();
-				else player.mute();
-			}
-		}
-		window.addEventListener('keydown', togglePlayState);
+		window.addEventListener('keydown', handleKeyboardEvent);
 		return () => {
-			window.removeEventListener('keydown', togglePlayState);
+			window.removeEventListener('keydown', handleKeyboardEvent);
 		}
 	}, []);
 	useEffect(() => {
