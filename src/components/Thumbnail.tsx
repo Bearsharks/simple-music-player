@@ -1,7 +1,7 @@
 import styles from './Thumbnail.module.scss';
 
 function Thumbnail({ thumbnails, name }: { thumbnails: string[], name: string }) {
-    const getImgs = (): string[] => {
+    const imgs = ((): string[] => {
         if (thumbnails.length === 0) return [];
         let arr: string[] = thumbnails;
         if (arr.length === 1) return arr;
@@ -10,18 +10,17 @@ function Thumbnail({ thumbnails, name }: { thumbnails: string[], name: string })
             arr = arr.concat(arr);
         }
         return arr.slice(0, 4);
-    }
-    thumbnails = getImgs();
+    })();
     return <div title={name} className={styles["wrapper"]}>
         <img style={{ "width": "100%", "height": "100%" }} alt={""}
             src={"https://lh3.googleusercontent.com/wr28amLh-pMk4vmrYv_Orhly8DTtdvZJFuLwmXG5RNvZJjGlFe_WMnKp4pWlZI1gL7ihQn-xZuzZ0A6VZZbv2Z-iTEH3dpjn=s576"}>
         </img>
-        {thumbnails.length ?
+        {imgs.length ?
             <div className={styles["img-wrap"]}>{
-                thumbnails.map((img: string, idx) =>
+                imgs.map((img: string, idx) =>
                     <img
                         className={styles["img"]} key={idx} src={img} alt={""}
-                        style={thumbnails.length === 1 ? { "width": "100%", "height": "100%" } : {}}
+                        style={imgs.length === 1 ? { "width": "100%", "height": "100%" } : {}}
                     ></img>)}
             </div> : ""
         }
