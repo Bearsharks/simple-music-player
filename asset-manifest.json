@@ -1,7 +1,7 @@
 {
   "files": {
     "main.css": "/simple-music-player/static/css/main.8a78aa16.css",
-    "main.js": "/simple-music-player/static/js/main.eaf1cb31.js",
+    "main.js": "/simple-music-player/static/js/main.15f579d7.js",
     "static/js/748.f2ff358a.chunk.js": "/simple-music-player/static/js/748.f2ff358a.chunk.js",
     "static/css/458.12cf4911.chunk.css": "/simple-music-player/static/css/458.12cf4911.chunk.css",
     "static/js/458.380f4511.chunk.js": "/simple-music-player/static/js/458.380f4511.chunk.js",
@@ -33,6 +33,6 @@
   },
   "entrypoints": [
     "static/css/main.8a78aa16.css",
-    "static/js/main.eaf1cb31.js"
+    "static/js/main.15f579d7.js"
   ]
 }
