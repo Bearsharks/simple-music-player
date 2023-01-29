@@ -8,7 +8,6 @@ import { musicPlayerState, useCurMusicManager, curMusicInfoState, musicPlayerPro
 const handleKeyboardEvent = (e: KeyboardEvent) => {
 	const player = (window as any).player;
 	if (!player) return;
-	debugger;
 	if (e.key === ' ') {
 		if (player.getPlayerState() === PlayerState.PLAYING) {
 			player.pauseVideo();

@@ -11,18 +11,6 @@ function SignInPage() {
             doSignIn(inputRef.current.checked);
         }
     }
-    const testSignIn = async (e: React.MouseEvent) => {
-        e.preventDefault();
-        e.stopPropagation();
-        const loginURL = `${process.env.REACT_APP_API_URL}/testLogin`;
-        try {
-            const res = await fetch(loginURL, { credentials: 'include' });
-            if (res.status !== 200) throw new Error("500");
-            (window as any).location = "/simple-music-player";
-        } catch (err) {
-            console.error(err);
-        }
-    }
 
     return (
         <div className={styles['wrapper']}>
@@ -36,9 +24,7 @@ function SignInPage() {
                         로그인 유지
                         <input type="checkbox" ref={inputRef} name="chk_info"></input>
                     </label>
-
                 </div>
-                <button onClick={testSignIn}>테스트 계정으로 로그인</button>
             </div>
         </div>
     );
