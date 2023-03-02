@@ -1,6 +1,6 @@
 import { atom } from "recoil";
 
-export const ytPlayerInitedState = atom<boolean>({
+export const ytPlayerInitState = atom<boolean>({
     key:"ytPlayerInited",
     default: false
 })
