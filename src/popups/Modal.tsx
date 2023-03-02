@@ -5,7 +5,7 @@ import React, { Suspense } from 'react';
 import { MusicInfo, Playlist, PlaylistAction, PlaylistActionType, PlaylistInfo } from 'refs/constants';
 import youtubeSearch, { getYTPlaylistByID, SearchType, urlToId } from 'refs/youtubeSearch';
 import Spinner from 'components/Spinner';
-import { myYTPlaylistInfosState } from 'recoilStates/YTPlaylistState';
+import {useMyYTPlaylistInfos} from 'recoilStates/YTPlaylistState';
 import { usePlaylistManager } from 'recoilStates/playlistAtoms';
 import FormBox, { FormItem } from 'components/formBox/FormBox';
 import FormBoxPlaylist from 'components/formBox/FormBoxPlaylist';
@@ -49,9 +49,12 @@ export default Modal;
 
 function ImportMyYTPlaylistForm({ closePopup }: { closePopup: () => void }) {
     const playlistManager = usePlaylistManager();
-    const myYTPlaylistInfo = useRecoilValue(myYTPlaylistInfosState);
+    const { isLoading, error, data, isFetching } = useMyYTPlaylistInfos();
+    if(isLoading || !data) return <Spinner/>;
+    if (error) return <div>An error has occurred: "</div>;
+    const myYTPlaylistInfo = data;
     const submit = async (tgtPlaylist: PlaylistInfo) => {
-        let info = myYTPlaylistInfo.find((element) => element.id === tgtPlaylist.id);
+        let info = myYTPlaylistInfo?.find((element) => element.id === tgtPlaylist.id);
         if (!info) throw "해당 재생목록이 존재하지 않음!";
 
         const playlist: Playlist = {
@@ -66,11 +69,11 @@ function ImportMyYTPlaylistForm({ closePopup }: { closePopup: () => void }) {
         closePopup();
     }
     return <FormBoxPlaylist
-        name={"나의 재생목록"}
-        closePopup={closePopup}
-        playlistInfos={myYTPlaylistInfo}
-        submit={submit}
-    />
+            name={"나의 재생목록"}
+            closePopup={closePopup}
+            playlistInfos={myYTPlaylistInfo}
+            submit={submit}
+        />
 }
 
 function ImportYTPlaylistLink({ closePopup }: { closePopup: () => void }) {
