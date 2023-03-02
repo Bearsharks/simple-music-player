@@ -1,7 +1,7 @@
 import { useEffect, useRef, } from 'react';
 import { useRecoilValue, useSetRecoilState, useRecoilState } from 'recoil';
 import { MusicInfoActionType, MusicInfoItem, PlayerState } from 'refs/constants';
-import { ytPlayerInitedState } from 'recoilStates/ytplayerStates'
+import { ytPlayerInitState } from 'recoilStates/ytplayerStates'
 import youtubeSearch, { SearchType } from 'refs/youtubeSearch';
 import { musicPlayerState, useCurMusicManager, curMusicInfoState, musicPlayerProgressState } from 'recoilStates/playlistAtoms';
 
@@ -25,7 +25,7 @@ const handleKeyboardEvent = (e: KeyboardEvent) => {
 }
 
 function YoutubePlayer() {
-	const [ytPlayerInited, setYTPlayerInited] = useRecoilState(ytPlayerInitedState);
+	const [ytPlayerInited, setYTPlayerInited] = useRecoilState(ytPlayerInitState);
 	const setPlayState = useSetRecoilState(musicPlayerState);
 	const curMusicManager = useCurMusicManager();
 	const curMusic = useRecoilValue(curMusicInfoState);
