@@ -99,19 +99,12 @@ export default async function youtubeSearch(value: string, type: SearchType, pag
 //파람만들기 파람으로 패스 만들기 결과 반환하기
 const YTFetch = async (url: string, pageToken?: string): Promise<any> => {
     let curURL = url;
-    if (sessionStorage.getItem("mode") === 'test') {
-        const key = sessionStorage.getItem("key");
-        if (key === "") return;
-        curURL = `${curURL}&key=${sessionStorage.getItem("key")}`;
-    }
-    else if (!sessionStorage.getItem("access_token")) {
+    if (!sessionStorage.getItem("access_token")) {
         const token = await getToken();
-        if (token === "") return;
+        if (token === "") throw "토큰이 없음 에러";
         sessionStorage.setItem("access_token", token);
-        curURL = `${curURL}&access_token=${sessionStorage.getItem("access_token")}`;
-    } else {
-        curURL = `${curURL}&access_token=${sessionStorage.getItem("access_token")}`;
     }
+    curURL = `${curURL}&access_token=${sessionStorage.getItem("access_token")}`;
 
     if (pageToken) curURL += `&pageToken=${pageToken}`;
     let res = await fetch(curURL);
@@ -121,16 +114,12 @@ const YTFetch = async (url: string, pageToken?: string): Promise<any> => {
             return data.items.concat(await YTFetch(url, data.nextPageToken));
         }
         return data.items;
-    } else if (sessionStorage.getItem("mode") === 'test') {
-        alert('해당기능은 테스트 계정에서는 사용 할 수 없습니다.');
     } else if (res.status === 403 || res.status === 401) {
         //유튜브 읽기 권한이 없다면 무한루프가 발생하기 때문에 없다면 확인후 권한을 달라고 하자
         sessionStorage.setItem("access_token", "");
         return YTFetch(url, pageToken);
     }
-    else {
-        alert('잘못된 키이거나 해당키의 api 할당량을 초과했습니다.');
-    }
+    alert('잘못된 키이거나 해당키의 api 할당량을 초과했습니다.');
     throw new Error('request fail');
 }
 
