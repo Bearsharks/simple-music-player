@@ -38,7 +38,7 @@ function YoutubePlayer() {
 		}
 	}, []);
 	useEffect(() => {
-		if (!(window as any).YT) { // If not, load the youtube ifram api script asynchronously
+		if (!(window as any).YT) { // If not, load the youtube iframe api script asynchronously
 			const tag = document.createElement('script');
 			tag.src = 'https://www.youtube.com/iframe_api';
 
