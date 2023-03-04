@@ -1,9 +1,15 @@
 import { useNotice } from 'popups/Notice';
 import { atom, atomFamily, selector, useRecoilCallback, useRecoilTransaction_UNSTABLE } from 'recoil';
-import api from 'refs/apiSelector';
 import { PlaylistAction, PlaylistActionType, MusicInfoAction, MusicInfoActionType, MusicListActionType, MusicListAction, PlaylistInfo, PlayerState, MusicInfo, MusicInfoItem } from 'refs/constants';
 import keyGenerator from 'refs/keyGenerator';
-const { getPlaylistInfo, getPlaylistItems, getPlaylistInfos, updatePlaylist, deletePlaylist, createPlaylist } = api;
+import {
+    createPlaylist,
+    deletePlaylist,
+    getPlaylistInfo,
+    getPlaylistInfos,
+    getPlaylistItems,
+    updatePlaylist
+} from "../refs/api";
 
 export const musicPlayerState = atom<PlayerState>({
     key: 'musicPlayerState',
@@ -30,7 +36,7 @@ export const playlistIDsState = atom<string[]>({
             resolve(ids);
         }).catch((e) => {
             resolve([]);
-        })
+        });
     })
 })
 
