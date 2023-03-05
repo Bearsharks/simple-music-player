@@ -47,15 +47,8 @@ export const usePlaylistManager = function () {
     //create, delete, update
     const setNotice = useNotice();
     return useRecoilCallback(({ set, reset, snapshot }) => async (action: PlaylistAction) => {
-        const { CREATE, DELETE, UPDATE, APPEND, DELETE_ITEMS } = PlaylistActionType;
+        const { DELETE, UPDATE, APPEND, DELETE_ITEMS } = PlaylistActionType;
         switch (action.type) {
-            case CREATE: {
-                const playlistIDs: string[] = snapshot.getLoadable(playlistIDsState).contents;
-                const result = await createPlaylist(action.payload.info, action.payload.items);
-                if (result) {
-                    set(playlistIDsState, playlistIDs.concat(result));
-                }
-            } break;
             case DELETE: {
                 const tgt = action.payload;
                 const playlistIDs: string[] = snapshot.getLoadable(playlistIDsState).contents;
