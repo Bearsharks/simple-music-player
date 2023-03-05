@@ -5,10 +5,11 @@ import React, { Suspense } from 'react';
 import { MusicInfo, Playlist, PlaylistAction, PlaylistActionType, PlaylistInfo } from 'refs/constants';
 import youtubeSearch, { getYTPlaylistByID, SearchType, urlToId } from 'refs/youtubeSearch';
 import Spinner from 'components/Spinner';
-import {useMyYTPlaylistInfos} from 'recoilStates/YTPlaylistState';
-import { usePlaylistManager } from 'recoilStates/playlistAtoms';
+import {useMyYTPlaylistInfos} from 'serverStates/YTPlaylistState';
+import {playlistIDsState, usePlaylistManager} from 'recoilStates/playlistAtoms';
 import FormBox, { FormItem } from 'components/formBox/FormBox';
 import FormBoxPlaylist from 'components/formBox/FormBoxPlaylist';
+import {useCreateSimplePlaylist} from "../serverStates/simplePlaylistState";
 
 function Modal() {
     const [isOpen, setOpen] = useRecoilState(ModalOpenState);
@@ -48,7 +49,8 @@ function ModalForm({ setModalOpen }: { setModalOpen: (bool: boolean) => void }) 
 export default Modal;
 
 function ImportMyYTPlaylistForm({ closePopup }: { closePopup: () => void }) {
-    const playlistManager = usePlaylistManager();
+    const [playlistIds, setPlayListIds] = useRecoilState(playlistIDsState);
+    const createSimplePlaylist = useCreateSimplePlaylist();
     const { isLoading, error, data, isFetching } = useMyYTPlaylistInfos();
     if(isLoading || !data) return <Spinner/>;
     if (error) return <div>An error has occurred: "</div>;
@@ -61,12 +63,13 @@ function ImportMyYTPlaylistForm({ closePopup }: { closePopup: () => void }) {
             info: info,
             items: await youtubeSearch(tgtPlaylist.id, SearchType.List)
         }
-        const createAction: PlaylistAction = {
-            type: PlaylistActionType.CREATE,
-            payload: playlist
-        }
-        playlistManager(createAction);
-        closePopup();
+
+        createSimplePlaylist.mutate(playlist, {
+            onSuccess : (data) => {
+                if (data) setPlayListIds(playlistIds.concat(data));
+                closePopup();
+            }
+        });
     }
     return <FormBoxPlaylist
             name={"나의 재생목록"}
@@ -77,7 +80,8 @@ function ImportMyYTPlaylistForm({ closePopup }: { closePopup: () => void }) {
 }
 
 function ImportYTPlaylistLink({ closePopup }: { closePopup: () => void }) {
-    const playlistManager = usePlaylistManager();
+    const [playlistIds, setPlayListIds] = useRecoilState(playlistIDsState);
+    const createSimplePlaylist = useCreateSimplePlaylist();
     const formItems: FormItem[] = [{ id: "url", name: "재생목록 URL", value: "", require: true }];
     const submit = async (data: any) => {
         const url: string = data.url;
@@ -90,11 +94,12 @@ function ImportYTPlaylistLink({ closePopup }: { closePopup: () => void }) {
                 info: info,
                 items: await youtubeSearch(info.id, SearchType.List)
             }
-            const createAction: PlaylistAction = {
-                type: PlaylistActionType.CREATE,
-                payload: playlist
-            }
-            playlistManager(createAction);
+            createSimplePlaylist.mutate(playlist, {
+                onSuccess : (data) => {
+                    if (data) setPlayListIds(playlistIds.concat(data));
+                    closePopup();
+                }
+            });
         } catch (e) {
             console.error(e);
             alert('재생목록을 가져오지 못했습니다');
@@ -124,6 +129,8 @@ function PlaylistForm({ closePopup, kind, playlistInfo, musicInfos }: PlaylistFo
     ];
     const playlistManager = usePlaylistManager();
     const openYTPopup = useOpenYTOptionsPopup();
+    const [playlistIds, setPlayListIds] = useRecoilState(playlistIDsState);
+    const createSimplePlaylist = useCreateSimplePlaylist();
     const submit = (data: any) => {
         let info: any = {};
         if (playlistInfo) info = { ...playlistInfo };
@@ -137,12 +144,21 @@ function PlaylistForm({ closePopup, kind, playlistInfo, musicInfos }: PlaylistFo
             items: musicInfos
         } : { info: info as PlaylistInfo };
 
-        const action: PlaylistAction = {
-            type: kind === ModalKind.CreatePlaylist ? PlaylistActionType.CREATE : PlaylistActionType.UPDATE,
-            payload: payload
+        if (kind === ModalKind.UpdatePlaylist) {
+            const action: PlaylistAction = {
+                type: PlaylistActionType.UPDATE,
+                payload: payload
+            }
+            playlistManager(action);
+            closePopup();
+            return;
         }
-        playlistManager(action);
-        closePopup();
+        createSimplePlaylist.mutate(payload as Playlist, {
+            onSuccess : (data) => {
+                if (data) setPlayListIds(playlistIds.concat(data));
+                closePopup();
+            }
+        });
     }
     const btnClickHandler = (event: React.MouseEvent) => {
         event.preventDefault();
