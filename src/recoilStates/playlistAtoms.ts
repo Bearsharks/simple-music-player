@@ -3,7 +3,6 @@ import { atom, atomFamily, selector, useRecoilCallback, useRecoilTransaction_UNS
 import { PlaylistAction, PlaylistActionType, MusicInfoAction, MusicInfoActionType, MusicListActionType, MusicListAction, PlaylistInfo, PlayerState, MusicInfo, MusicInfoItem } from 'refs/constants';
 import keyGenerator from 'refs/keyGenerator';
 import {
-    createPlaylist,
     deletePlaylist,
     getPlaylistInfo,
     getPlaylistInfos,
