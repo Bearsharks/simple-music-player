@@ -6,7 +6,7 @@ import { MusicInfo, Playlist, PlaylistAction, PlaylistActionType, PlaylistInfo }
 import youtubeSearch, { getYTPlaylistByID, SearchType, urlToId } from 'refs/youtubeSearch';
 import Spinner from 'components/Spinner';
 import {useMyYTPlaylistInfos} from 'serverStates/YTPlaylistState';
-import {playlistIDsState, usePlaylistManager} from 'recoilStates/playlistAtoms';
+import {usePlaylistManager} from 'recoilStates/playlistAtoms';
 import FormBox, { FormItem } from 'components/formBox/FormBox';
 import FormBoxPlaylist from 'components/formBox/FormBoxPlaylist';
 import {useCreateSimplePlaylist} from "../serverStates/simplePlaylistState";
@@ -49,7 +49,6 @@ function ModalForm({ setModalOpen }: { setModalOpen: (bool: boolean) => void }) 
 export default Modal;
 
 function ImportMyYTPlaylistForm({ closePopup }: { closePopup: () => void }) {
-    const [playlistIds, setPlayListIds] = useRecoilState(playlistIDsState);
     const createSimplePlaylist = useCreateSimplePlaylist();
     const { isLoading, error, data, isFetching } = useMyYTPlaylistInfos();
     if(isLoading || !data) return <Spinner/>;
@@ -63,13 +62,7 @@ function ImportMyYTPlaylistForm({ closePopup }: { closePopup: () => void }) {
             info: info,
             items: await youtubeSearch(tgtPlaylist.id, SearchType.List)
         }
-
-        createSimplePlaylist.mutate(playlist, {
-            onSuccess : (data) => {
-                if (data) setPlayListIds(playlistIds.concat(data));
-                closePopup();
-            }
-        });
+        createSimplePlaylist.mutate(playlist, () => closePopup());
     }
     return <FormBoxPlaylist
             name={"나의 재생목록"}
@@ -80,7 +73,6 @@ function ImportMyYTPlaylistForm({ closePopup }: { closePopup: () => void }) {
 }
 
 function ImportYTPlaylistLink({ closePopup }: { closePopup: () => void }) {
-    const [playlistIds, setPlayListIds] = useRecoilState(playlistIDsState);
     const createSimplePlaylist = useCreateSimplePlaylist();
     const formItems: FormItem[] = [{ id: "url", name: "재생목록 URL", value: "", require: true }];
     const submit = async (data: any) => {
@@ -94,12 +86,7 @@ function ImportYTPlaylistLink({ closePopup }: { closePopup: () => void }) {
                 info: info,
                 items: await youtubeSearch(info.id, SearchType.List)
             }
-            createSimplePlaylist.mutate(playlist, {
-                onSuccess : (data) => {
-                    if (data) setPlayListIds(playlistIds.concat(data));
-                    closePopup();
-                }
-            });
+            createSimplePlaylist.mutate(playlist, () => closePopup());
         } catch (e) {
             console.error(e);
             alert('재생목록을 가져오지 못했습니다');
@@ -129,7 +116,6 @@ function PlaylistForm({ closePopup, kind, playlistInfo, musicInfos }: PlaylistFo
     ];
     const playlistManager = usePlaylistManager();
     const openYTPopup = useOpenYTOptionsPopup();
-    const [playlistIds, setPlayListIds] = useRecoilState(playlistIDsState);
     const createSimplePlaylist = useCreateSimplePlaylist();
     const submit = (data: any) => {
         let info: any = {};
@@ -153,12 +139,7 @@ function PlaylistForm({ closePopup, kind, playlistInfo, musicInfos }: PlaylistFo
             closePopup();
             return;
         }
-        createSimplePlaylist.mutate(payload as Playlist, {
-            onSuccess : (data) => {
-                if (data) setPlayListIds(playlistIds.concat(data));
-                closePopup();
-            }
-        });
+        createSimplePlaylist.mutate(payload as Playlist, () => closePopup());
     }
     const btnClickHandler = (event: React.MouseEvent) => {
         event.preventDefault();
