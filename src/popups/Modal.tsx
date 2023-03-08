@@ -6,10 +6,9 @@ import { MusicInfo, Playlist, PlaylistAction, PlaylistActionType, PlaylistInfo }
 import youtubeSearch, { getYTPlaylistByID, SearchType, urlToId } from 'refs/youtubeSearch';
 import Spinner from 'components/Spinner';
 import {useMyYTPlaylistInfos} from 'serverStates/YTPlaylistState';
-import {usePlaylistManager} from 'recoilStates/playlistAtoms';
 import FormBox, { FormItem } from 'components/formBox/FormBox';
 import FormBoxPlaylist from 'components/formBox/FormBoxPlaylist';
-import {useCreateSimplePlaylist} from "../serverStates/simplePlaylistState";
+import {useCreateSimplePlaylist, useUpdateSimplePlaylist} from "../serverStates/simplePlaylistState";
 
 function Modal() {
     const [isOpen, setOpen] = useRecoilState(ModalOpenState);
@@ -114,7 +113,7 @@ function PlaylistForm({ closePopup, kind, playlistInfo, musicInfos }: PlaylistFo
         { id: "name", name: "제목", value: playlistInfo ? playlistInfo.name : "", require: true },
         { id: "description", name: "설명", value: playlistInfo ? playlistInfo.description : "" },
     ];
-    const playlistManager = usePlaylistManager();
+    const updateSimplePlaylist = useUpdateSimplePlaylist();
     const openYTPopup = useOpenYTOptionsPopup();
     const createSimplePlaylist = useCreateSimplePlaylist();
     const submit = (data: any) => {
@@ -131,12 +130,8 @@ function PlaylistForm({ closePopup, kind, playlistInfo, musicInfos }: PlaylistFo
         } : { info: info as PlaylistInfo };
 
         if (kind === ModalKind.UpdatePlaylist) {
-            const action: PlaylistAction = {
-                type: PlaylistActionType.UPDATE,
-                payload: payload
-            }
-            playlistManager(action);
-            closePopup();
+            debugger;
+            updateSimplePlaylist.mutate(payload as Playlist, () => closePopup());
             return;
         }
         createSimplePlaylist.mutate(payload as Playlist, () => closePopup());

@@ -1,9 +1,9 @@
 import {useMutation} from "react-query";
-import {createPlaylist, deletePlaylist} from "../refs/api";
-import {Playlist} from "../refs/constants";
+import {createPlaylist, deletePlaylist, updatePlaylist} from "../refs/api";
+import {MusicInfoItem, Playlist} from "../refs/constants";
 import {CallbackInterface, useRecoilCallback, useRecoilState} from "recoil";
 import {playlistIDsState, playlistInfoStateFamily, playlistItemStateFamily} from "../recoilStates/playlistAtoms";
-
+import keyGenerator from "../refs/keyGenerator";
 export const useCreateSimplePlaylist = () => {
     const [playlistIds, setPlayListIds] = useRecoilState(playlistIDsState);
     const mutation = useMutation((pl: Playlist) => {
@@ -34,7 +34,7 @@ export const useDeleteSimplePlaylist = () => {
     });
     return {
         ...mutation,
-        mutate : (id: string, onSuccess?: (isSuccess: boolean) => any) => mutation.mutate(id, {
+        mutate : (id: string, onSuccess?: (isSuccess: boolean) => void) => mutation.mutate(id, {
             onSuccess : (isSuccess: boolean) => {
                 debugger;
                 if (!isSuccess) return;
@@ -46,4 +46,33 @@ export const useDeleteSimplePlaylist = () => {
             }
         })
     };
+}
+
+export const useUpdateSimplePlaylist = () => {
+    const update = useRecoilCallback(({set, snapshot}) => {
+        return (playlist: Playlist) => {
+            set(playlistInfoStateFamily(playlist.info.id), playlist.info);
+
+            if (playlist.items) {
+                const keys = keyGenerator(playlist.items.length);
+                const newMusicInfoItems: MusicInfoItem[] = playlist.items.map((item,idx) => ({...item, key: keys[idx]}));
+                set(playlistItemStateFamily(playlist.info.id), newMusicInfoItems);
+            }
+        }
+    })
+
+    const mutation = useMutation((playlist: Playlist) => {
+        return updatePlaylist(playlist);
+    });
+
+    return {
+        ...mutation,
+        mutate: (playlist: Playlist, onSuccess?: (isSuccess: boolean) => void) => mutation.mutate(playlist, {
+            onSuccess : (isSuccess: boolean) => {
+                if (!isSuccess) return;
+                update(playlist);
+                onSuccess?.(isSuccess);
+            }
+        })
+    }
 }

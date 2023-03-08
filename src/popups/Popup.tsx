@@ -308,7 +308,7 @@ const SearchBarOptions = memo(function ({ setPopupOpen, textarea }: SearchBarOpt
     ]
     return <OptionSelector options={options} />;
 });
-//formPopupManager(ModalKind.ImportMyYTPlaylist);
+
 const YTOptions = memo(function ({ setPopupOpen }: { setPopupOpen: (isOpen: boolean) => void }) {
     const modalManager = useModalManager();
     const openModal = (kind: ModalKind) => {
