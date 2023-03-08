@@ -3,7 +3,6 @@ import { atom, atomFamily, selector, useRecoilCallback, useRecoilTransaction_UNS
 import { PlaylistAction, PlaylistActionType, MusicInfoAction, MusicInfoActionType, MusicListActionType, MusicListAction, PlaylistInfo, PlayerState, MusicInfo, MusicInfoItem } from 'refs/constants';
 import keyGenerator from 'refs/keyGenerator';
 import {
-    deletePlaylist,
     getPlaylistInfo,
     getPlaylistInfos,
     getPlaylistItems,
@@ -45,20 +44,9 @@ export const playlistIDsState = atom<string[]>({
 export const usePlaylistManager = function () {
     //create, delete, update
     const setNotice = useNotice();
-    return useRecoilCallback(({ set, reset, snapshot }) => async (action: PlaylistAction) => {
-        const { DELETE, UPDATE, APPEND, DELETE_ITEMS } = PlaylistActionType;
+    return useRecoilCallback(({ set, snapshot }) => async (action: PlaylistAction) => {
+        const { UPDATE, APPEND, DELETE_ITEMS } = PlaylistActionType;
         switch (action.type) {
-            case DELETE: {
-                const tgt = action.payload;
-                const playlistIDs: string[] = snapshot.getLoadable(playlistIDsState).contents;
-                const isSuccess = await deletePlaylist(tgt);
-                if (isSuccess) {
-                    const newOne: string[] = playlistIDs.filter((item) => item !== tgt);
-                    set(playlistIDsState, newOne);
-                    reset(playlistItemStateFamily(tgt));
-                    reset(playlistInfoStateFamily(tgt));
-                }
-            } break;
             case UPDATE: {
                 if (!action.payload.info || !action.payload.info.id) return;
                 const tgt: string = action.payload.info.id;
@@ -171,7 +159,7 @@ export const useMusicListManager = function () {
         set(curMusicIdxState, idx);
     });
     //create, delete, update
-    return useRecoilCallback(({ set, reset, snapshot }) => async (action: MusicListAction) => {
+    return useRecoilCallback(({ set, snapshot }) => async (action: MusicListAction) => {
         switch (action.type) {
             case MusicListActionType.LOAD_PLAYLIST: {
                 const playlistItems = await snapshot.getPromise(playlistItemStateFamily(action.payload));

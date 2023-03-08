@@ -10,6 +10,7 @@ import Spinner from 'components/Spinner';
 import FormBoxPlaylist from 'components/formBox/FormBoxPlaylist';
 import OuterClickEventCatcher from 'components/OuterClickEventCatcher';
 import ResizeEventCatcher from 'components/ResizeEventCatcher';
+import {useDeleteSimplePlaylist} from "../serverStates/simplePlaylistState";
 
 function InnerPopup({ setOpen, info }: { setOpen: (_: boolean) => void, info: PopupInfo }) {
     const children = (() => {
@@ -233,7 +234,7 @@ interface PlaylistOptionsProps {
     playlistid: string;
 }
 const PlaylistOptions = memo(function ({ evTarget, setPopupOpen, playlistid }: PlaylistOptionsProps) {
-    const playlistManager = usePlaylistManager();
+    const deleteSimplePlaylist = useDeleteSimplePlaylist();
     const musicListManager = useMusicListManager();
     const modalManager = useModalManager();
     const snapshot = useRecoilSnapshot();
@@ -252,11 +253,8 @@ const PlaylistOptions = memo(function ({ evTarget, setPopupOpen, playlistid }: P
     const updatePlaylistInfo = (playlistid: string) => {
         modalManager(ModalKind.UpdatePlaylist, playlistid);
     }
-    const deletePlaylist = (playlistid: string) => {
-        playlistManager({
-            type: PlaylistActionType.DELETE,
-            payload: playlistid
-        });
+    const deletePlaylist = () => {
+        deleteSimplePlaylist.mutate(playlistid, () => setPopupOpen(false));
     }
     const onClickHandlerWrapper = (callback: (data: any) => void) => {
         return () => {
@@ -268,7 +266,7 @@ const PlaylistOptions = memo(function ({ evTarget, setPopupOpen, playlistid }: P
         { icon: "playlist_add", name: "재생목록에 추가", onClickHandler: onClickHandlerWrapper(addToPlaylist) },
         { icon: "playlist_play", name: "다음 음악으로 추가", onClickHandler: onClickHandlerWrapper(addToNextMusic) },
         { icon: "edit", name: "재생목록 수정", onClickHandler: onClickHandlerWrapper(updatePlaylistInfo) },
-        { icon: "library_add_check", name: "재생목록 삭제", onClickHandler: onClickHandlerWrapper(deletePlaylist) },
+        { icon: "library_add_check", name: "재생목록 삭제", onClickHandler: deletePlaylist },
     ];
     return <OptionSelector options={options} />;
 })
@@ -329,7 +327,3 @@ const YTOptions = memo(function ({ setPopupOpen }: { setPopupOpen: (isOpen: bool
     ]
     return <OptionSelector options={options} />;
 });
-
-function PopupInfoState(PopupInfoState: any) {
-    throw new Error('Function not implemented.');
-}
