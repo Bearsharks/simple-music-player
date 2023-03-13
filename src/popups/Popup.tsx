@@ -10,7 +10,7 @@ import Spinner from 'components/Spinner';
 import FormBoxPlaylist from 'components/formBox/FormBoxPlaylist';
 import OuterClickEventCatcher from 'components/OuterClickEventCatcher';
 import ResizeEventCatcher from 'components/ResizeEventCatcher';
-import {useDeleteSimplePlaylist} from "../serverStates/simplePlaylistState";
+import {useDeleteSimplePlaylist, useDeleteSimplePlaylistItems} from "../serverStates/simplePlaylistState";
 
 function InnerPopup({ setOpen, info }: { setOpen: (_: boolean) => void, info: PopupInfo }) {
     const children = (() => {
@@ -209,17 +209,9 @@ interface PlaylistItemOptionsProps {
 }
 const PlaylistItemOptions = memo(function ({ setPopupOpen, evTarget, musicInfos, playlistID }: PlaylistItemOptionsProps) {
     const musicOptions = useGetMusicOptions(musicInfos, setPopupOpen, evTarget);
-    const playlistManager = usePlaylistManager();
+    const deleteItems = useDeleteSimplePlaylistItems();
     const deleteMusic = (items: MusicInfoItem[]) => {
-        const delAction: PlaylistAction = {
-            type: PlaylistActionType.DELETE_ITEMS,
-            payload: {
-                id: playlistID,
-                items: items
-            }
-        }
-        playlistManager(delAction);
-        setPopupOpen(false);
+        deleteItems.mutate(playlistID, items, () => setPopupOpen(false));
     }
     const options = [
         ...musicOptions,

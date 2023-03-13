@@ -60,7 +60,7 @@ export interface MusicListAction {
 }
 
 export enum PlaylistActionType {
-    UPDATE, APPEND, DELETE_ITEMS
+     APPEND
 }
 export interface PlaylistAction {
     type: PlaylistActionType

@@ -45,46 +45,8 @@ export const usePlaylistManager = function () {
     //create, delete, update
     const setNotice = useNotice();
     return useRecoilCallback(({ set, snapshot }) => async (action: PlaylistAction) => {
-        const { UPDATE, APPEND, DELETE_ITEMS } = PlaylistActionType;
+        const {  APPEND } = PlaylistActionType;
         switch (action.type) {
-            case UPDATE: {
-                if (!action.payload.info || !action.payload.info.id) return;
-                const tgt: string = action.payload.info.id;
-                const info: PlaylistInfo = snapshot.getLoadable(playlistInfoStateFamily(tgt)).contents;
-                const result = await updatePlaylist(action.payload);
-                if (result) {
-                    set(playlistInfoStateFamily(tgt), { ...info, ...action.payload.info });
-                    if (action.payload.items) {
-                        set(playlistItemStateFamily(tgt), action.payload.items);
-                    }
-                }
-            } break;
-            case DELETE_ITEMS: {
-                let tgtInfos: MusicInfoItem[] = (action.payload.items).reverse();
-                let info: PlaylistInfo = snapshot.getLoadable(playlistInfoStateFamily(action.payload.id)).contents;
-                let list: MusicInfoItem[] = (snapshot.getLoadable(playlistItemStateFamily(action.payload.id)).contents).slice();
-                let tgtIdxs = [];
-                for (let i = 0; i < list.length; i++) {
-                    if (list[i].key === tgtInfos[tgtInfos.length - 1].key) {
-                        tgtIdxs.push(i);
-                        if (tgtInfos.length === 1) break;
-                        tgtInfos.pop();
-                    }
-                }
-                for (let idx of tgtIdxs) {
-                    list[idx] = {} as MusicInfoItem;
-                }
-                let emptyIdx = 0;
-                for (let i = 0; i < list.length; i++) {
-                    if (list[i].key) list[emptyIdx++] = list[i];
-                }
-                for (let i = 0; i < tgtInfos.length; i++) list.pop();
-                const result = await updatePlaylist({ info, items: list });
-                if (result) {
-                    set(playlistItemStateFamily(action.payload.id), list);
-                }
-                break;
-            }
             case APPEND: {
                 if (!action.payload.info || !action.payload.info.id || !action.payload.items) return;
                 const tgt: string = action.payload.info.id;
