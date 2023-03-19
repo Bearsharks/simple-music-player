@@ -1,9 +1,10 @@
 import {useMutation} from "react-query";
 import {createPlaylist, deletePlaylist, updatePlaylist} from "../refs/api";
-import {MusicInfoItem, Playlist, PlaylistInfo} from "../refs/constants";
+import {MusicInfo, MusicInfoItem, Playlist, PlaylistInfo} from "../refs/constants";
 import {CallbackInterface, useRecoilCallback, useRecoilState} from "recoil";
 import {playlistIDsState, playlistInfoStateFamily, playlistItemStateFamily} from "../recoilStates/playlistAtoms";
 import keyGenerator from "../refs/keyGenerator";
+import {useNotice} from "../popups/Notice";
 
 export const useCreateSimplePlaylist = () => {
     const [playlistIds, setPlayListIds] = useRecoilState(playlistIDsState);
@@ -94,10 +95,43 @@ export const useDeleteSimplePlaylistItems = () => {
             const {info, items} = getPlaylist(id);
             const tgtItemsSet = new Set(tgtItems.map(item => item.key));
             const remainItems = items.filter(item => !tgtItemsSet.has(item.key));
-            debugger;
             mutation.mutate({info, items: remainItems},
                 (isSuccess: boolean) => {
                     onSuccess?.(isSuccess);
+                }
+            )
+        }
+    }
+}
+
+
+
+export const useAppendSimplePlaylistItems = () => {
+    const getPlaylist = useRecoilCallback(({snapshot}) => {
+        return (id: string) => {
+            const info: PlaylistInfo = snapshot.getLoadable(playlistInfoStateFamily(id)).contents;
+            const items: MusicInfoItem[] = snapshot.getLoadable(playlistItemStateFamily(id)).contents;
+            return {info, items};
+        }
+    })
+    const mutation = useUpdateSimplePlaylist();
+    const setNotice = useNotice();
+
+    return {
+        ...mutation,
+        mutate: (id: string, tgtItems: MusicInfo[], onSuccess?: (isSuccess: boolean) => void) => {
+            const {info, items} = getPlaylist(id);
+            const newMusicInfoItems: MusicInfoItem[] = keyGenerator(tgtItems.length).map((key, idx) => ({
+                ...tgtItems[idx], key
+            }))
+            const newMusicItems: MusicInfoItem[] = [...items, ...newMusicInfoItems];
+            const newPlaylistInfo: PlaylistInfo = {...info, itemCount: newMusicItems.length};
+            mutation.mutate({
+                info: newPlaylistInfo,
+                items: newMusicItems
+            }, (isSuccess: boolean) => {
+                    onSuccess?.(isSuccess);
+                    setNotice("추가 성공!");
                 }
             )
         }
