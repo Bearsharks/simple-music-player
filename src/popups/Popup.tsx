@@ -2,15 +2,26 @@ import { useRecoilSnapshot, useRecoilValue } from 'recoil'
 import { getPopupInfoState, PopupInfo, PopupKind, useModalManager, ModalKind, useOpenSelectTgtPlaylistPopup, useClosePopup } from './PopupStates';
 import styles from './Popup.module.scss'
 import { memo, useRef, useEffect, Suspense, useCallback } from 'react';
-import { MusicInfo, MusicInfoArrayCheck, MusicInfoItem, MusicListAction, MusicListActionType, PlaylistAction, PlaylistActionType, PlaylistInfo } from 'refs/constants';
-import { playlistInfosState, playlistItemStateFamily, useMusicListManager, usePlaylistManager } from 'recoilStates/playlistAtoms';
+import {
+    MusicInfo,
+    MusicInfoArrayCheck,
+    MusicInfoItem,
+    MusicListAction,
+    MusicListActionType,
+    PlaylistInfo
+} from 'refs/constants';
+import { playlistInfosState, playlistItemStateFamily, useMusicListManager} from 'recoilStates/playlistAtoms';
 import { searchByQuery } from 'refs/youtubeSearch';
 import OptionSelector, { OptionInfo } from 'components/OptionSelector';
 import Spinner from 'components/Spinner';
 import FormBoxPlaylist from 'components/formBox/FormBoxPlaylist';
 import OuterClickEventCatcher from 'components/OuterClickEventCatcher';
 import ResizeEventCatcher from 'components/ResizeEventCatcher';
-import {useDeleteSimplePlaylist, useDeleteSimplePlaylistItems} from "../serverStates/simplePlaylistState";
+import {
+    useAppendSimplePlaylistItems,
+    useDeleteSimplePlaylist,
+    useDeleteSimplePlaylistItems
+} from "../serverStates/simplePlaylistState";
 
 function InnerPopup({ setOpen, info }: { setOpen: (_: boolean) => void, info: PopupInfo }) {
     const children = (() => {
@@ -111,7 +122,7 @@ interface AppendPlaylistPopupProps {
 }
 function AppendPlaylistPopup({ musicInfos, setPopupOpen }: AppendPlaylistPopupProps) {
     const playlistInfos = useRecoilValue(playlistInfosState);
-    const playlistManager = usePlaylistManager();
+    const appendPlaylist = useAppendSimplePlaylistItems();
     const modalManager = useModalManager();
     const openNewPlaylistModal = () => {
         modalManager(ModalKind.CreatePlaylist, musicInfos);
@@ -130,15 +141,8 @@ function AppendPlaylistPopup({ musicInfos, setPopupOpen }: AppendPlaylistPopupPr
         }
         let info = playlistInfos.find((element) => element.id === tgt.id);
         if (!info) throw "해당 재생목록이 존재하지 않음!";
-        const appendAction: PlaylistAction = {
-            type: PlaylistActionType.APPEND,
-            payload: {
-                info: { id: tgt.id },
-                items: musicInfos
-            }
-        }
-        playlistManager(appendAction);
-        setPopupOpen(false);
+
+        appendPlaylist.mutate(info.id, musicInfos, () => setPopupOpen(false));
     }
 
     return <div className={styles['playlist']}>
