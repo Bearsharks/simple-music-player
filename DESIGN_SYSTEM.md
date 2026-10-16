@@ -173,3 +173,11 @@ z-index는 **같은 stacking context 안의 순서**다. native top layer, inert
 
 ### 2026-10-16 13:09 음량 범위 보완
 모든 너비의 footer에서 같은 음량 popup에 접근한다. 320/390의 마지막 칸도 음량+큐44px씩을 확보하고 제목만 ellipsis 처리한다. 가로 overflow와 터치영역 축소로 공간을 맞추지 않는다.
+
+## 10. Typography (2026-10-16 사용자 최종 선택)
+
+- 실제 self-host된 Geist Sans + Pretendard Variable을 사용한다. 전역 --font는 Geist Sans 먼저, Pretendard Variable 다음이다. Latin/숫자와 한글이 자연스럽게 fallback되며 언어별 DOM 분할은 하지 않는다.
+- 공식 고정 원본: Geist v1.7.2의 variable Sans WOFF2(100–900), Pretendard v1.3.9의 variable dynamic subset(45–920). 각 OFL1.1/copyright를 포함하고 font-display swap과 동일-origin CSP를 유지한다.
+- 폰트 이름 선언만으로 적용됐다고 보지 않는다. 실제 WOFF2 네트워크와 문자별 rendered font를 확인한다.
+- 기본 크기/행간/버튼 높이를 먼저 유지한다. 한글 본문 자간0, 시간 tabular-nums, 역할별 weight를 사용한다. 폰트 교체를 이유로 전체 UI를 작게 만들거나 새 장식 폰트를 더하지 않는다.
+- 7폭/200%/긴 혼용제목/폰트실패에서 wrap·ellipsis·44px hit area를 재검수한다. 상세 구현 인수 계약은 shadcn-design/FONT-IMPLEMENTATION-HANDOFF.md에 고정한다.

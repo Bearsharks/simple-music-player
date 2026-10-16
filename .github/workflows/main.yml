@@ -29,6 +29,7 @@ jobs:
           VITE_BASE_PATH=/ npx vite preview --host 127.0.0.1 --port 4175 > /tmp/vite-domain.log 2>&1 &
           for i in $(seq 1 30); do curl -fsS http://127.0.0.1:4175/ >/dev/null && break; sleep 1; done
           TEST_URL=http://127.0.0.1:4175/ node e2e/smoke.mjs
+          TEST_URL=http://127.0.0.1:4175/ TEST_WIDTHS=390,1440 node e2e/typography.mjs
       - name: Design prototype preview
         if: ${{ !cancelled() }}
         run: |

@@ -78,8 +78,9 @@
   --dock: 5.5rem;
   --safe-bottom: env(safe-area-inset-bottom, 0px);
   --font:
-    Inter, "Noto Sans KR", "Noto Sans Korean", -apple-system,
-    BlinkMacSystemFont, "Segoe UI", sans-serif;
+    "Geist Sans", "Pretendard Variable", system-ui, -apple-system,
+    BlinkMacSystemFont, "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR",
+    "Malgun Gothic", sans-serif;
 }
 * {
   box-sizing: border-box;

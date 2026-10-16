@@ -77,6 +77,13 @@ try {
       });
       await page.reload();
       await expect(
+        page.getByRole("heading", { name: "내 라이브러리", exact: true }),
+      ).toBeVisible();
+      await expect(
+        page.getByRole("button", { name: "후속 UI 검증 열기", exact: true }),
+      ).toBeVisible();
+      await page.evaluate(() => document.fonts.ready.then(() => undefined));
+      await expect(
         page.getByRole("button", { name: "YouTube 가져오기", exact: true }),
       ).toHaveCount(0);
       await page.screenshot({

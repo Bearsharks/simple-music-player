@@ -1,0 +1,10 @@
+/* Pinned official font assets; provenance and OFL licenses: shared/assets/fonts/README.md. */
+@import "../assets/fonts/pretendard/pretendardvariable-dynamic-subset.css";
+
+@font-face {
+  font-family: "Geist Sans";
+  src: url("../assets/fonts/geist/Geist-Variable.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+}

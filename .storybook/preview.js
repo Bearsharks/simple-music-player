@@ -1,4 +1,5 @@
 import '../src/app/App.scss';
+import '../src/shared/ui/fonts.css';
 import '../src/shared/ui/shadcn/styles.css';
 
 export const parameters = {

@@ -60,3 +60,9 @@ body/native-dialog portal에서 표시되며 app context에 갇히지 않는다.
 YouTube 가져오기 진입은 ‘새 재생목록’ modal 안에 통합했다. sidebar/라이브러리
 헤더/빈 상태의 별도 가져오기 CTA는 제거했다. 백업 가져오기와 기존 source 최신
 가져오기는 그대로다. 로고는 공통 signature 토큰과 25×28 공유 좌표를 사용한다.
+
+전역 서체는 shared/ui/fonts.css의 self-hosted Geist Sans + Pretendard Variable이다.
+App/Storybook 진입점이 같은 CSS를 로드하고 모든 feature는 --font를 사용한다.
+원본/라이선스/hash와 unicode subset 계약은 shared/assets/fonts/README.md를 따른다.
+실제 glyph/font network 검증은 e2e/typography.mjs이며 CSS family 문자열만으로
+로드 성공을 판단하지 않는다. 변경 시 기존 7폭/1280px/200% 텍스트 회귀도 실행한다.
