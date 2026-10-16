@@ -39,6 +39,7 @@ const media = vi.hoisted(() => ({
   destroyed: 0,
   loads: [] as string[],
   config: null as any,
+  readyDelay: 0,
 }));
 vi.mock("features/player/api/iframe", () => ({
   loadIframeApi: async () => ({
@@ -54,7 +55,9 @@ vi.mock("features/player/api/iframe", () => ({
             title: "Simulated official player",
           }),
         );
-        queueMicrotask(() => config.events.onReady());
+        if (media.readyDelay)
+          setTimeout(() => config.events.onReady(), media.readyDelay);
+        else queueMicrotask(() => config.events.onReady());
       }
       destroy() {
         media.destroyed++;
@@ -101,6 +104,7 @@ const song = (key: string) => ({
   query: "",
 });
 afterEach(() => {
+  media.readyDelay = 0;
   vi.restoreAllMocks();
   delete (window as any).player;
 });
@@ -428,3 +432,55 @@ it("lets one native cancel close only the top dialog after responsive re-registr
     for (const method of methods) delete (prototype as any)[method];
   }
 });
+
+it.each([0, 20])(
+  "reloads the same song after a player retry with %ims ready delay",
+  async (readyDelay) => {
+    media.readyDelay = readyDelay;
+    const store = createStore();
+    store.set(queueState, { items: [song("a"), song("b")], index: 0 });
+    store.set(openState, true);
+    media.constructed = 0;
+    media.destroyed = 0;
+    media.loads = [];
+    const user = userEvent.setup();
+    await act(async () =>
+      render(
+        <Provider store={store}>
+          <MusicPlayer />
+        </Provider>,
+      ),
+    );
+    await waitFor(() => expect(media.loads).toEqual([song("a").videoID]));
+    await user.click(screen.getByRole("tab", { name: "현재 곡" }));
+    const firstPlayer = (window as any).player;
+    await act(async () => media.config.events.onError({ data: 150 }));
+    expect(screen.getByRole("alert")).toHaveTextContent(
+      "이 곡을 재생할 수 없어요",
+    );
+    expect(
+      screen.queryByRole("button", { name: "일시 정지" }),
+    ).not.toBeInTheDocument();
+    // act() flushes the intermediate false before the ready microtask and hides
+    // this browser batching regression. Run only the retry on React's normal
+    // scheduler, then use Vitest's non-act polling and restore the test setting.
+    const environment = (globalThis as any).IS_REACT_ACT_ENVIRONMENT;
+    (globalThis as any).IS_REACT_ACT_ENVIRONMENT = false;
+    try {
+      screen.getByRole("button", { name: "다시 시도" }).click();
+      await vi.waitFor(() =>
+        expect(media.loads).toEqual([song("a").videoID, song("a").videoID]),
+      );
+    } finally {
+      (globalThis as any).IS_REACT_ACT_ENVIRONMENT = environment;
+    }
+    await waitFor(() => expect(media.constructed).toBe(2));
+    expect(media.destroyed).toBe(1);
+    expect((window as any).player).not.toBe(firstPlayer);
+    await waitFor(() =>
+      expect(media.loads).toEqual([song("a").videoID, song("a").videoID]),
+    );
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+    expect(store.get(queueState).index).toBe(0);
+  },
+);

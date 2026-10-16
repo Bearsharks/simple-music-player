@@ -48,7 +48,7 @@ export default function MusicPlayer() {
     return () => clearInterval(timer);
   }, [ready, setProgress]);
   const controls = {
-    isPlaying: state === PlayerState.PLAYING,
+    isPlaying: ready && !error && state === PlayerState.PLAYING,
     canPlay: Boolean(track.key) && ready && !error,
     canNext: index < list.length - 1,
     goNext: () => {

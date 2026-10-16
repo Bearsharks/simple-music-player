@@ -5,7 +5,7 @@
 ## 현재 상태
 
 - 소스 동결: 부모 검수/CI 준비 완료. 이 구현자는 커밋·push·배포하지 않았다.
-- `npm_config_cache=/tmp/music-player-npm-cache npm run check`: **86 tests / 14 files**, feature boundary 83 files, TypeScript, production build 통과.
+- `npm_config_cache=/tmp/music-player-npm-cache npm run check`: **88 tests / 14 files**, feature boundary 83 files, TypeScript, production build 통과.
 - `git diff --check`, e2e 3파일 `node --check` 통과.
 - 이전 CI `38869455394`에서 생성 smoke 1440/1280/390 및 Electric Night 320px가 통과했다. 390px 중첩 Escape 이후 부모 큐까지 닫힌 실패를 수정했으며, 이번 변경의 실제 Chromium 결과는 대기 중이다.
 - 로컬 Chromium은 `socket() failed: Operation not permitted`로 시작하지 못했다. 아래 실제 브라우저 판정/스크린샷 비교는 아직 통과로 표시하지 않는다.
@@ -87,3 +87,10 @@
 - 전체 저장 목록 메뉴의 ‘대기열 끝에 추가’는 기존 APPEND_PLAYLIST를 호출한다. 모호한 큐 추가/삭제 문구도 대기열로 명시했다.
 - 추가 unit 8건: native cancel 단일 처리, 선택곡 저장 390/1440 맥락, 가져오기 390/1440 포커스·큐, 실패/연속 순서 이동, 삭제 포커스, 전체 목록 append. 기존 통합 테스트에도 큐 삭제 포커스와 자식 Escape 후 부모 유지 검증을 보강했다.
 - 실제 Chromium 시나리오에 같은 경계들을 추가했다. 메뉴→picker→생성→가져오기 뒤 breakpoint 전환/Escape에서 부모 큐가 여전히 열려 있는지 즉시 검사한다. UI 큐 저장, 실패 순서 저장 후 키보드 재시도, 삭제→Undo, 전체 목록 append, 가져오기 완료도 이어서 검증한다. 타임아웃을 늘리거나 실패 검사를 제거하지 않았다.
+
+## 2차 CI 재시도 경계
+
+- CI `38871370695`에서 기존 smoke 3폭과 Electric Night 320px, 390px의 중첩 Escape/선택곡 저장/키보드 편집/삭제 포커스가 통과했다. 이후 미디어 오류 재시도에서 새 mock player #2는 생성됐지만 곡 load는 1회에 머무는 실패를 확인했다.
+- boolean ready false→true가 동일 React 배치에 들어가면 load effect의 값이 바뀌지 않는 원인을 unit에서도 재현했다. 준비된 인스턴스 identity를 load effect가 소비하도록 수정했으며, 현재 active instance만 사용한다. SDK·큐·저장 계약은 바꾸지 않았다.
+- 새 테스트를 기존 코드에 적용하면 microtask ready 케이스가 1회/예상 2회로 실패하고 지연 ready는 통과한다. 수정 후 두 케이스가 모두 통과한다. 테스트 전용 act의 중간 flush가 문제를 감추지 않도록 해당 재시도만 정상 React scheduler/비-act polling으로 실행한다. ready를 느리게 바꿔 회피하지 않았다.
+- 오류/준비 중에는 PLAYING의 이전 값으로 일시정지 아이콘을 표시하지 않는다. 실제 Chromium의 나머지 390px 흐름 및 768/1024/1280/1440px는 다음 CI 결과로 판정한다.

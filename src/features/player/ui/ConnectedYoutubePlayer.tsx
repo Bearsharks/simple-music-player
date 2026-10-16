@@ -1,6 +1,6 @@
 import { loadIframeApi } from "../api/iframe";
-import { useEffect, useRef } from "react";
-import { useAtomValue, useSetAtom, useAtom } from "jotai";
+import { useEffect, useRef, useState } from "react";
+import { useAtomValue, useSetAtom } from "jotai";
 import {
   MusicInfoActionType,
   MusicInfoItem,
@@ -51,7 +51,9 @@ const handleKeyboardEvent = (e: KeyboardEvent) => {
 };
 
 function YoutubePlayer() {
-  const [ytPlayerInited, setYTPlayerInited] = useAtom(ytPlayerInitedState);
+  const setYTPlayerInited = useSetAtom(ytPlayerInitedState);
+  const [readyPlayer, setReadyPlayer] = useState<any>(null);
+  const activePlayer = useRef<any>(null);
   const setPlayState = useSetAtom(musicPlayerState);
   const curMusicManager = useCurMusicManager();
   const curMusic = useAtomValue(curMusicInfoState);
@@ -70,6 +72,8 @@ function YoutubePlayer() {
     let cancelled = false;
     let player: any;
     setYTPlayerInited(false);
+    setReadyPlayer(null);
+    setPlayState(PlayerState.BUFFERING);
     setError("");
     prevMusicRef.current = undefined;
     const timeout = window.setTimeout(() => {
@@ -91,6 +95,8 @@ function YoutubePlayer() {
             onReady: () => {
               if (!cancelled) {
                 clearTimeout(timeout);
+                // The ready instance changes even if false → true is batched.
+                setReadyPlayer(player);
                 setYTPlayerInited(true);
                 setError("");
               }
@@ -115,6 +121,7 @@ function YoutubePlayer() {
             },
           },
         });
+        activePlayer.current = player;
         (window as any).player = player;
       })
       .catch((error) => {
@@ -124,6 +131,7 @@ function YoutubePlayer() {
     return () => {
       cancelled = true;
       clearTimeout(timeout);
+      if (activePlayer.current === player) activePlayer.current = null;
       player?.destroy();
       if ((window as any).player === player) delete (window as any).player;
       setYTPlayerInited(false);
@@ -137,9 +145,9 @@ function YoutubePlayer() {
     retry,
   ]);
   useEffect(() => {
-    if (!ytPlayerInited) return;
+    if (!readyPlayer || readyPlayer !== activePlayer.current) return;
     let cancelled = false;
-    const player = (window as any).player;
+    const player = readyPlayer;
     if (!curMusic.query && !curMusic.videoID) {
       player.stopVideo();
       setProgress({ duration: 0, currentTime: 0 });
@@ -180,7 +188,7 @@ function YoutubePlayer() {
     };
   }, [
     curMusic,
-    ytPlayerInited,
+    readyPlayer,
     curMusicManager,
     setError,
     setProgress,

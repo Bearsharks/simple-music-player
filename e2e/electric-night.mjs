@@ -401,6 +401,12 @@ try {
         await expect(page.getByRole("alert")).toContainText(
           "이 곡을 재생할 수 없어요",
         );
+        await expect(
+          queuePanel.getByRole("button", { name: "재생", exact: true }),
+        ).toBeDisabled();
+        await expect(
+          queuePanel.getByRole("button", { name: "일시 정지", exact: true }),
+        ).toHaveCount(0);
         await page.screenshot({
           path: `test-results/app-error-${viewport.width}.png`,
           fullPage: true,
@@ -413,6 +419,16 @@ try {
             page.evaluate(() => window.__simulatedPlayer.loads.length),
           )
           .toBe(2);
+        expect(
+          await page.evaluate(() => ({
+            instances: window.__simulatedPlayer.instances,
+            destroys: window.__simulatedPlayer.destroys,
+            replaced: window.player !== window.__originalPlayer,
+          })),
+        ).toEqual({ instances: 2, destroys: 1, replaced: true });
+        await expect(
+          queuePanel.getByRole("button", { name: "일시 정지", exact: true }),
+        ).toBeEnabled();
         await expect(page.getByRole("alert")).toHaveCount(0);
         await page
           .getByRole("button", { name: "대기열 닫기", exact: true })

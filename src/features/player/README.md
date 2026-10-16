@@ -48,3 +48,5 @@ ListeningDock.scss와 PlayerController.tsx가 고정 재생바를 소유한다. 
 - onError/API 연결 실패는 playbackErrorState에 표시한다. `playbackRetryState`는 명시적 재시도 전용이다. playing/paused/loading/ended/error를 구분하며 다음 곡은 유효한 인덱스에서만 가능하다.
 - 큐 삭제 Undo는 queue가, 원본 저장은 playlists가 소유한다. player는 기존 manager/overlay 콜백으로만 연결한다.
 - 회귀: `electric-night.test.tsx`, `design-player.test.tsx`; `e2e/electric-night.mjs`는 플레이어 DOM/인스턴스 유지, 중첩 modal, 1199↔1200 전환과 제한 오류를 시뮬레이션한다. 실제 iframe/오디오/모바일 Safari/백그라운드 재생은 실환경 검수가 별도로 필요하다.
+
+재시도의 ready 상태는 boolean UI 신호와 실제 준비된 player instance identity를 구분한다. 빠른 onReady가 초기화의 false→true와 같은 React 배치에 들어가도 새 인스턴스를 기준으로 현재 곡을 정확히 다시 load한다. 해제된 인스턴스는 active instance 검사와 취소 플래그로 무시한다. 오류/준비 중 transport는 이전 PLAYING 값을 보여주지 않는다. `electric-night` 테스트는 React의 실제 자동 배치를 사용해 microtask ready와 지연 ready를 모두 확인하며, Chromium 시뮬레이션도 재생성/이전 인스턴스 해제/같은 곡 재로드를 확인한다.
