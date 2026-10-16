@@ -1,0 +1,82 @@
+.playlist-import {
+  padding: 28px;
+  width: 100%;
+}
+.playlist-import h2 {
+  font-size: 22px;
+  margin: 0 0 12px;
+}
+.import-intro {
+  color: var(--muted);
+  font-size: 14px;
+  margin-bottom: 20px;
+}
+.import-steps {
+  list-style: none;
+  display: flex;
+  gap: 16px;
+  padding: 0 0 12px;
+  margin: 0 0 24px;
+  border-bottom: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 12px;
+}
+.import-steps .active {
+  color: #d0a3f7;
+}
+.playlist-import fieldset {
+  border: 0;
+  padding: 0;
+  margin: 0;
+  min-width: 0;
+}
+.playlist-import label {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 13px;
+  margin-bottom: 20px;
+}
+.playlist-import input {
+  width: 100%;
+}
+.import-preview {
+  min-height: 220px;
+  width: 100%;
+  margin-top: 20px;
+  overflow: hidden;
+  background: var(--canvas);
+  border-radius: 10px;
+}
+.import-preview iframe {
+  display: block;
+  max-width: 100%;
+}
+.import-status {
+  color: #d0a3f7;
+  font-size: 13px;
+  margin: 20px 0 12px;
+}
+.import-disclosure {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.7;
+}
+.import-actions {
+  flex-wrap: wrap;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 24px;
+}
+.playlist-import > p {
+  overflow-wrap: anywhere;
+}
+@media (max-width: 760px) {
+  .playlist-import {
+    padding: 22px 20px;
+  }
+  .import-actions > button {
+    flex: 1;
+  }
+}

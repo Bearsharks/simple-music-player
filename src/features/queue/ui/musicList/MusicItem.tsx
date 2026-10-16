@@ -1,3 +1,5 @@
+import Cover from "shared/ui/Cover";
+import Icon from "shared/ui/Icon";
 import MoreVert from "shared/ui/MoreVert";
 import { MusicInfoItem } from "shared/model/constants";
 import styles from "features/queue/ui/musicList/MusicItem.module.scss";
@@ -7,6 +9,7 @@ export interface MusicItemProps {
   playMusic: (idx: number | undefined) => void;
   openOptionsPopup: (target: HTMLElement, musicInfos: MusicInfoItem[]) => void;
   isCurMusic?: boolean;
+  statusLabel?: string;
 }
 export function MusicItem({
   idx,
@@ -14,6 +17,7 @@ export function MusicItem({
   playMusic,
   openOptionsPopup,
   isCurMusic,
+  statusLabel,
 }: MusicItemProps) {
   const popupOpen = (event: React.MouseEvent) => {
     openOptionsPopup(event.currentTarget as HTMLElement, [item]);
@@ -21,41 +25,37 @@ export function MusicItem({
   return (
     <div className={styles["wrapper"]}>
       <div className={styles[`grid-container`]}>
-        <button type="button"
-          className={`${styles[`grid-item`]} ${styles["grid-item--fit"]}`}
-          aria-label={`${item.name} 재생`} onClick={() => playMusic(idx)}
+        <button
+          type="button"
+          className={`music-cover-button ${styles[`grid-item`]} ${styles["grid-item--fit"]}`}
+          aria-label={`${item.name} 재생`}
+          onClick={() => playMusic(idx)}
         >
-          {item.thumbnail ? (
-            <img
-              className={styles["thumbnail"]}
-              alt=""
-              onError={(e) => {
-                e.currentTarget.style.visibility = "hidden";
-              }}
-              src={item.thumbnail}
-            />
-          ) : (
-            <span className={styles["thumbnail"]}>
-              <span className="material-icons md-32">question_mark</span>
-            </span>
-          )}
+          <Cover
+            id={item.videoID || item.key}
+            thumbnail={item.thumbnail}
+            className={styles.thumbnail}
+          />
           <span
             className={`${styles["overlay"]} ${isCurMusic && styles["overlay--show"]}`}
           >
-            <span className="material-icons md-32">play_arrow</span>
+            <Icon name="play" />
           </span>
         </button>
-        <button type="button" className={styles[`grid-item`]}
-          aria-label={`${item.name} 재생`} onClick={() => playMusic(idx)}
+        <button
+          type="button"
+          className={styles[`grid-item`]}
+          aria-label={`${item.name} 재생`}
+          onClick={() => playMusic(idx)}
         >
           <span className={styles[`grid-item__text`]} title={item.name}>
             {item.name}
           </span>
           <span
             className={`${styles[`grid-item__text`]} ${styles[`grid-item__text--light`]}`}
-            title={item.owner}
+            title={statusLabel || item.owner || "YouTube 영상"}
           >
-            {item.owner}
+            {statusLabel || item.owner || "YouTube 영상"}
           </span>
         </button>
         <MoreVert onClick={popupOpen} label={`${item.name} 더보기`}></MoreVert>

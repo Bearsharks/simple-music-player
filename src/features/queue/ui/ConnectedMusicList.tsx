@@ -1,28 +1,45 @@
-import MusicList from 'features/queue/ui/musicList/MusicList';
-import { useOpenMusicOptionsPopup } from 'features/overlays/PopupStates';
-import { useCurMusicManager, useMusicListManager } from 'features/queue/model/queue';
-import { MusicInfoActionType, MusicInfoItem, MusicListActionType } from 'shared/model/constants';
-function MusicListConnected({ items }: { items: MusicInfoItem[] }) {
-    const openMusicOptionsPopup = useOpenMusicOptionsPopup();
-    const musicListManager = useMusicListManager();
-    const curMusicManager = useCurMusicManager();
-
-    const changeOrder = (src: number, dst: number) => {
-        musicListManager({
-            type: MusicListActionType.CHANGE_ORDER,
-            payload: { to: dst, from: src }
+import { useAtomValue } from "jotai";
+import MusicList from "./musicList/MusicList";
+import { useOpenMusicOptionsPopup } from "features/overlays/PopupStates";
+import {
+  curMusicIdxState,
+  useCurMusicManager,
+  useMusicListManager,
+} from "../model/queue";
+import {
+  MusicInfoActionType,
+  MusicInfoItem,
+  MusicListActionType,
+} from "shared/model/constants";
+export default function ConnectedMusicList({
+  items,
+  editing = false,
+  currentStatus,
+}: {
+  items: MusicInfoItem[];
+  editing?: boolean;
+  currentStatus?: string;
+}) {
+  const options = useOpenMusicOptionsPopup();
+  const manage = useMusicListManager();
+  const current = useCurMusicManager();
+  const index = useAtomValue(curMusicIdxState);
+  return (
+    <MusicList
+      items={items}
+      editing={editing}
+      currentIndex={index}
+      currentStatus={currentStatus}
+      playMusic={(idx) => {
+        void current({ type: MusicInfoActionType.SET_IDX, payload: idx });
+      }}
+      openOptionsPopup={options}
+      changeOrder={(from, to) => {
+        void manage({
+          type: MusicListActionType.CHANGE_ORDER,
+          payload: { from, to },
         });
-    }
-    const playMusic = (idx: number | undefined) => {
-        curMusicManager({
-            type: MusicInfoActionType.SET_IDX,
-            payload: idx
-        });
-    }
-    return <MusicList
-        items={items}
-        playMusic={playMusic}
-        openOptionsPopup={openMusicOptionsPopup}
-        changeOrder={changeOrder} />
+      }}
+    />
+  );
 }
-export default MusicListConnected;

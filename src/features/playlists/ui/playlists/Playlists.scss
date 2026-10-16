@@ -1,0 +1,255 @@
+.page-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.page-heading h1 {
+  font-size: 28px;
+  line-height: 1.25;
+  margin: 0;
+}
+.page-heading p {
+  color: var(--muted);
+  font-size: 13px;
+  margin: 8px 0 0;
+}
+.heading-actions {
+  display: flex;
+  gap: 8px;
+  flex: none;
+}
+.library-tools {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin: 24px 0;
+}
+.library-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-left: 12px;
+  background: #14141f;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  max-width: 360px;
+  flex: 1;
+  min-width: 0;
+}
+.library-search > .icon {
+  color: var(--muted);
+  width: 18px;
+  height: 18px;
+}
+.library-search input {
+  width: 100%;
+  border: 0;
+  background: transparent;
+  padding: 10px 8px;
+  font-size: 14px;
+}
+.library-tools select {
+  font-size: 13px;
+  background: #14141f;
+  border-color: var(--line);
+  max-width: 160px;
+}
+.playlist-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(174px, 1fr));
+  gap: 24px 20px;
+}
+.playlist-card {
+  min-width: 0;
+}
+.cover-frame {
+  position: relative;
+}
+.cover-open {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border-radius: 12px;
+}
+.cover-open:hover {
+  filter: brightness(1.08);
+}
+.card-play {
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+  border-radius: 50%;
+  height: 44px;
+  width: 44px;
+  display: grid;
+  place-items: center;
+  background: var(--gradient);
+  color: var(--on-brand);
+  box-shadow: 0 4px 20px #0005;
+  opacity: 0;
+  transform: translateY(3px);
+  transition:
+    opacity 0.18s,
+    transform 0.18s;
+}
+.card-play.add {
+  background: var(--surface);
+  color: white;
+  border: 1px solid var(--control-line);
+}
+.playlist-card:hover .card-play,
+.playlist-card:focus-within .card-play {
+  opacity: 1;
+  transform: none;
+}
+.card-caption {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px;
+  margin-top: 8px;
+}
+.card-title {
+  min-width: 0;
+  font-size: 15px;
+  font-weight: 600;
+  text-align: left;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  padding: 0;
+  min-height: 44px;
+}
+.card-meta {
+  color: var(--muted);
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin: 0;
+}
+.card-meta .icon {
+  width: 14px;
+  height: 14px;
+}
+.library-footnote {
+  margin-top: 32px;
+  padding-top: 20px;
+  border-top: 1px solid #ffffff0c;
+  color: var(--muted);
+  font-size: 12px;
+}
+.library-empty {
+  margin-top: 28px;
+  padding: 48px 24px;
+  text-align: center;
+  border: 1px solid #ffffff0b;
+  border-radius: 16px;
+  background: linear-gradient(150deg, #181324, #101019 65%);
+}
+.empty-wave {
+  width: 148px;
+  height: 74px;
+  overflow: hidden;
+  margin: 0 auto 24px;
+  border-radius: 40px;
+}
+.empty-wave .wave-cover {
+  transform: translateY(-36px);
+}
+.empty-tag {
+  display: block;
+  color: #c8a3ed;
+  font-size: 13px;
+  margin-bottom: 12px;
+}
+.library-empty h2 {
+  font-size: 26px;
+  line-height: 1.35;
+  margin-bottom: 16px;
+}
+.library-empty p {
+  color: var(--muted);
+  font-size: 14px;
+  margin: 0 auto 24px;
+}
+.library-empty .actions {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.search-empty {
+  padding: 60px 16px;
+  text-align: center;
+}
+.search-empty > .icon {
+  width: 32px;
+  height: 32px;
+  margin: 0 auto 16px;
+  color: var(--muted);
+}
+.search-empty h2 {
+  font-size: 20px;
+}
+.search-empty p {
+  color: var(--muted);
+}
+@media (max-width: 760px) {
+  .page-heading {
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .page-heading h1 {
+    font-size: 26px;
+  }
+  .heading-actions button {
+    width: 44px;
+    padding: 0;
+  }
+  .heading-actions button > span {
+    display: none;
+  }
+  .library-tools {
+    gap: 8px;
+    margin: 24px 0 20px;
+  }
+  .library-search input,
+  .library-tools select {
+    font-size: 16px;
+  }
+  .library-tools select {
+    max-width: 128px;
+    padding: 10px 8px;
+  }
+  .playlist-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 24px 16px;
+  }
+  .card-play {
+    opacity: 1;
+    transform: none;
+    right: 10px;
+    bottom: 10px;
+  }
+  .card-caption {
+    margin-top: 8px;
+  }
+  .card-title {
+    font-size: 14px;
+  }
+  .desktop-source {
+    display: none;
+  }
+  .library-empty {
+    padding: 32px 16px;
+  }
+  .library-empty h2 {
+    font-size: 24px;
+  }
+  .library-empty p br {
+    display: none;
+  }
+}

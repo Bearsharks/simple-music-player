@@ -1,31 +1,41 @@
-.music-list {
-  width: 100%;
-  overflow: hidden;
+.list {
+  min-width: 0;
 }
-.wrapper {
+.row {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 4px;
-  padding: 9px 3px;
-  border-radius: 7px;
-  margin-bottom: 3px;
-  border: 1px solid transparent;
+  padding: 5px 0;
+  border-bottom: 1px solid #ffffff08;
+  border-radius: 8px;
+  min-width: 0;
 }
-.wrapper:hover {
-  background: #ffffff06;
+.row > div:not(.order) {
+  min-width: 0;
+  flex: 1;
 }
-.wrapper--selected {
-  background: #ffb49a08;
-  border-color: #ffb49a12;
+.row.selected {
+  background: var(--selected);
 }
-.drag_handle {
-  display: grid;
-  place-items: center;
-  flex-shrink: 0;
-  color: #454e59;
-  width: 18px;
-  cursor: grab;
+.grip {
+  width: 28px !important;
+  min-width: 28px !important;
+  color: var(--muted);
 }
-.drag_handle span {
-  font-size: 17px;
+.grip :global(.icon) {
+  width: 14px;
+}
+.order {
+  display: flex;
+  width: 100%;
+  justify-content: flex-end;
+}
+.selected :global(.music-cover-button) {
+  color: var(--purple);
+}
+@media (max-width: 760px) {
+  .grip {
+    width: 28px !important;
+    min-width: 28px !important;
+  }
 }

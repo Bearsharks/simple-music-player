@@ -3,56 +3,55 @@
 }
 .wrapper h2 {
   font-size: 22px;
-  letter-spacing: -0.8px;
+  margin: 0 0 24px;
+}
+.fields {
+  border: 0;
+  margin: 0;
+  padding: 0;
+  min-width: 0;
 }
 .formbox-item {
-  margin-bottom: 18px;
+  margin-bottom: 20px;
 }
 .formbox-item__label {
-  font-size: 11px;
-  color: #8d96a4;
+  font-size: 13px;
+  color: #d0d0df;
   margin-bottom: 8px;
 }
 .formbox__input {
   width: 100%;
-  background: #101215;
-  color: #f1f2ed;
-  border: 1px solid #ffffff18;
-  border-radius: 8px;
-  min-height: 44px;
-  padding: 10px 12px;
-}
-.formbox__input:focus {
-  border-color: #ffb49a90;
-  outline: 2px solid #ffb49a20;
+  min-height: 46px;
 }
 .formbox-item--readonly {
-  opacity: 0.7;
+  color: var(--muted);
 }
 .formbox-actions {
   display: flex;
-  justify-content: end;
+  justify-content: flex-end;
   align-items: center;
-  gap: 8px;
-  margin-top: 24px;
+  gap: 10px;
+  margin-top: 28px;
 }
 .formbox-actions__button {
-  min-width: 72px;
-  min-height: 40px;
-  border-radius: 7px;
-  color: #9ca4b0;
-  display: grid;
-  place-items: center;
-  font-size: 12px;
+  min-width: 80px;
+  min-height: 44px;
+  padding: 10px 16px;
+  border-radius: 10px;
+  color: var(--text);
+  background: var(--surface-raised);
+  font-size: 14px;
 }
 .formbox-actions__button--white {
-  background: #ffb49a;
-  color: #3b2723;
+  background: var(--purple);
+  color: var(--on-brand);
   font-weight: 650;
 }
-@media (max-width: 500px) {
+@media (max-width: 760px) {
   .wrapper {
-    padding: 22px;
+    padding: 22px 20px;
+  }
+  .formbox-actions__button {
+    flex: 1;
   }
 }
-.fields { border: 0; margin: 0; padding: 0; min-width: 0; }

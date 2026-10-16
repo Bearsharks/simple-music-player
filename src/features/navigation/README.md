@@ -33,6 +33,14 @@ app/App.tsx가 진입점을 연결한다. Main이 player/search/overlays/queue�
 
 ## 디자인 개편 진입점
 
-Main.tsx와 StudioShell.scss가 새 앱 프레임/네이비·코랄 테마를 소유한다. 기존 햄버거/검색 모듈은 기본 프레임에 연결하지 않는다. SidebarLibrary는 실제 저장 목록을 읽는다.
+Main.tsx와 StudioShell.scss가 Electric Night 앱 프레임을 소유한다. 색/간격/공통 버튼 토큰은 shared/ui/electric-night.scss, 파형 커버는 shared/ui/Cover.tsx에 있다. 기존 햄버거/검색 모듈은 기본 프레임에 연결하지 않는다. SidebarLibrary는 실제 저장 목록을 읽는다.
 
-[디자인 기록](../../../docs/DESIGN-REFRESH.md)
+[승인 디자인 명세](../../../docs/design/electric-night/DESIGN-SPEC.md)
+
+## Electric Night 화면 조립
+
+- 중앙 라이브러리/상세는 기존 Routes에 유지한다. SidebarLibrary는 같은 playlist ID의 공통 Cover를 사용한다.
+- 큐 open atom에 따라 1200px 이상에서 중앙 폭을 회복/축소한다. player가 소유하는 761–1199px modal drawer와 760px 이하 sheet는 navigation에 상태 로직을 복제하지 않는다.
+- Modal/가져오기의 `onCreated(id)` 콜백을 받아 새 상세로 이동하고 영상 URL 필드에 포커스를 보낸다. 이때 sheet만 닫고 실제 재생/큐는 유지한다.
+- 목록 읽기 오류는 ReadBoundary에서 실패 상태로 표시한다. `useReloadPlaylists`는 atom 조회를 다시 요청하고 `playlistReadRevision`으로 양쪽 boundary를 함께 재생성한다. 데이터 삭제/초기화는 하지 않는다.
+- 브라우저 검수: `npm run test:browser`. 실제 생성 smoke와 별도 fixture 레이아웃 캡처를 모두 실행한다. 후자는 320/390/768/1024/1280/1440px를 검사한다.

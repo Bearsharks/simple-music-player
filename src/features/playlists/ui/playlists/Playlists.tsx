@@ -1,192 +1,209 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { PlaylistInfo } from "shared/model/constants";
+import Cover from "shared/ui/Cover";
+import Icon from "shared/ui/Icon";
+import "./Playlists.scss";
 export interface PlaylistsProps {
-  goToPlaylistPage: (id: string) => void;
+  goToPlaylistPage: (id: string, focusAdd?: boolean) => void;
   openCreatePlaylistPopup: () => void;
+  openImportPlaylist?: () => void;
   playlistInfos: PlaylistInfo[];
   playPlaylist: (id: string) => void;
-  openOptionsSelector: (e: React.MouseEvent<HTMLElement>, id: string) => void;
+  openOptionsSelector: (
+    event: React.MouseEvent<HTMLElement>,
+    id: string,
+  ) => void;
 }
 export default function Playlists(props: PlaylistsProps) {
   const [query, setQuery] = useState("");
   const [sort, setSort] = useState("recent");
-  const items = props.playlistInfos.filter((p) =>
-    p.name.toLocaleLowerCase().includes(query.toLocaleLowerCase()),
+  const heading = useRef<HTMLHeadingElement>(null);
+  useEffect(() => {
+    heading.current?.focus({ preventScroll: true });
+  }, []);
+  const items = props.playlistInfos.filter((playlist) =>
+    playlist.name.toLocaleLowerCase().includes(query.toLocaleLowerCase()),
   );
   if (sort === "name") items.sort((a, b) => a.name.localeCompare(b.name));
-  // Legacy lists have no known creation time; use a stable name/ID fallback.
-  else items.sort((a, b) =>
-    (b.createdAt ?? 0) - (a.createdAt ?? 0) || a.name.localeCompare(b.name) || a.id.localeCompare(b.id),
+  else
+    items.sort(
+      (a, b) =>
+        (b.createdAt ?? 0) - (a.createdAt ?? 0) ||
+        a.name.localeCompare(b.name) ||
+        a.id.localeCompare(b.id),
+    );
+  const count = props.playlistInfos.reduce(
+    (sum, playlist) => sum + (playlist.itemCount || 0),
+    0,
   );
-  const count = props.playlistInfos.reduce((n, p) => n + (p.itemCount || 0), 0);
+  const hasLists = props.playlistInfos.length > 0;
   return (
-    <div className="library-home">
-      <section className="library-hero">
-        <div className="hero-copy">
-          <span className="section-kicker">
-            <i /> MADE FOR YOUR EVERYDAY
-          </span>
-          <h1>
-            좋아하는 음악만.
-            <br />
-            <span>당신의 리듬대로.</span>
+    <section className="library-home" aria-label="저장한 재생목록">
+      <header className="page-heading">
+        <div>
+          <h1 tabIndex={-1} ref={heading}>
+            내 라이브러리
           </h1>
           <p>
-            모아두었던 플레이리스트를 가져와
-            <br className="mobile-break" /> 나만의 흐름으로 만들어 보세요.
+            {props.playlistInfos.length}개의 재생목록 · {count}곡
           </p>
-          <button
-            className="primary-button"
-            onClick={props.openCreatePlaylistPopup}
-          >
-            <span className="material-icons" aria-hidden="true">
-              add
-            </span>
-            새 재생목록
-          </button>
-          <div className="hero-stats">
-            <span>
-              <b>{props.playlistInfos.length.toString().padStart(2, "0")}</b>{" "}
-              PLAYLISTS
-            </span>
-            <i />
-            <span>
-              <b>{count.toString().padStart(2, "0")}</b> TRACKS
-            </span>
-          </div>
         </div>
-        <div className="record-art" aria-hidden="true">
-          <div className="record-sleeve">
-            <span>
-              YOUR
-              <br />
-              DAILY
-              <br />
-              <em>rotation.</em>
-            </span>
-            <small>SMP / VOL. 001</small>
+        {hasLists && (
+          <div className="heading-actions">
+            <button
+              className="secondary-button"
+              aria-label="YouTube 가져오기"
+              onClick={props.openImportPlaylist}
+            >
+              <Icon name="download" />
+              <span>가져오기</span>
+            </button>
+            <button
+              className="primary-button"
+              aria-label="새 재생목록"
+              onClick={props.openCreatePlaylistPopup}
+            >
+              <Icon name="plus" />
+              <span>새 재생목록</span>
+            </button>
           </div>
-          <div className="vinyl">
-            <div className="vinyl-label">
-              smp.<span>33⅓ RPM</span>
-            </div>
-          </div>
-          <div className="floating-note">✦ &nbsp; Good music. Your way.</div>
-        </div>
-      </section>
-      <section className="library-section" aria-label="저장한 재생목록">
-        <div className="section-heading">
-          <div>
-            <span className="section-kicker">THE COLLECTION</span>
-            <h2>
-              내 재생목록 <span>{props.playlistInfos.length}</span>
-            </h2>
-          </div>
+        )}
+      </header>
+      {hasLists ? (
+        <>
           <div className="library-tools">
             <label className="library-search">
-              <span className="material-icons" aria-hidden="true">
-                search
-              </span>
+              <Icon name="search" />
               <input
                 aria-label="라이브러리 검색"
-                placeholder="라이브러리 검색"
+                placeholder="재생목록 찾기"
                 value={query}
-                onChange={(e) => setQuery(e.target.value)}
+                onChange={(event) => setQuery(event.target.value)}
               />
             </label>
             <select
               aria-label="재생목록 정렬"
               value={sort}
-              onChange={(e) => setSort(e.target.value)}
+              onChange={(event) => setSort(event.target.value)}
             >
               <option value="recent">최근 추가순</option>
               <option value="name">이름순</option>
             </select>
           </div>
-        </div>
-        <div className="playlist-grid">
-          {items.map((p, i) => (
-            <article className="playlist-card" key={p.id}>
-              <div className={`album-cover cover-${i % 4}`}>
-                <button
-                  className="cover-open"
-                  aria-label={`${p.name} 열기`}
-                  onClick={() => props.goToPlaylistPage(p.id)}
-                >
-                  <span className="cover-type" aria-hidden="true">
-                    {p.name.slice(0, 2)}
-                    <small>PERSONAL MIX</small>
-                  </span>
-                  {p.thumbnails?.[0] && (
-                    <img
-                      src={p.thumbnails[0]}
-                      alt=""
-                      onError={(e) => {
-                        e.currentTarget.style.visibility = "hidden";
-                      }}
+          <div className="playlist-grid">
+            {items.map((playlist) => (
+              <article className="playlist-card" key={playlist.id}>
+                <div className="cover-frame">
+                  <button
+                    className="cover-open"
+                    aria-label={`${playlist.name} 열기`}
+                    onClick={() => props.goToPlaylistPage(playlist.id)}
+                  >
+                    <Cover
+                      id={playlist.id}
+                      thumbnail={playlist.thumbnails?.[0]}
                     />
+                  </button>
+                  {playlist.itemCount ? (
+                    <button
+                      className="card-play"
+                      aria-label={`${playlist.name} 재생`}
+                      onClick={() => props.playPlaylist(playlist.id)}
+                    >
+                      <Icon name="play" />
+                    </button>
+                  ) : (
+                    <button
+                      className="card-play add"
+                      aria-label={`${playlist.name} 곡 추가`}
+                      onClick={() => props.goToPlaylistPage(playlist.id, true)}
+                    >
+                      <Icon name="plus" />
+                    </button>
                   )}
-                </button>
-                <span className="cover-index">
-                  {String(i + 1).padStart(2, "0")}
-                </span>
-                <button
-                  className="card-play"
-                  aria-label={`${p.name} 재생`}
-                  disabled={!p.itemCount}
-                  onClick={() => props.playPlaylist(p.id)}
-                >
-                  <span className="material-icons" aria-hidden="true">
-                    play_arrow
-                  </span>
-                </button>
-              </div>
-              <div className="card-caption">
-                <button
-                  className="card-title"
-                  onClick={() => props.goToPlaylistPage(p.id)}
-                >
-                  {p.name}
-                </button>
-                <button
-                  className="icon-button"
-                  aria-label={`${p.name} 더보기`}
-                  onClick={(e) => props.openOptionsSelector(e, p.id)}
-                >
-                  <span className="material-icons" aria-hidden="true">
-                    more_horiz
-                  </span>
-                </button>
-              </div>
-              <p className="card-meta">
-                {p.itemCount}곡 <span>·</span>{" "}
-                {p.sourcePlaylistUrl ? "YouTube에서 가져옴" : "나만의 재생목록"}
-              </p>
-            </article>
-          ))}
-          {!query && (
+                </div>
+                <div className="card-caption">
+                  <button
+                    className="card-title"
+                    onClick={() => props.goToPlaylistPage(playlist.id)}
+                  >
+                    {playlist.name}
+                  </button>
+                  <button
+                    className="icon-button"
+                    aria-label={`${playlist.name} 더보기`}
+                    onClick={(event) =>
+                      props.openOptionsSelector(event, playlist.id)
+                    }
+                  >
+                    <Icon name="more" />
+                  </button>
+                </div>
+                <p className="card-meta">
+                  {playlist.itemCount
+                    ? `${playlist.itemCount}곡`
+                    : "아직 곡 없음"}
+                  {playlist.sourcePlaylistUrl && (
+                    <>
+                      <span>·</span>
+                      <Icon name="link" />
+                      <span className="desktop-source">YouTube</span>
+                    </>
+                  )}
+                </p>
+              </article>
+            ))}
+          </div>
+          {query && !items.length && (
+            <div className="search-empty">
+              <Icon name="search" />
+              <h2>찾는 재생목록이 없어요</h2>
+              <p>“{query}”에 맞는 이름을 찾지 못했습니다.</p>
+              <button className="secondary-button" onClick={() => setQuery("")}>
+                검색 지우기
+              </button>
+            </div>
+          )}
+        </>
+      ) : (
+        <div className="library-empty">
+          <div className="empty-wave">
+            <Cover id="smp-empty-wave" />
+          </div>
+          <span className="empty-tag">Feel Every Beat ↗</span>
+          <h2>
+            좋아하는 음악으로
+            <br />
+            나만의 공간을 채워보세요.
+          </h2>
+          <p>
+            YouTube 재생목록을 가져오거나 빈 목록을 만들어
+            <br />
+            듣고 싶은 곡을 하나씩 담아보세요.
+          </p>
+          <div className="actions">
             <button
-              className="create-card"
+              className="primary-button"
+              onClick={props.openImportPlaylist}
+            >
+              <Icon name="download" />
+              YouTube 가져오기
+            </button>
+            <button
+              className="secondary-button"
+              aria-label="새 재생목록"
               onClick={props.openCreatePlaylistPopup}
             >
-              <span>+</span>
-              <strong>새로운 취향을 담아보세요</strong>
-              <small>재생목록 만들기</small>
+              <Icon name="plus" />빈 목록 만들기
             </button>
-          )}
-        </div>
-        {query && !items.length && (
-          <div className="search-empty">
-            <span className="material-icons">search_off</span>
-            <p>“{query}”에 맞는 재생목록이 없어요.</p>
-            <button onClick={() => setQuery("")}>검색 지우기</button>
           </div>
-        )}
-      </section>
-      <footer className="library-footnote">
-        <span>KEEP THE MUSIC PERSONAL.</span>
-        <span>내 기기 · 내 플레이리스트 · 내 리듬</span>
-      </footer>
-    </div>
+        </div>
+      )}
+      {hasLists && (
+        <footer className="library-footnote">
+          목록은 이 브라우저에 저장됩니다. 원본 YouTube 목록은 바뀌지 않아요.
+        </footer>
+      )}
+    </section>
   );
 }

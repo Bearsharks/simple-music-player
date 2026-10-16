@@ -2,21 +2,31 @@
   position: fixed;
   inset: 0;
   background: #0009;
-  backdrop-filter: blur(8px);
   z-index: 101;
 }
 .content {
   position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background: #1a1d21;
-  border: 1px solid #ffffff16;
+  inset: 0;
+  margin: auto;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--line);
   border-radius: 16px;
   box-shadow: 0 24px 90px #0008;
   z-index: 102;
-  width: 90vw;
-  max-width: 500px;
-  max-height: 90dvh;
+  width: min(500px, calc(100vw - 32px));
+  max-width: calc(100vw - 24px);
+  max-height: calc(100dvh - 32px);
+  padding: 0;
   overflow: auto;
+}
+.content::backdrop {
+  background: #000a;
+  backdrop-filter: blur(4px);
+}
+@media (max-width: 760px) {
+  .content {
+    max-height: calc(100dvh - 24px);
+    width: calc(100vw - 24px);
+  }
 }

@@ -41,7 +41,7 @@ localAPI는 IndexedDB transaction 완료 후 성공을 반환한다. sourcePlayl
 
 Playlists.tsx는 로컬 이름 필터·정렬·카드/빈 상태를 제공한다. 카드 재생과 목록 열기는 독립 버튼이다. PlaylistPage에서 곡 추가·원본 초기화·저장 순서 편집을 유지한다.
 
-[디자인 기록](../../../docs/DESIGN-REFRESH.md)
+[승인 디자인 명세](../../../docs/design/electric-night/DESIGN-SPEC.md)
 
 ## 생성·삭제·복구 계약
 
@@ -52,3 +52,12 @@ Playlists.tsx는 로컬 이름 필터·정렬·카드/빈 상태를 제공한다
 - UPDATE의 기존 곡 재정렬은 key를 유지한다. 새로운 곡/원본 가져오기는 새 key를 받는다. 저장 목록 편집과 Undo는 현재 재생 queue를 변경하지 않는다.
 
 빠른 회귀: `npm test -- src/__test__/localAPI.test.ts src/__test__/playlistState.test.tsx src/__test__/overlay-regressions.test.tsx src/__test__/design-library.test.tsx`.
+
+## Electric Night 저장 화면
+
+- 채워진 라이브러리는 검색/최근순·이름순과 카드만 표시한다. 환영 파형은 전체 목록이 0개일 때만 표시하며 조회 실패는 빈 상태와 구분한다.
+- `goToPlaylistPage(id, focusAdd?)`는 카드 열기와 빈 카드의 곡 추가 진입을 구분한다. 비어 있는 카드는 재생 대신 추가 버튼을 제공한다.
+- CREATE manager는 성공 시 `{createdId}`를 반환한다. overlays/youtube는 선택적 `onCreated`를 호출하고 navigation이 라우팅한다. 저장 모델은 router에 의존하지 않는다.
+- 채워진 상세는 추가 폼을 접고, 순서 편집 버튼으로 위/아래 조작을 연다. 빈 상세/새 생성/빈 카드의 추가는 URL 입력을 바로 연다. 같은 video ID를 추가할 때는 명시적인 ‘중복해서 추가’ 확인 뒤 별개 key로 저장한다.
+- `useReloadPlaylists`/`playlistReadRevision`은 실패한 읽기의 재시도만 담당한다. 저장 어댑터, IndexedDB schema와 큐 독립성은 동일하다.
+- 회귀: `design-library`, `playlist-edit`, `restored-app`, `electric-night` 테스트. ID 커버는 `shared/ui/Cover`이며 이름/정렬/경로마다 별도 시드를 만들지 않는다.

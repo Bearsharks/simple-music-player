@@ -1,46 +1,101 @@
-import { memo } from "react";
-import { MusicInfo, MusicInfoItem } from "shared/model/constants";
-import styles from "features/queue/ui/musicList/MusicList.module.scss";
+import { memo, useState } from "react";
 import {
   DragDropContext,
   Droppable,
-  DropResult,
   Draggable,
-  DroppableProvided,
+  type DropResult,
 } from "@hello-pangea/dnd";
-import { useAtomValue } from "jotai";
-import { curMusicIdxState } from "features/queue/model/queue";
-import { MusicItem } from "features/queue/ui/musicList/MusicItem";
-
+import { MusicInfo, MusicInfoItem } from "shared/model/constants";
+import Icon from "shared/ui/Icon";
+import MusicItem from "./MusicItem";
+import styles from "./MusicList.module.scss";
 export interface MusicListProps {
   items: MusicInfoItem[];
   openOptionsPopup: (target: HTMLElement, musicInfos: MusicInfo[]) => void;
   playMusic: (idx: number | undefined) => void;
   changeOrder: (src: number, dst: number) => void;
+  editing?: boolean;
+  currentIndex?: number;
+  currentStatus?: string;
 }
-
-function MusicList(props: MusicListProps) {
+function MusicList({
+  items,
+  openOptionsPopup,
+  playMusic,
+  changeOrder,
+  editing = false,
+  currentIndex = 0,
+  currentStatus,
+}: MusicListProps) {
+  const [status, setStatus] = useState("");
+  const move = (from: number, to: number) => {
+    changeOrder(from, to);
+    setStatus(`${items[from].name}, ${to + 1}번째로 이동했습니다.`);
+  };
   const onDragEnd = (result: DropResult) => {
-    // dropped outside the list(리스트 밖으로 드랍한 경우)
-    if (!result.destination || result.source.index === result.destination.index)
-      return;
-    props.changeOrder(result.source.index, result.destination.index);
+    if (result.destination && result.source.index !== result.destination.index)
+      move(result.source.index, result.destination.index);
   };
-  const onDragStart = () => {
-    //console.log(musicList);
-  };
-
   return (
-    <div className={styles[`music-list`]}>
-      <DragDropContext onDragEnd={onDragEnd} onDragStart={onDragStart}>
-        <Droppable droppableId="droppable">
-          {(provided, snapshot) => (
-            <MusicListItems
-              provided={provided}
-              items={props.items}
-              openOptionsPopup={props.openOptionsPopup}
-              playMusic={props.playMusic}
-            ></MusicListItems>
+    <div className={styles.list}>
+      <span className="sr-only" role="status">
+        {status}
+      </span>
+      <DragDropContext onDragEnd={onDragEnd}>
+        <Droppable droppableId="queue">
+          {(provided) => (
+            <div ref={provided.innerRef} {...provided.droppableProps}>
+              {items.map((item, idx) => (
+                <Draggable key={item.key} draggableId={item.key} index={idx}>
+                  {(provided) => (
+                    <div
+                      ref={provided.innerRef}
+                      {...provided.draggableProps}
+                      className={`${styles.row} ${currentIndex === idx ? styles.selected : ""} ${editing ? styles.editing : ""}`}
+                    >
+                      <button
+                        className={`icon-button ${styles.grip}`}
+                        {...provided.dragHandleProps}
+                        aria-label={`${item.name} 순서 드래그`}
+                      >
+                        <Icon name="grip" />
+                      </button>
+                      <MusicItem
+                        idx={idx}
+                        item={item}
+                        playMusic={playMusic}
+                        openOptionsPopup={openOptionsPopup}
+                        isCurMusic={currentIndex === idx}
+                        statusLabel={
+                          currentIndex === idx ? currentStatus : undefined
+                        }
+                      />
+                      {editing && (
+                        <div className={styles.order}>
+                          <button
+                            className="icon-button"
+                            disabled={idx === 0}
+                            aria-label={`${item.name} 위로`}
+                            onClick={() => move(idx, idx - 1)}
+                          >
+                            <Icon name="up" />
+                          </button>
+                          <button
+                            className="icon-button"
+                            disabled={idx === items.length - 1}
+                            aria-label={`${item.name} 아래로`}
+                            onClick={() => move(idx, idx + 1)}
+                          >
+                            <Icon name="down" />
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </Draggable>
+              ))}
+              {provided.placeholder}
+            </div>
           )}
         </Droppable>
       </DragDropContext>
@@ -48,48 +103,3 @@ function MusicList(props: MusicListProps) {
   );
 }
 export default memo(MusicList);
-
-interface MusicListItemsProps {
-  provided: DroppableProvided;
-  items: MusicInfoItem[];
-  openOptionsPopup: (target: HTMLElement, musicInfos: MusicInfo[]) => void;
-  playMusic: (idx: number | undefined) => void;
-}
-function MusicListItems({
-  provided,
-  items,
-  playMusic,
-  openOptionsPopup,
-}: MusicListItemsProps) {
-  const curMusicIdx = useAtomValue(curMusicIdxState);
-  return (
-    <div ref={provided.innerRef} {...provided.droppableProps}>
-      {items.map((item: MusicInfoItem, idx) => (
-        <Draggable key={item.key} draggableId={item.key} index={idx}>
-          {(provided, snapshot) => (
-            <div
-              ref={provided.innerRef}
-              {...provided.draggableProps}
-              className={`${styles["wrapper"]} ${curMusicIdx === idx && styles["wrapper--selected"]}`}
-            >
-              <div
-                className={styles[`drag_handle`]}
-                {...provided.dragHandleProps}
-              >
-                <span className="material-icons md-28">drag_handle</span>
-              </div>
-              <MusicItem
-                idx={idx}
-                item={item}
-                playMusic={playMusic}
-                openOptionsPopup={openOptionsPopup}
-                isCurMusic={curMusicIdx === idx}
-              ></MusicItem>
-            </div>
-          )}
-        </Draggable>
-      ))}
-      {provided.placeholder}
-    </div>
-  );
-}

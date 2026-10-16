@@ -33,6 +33,14 @@ items와 index는 queueState 한 값으로 관리한다. 삭제 후 현재 곡 �
 
 ## 빈 목록과 키보드 보호
 
-`LOAD_PLAYLIST`가 빈 곡 배열을 읽으면 현재 queue 객체와 index를 그대로 보존한다. 카드/상세의 빈 목록 재생도 비활성화한다. 큐 비우기는 명시적 DELETE 동작이다. 곡 썸네일/제목은 기본 button, 더보기는 곡명이 포함된 button이며 Enter/Space로 조작할 수 있다. 저장 목록 삭제/Undo는 queue를 건드리지 않는다.
+`LOAD_PLAYLIST`가 빈 곡 배열을 읽으면 현재 queue 객체와 index를 그대로 보존한다. 빈 카드는 곡 추가로 진입하고 상세의 빈 목록 재생은 비활성화한다. 큐 비우기는 명시적 CLEAR 동작이다. 곡 썸네일/제목은 기본 button, 더보기는 곡명이 포함된 button이며 Enter/Space로 조작할 수 있다. 저장 목록 삭제/Undo는 queue를 건드리지 않는다.
 
 회귀: `npm test -- src/__test__/musicList.test.tsx src/__test__/overlay-regressions.test.tsx`.
+
+## Electric Night 큐 계약
+
+- `musiclistOpenState`는 기본 닫힘. `revealQueueOnFirstPlay`는 최초의 명시적 재생에서만 데스크톱 패널을 연다. 좁은 화면은 자동 modal 전환하지 않는다. 사용자가 닫은 뒤 다음 곡/중앙 편집/재생을 눌러도 강제로 다시 열지 않는다.
+- `playerPanelTabState`는 현재 곡/대기열 보기만 가진다. 실제 player/queue items를 복제하지 않는다.
+- DELETE는 `{deletedCount, undo}`를 반환한다. 항목 key 기반 복원은 뒤의 추가/정렬 및 현재 곡 identity를 보존한다. LOAD_PLAYLIST/SET/CLEAR는 교체 세대를 올려 오래된 Undo를 거부한다. CLEAR는 삭제 확인 이후에만 UI에서 호출하며 저장 목록에 영향을 주지 않는다.
+- `MusicList`는 실제 currentIndex/status를 props로 받고 drag와 명시적 위/아래 버튼을 제공한다. 현재 상태 문구는 player가 전달하며 queue에서 player 상태를 다시 관리하지 않는다.
+- 회귀: `musicList.test.tsx`, `electric-night.test.tsx`; 브라우저의 큐/메뉴/Undo/반응형 검수는 media simulation이므로 실제 YouTube 소리의 증거가 아니다.

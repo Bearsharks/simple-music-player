@@ -1,14 +1,35 @@
-@use "/src/app/global.scss" as *;
 .wrapper {
-  position:absolute;
-  bottom: 95px;
-  left:10px;
-  z-index: $popup-z-index;
-  background-color: $bg-light-grey;
-
-  padding: 10px;
-  border-radius: 5px;
+  position: fixed;
+  bottom: calc(var(--dock) + var(--safe-bottom) + 16px);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 150;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  width: max-content;
+  max-width: calc(100vw - 32px);
+  padding: 12px 16px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface-raised);
+  box-shadow: 0 12px 40px #0008;
+  font-size: 13px;
 }
-.hide{
-  display: none;
+.wrapper p {
+  margin: 0;
+  flex: 1;
+  min-width: 100px;
+}
+.wrapper button {
+  color: var(--sky);
+  min-height: 44px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  white-space: nowrap;
+}
+.wrapper [role="alert"] {
+  flex-basis: 100%;
+  color: var(--danger);
 }

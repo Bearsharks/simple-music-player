@@ -1,5 +1,4 @@
-import { useEffect } from "react";
-import { PlayerState, type Progress } from "shared/model/constants";
+import { type Progress } from "shared/model/constants";
 const format = (seconds: number) => {
   const n = Number.isFinite(seconds) ? Math.max(0, Math.floor(seconds)) : 0;
   return `${Math.floor(n / 60)}:${String(n % 60).padStart(2, "0")}`;
@@ -7,27 +6,24 @@ const format = (seconds: number) => {
 export default function ProgressBar({
   progress,
   setProgress,
+  readOnly = false,
 }: {
   progress: Progress;
+  readOnly?: boolean;
   setProgress: (p: Progress) => void;
 }) {
-  useEffect(() => {
-    const timer = setInterval(() => {
-      const p = (window as any).player;
-      if (
-        [PlayerState.PLAYING, PlayerState.PAUSED].includes(p?.getPlayerState())
-      )
-        setProgress({
-          currentTime: p.getCurrentTime(),
-          duration: p.getDuration(),
-        });
-    }, 1000);
-    return () => clearInterval(timer);
-  }, [setProgress]);
   const duration = Number.isFinite(progress.duration)
     ? Math.max(0, progress.duration)
     : 0;
   const current = Math.min(duration, Math.max(0, progress.currentTime || 0));
+  if (readOnly)
+    return (
+      <div className="mini-progress" aria-hidden="true">
+        <span
+          style={{ width: `${duration ? (current / duration) * 100 : 0}%` }}
+        />
+      </div>
+    );
   return (
     <div className="seek-control">
       <time>{format(current)}</time>
@@ -50,7 +46,7 @@ export default function ProgressBar({
           } as React.CSSProperties
         }
       />
-      <time>{format(duration)}</time>
+      <time>{duration ? format(duration) : "—"}</time>
     </div>
   );
 }

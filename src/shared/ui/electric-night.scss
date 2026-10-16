@@ -1,0 +1,224 @@
+:root {
+  color-scheme: dark;
+  --canvas: #0b0b14;
+  --surface: #1a1a26;
+  --surface-raised: #242435;
+  --line: #353545;
+  --control-line: #6b6b80;
+  --text: #fff;
+  --muted: #a1a1b3;
+  --purple: #a855ff;
+  --pink: #ff4d8d;
+  --sky: #4cc9ff;
+  --on-brand: #0b0b14;
+  --selected: rgba(168, 85, 255, 0.12);
+  --gradient: linear-gradient(120deg, #a855ff 0%, #ff4d8d 58%, #4cc9ff 100%);
+  --danger: #ff9db6;
+  --success: #91e5c4;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --radius-control: 10px;
+  --radius-card: 12px;
+  --radius-dialog: 16px;
+  --rail: 208px;
+  --queue: 320px;
+  --dock: 5.5rem;
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --font:
+    Inter, "Noto Sans KR", "Noto Sans Korean", -apple-system,
+    BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+* {
+  box-sizing: border-box;
+}
+html,
+body,
+#root {
+  margin: 0;
+  height: 100%;
+}
+body {
+  color: var(--text);
+  background: var(--canvas);
+  font: 14px/1.55 var(--font);
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+button {
+  color: inherit;
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.42;
+}
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid var(--sky);
+  outline-offset: 4px;
+}
+input,
+select,
+textarea {
+  color: var(--text);
+  background: var(--canvas);
+  border: 1px solid var(--control-line);
+  border-radius: var(--radius-control);
+  padding: 11px 13px;
+  min-height: 44px;
+  font-size: 16px;
+  max-width: 100%;
+  min-width: 0;
+}
+input::placeholder,
+textarea::placeholder {
+  color: var(--muted);
+}
+h1,
+h2,
+h3,
+p {
+  margin-top: 0;
+}
+h1,
+h2,
+h3 {
+  font-weight: 650;
+  letter-spacing: -0.025em;
+}
+[hidden] {
+  display: none !important;
+}
+.icon {
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  display: block;
+  flex-shrink: 0;
+  pointer-events: none;
+}
+.material-icons {
+  user-select: none;
+  font-size: 22px;
+}
+.icon-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  min-width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  color: var(--muted);
+  padding: 0;
+}
+.icon-button:hover:not(:disabled) {
+  background: #ffffff08;
+  color: var(--text);
+}
+.icon-button.active,
+.icon-button.selected {
+  background: var(--selected);
+  color: var(--purple);
+}
+.button,
+.primary-button,
+.secondary-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 10px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  border-radius: var(--radius-control);
+  white-space: nowrap;
+}
+.primary-button {
+  background: var(--purple);
+  color: var(--on-brand);
+}
+.primary-button:hover:not(:disabled) {
+  background: #b875ff;
+}
+.secondary-button {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  color: var(--text);
+}
+.secondary-button:hover:not(:disabled) {
+  background: var(--surface-raised);
+}
+.play-button {
+  background: var(--gradient);
+  color: var(--on-brand);
+}
+.danger-button {
+  background: var(--danger);
+  color: var(--on-brand);
+}
+.quiet,
+.field-note {
+  color: var(--muted);
+  font-size: 12px;
+}
+.form-error,
+.error-box {
+  color: #ffbdd0;
+  background: #3a1c2a66;
+  border: 1px solid #ff9db645;
+  border-radius: 10px;
+  padding: 16px;
+  font-size: 14px;
+  overflow-wrap: anywhere;
+}
+.error-box p {
+  margin: 8px 0 16px;
+  color: var(--muted);
+}
+.error-box .actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition: none !important;
+    animation: none !important;
+  }
+}

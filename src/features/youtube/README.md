@@ -35,3 +35,7 @@ overlays가 검색·가져오기에 사용하고 player가 곡 정보를 조회�
 가져오기 저장은 완료까지 기다리고 입력/미리보기/취소를 잠그며 중복 제출을 막는다. 실패 시 현재 입력과 미리보기를 보존한다. 원본 초기화는 미리보기 후 교체 확인을 한 번 요청한다. 저장 목록 manager의 전체 교체 세대가 바뀌므로 초기화 이전 개별 곡 삭제의 Undo는 기존 편집본을 새 원본에 다시 섞지 않는다.
 
 회귀: `npm test -- src/__test__/playlistImport.test.tsx src/__test__/playlistState.test.tsx`.
+
+## Electric Night 가져오기
+
+`PlaylistImport.scss`가 URL → 공식 미리보기 → 로컬 저장 단계를 표현한다. URL 변경은 이전 preview/저장 후보를 무효화하며 같은 URL도 다시 미리보기할 수 있다. 미리보기 로딩 오류와 저장 오류를 분리하여 iframe polling이 실패한 저장 메시지를 지우지 않는다. 원본 교체는 미리보기 뒤 단일 native 확인 dialog에서만 실행한다. CREATE 성공은 선택적 `onCreated(id)`로 조립 계층에 알린다. 프로토타입 모의 데이터/시계/저장은 제품에 포함하지 않는다.

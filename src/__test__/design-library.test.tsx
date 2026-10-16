@@ -54,23 +54,84 @@ it("keeps create and play actions separate from navigation", () => {
   expect(create).toHaveBeenCalledOnce();
 });
 
-it('sorts recent lists by persisted creation date and uses a stable fallback for legacy lists', () => {
- const props={goToPlaylistPage:vi.fn(),playPlaylist:vi.fn(),openCreatePlaylistPopup:vi.fn(),openOptionsSelector:vi.fn()};
- const lists=[{...info('a','Newer'),createdAt:2000},{...info('z','Older'),createdAt:1000},info('legacy-z','Z legacy'),info('legacy-a','A legacy')];
- const {rerender}=render(<Playlists {...props} playlistInfos={lists}/>);
- const names=()=>screen.getAllByRole('button',{name:/ 열기$/}).map(button=>button.getAttribute('aria-label'));
- expect(names()).toEqual(['Newer 열기','Older 열기','A legacy 열기','Z legacy 열기']);
- rerender(<Playlists {...props} playlistInfos={[...lists].reverse()}/>);
- expect(names()).toEqual(['Newer 열기','Older 열기','A legacy 열기','Z legacy 열기']);
- fireEvent.change(screen.getByRole('combobox',{name:'재생목록 정렬'}),{target:{value:'name'}});
- expect(names()).toEqual(['A legacy 열기','Newer 열기','Older 열기','Z legacy 열기']);
+it("sorts recent lists by persisted creation date and uses a stable fallback for legacy lists", () => {
+  const props = {
+    goToPlaylistPage: vi.fn(),
+    playPlaylist: vi.fn(),
+    openCreatePlaylistPopup: vi.fn(),
+    openOptionsSelector: vi.fn(),
+  };
+  const lists = [
+    { ...info("a", "Newer"), createdAt: 2000 },
+    { ...info("z", "Older"), createdAt: 1000 },
+    info("legacy-z", "Z legacy"),
+    info("legacy-a", "A legacy"),
+  ];
+  const { rerender } = render(<Playlists {...props} playlistInfos={lists} />);
+  const names = () =>
+    screen
+      .getAllByRole("button", { name: / 열기$/ })
+      .map((button) => button.getAttribute("aria-label"));
+  expect(names()).toEqual([
+    "Newer 열기",
+    "Older 열기",
+    "A legacy 열기",
+    "Z legacy 열기",
+  ]);
+  rerender(<Playlists {...props} playlistInfos={[...lists].reverse()} />);
+  expect(names()).toEqual([
+    "Newer 열기",
+    "Older 열기",
+    "A legacy 열기",
+    "Z legacy 열기",
+  ]);
+  fireEvent.change(screen.getByRole("combobox", { name: "재생목록 정렬" }), {
+    target: { value: "name" },
+  });
+  expect(names()).toEqual([
+    "A legacy 열기",
+    "Newer 열기",
+    "Older 열기",
+    "Z legacy 열기",
+  ]);
 });
 
-it('disables empty-playlist playback while keeping navigation available', () => {
- const play=vi.fn(),open=vi.fn();
- render(<Playlists playlistInfos={[{...info('empty','빈 목록'),itemCount:0}]} goToPlaylistPage={open} playPlaylist={play} openCreatePlaylistPopup={vi.fn()} openOptionsSelector={vi.fn()}/>);
- const button=screen.getByRole('button',{name:'빈 목록 재생'});
- expect(button).toBeDisabled();fireEvent.click(button);expect(play).not.toHaveBeenCalled();
- fireEvent.click(screen.getByRole('button',{name:'빈 목록 열기'}));expect(open).toHaveBeenCalledWith('empty');
- expect(document.body).not.toHaveTextContent('NaN');
+it("offers add instead of playback for an empty card and preserves navigation", () => {
+  const play = vi.fn(),
+    open = vi.fn();
+  render(
+    <Playlists
+      playlistInfos={[{ ...info("empty", "빈 목록"), itemCount: 0 }]}
+      goToPlaylistPage={open}
+      playPlaylist={play}
+      openCreatePlaylistPopup={vi.fn()}
+      openOptionsSelector={vi.fn()}
+    />,
+  );
+  expect(
+    screen.queryByRole("button", { name: "빈 목록 재생" }),
+  ).not.toBeInTheDocument();
+  fireEvent.click(screen.getByRole("button", { name: "빈 목록 곡 추가" }));
+  expect(open).toHaveBeenCalledWith("empty", true);
+  expect(play).not.toHaveBeenCalled();
+  fireEvent.click(screen.getByRole("button", { name: "빈 목록 열기" }));
+  expect(open).toHaveBeenCalledWith("empty");
+  expect(document.body).not.toHaveTextContent("NaN");
+});
+
+it("shows the welcoming actions only for an actually empty library", () => {
+  render(
+    <Playlists
+      playlistInfos={[]}
+      goToPlaylistPage={vi.fn()}
+      playPlaylist={vi.fn()}
+      openCreatePlaylistPopup={vi.fn()}
+      openOptionsSelector={vi.fn()}
+    />,
+  );
+  expect(screen.getByText("Feel Every Beat ↗")).toBeInTheDocument();
+  expect(
+    screen.queryByRole("textbox", { name: "라이브러리 검색" }),
+  ).not.toBeInTheDocument();
+  expect(screen.queryByRole("combobox")).not.toBeInTheDocument();
 });

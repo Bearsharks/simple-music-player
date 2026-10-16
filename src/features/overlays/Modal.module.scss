@@ -1,16 +1,36 @@
 .importYTBtn {
   display: flex;
   align-items: center;
-  gap: 6px;
-  border: 1px solid #ffffff18;
-  border-radius: 7px;
+  gap: 8px;
+  min-height: 44px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
   padding: 10px 12px;
-  font-size: 11px;
-  color: #aab3c0;
+  font-size: 13px;
+  color: var(--text);
 }
 .importYTBtn span {
-  font-size: 17px;
+  font-size: 20px;
 }
-
-.confirmation { padding: 28px; }
-.confirmationActions { display: flex; justify-content: flex-end; gap: 16px; margin-top: 24px; }
+.confirmation {
+  padding: 28px;
+}
+.confirmation h2 {
+  font-size: 22px;
+}
+.confirmation p {
+  font-size: 14px;
+  color: var(--muted);
+}
+.confirmationActions {
+  flex-wrap: wrap;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 24px;
+}
+@media (max-width: 760px) {
+  .confirmation {
+    padding: 22px 20px;
+  }
+}

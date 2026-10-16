@@ -1,5 +1,9 @@
+import { useAtomValue } from "jotai";
+import { ytPlayerInitedState } from "../../model/ytplayerStates";
+import Icon from "shared/ui/Icon";
 import { useEffect, useState } from "react";
 export default function SoundController() {
+  const ready = useAtomValue(ytPlayerInitedState);
   const [volume, setVolume] = useState(100);
   const [muted, setMuted] = useState(false);
   useEffect(() => {
@@ -16,6 +20,7 @@ export default function SoundController() {
     <div className="volume-control">
       <button
         className="icon-button"
+        disabled={!ready}
         aria-label={muted ? "음소거 해제" : "음소거"}
         onClick={() => {
           const p = (window as any).player;
@@ -25,11 +30,10 @@ export default function SoundController() {
           setMuted(p.isMuted());
         }}
       >
-        <span className="material-icons">
-          {muted ? "volume_off" : "volume_up"}
-        </span>
+        <Icon name={muted ? "mute" : "volume"} />
       </button>
       <input
+        disabled={!ready}
         aria-label="음량"
         type="range"
         min={0}

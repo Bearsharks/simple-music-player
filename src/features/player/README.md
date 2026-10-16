@@ -36,6 +36,15 @@ StrictMode에서도 취소된 생성과 unmount player를 정리한다. duration
 
 ListeningDock.scss와 PlayerController.tsx가 고정 재생바를 소유한다. ProgressBar는 실제 range 입력이며 문서 너비로 seek 좌표를 계산하지 않는다. PlayerDetail은 넓은 화면의 고정 패널과 좁은 화면의 접근성 처리된 드로어다.
 
-[디자인 기록](../../../docs/DESIGN-REFRESH.md)
+[승인 디자인 명세](../../../docs/design/electric-night/DESIGN-SPEC.md)
 
 전역 재생 단축키는 input/button 외에도 열린 dialog/선택 메뉴 및 이미 처리된 키 이벤트를 건너뛴다. 로딩 중 dialog 컨테이너에 포커스가 있어도 배경 음악 조작이 가로채지 않는다. 회귀: `npm test -- src/__test__/design-player.test.tsx`.
+
+## Electric Night 플레이어
+
+- `PlayerDetail.scss`는 player 패널만 소유한다. 1200px 이상 nonmodal, 761–1199px modal drawer, 760px 이하 전체 sheet다. 현재 곡/큐 탭은 roving TabIndex와 화살표/Home/End를 지원한다.
+- 공통 Dialog를 항상 같은 portal/DOM 위치에 유지한다. 한번 시작한 `ConnectedYoutubePlayer`는 닫기/탭/반응형 전환/큐 비우기로 unmount하지 않는다. 명시적 오류 재시도만 iframe 인스턴스를 재생성한다.
+- `MusicPlayer` 한 곳에서 실제 getCurrentTime/getDuration을 읽는다. 모바일 dock의 선은 표시용이며 조작은 확장 플레이어의 44px range에서 한다. 미확정 길이는 ‘—’다.
+- onError/API 연결 실패는 playbackErrorState에 표시한다. `playbackRetryState`는 명시적 재시도 전용이다. playing/paused/loading/ended/error를 구분하며 다음 곡은 유효한 인덱스에서만 가능하다.
+- 큐 삭제 Undo는 queue가, 원본 저장은 playlists가 소유한다. player는 기존 manager/overlay 콜백으로만 연결한다.
+- 회귀: `electric-night.test.tsx`, `design-player.test.tsx`; `e2e/electric-night.mjs`는 플레이어 DOM/인스턴스 유지, 중첩 modal, 1199↔1200 전환과 제한 오류를 시뮬레이션한다. 실제 iframe/오디오/모바일 Safari/백그라운드 재생은 실환경 검수가 별도로 필요하다.

@@ -41,6 +41,14 @@ playlists/queue/youtube를 연결하는 기존 조정 코드다. search/player/p
 - 새 목록에서 유튜브 가져오기를 선택하면 같은 modal의 URL 가져오기 화면으로 바로 전환한다. 중간 클릭 전용 메뉴를 열지 않는다.
 
 빠른 회귀: `npm test -- src/__test__/overlay-regressions.test.tsx src/__test__/playlistImport.test.tsx`.
-모바일 queue sheet의 focus 정책은 player/navigation 디자인 패스에서 별도 적용한다.
+모바일 queue sheet도 같은 Dialog를 사용하며 자세한 반응형 소유권은 player README를 따른다.
 
 외부 클릭 감지는 다음 `pointerdown`을 capture 단계에서 관찰한다. 팝업을 여는 click 버블링을 새 리스너가 다시 받아 즉시 닫는 경쟁을 피한다. `popup-events.test.tsx`는 React의 동기 mount 이후 같은 click이 document로 올라가는 순서와 내부/외부 pointer 동작을 회귀 검증한다.
+
+## Native dialog와 중첩 작업
+
+- shared Dialog는 native show/showModal을 사용하고 jsdom에서는 open 속성 fallback을 사용한다. `open`/`modal` 변경은 children을 재부착하지 않는다. 공통 modal stack이 기존 inert/overflow를 기록하며 마지막 modal 해제 때 복원한다.
+- persistent player panel은 낮은 priority, 폼/확인은 기본 priority다. 상위 작업 중 breakpoint가 바뀌어도 작업 modal을 top layer에 유지한다.
+- 열린 sheet의 메뉴는 트리거의 dialog 내부에 portal하여 inert/top-layer 아래로 떨어지지 않는다. 메뉴 Escape는 메뉴만 닫고, 바깥 dialog Escape와 충돌하지 않는다.
+- Notice는 shared OverlayPortal을 통해 현재 modal scope에 표시하므로 sheet에서 삭제한 곡의 Undo도 조작 가능하다. Undo는 시간 제한 없이 닫기/다른 알림까지 유지하므로 hover/focus 중 사라지지 않는다.
+- 원본 초기화/큐 비우기도 이름 있는 확인 dialog를 사용한다. 전체 저장 목록 삭제에는 Undo를 추가하지 않는다.

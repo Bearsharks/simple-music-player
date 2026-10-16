@@ -1,8 +1,7 @@
-import { MouseEventHandler } from "react";
-import styles from "shared/ui/MoreVert.module.scss";
-function MoreVert({
+import type { MouseEventHandler } from "react";
+import Icon from "./Icon";
+export default function MoreVert({
   onClick,
-  size = 28,
   label = "더보기",
 }: {
   onClick: MouseEventHandler<HTMLElement>;
@@ -14,21 +13,9 @@ function MoreVert({
       type="button"
       aria-label={label}
       onClick={onClick}
-      className={styles["more-vert"]}
+      className="icon-button"
     >
-      <div>
-        <span
-          className="material-icons"
-          aria-hidden="true"
-          style={{
-            fontSize: `${size}px`,
-          }}
-        >
-          more_vert
-        </span>
-      </div>
+      <Icon name="more" />
     </button>
   );
 }
-
-export default MoreVert;
