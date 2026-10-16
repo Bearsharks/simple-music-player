@@ -1,3 +1,4 @@
+import BrandPrimaryButton from "shared/ui/BrandPrimaryButton";
 import { Input } from "shared/ui/shadcn/input";
 import { Button } from "shared/ui/shadcn/button";
 import LibraryBackup from "../LibraryBackup";
@@ -16,7 +17,6 @@ import {
 export interface PlaylistsProps {
   goToPlaylistPage: (id: string, focusAdd?: boolean) => void;
   openCreatePlaylistPopup: () => void;
-  openImportPlaylist?: () => void;
   playlistInfos: PlaylistInfo[];
   playPlaylist: (id: string) => void;
   openOptionsSelector: (
@@ -60,26 +60,14 @@ export default function Playlists(props: PlaylistsProps) {
         </div>
         <div className="heading-actions">
           {hasLists && (
-            <>
-              <Button
-                variant="secondary"
-                className="secondary-button"
-                aria-label="YouTube 가져오기"
-                onClick={props.openImportPlaylist}
-              >
-                <Icon name="download" />
-                <span>가져오기</span>
-              </Button>
-              <Button
-                variant="default"
-                className="primary-button"
-                aria-label="새 재생목록"
-                onClick={props.openCreatePlaylistPopup}
-              >
-                <Icon name="plus" />
-                <span>새 재생목록</span>
-              </Button>
-            </>
+            <BrandPrimaryButton
+              className="primary-button"
+              aria-label="새 재생목록"
+              onClick={props.openCreatePlaylistPopup}
+            >
+              <Icon name="plus" />
+              <span>새 재생목록</span>
+            </BrandPrimaryButton>
           )}
           <LibraryBackup />
         </div>
@@ -209,22 +197,13 @@ export default function Playlists(props: PlaylistsProps) {
             듣고 싶은 곡을 하나씩 담아보세요.
           </p>
           <div className="actions">
-            <Button
-              variant="default"
+            <BrandPrimaryButton
               className="primary-button"
-              onClick={props.openImportPlaylist}
-            >
-              <Icon name="download" />
-              YouTube 가져오기
-            </Button>
-            <Button
-              variant="secondary"
-              className="secondary-button"
               aria-label="새 재생목록"
               onClick={props.openCreatePlaylistPopup}
             >
-              <Icon name="plus" />빈 목록 만들기
-            </Button>
+              <Icon name="plus" />새 재생목록
+            </BrandPrimaryButton>
           </div>
         </div>
       )}

@@ -61,9 +61,6 @@ function PlaylistsConnected(props: PlaylistsConnectedProps) {
         <Playlists
           goToPlaylistPage={props.goToPlaylistPage}
           openCreatePlaylistPopup={openCreatePlaylistPopup}
-          openImportPlaylist={() =>
-            formPopupManager(ModalKind.ImportYTPlaylistLink)
-          }
           playlistInfos={playlistInfos}
           playPlaylist={setMusiclist}
           openOptionsSelector={openOptionsSelector}

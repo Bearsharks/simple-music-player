@@ -30,3 +30,16 @@
     width: calc(100vw - 24px);
   }
 }
+
+// A lightweight panel uses exactly one scrim. Native top layer owns its paint;
+// only the unsupported-browser fallback paints the outer element.
+.subtleBackdrop {
+  background: var(--scrim-panel, rgb(0 0 0 / 24%));
+}
+.subtleBackdrop[data-native-dialog="true"] {
+  background: transparent;
+}
+.subtleContent::backdrop {
+  background: var(--scrim-panel, rgb(0 0 0 / 24%));
+  backdrop-filter: none;
+}

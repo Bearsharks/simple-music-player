@@ -111,3 +111,8 @@ LibraryBackup은 라이브러리 헤더의 ‘라이브러리 더보기’ 메�
 - 회귀: `playlist-snapshot.test.tsx`, `overlay-expansion.test.tsx`, `playlist-edit.test.tsx`.
   실제 Chromium suite는 새 import→로컬 추가→최초 복원→최신 교체→다시 복원 및 metadata/큐
   보존을 검사한다. preview IDs는 시뮬레이션이며 실제 YouTube 전체 수집을 보장하지 않는다.
+
+라이브러리 헤더와 빈 상태의 ‘새 재생목록’, 상세의 ‘전체 재생’은 공용
+`BrandPrimaryButton`을 사용한다. 생성·저장 submit은 일반 Button이다. 별도 YouTube
+가져오기 CTA/연결 prop은 제거하고 생성 modal 안의 통합 진입을 유지한다.
+검증: `brand-primary-button`, `restored-app` 및 브라우저의 빈/채워진 라이브러리 흐름.

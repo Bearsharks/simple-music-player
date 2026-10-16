@@ -48,6 +48,12 @@ Do not run an unreviewed CLI overwrite: local scope/focus adaptations are requir
 
 `data-dialog-popover` marks the inner Escape owner for Dialog fallback behavior.
 The native browser path leaves Escape to Radix/native close watchers. Volume's
-feature adapter focuses its existing range on open; no new range implementation
-or media player is introduced. Semantic layers live in `electric-night.scss` and
+feature adapter leaves focus in place on hover/trigger focus and enters its existing
+range only on keyboard intent; no new range implementation or media player is introduced. Semantic layers live in `electric-night.scss` and
 the root `DESIGN_SYSTEM.md`, not independent feature-specific z-index numbers.
+
+`shared/ui/BrandPrimaryButton` is the approved thin composition of Button for the
+library New Playlist entry and whole-playlist play only. It forwards native refs,
+asChild and disabled behavior, and consumes the shared signature state/color/stop
+tokens. Form submits, card/dock circular play and ordinary Button remain solid.
+The shared logo uses those same tokens and one continuous 25×28 background coordinate.

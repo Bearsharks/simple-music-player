@@ -56,3 +56,7 @@ ID는 이름 영역에만 격리되며 플레이어를 재마운트하거나 별
 main scroll owner는 dock+safe-area+16px 바닥 여백을 확보한다. dock/panel/메뉴는 안정된
 body/native-dialog portal에서 표시되며 app context에 갇히지 않는다. 320px 라이브러리
 제목은 액션과 두 행, 모바일 브랜드와 breadcrumb는 16px, 내부 경로는 8px 간격이다.
+
+YouTube 가져오기 진입은 ‘새 재생목록’ modal 안에 통합했다. sidebar/라이브러리
+헤더/빈 상태의 별도 가져오기 CTA는 제거했다. 백업 가져오기와 기존 source 최신
+가져오기는 그대로다. 로고는 공통 signature 토큰과 25×28 공유 좌표를 사용한다.

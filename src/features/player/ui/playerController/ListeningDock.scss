@@ -95,8 +95,7 @@
   min-width: 30px;
   text-align: center;
 }
-.seek-control input,
-.volume-control input {
+.seek-control input {
   width: 100%;
   min-width: 0;
   border: 0;
@@ -150,14 +149,6 @@
   gap: 12px;
   align-items: center;
 }
-.volume-control {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-.volume-control input {
-  width: 76px;
-}
 .dock-divider {
   width: 1px;
   height: 24px;
@@ -173,13 +164,10 @@
     padding-left: 16px;
     padding-right: 16px;
   }
-  .dock-right .volume-control input {
-    display: none;
-  }
 }
 @media (max-width: 760px) {
   .listening-dock {
-    grid-template-columns: minmax(0, 1fr) 44px 44px;
+    grid-template-columns: minmax(0, 1fr) 44px 88px;
     gap: 8px;
     padding: 8px 12px calc(8px + var(--safe-bottom));
   }
@@ -204,7 +192,6 @@
   .dock-right {
     gap: 0;
   }
-  .dock-right .volume-control,
   .dock-divider {
     display: none;
   }

@@ -157,11 +157,10 @@ try {
           color: getComputedStyle(node).color,
           image: getComputedStyle(node).backgroundImage,
         }));
-      expect(primaryStyle).toEqual({
-        background: "rgb(168, 85, 255)",
-        color: "rgb(11, 11, 20)",
-        image: "none",
-      });
+      expect(primaryStyle.color).toBe("rgb(11, 11, 20)");
+      expect(primaryStyle.image).toContain("90deg");
+      expect(primaryStyle.image).toContain("rgb(149, 93, 245) 68%");
+      expect(primaryStyle.image).toContain("rgb(116, 105, 239) 82%");
       const librarySeed = await page
         .locator(".playlist-card")
         .first()
@@ -316,11 +315,12 @@ try {
         image: getComputedStyle(node).backgroundImage,
         color: getComputedStyle(node).color,
       }));
-      expect(signature.image).toContain("110deg");
-      expect(signature.image).toContain("rgb(108, 112, 239)");
+      expect(signature.image).toContain("90deg");
+      expect(signature.image).toContain("rgb(116, 105, 239)");
       expect(signature.image).toContain("rgb(76, 201, 255)");
       expect(signature.image).not.toContain("rgb(255, 77, 141)");
       expect(signature.color).toBe("rgb(11, 11, 20)");
+      expect(signature.image).toBe(primaryStyle.image);
       if (viewport.width >= 1200) {
         const bars = await page.locator(".logo-bars i").evaluateAll((nodes) =>
           nodes.map((node) => ({
@@ -332,7 +332,7 @@ try {
         expect(
           bars.every(
             (bar) =>
-              bar.image.includes("rgb(108, 112, 239)") &&
+              bar.image.includes("rgb(116, 105, 239)") &&
               bar.size === "25px 28px",
           ),
         ).toBe(true);
@@ -353,7 +353,7 @@ try {
           await wholePlay.evaluate(
             (node) => getComputedStyle(node).backgroundImage,
           ),
-        ).toContain("rgb(131, 136, 244)");
+        ).toContain("rgb(140, 134, 244)");
         await page.screenshot({
           path: `test-results/app-signature-hover-${viewport.width}.png`,
           fullPage: true,
@@ -815,7 +815,8 @@ try {
           name: "음량 조절",
           exact: true,
         });
-        await volumeTrigger.click();
+        await volumeTrigger.focus();
+        await page.keyboard.press("ArrowUp");
         const volume = queuePanel.getByRole("slider", {
           name: "음량",
           exact: true,
@@ -827,15 +828,10 @@ try {
         expect(await page.evaluate(() => window.__simulatedPlayer.volume)).toBe(
           1,
         );
-        await queuePanel
-          .getByRole("button", { name: "음소거", exact: true })
-          .click();
-        expect(await page.evaluate(() => window.__simulatedPlayer.muted)).toBe(
-          true,
-        );
-        await queuePanel
-          .getByRole("button", { name: "음소거 해제", exact: true })
-          .click();
+        await expect(
+          queuePanel.getByRole("button", { name: "음소거", exact: true }),
+        ).toHaveCount(0);
+        await expect(queuePanel.locator(".volume-popover")).toHaveText("");
         await page.screenshot({
           path: `test-results/app-volume-popover-${viewport.width}.png`,
           fullPage: true,

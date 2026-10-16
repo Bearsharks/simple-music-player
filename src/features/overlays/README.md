@@ -100,3 +100,8 @@ legacy의 복원 옵션은 숨기며 현재 이름/설명/큐는 바꾸지 않�
 OverlayPortal의 page-level host는 공유된 안정 grid stack이다. 동시에 발생한 Undo/ErrorToast가
 같은 fixed 좌표에 겹치지 않는다. 각 stateful layer만 현재 native modal의 정상 흐름으로 옮기고
 닫힐 때 원래 stack으로 복귀한다. 공통 레이어 토큰/host 규칙은 루트 `DESIGN_SYSTEM.md`다.
+
+`Dialog.backdropTone` defaults to the existing task treatment. The player alone
+selects `subtle`: native wrapper is transparent and its pseudo backdrop uses the
+shared 24% scrim; fallback paints the wrapper once. Native capability is exposed
+on the wrapper for CSS, without changing close ownership, priority or content lifetime.

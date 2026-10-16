@@ -21,7 +21,7 @@ import { queueState } from "features/queue/model/queue";
 import api from "shared/api/localAPI";
 import { resetDatabase } from "test/resetDatabase";
 
-it("ports volume into the native scope and gives range/mute and Escape their own ownership", async () => {
+it("ports the compact range into native scope and preserves keyboard/Escape ownership", async () => {
   const store = createStore();
   store.set(ytPlayerInitedState, true);
   let volume = 75,
@@ -47,7 +47,7 @@ it("ports volume into the native scope and gives range/mute and Escape their own
         <button onClick={() => setOpen(true)}>플레이어</button>
         {open && (
           <Dialog label="미디어 패널" onClose={() => setOpen(false)}>
-            <SoundController overlay />
+            <SoundController />
           </Dialog>
         )}
       </>
@@ -61,7 +61,7 @@ it("ports volume into the native scope and gives range/mute and Escape their own
   );
   await user.click(screen.getByRole("button", { name: "플레이어" }));
   const trigger = screen.getByRole("button", { name: "음량 조절" });
-  await user.click(trigger);
+  await user.keyboard("{ArrowUp}");
   const slider = screen.getByRole("slider", { name: "음량" });
   expect(slider).toHaveFocus();
   expect(slider.closest("dialog")).toBe(
@@ -70,11 +70,13 @@ it("ports volume into the native scope and gives range/mute and Escape their own
   expect(player.mute).not.toHaveBeenCalled();
   fireEvent.change(slider, { target: { value: "35" } });
   expect(player.setVolume).toHaveBeenCalledWith(35);
-  await user.click(screen.getByRole("button", { name: "음소거" }));
-  expect(player.mute).toHaveBeenCalledOnce();
+  expect(
+    screen.queryByRole("button", { name: "음소거" }),
+  ).not.toBeInTheDocument();
+  fireEvent.change(slider, { target: { value: "0" } });
   expect(slider).toHaveValue("0");
-  await user.click(screen.getByRole("button", { name: "음소거 해제" }));
-  expect(slider).toHaveValue("35");
+  fireEvent.change(slider, { target: { value: "35" } });
+  expect(player.unMute).toHaveBeenCalled();
   await user.keyboard("{Escape}");
   expect(screen.queryByRole("slider")).not.toBeInTheDocument();
   expect(trigger).toHaveFocus();

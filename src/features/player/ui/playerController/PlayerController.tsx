@@ -90,7 +90,9 @@ export default function PlayerController(props: PlayerControllerProps) {
         <ProgressBar />
       </div>
       <div className="dock-right">
-        <SoundController />
+        <div className="dock-volume">
+          <SoundController />
+        </div>
         <span className="dock-divider" />
         <button
           className={`icon-button queue-toggle ${props.playerVisiblity ? "selected" : ""}`}

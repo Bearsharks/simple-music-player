@@ -66,6 +66,7 @@ export default function PlayerDetail({
         open={playerVisiblity}
         modal={!wide}
         priority={0}
+        backdropTone="subtle"
         onClose={closePanel}
         className="now-panel"
       >
@@ -169,7 +170,7 @@ export default function PlayerDetail({
             )}
             <div className="player-large-controls">
               <ProgressBar />
-              <Transport {...controls} leading={<SoundController overlay />} />
+              <Transport {...controls} leading={<SoundController />} />
             </div>
           </section>
           <section

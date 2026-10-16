@@ -8,6 +8,7 @@
   --z-dialog: 100;
   --z-notice: 120;
   --z-accessibility: 140;
+  --scrim-panel: rgb(0 0 0 / 24%);
   --canvas: #0b0b14;
   --surface: #1a1a26;
   --surface-raised: #242435;
@@ -21,23 +22,43 @@
   --pink: #ff4d8d;
   --sky: #4cc9ff;
   --on-brand: #0b0b14;
+  --signature-angle: 90deg;
+  --signature-stop-1: 0%;
+  --signature-stop-2: 68%;
+  --signature-stop-3: 82%;
+  --signature-stop-4: 100%;
+  --signature-color-1: #a855ff;
+  --signature-color-2: #955df5;
+  --signature-color-3: #7469ef;
+  --signature-color-4: #4cc9ff;
+  --signature-color-1-hover: #b875ff;
+  --signature-color-2-hover: #ac7bfa;
+  --signature-color-3-hover: #8c86f4;
+  --signature-color-4-hover: #6ad3ff;
+  --signature-color-1-pressed: #a553fa;
+  --signature-color-2-pressed: #955bf3;
+  --signature-color-3-pressed: #7469ef;
+  --signature-color-4-pressed: #43b8ef;
   --signature-gradient: linear-gradient(
-    110deg,
-    #a855ff 0%,
-    #6c70ef 55%,
-    #4cc9ff 100%
+    var(--signature-angle),
+    var(--signature-color-1) var(--signature-stop-1),
+    var(--signature-color-2) var(--signature-stop-2),
+    var(--signature-color-3) var(--signature-stop-3),
+    var(--signature-color-4) var(--signature-stop-4)
   );
   --signature-gradient-hover: linear-gradient(
-    110deg,
-    #b875ff 0%,
-    #8388f4 55%,
-    #6ad3ff 100%
+    var(--signature-angle),
+    var(--signature-color-1-hover) var(--signature-stop-1),
+    var(--signature-color-2-hover) var(--signature-stop-2),
+    var(--signature-color-3-hover) var(--signature-stop-3),
+    var(--signature-color-4-hover) var(--signature-stop-4)
   );
   --signature-gradient-pressed: linear-gradient(
-    110deg,
-    #a553fa 0%,
-    #6a6eeb 55%,
-    #43b8ef 100%
+    var(--signature-angle),
+    var(--signature-color-1-pressed) var(--signature-stop-1),
+    var(--signature-color-2-pressed) var(--signature-stop-2),
+    var(--signature-color-3-pressed) var(--signature-stop-3),
+    var(--signature-color-4-pressed) var(--signature-stop-4)
   );
   --selected: rgba(168, 85, 255, 0.12);
   --gradient: linear-gradient(120deg, #a855ff 0%, #ff4d8d 58%, #4cc9ff 100%);
@@ -200,16 +221,6 @@ h3 {
 }
 .secondary-button:hover:not(:disabled) {
   background: var(--surface-raised);
-}
-.play-button {
-  background: var(--signature-gradient);
-  color: var(--on-brand);
-}
-.play-button:hover:not(:disabled) {
-  background: var(--signature-gradient-hover);
-}
-.play-button:active:not(:disabled) {
-  background: var(--signature-gradient-pressed);
 }
 .danger-button {
   background: var(--danger);

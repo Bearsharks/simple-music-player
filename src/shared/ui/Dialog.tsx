@@ -69,6 +69,7 @@ export default function Dialog({
   modal: requestedModal = true,
   className = "",
   priority = 10,
+  backdropTone = "default",
 }: {
   label: string;
   onClose: () => void;
@@ -77,6 +78,7 @@ export default function Dialog({
   modal?: boolean;
   className?: string;
   priority?: number;
+  backdropTone?: "default" | "subtle";
 }) {
   const [layer] = useState(() => document.createElement("div"));
   const content = useRef<HTMLDialogElement>(null);
@@ -127,6 +129,7 @@ export default function Dialog({
     const previousFocus = document.activeElement as HTMLElement | null;
     // show()/showModal() can switch without removing the iframe host.
     const native = typeof root.showModal === "function";
+    root.parentElement!.dataset.nativeDialog = String(native);
     if (native) {
       if (root.open) root.close();
       modal ? root.showModal() : root.show();
@@ -220,7 +223,11 @@ export default function Dialog({
   }, [label, open, modal]);
   return createPortal(
     <div
-      className={modal && open ? styles.backdrop : undefined}
+      className={
+        modal && open
+          ? `${styles.backdrop} ${backdropTone === "subtle" ? styles.subtleBackdrop : ""}`
+          : undefined
+      }
       hidden={!open}
       onPointerDownCapture={(event) => {
         backdropPress.current =
@@ -253,7 +260,7 @@ export default function Dialog({
       }}
     >
       <dialog
-        className={`${styles.content} ${className}`}
+        className={`${styles.content} ${backdropTone === "subtle" ? styles.subtleContent : ""} ${className}`}
         ref={content}
         role={modal ? "dialog" : "complementary"}
         aria-modal={modal ? true : undefined}

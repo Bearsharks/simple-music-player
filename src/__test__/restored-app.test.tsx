@@ -64,10 +64,21 @@ it("renders the original playlist workspace without a login gate", async () => {
       </Provider>,
     );
   });
+  // Wait for the route's lazy modules, rather than charging cold Vite transforms
+  // against Testing Library's short interaction deadline under the full suite.
+  await act(async () => {
+    await vi.dynamicImportSettled();
+  });
   expect(
     await screen.findByRole("button", { name: "새 재생목록" }),
   ).toBeInTheDocument();
   expect(screen.queryByText("로그인")).not.toBeInTheDocument();
+  expect(
+    screen.queryByRole("button", { name: "YouTube 가져오기" }),
+  ).not.toBeInTheDocument();
+  expect(screen.getAllByRole("button", { name: "새 재생목록" })).toHaveLength(
+    1,
+  );
 });
 
 it("navigates a successful UI creation to the new detail and focuses its first URL field", async () => {

@@ -1,3 +1,4 @@
+import BrandPrimaryButton from "shared/ui/BrandPrimaryButton";
 import { Button } from "shared/ui/shadcn/button";
 import AddVideo from "../ui/AddVideo";
 import RestoreTitles from "../ui/RestoreTitles";
@@ -116,8 +117,7 @@ function PlaylistDetail({ playlistID }: { playlistID: string }) {
       </div>
       <div className={styles.actions}>
         <div>
-          <Button
-            variant="default"
+          <BrandPrimaryButton
             className="button play-button"
             disabled={!info.itemCount}
             onClick={async () => {
@@ -139,7 +139,7 @@ function PlaylistDetail({ playlistID }: { playlistID: string }) {
           >
             <Icon name="play" />
             전체 재생
-          </Button>
+          </BrandPrimaryButton>
           <Button
             variant="secondary"
             className="secondary-button"

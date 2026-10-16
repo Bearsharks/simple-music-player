@@ -138,15 +138,3 @@
   font-size: 13px;
   line-height: 1.5;
 }
-
-/* Product signature is intentionally limited to the whole-playlist action. */
-.loopy-control[data-slot][data-loopy-button].play-button {
-  background: var(--signature-gradient);
-  color: var(--on-brand);
-}
-.loopy-control[data-slot][data-loopy-button].play-button:hover:not(:disabled) {
-  background: var(--signature-gradient-hover);
-}
-.loopy-control[data-slot][data-loopy-button].play-button:active:not(:disabled) {
-  background: var(--signature-gradient-pressed);
-}

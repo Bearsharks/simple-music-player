@@ -82,13 +82,6 @@ export default function Main() {
           >
             <Icon name="grid" />내 라이브러리
           </button>
-          <button
-            className="nav-link"
-            onClick={() => modal(ModalKind.ImportYTPlaylistLink)}
-          >
-            <Icon name="download" />
-            YouTube 가져오기
-          </button>
         </nav>
         <div className="sidebar-section">
           <span>재생목록</span>

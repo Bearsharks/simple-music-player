@@ -15,26 +15,29 @@
 
 ## 2. 공통 토큰과 재사용
 
-| 역할                | 기존 토큰/값                                                                                   |
-| ------------------- | ---------------------------------------------------------------------------------------------- |
-| 바탕                | `--canvas: #0B0B14`                                                                            |
-| 표면/메뉴           | `--surface: #1A1A26`                                                                           |
-| hover 표면          | `--surface-raised: #242435`                                                                    |
-| 본문/보조 글자      | `--text: #FFFFFF`, `--muted: #A1A1B3`                                                          |
-| 구획/입력 테두리    | `--line: #353545`, `--control-line: #6B6B80`                                                   |
-| 핵심 조작           | `--purple: #A855FF`                                                                            |
-| hover/pressed       | `--brand-hover: #B875FF`, `--brand-pressed: #A553FA`                                           |
-| 핵심 버튼 글자      | `--on-brand: #0B0B14`                                                                          |
-| 로고·전체 재생 한정 | `--signature-gradient: linear-gradient(110deg, #A855FF 0%, #6C70EF 55%, #4CC9FF 100%)`         |
-| signature hover     | `--signature-gradient-hover: linear-gradient(110deg, #B875FF 0%, #8388F4 55%, #6AD3FF 100%)`   |
-| signature pressed   | `--signature-gradient-pressed: linear-gradient(110deg, #A553FA 0%, #6A6EEB 55%, #43B8EF 100%)` |
-| focus               | `--sky: #4CC9FF`                                                                               |
-| 위험/오류           | `--danger: #FF9DB6`                                                                            |
+| 역할 | 기존 토큰/값 |
+|---|---|
+| 바탕 | `--canvas: #0B0B14` |
+| 표면/메뉴 | `--surface: #1A1A26` |
+| hover 표면 | `--surface-raised: #242435` |
+| 본문/보조 글자 | `--text: #FFFFFF`, `--muted: #A1A1B3` |
+| 구획/입력 테두리 | `--line: #353545`, `--control-line: #6B6B80` |
+| 핵심 조작 | `--purple: #A855FF` |
+| hover/pressed | `--brand-hover: #B875FF`, `--brand-pressed: #A553FA` |
+| 핵심 버튼 글자 | `--on-brand: #0B0B14` |
+| signature 방향/비율 | `90deg`, stop `0% / 68% / 82% / 100%` |
+| signature default 색 | `#A855FF / #955DF5 / #7469EF / #4CC9FF` |
+| signature hover 색 | `#B875FF / #AC7BFA / #8C86F4 / #6AD3FF` |
+| signature pressed 색 | `#A553FA / #955BF3 / #7469EF / #43B8EF` |
+| focus | `--sky: #4CC9FF` |
+| 위험/오류 | `--danger: #FF9DB6` |
 
-- **최신 사용자 지시(2026-10-16 12:23 UTC): 로고 마크와 ‘전체 재생’ 버튼만 보라→인디고→블루/시안 그라데이션으로 변경한다.** 위 signature 토큰을 사용하며 핑크/빨강 stop은 넣지 않는다. 앞선 두 요소의 단색 결정은 이 지시로 대체된다.
-- 전체 재생의 dark foreground `#0B0B14`를 유지한다. 기본 gradient 전체 구간의 최소 대비는 sRGB 샘플 계산 약 4.82:1, hover 약 6.33:1이다. pressed도 4.5:1 이상을 유지한다. 흰 작은 글자로 바꾸지 않는다. glow/광택 줄무늬/움직이는 gradient는 추가하지 않는다.
+- **최신 사용자 정정(2026-10-16 13:02 UTC): 보라에서 천천히 변하다가 끝에서 파랑으로 급격히 변하는 흐름을 원한다.** 로고 마크·‘전체 재생’·‘새 재생목록’ 주 진입 CTA에 위 동일한 signature 비율을 적용한다. 0–68%는 긴 보라 구간, 68–82%는 인디고로 연결, 마지막18%는 블루/시안으로 빠르게 전환한다. 이전 균일 전환·110deg·로고8/54.2/92% 보정안은 폐기한다. 핑크/빨강 stop은 넣지 않는다.
+- dark foreground `#0B0B14`를 유지한다. gradient 전체 구간의 최소 대비는 sRGB 샘플 계산 default4.67:1, hover6.37:1, pressed4.66:1이다. 흰 작은 글자로 바꾸지 않는다. glow/광택 줄무늬/움직이는 gradient는 추가하지 않는다.
 - 로고 4개 막대 전체에 하나의 좌→우 색 흐름을 적용한다. 막대마다 전체 gradient를 반복하지 않는다. 기존 막대 높이/간격/형태와 흰 loopy wordmark를 유지한다. 로고 끝 점은 종단 sky `#4CC9FF`로 맞춘다. 모바일은 기존 wordmark와 끝 점에 같은 규칙을 사용한다.
-- **공용 primary, 카드의 원형 재생, dock/상세 플레이어 원형 재생은 단색 보라를 유지한다.** 커버의 다색 그래픽, 오류/재생 상태의 의미색도 유지한다. signature를 공용 `--purple`이나 모든 Button default에 확산하지 않는다. 단색 dark foreground 대비는 기본 5.04:1, hover 6.55:1, pressed 4.87:1.
+- **BrandPrimaryButton**은 기존 shadcn Button을 감싸는 얇은 공용 의미 컴포넌트로 둔다. ‘전체 재생’과 라이브러리 헤더/빈 상태의 ‘새 재생목록’ 주 진입에 사용한다. 모바일의 같은 + 진입도 포함한다. disabled/focus/ref/asChild 의미를 보존한다. 기존 sidebar의 보조 +와 picker의 새 카드까지 주 CTA처럼 채우지 않는다.
+- signature의 방향, 각 stop 위치, default/hover/pressed 색을 공통 CSS 토큰으로 분리하고 `--signature-gradient[-hover/-pressed]`를 조합한다. 로고와 BrandPrimaryButton은 이 토큰을 소비하며 독립적인 색/stop 복사본을 갖지 않는다.
+- **일반 저장·생성 submit, 카드의 원형 재생, dock/상세 플레이어 원형 재생은 단색 보라를 유지한다.** 커버의 다색 그래픽, 오류/재생 상태의 의미색도 유지한다. signature를 공용 `--purple`이나 모든 Button default에 확산하지 않는다. 단색 dark foreground 대비는 기본 5.04:1, hover 6.55:1, pressed 4.87:1.
 - 일반 컨트롤/터치 영역 최소 44px, 전체 재생 48px, 상세 플레이어 재생 56px. radius는 컨트롤 10px, popover 12px, dialog 16px. 필드 16px, 메뉴/버튼 14px 이상.
 - focus-visible sky 2px/offset 4px. 팝오버 항목은 clipping 없는 내부 ring. 비활성은 실제 disabled와 opacity .42, hover/pressed 미적용. reduced-motion에서는 이동/등장 효과 제거.
 - 공식 shadcn **Radix** Button/Input/Textarea/Label/Select/DropdownMenu를 사용한다. 이번 음량 overlay에는 공식 Radix Popover를 하나 추가한다. native Dialog/Notice/ErrorToast/미디어 Tabs/range는 현재 검증된 구현을 유지한다.
@@ -48,16 +51,16 @@
 
 z-index는 **같은 stacking context 안의 순서**다. native top layer, inert, portal 위치, 조상 overflow/transform까지 함께 다룬다. 숫자만 높여 고치지 않는다.
 
-| semantic token      |  값 | 용도                                   |
-| ------------------- | --: | -------------------------------------- |
-| `--z-content`       |   0 | 기본 페이지                            |
-| `--z-sticky`        |  10 | 페이지 내부 sticky header              |
-| `--z-dock`          |  40 | 하단 고정 재생 컨트롤                  |
-| `--z-panel`         |  60 | desktop 비모달 오른쪽 플레이어 overlay |
-| `--z-popover`       |  80 | 현재 scope의 메뉴/Select/음량 popover  |
-| `--z-dialog`        | 100 | native dialog fallback/작업 layer      |
-| `--z-notice`        | 120 | 현재 활성 scope의 오류/Undo 알림       |
-| `--z-accessibility` | 140 | focus된 skip link 등 제한된 보조 UI    |
+| semantic token | 값 | 용도 |
+|---|---:|---|
+| `--z-content` | 0 | 기본 페이지 |
+| `--z-sticky` | 10 | 페이지 내부 sticky header |
+| `--z-dock` | 40 | 하단 고정 재생 컨트롤 |
+| `--z-panel` | 60 | desktop 비모달 오른쪽 플레이어 overlay |
+| `--z-popover` | 80 | 현재 scope의 메뉴/Select/음량 popover |
+| `--z-dialog` | 100 | native dialog fallback/작업 layer |
+| `--z-notice` | 120 | 현재 활성 scope의 오류/Undo 알림 |
+| `--z-accessibility` | 140 | focus된 skip link 등 제한된 보조 UI |
 
 ### 실제 순서와 host
 
@@ -81,8 +84,10 @@ z-index는 **같은 stacking context 안의 순서**다. native top layer, inert
 
 - dock은 fixed footer. page grid에 별도 열/행으로 끼워 넣지 않는다. 마지막 곡/버튼을 스크롤로 드러낼 수 있도록 실제 scroll owner에 dock 높이+safe-area+16px 이상의 바닥 여백을 둔다. footer가 콘텐츠 접근을 막는 것은 허용하지 않는다.
 - desktop RNB를 열어도 main의 width/grid/card column count가 변하지 않는다. 현재 `.studio-shell.queue-open { padding-right: var(--queue) }`를 제거한다.
-- desktop panel은 기존 `--queue` 폭을 유지하고 viewport 오른쪽에 fixed, 아래 끝은 dock 상단. 분리감을 위해 1px 경계와 약한 좌측 shadow만 사용한다. 본문을 축소하거나 강한 dim/backdrop을 넣지 않는다.
+- desktop panel은 기존 `--queue` 폭을 유지하고 viewport 오른쪽에 fixed, 아래 끝은 dock 상단. 분리감을 위해 1px 경계와 `-8px 0 24px rgb(0 0 0 / .12)` 좌측 shadow만 사용한다. 전면 dim은 0이다. 본문을 축소하지 않는다.
 - narrow/mobile는 현재 380px 또는 full-width native sheet의 반응형 정책을 유지한다. 본문을 밀지 않는다. 닫았을 때 해당 queue/current-track trigger로 복귀한다.
+- **최신 사용자 지적 반영(2026-10-16 12:54 UTC): RNB modal scrim은 검정 24% 한 겹, blur 없음이다.** native 경로에서는 RNB wrapper 배경을 투명하게 하고 RNB `::backdrop`만 `rgb(0 0 0 / .24)`로 칠한다. native dialog 미지원 fallback은 wrapper에만 같은 24%를 적용한다. 일반 작업 modal의 기존 dim/blur와 별도 tone으로 구분한다.
+- RNB의 wrapper와 native `::backdrop`을 동시에 어둡게 칠하지 않는다. 기존 `#0009` wrapper + `#000a` pseudo-backdrop이 함께 칠해지는 영역은 약87% 검정이 되어 배경을 과하게 지운다. pseudo-backdrop에 명시적 selector로 RNB tone을 적용하고, 최신 브라우저의 ::backdrop 상속 지원(Chrome122+/Firefox120+/Safari17.4+)과 구형 차이를 고려해 pseudo selector와 24% fallback을 명시하고 computed style을 확인한다.
 - 닫기·탭 전환·breakpoint 이동은 동일한 YoutubePlayer/iframe instance를 보존한다. `open=false`라고 player subtree를 조건부 제거하지 않는다.
 - 패널 제목 아래 **‘음악과 함께하는 나만의 시간’은 제거**하며 대체 감성 문구나 불필요한 빈 높이를 넣지 않는다.
 - 현재 곡/큐 접근 버튼, 현재 재생 상태, 숨긴 패널을 다시 여는 동작은 유지한다.
@@ -100,13 +105,15 @@ z-index는 **같은 stacking context 안의 순서**다. native top layer, inert
 
 ## 6. 모바일 음량 popover
 
-- 요청된 **상세 플레이어**에서 기존 별도 volume row를 없애고 **음량 / 이전 / 재생·일시정지 / 다음**을 같은 행에 둔다. compact footer의 기존 트랙/재생/큐 구성은 무리하게 늘리지 않는다.
+- 요청된 **상세 플레이어**에서 기존 별도 volume row를 없애고 **음량 / 이전 / 재생·일시정지 / 다음**을 같은 행에 둔다. footer도 모든 너비에서 트랙/재생/음량/큐 접근을 제공한다.
 - 버튼 최소 44px, 중앙 재생 56px. 재생 중심을 맞추려면 44/44/56/44/44의 5-track grid(마지막은 비어 있는 layout 공간), gap 8px를 사용할 수 있다. 실제 조작은 네 개뿐이다. 총 264px로 320px 화면의 panel 내용 안에 들어간다.
-- 음량 trigger는 `aria-label='음량 조절'`, expanded 상태와 현재 muted 아이콘. 클릭은 popup을 열며 즉시 mute하지 않는다. ready 전 disabled.
-- Popover는 width 약224px/max viewport-32px, 위쪽으로 열고 공간이 없으면 flip. surface/radius/border는 공통 menu와 같다. native sheet 안에서 portal하며 내용이 밖으로 잘리지 않는다.
-- 내용: 짧은 제목 ‘음량’, 현재 % 값, native range 0–100(터치 높이44px), 별도 음소거/해제 버튼. 추가 도움말/툴팁은 없음. 열면 range에 focus, Escape/닫힘 시 음량 trigger로 복귀.
-- slider 방향키/Home/End와 native value semantics 유지. 슬라이더 변경 시 기존 player API를 사용하며 실제 mute/volume과 UI 상태를 동기화한다. player가 준비되지 않은 상태를 조절 성공처럼 표현하지 않는다.
-- 바깥 클릭/Escape로 popover만 닫힌다. 음량 변경/열기/닫기로 음악이 멈추거나 queue sheet가 닫히지 않는다.
+- **최신 사용자 지시(2026-10-16 12:54 UTC): 제목·%·별도 음소거 버튼을 없애고 native slider 하나만 있는 compact popover로 바꾼다.** 상세 플레이어와 모든 너비의 footer는 동일 SoundController/Popover 경험을 사용한다. footer의 기존 상시 inline range도 제거한다. 320/390에서도 음량 아이콘을 표시하며 음량/큐 각각44px 영역을 확보한다.
+- 음량 trigger는 `aria-label='음량 조절'`, expanded 상태를 갖는다. `isMuted || volume === 0`이면 muted 아이콘. 클릭/모바일 탭은 popup 열기·닫기이며 즉시 음소거하는 별도 의미를 겹치지 않는다. ready 전 disabled.
+- hover 가능한 마우스는 trigger 진입 즉시 열린다. trigger→popup을 건너갈 수 있도록 pointer leave 후 약150ms 지연 닫기. 어느 쪽에든 pointer가 있거나 내부에 keyboard focus가 있거나 slider drag 중이면 유지한다. touch에 hover 상태가 남지 않게 실제 pointer 종류를 구분한다.
+- keyboard trigger focus에서도 popup을 열되 초점을 빼앗지 않는다. Tab 또는 ArrowUp/ArrowDown으로 slider에 진입할 수 있다. slider의 방향키/Home/End는 native 동작 유지. Escape는 popup만 닫고 trigger에 복귀한다. Escape·명시적 닫기 뒤 focus/hover가 같은 위치에 남아 있다고 곧바로 다시 열지 않는다. blur/leave 이후 새 진입이나 명시 activation에서 다시 열 수 있다.
+- Popover는 width176px/max viewport-32px, padding6px 12px, native range hit area 높이44px로 약56px 높이. 위쪽/중앙 정렬, 부족하면 flip. 공통 surface/radius12px/border1px. slider track4px, thumb12px, 보라 fill과 중립 rail. native sheet 안에 portal하며 잘리지 않는다.
+- 보이는 내용은 slider 하나뿐이다. range accessible label ‘음량’, min0/max100 및 현재 value semantics는 유지한다. 0은 무음, 0보다 큰 값 변경은 unmute하며 실제 player API와 동기화한다. player가 준비되지 않은 상태를 조절 성공처럼 표현하지 않는다.
+- 바깥 클릭/Escape로 popup만 닫힌다. 음량 변경/열기/닫기로 음악이 멈추거나 queue sheet가 닫히지 않는다. mouse hover로 여는 것만으로 keyboard focus를 이동시키지 않는다.
 
 ## 7. 최초 기록 복원과 최신 YouTube 가져오기
 
@@ -139,6 +146,7 @@ z-index는 **같은 stacking context 안의 순서**다. native top layer, inert
 
 ## 8. 앞선 여섯 묶음에 대한 최신 조정
 
+- **가져오기 진입 통합(2026-10-16 12:57 UTC):** sidebar와 라이브러리 헤더의 별도 YouTube 가져오기 버튼은 제거한다. 빈 라이브러리도 ‘새 재생목록’ 하나로 같은 생성 modal에 진입한다. 새 재생목록 내부의 ‘YouTube에서 가져오기’ 기능은 유지한다. 전역 ‘백업 가져오기’와 기존 목록의 ‘YouTube 최신 목록 가져오기’는 별개이므로 유지한다.
 - Import: 입력 변화 즉시 후보 무효화, blur/URL Enter 자동 load. 편집 없는 반복 blur만 no-op; onChange 후 원래 URL 복귀도 새 load. 수동 preview 단계/버튼 없음. CTA ‘재생목록 추가’.
 - Picker: 카드 선택 후 같은 화면의 진짜 이름/설명 입력. 기존 ‘수정하고 추가’, 신규 ‘만들고 추가’. 목적지별 draft 보존. **상시 ‘목록을 선택해 주세요’/‘선택한 목록의 변경만 저장됩니다’ 설명은 제거**하고 무선택 CTA disabled 및 카드/필드 상태로 표현. 선택 알림은 ‘○○ 선택’처럼 짧게 제공한다.
 - 새 카드의 큰 +와 ‘새 재생목록 만들기’ 유지. 없는 기존 목록의 복사/복원 등 불가능 action은 노출하지 않는다.
@@ -162,3 +170,6 @@ z-index는 **같은 stacking context 안의 순서**다. native top layer, inert
 7. metadata/곡 복원과 현재 재생 큐 독립, 다중 클릭 중복 저장 없음. 파괴 확인·실제 오류·필수 a11y는 설명 최소화 원칙 때문에 사라지지 않음.
 
 픽셀 캡처와 행동 테스트를 함께 확인한다. mock iframe의 성공을 실제 YouTube/오디오 검증으로 보고하지 않는다. 배포는 부모의 최종 인수 절차를 따른다.
+
+### 2026-10-16 13:09 음량 범위 보완
+모든 너비의 footer에서 같은 음량 popup에 접근한다. 320/390의 마지막 칸도 음량+큐44px씩을 확보하고 제목만 ellipsis 처리한다. 가로 overflow와 터치영역 축소로 공간을 맞추지 않는다.

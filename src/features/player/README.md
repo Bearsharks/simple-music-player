@@ -57,10 +57,18 @@ ListeningDock.scss와 PlayerController.tsx가 고정 재생바를 소유한다. 
 main을 축소하지 않고 dock 위에서 끝난다. `PlayerController` footer는 안정 body portal에
 유지된다. native sheet 모드와 영구 iframe subtree/resize 유예 계약은 그대로다.
 
-`Transport.leading`은 상세에서만 음량 trigger를 첫 칸에 둔다. `SoundController overlay`
-모드는 공식 shadcn Radix Popover를 사용하고 열린 순간 trigger의 native dialog scope를
-캡처한다. range/음소거는 기존 window.player API를 사용하며 ready 전 잠근다. 첫 Escape는
-popover만 닫고 trigger focus, 다음 Escape는 panel이다. compact dock의 기존 volume UI는
-유지한다. 별도 감성 설명과 aria-label을 반복하는 title tooltip은 제거했다.
-회귀: `overlay-expansion.test.tsx`; Chromium의 한 행/키보드 range/mute/포커스/iframe 동일성.
+`Transport.leading`은 상세에서 음량 trigger를 첫 칸에 둔다. 상세와 footer 모두
+320px 모바일 footer를 포함해 동일한 `SoundController`의 shadcn Radix Popover를 사용한다. 아이콘 hover/키보드
+focus/tap으로 slider만 표시하고, 클릭은 즉시 mute하지 않는다. range0은 무음,
+양수 변경은 unMute이며 ready 전 잠근다. hover 이동은 150ms 지연을 두고 내부
+focus/drag 동안 유지한다. Tab/위·아래 화살표로 range 진입, Escape는 popup만
+닫고 trigger로 복귀하며 같은 focus/hover 때문에 다시 열리지 않는다.
+
+열 때 trigger의 native dialog scope를 캡처한다. RNB만 `Dialog backdropTone="subtle"`
+을 사용하며 native에서는 wrapper 투명/::backdrop24%, fallback에서는 wrapper24%
+한 겹이다. 일반 task의 기존 dim/blur는 유지한다. desktop은 전면 dim 없이 .12 shadow다.
+`PlayerController` footer의 inline volume range는 제거했으며 하나의 공유 컨트롤을 쓴다.
+
+회귀: `compact-volume.test.tsx`, `overlay-expansion.test.tsx` 및
+`e2e/player-overlays.mjs`(RNB 단독/작업 중첩·breakpoint·hover/touch/키보드·iframe 동일성).
 실제 외부 YouTube 소리/모바일 Safari의 음량 정책은 별도 검증이다.

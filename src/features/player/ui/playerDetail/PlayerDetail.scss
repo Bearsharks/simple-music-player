@@ -12,7 +12,7 @@ dialog.now-panel {
   background: #11111c;
   padding: 0;
   overflow: hidden;
-  box-shadow: -12px 0 32px #0003;
+  box-shadow: -8px 0 24px rgb(0 0 0 / 12%);
   z-index: var(--z-panel);
 }
 dialog.now-panel[open] {
