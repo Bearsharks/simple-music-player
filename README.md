@@ -1,3 +1,17 @@
+# 개발 안내 — 기능 단위 구조 / 2026-10-16
+
+- Node.js 24 (`nvm use`), `npm ci`
+- `.env.example`을 `.env.local`로 복사한 뒤 `VITE_API_URL`을 설정합니다. 기존 `REACT_APP_*` 변수는 새 Vite 앱에서 자동 사용하지 않습니다.
+- 백엔드 없는 **검증용 화면**: `VITE_API_MODE=fixture npm run dev`. fixture는 메모리 데이터이며 실제 YouTube 인증/저장/동기화를 제공하지 않습니다.
+- 개발: `npm run dev`, 기본 경로 `/simple-music-player/`
+- 검증: `npm run check` (경계·타입·테스트·production build)
+- UI 카탈로그: `npm run storybook`, 정적 빌드: `npm run build-storybook`
+- 산출물: `dist/`. 빌드·테스트 CI는 배포하지 않습니다. 실제 게시 작업은 별도로 승인·설정합니다.
+
+문서: [아키텍처](docs/ARCHITECTURE.md) · [디자인/아키텍처/기능별 개선 우선순위와 검증 결과](docs/IMPROVEMENT-PLAN.md) · [에이전트 작업 지침](AGENTS.md)
+
+## 기존 프로젝트 소개
+
 # [간단 노래 재생기](https://bearsharks.github.io/simple-music-player)
 유튜브 뮤직 클론 프로젝트로 검색, 재생목록URL, 동영상URL로 재생목록을 만들 수 있는 간단한 뮤직플레이어 입니다. \
 **[링크](https://bearsharks.github.io/simple-music-player)**  \
