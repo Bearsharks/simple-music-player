@@ -27,14 +27,14 @@ function toMusicInfo(data: any, type: SearchType, query: string): MusicInfo {
             videoID: data.id.videoId,
             name: data.snippet.title,
             query: query,
-            thumbnail: data.snippet.thumbnails.default.url,
+            thumbnail: data.snippet.thumbnails?.default?.url ?? "",
             owner: data.snippet.channelTitle,
         };
     }
 }
 
 export const searchByQuery = async (query: string): Promise<MusicInfo[]> => {
-    let queryList: string[] = query.split("\n").filter((element) => element !== "");
+    let queryList: string[] = query.split("\n").map(value => value.trim()).filter(Boolean);
     if (queryList.length <= 0) return [];
     let newMusicList: MusicInfo[] = [];
     for (let i = 0; i < queryList.length; i++) {
@@ -97,31 +97,31 @@ export default async function youtubeSearch(value: string, type: SearchType, pag
 }
 
 //파람만들기 파람으로 패스 만들기 결과 반환하기
-const YTFetch = async (url: string, pageToken?: string): Promise<any> => {
-    let curURL = url;
-    if (!sessionStorage.getItem("access_token")) {
-        const token = await getToken();
-        if (token === "") throw "토큰이 없음 에러";
-        sessionStorage.setItem("access_token", token);
-    }
-    curURL = `${curURL}&access_token=${sessionStorage.getItem("access_token")}`;
-
-    if (pageToken) curURL += `&pageToken=${pageToken}`;
-    let res = await fetch(curURL);
-    if (res.status === 200) {
-        const data = await res.json();
-        if (data.nextPageToken) {
-            return data.items.concat(await YTFetch(url, data.nextPageToken));
+export const YTFetch = async (url: string, pageToken?: string): Promise<any[]> => {
+    const result: any[] = [];
+    const seen = new Set<string>();
+    let next = pageToken;
+    let refreshed = false;
+    for (let page = 0; page < 100; page++) {
+        const requestUrl = new URL(url);
+        if (next) requestUrl.searchParams.set('pageToken', next);
+        let token = sessionStorage.getItem('access_token');
+        if (!token) { token = await getToken(); sessionStorage.setItem('access_token', token); }
+        const response = await fetch(requestUrl, { headers: { Authorization: `Bearer ${token}` } });
+        if (response.status === 401 && !refreshed) {
+            sessionStorage.removeItem('access_token'); refreshed = true; page--; continue;
         }
-        return data.items;
-    } else if (res.status === 403 || res.status === 401) {
-        //유튜브 읽기 권한이 없다면 무한루프가 발생하기 때문에 없다면 확인후 권한을 달라고 하자
-        sessionStorage.setItem("access_token", "");
-        return YTFetch(url, pageToken);
+        if (!response.ok) throw new Error(`YouTube 요청 실패 (${response.status}). 권한 또는 할당량을 확인해 주세요.`);
+        const data = await response.json();
+        if (!Array.isArray(data.items)) throw new Error('YouTube 응답 형식 오류');
+        result.push(...data.items);
+        next = data.nextPageToken;
+        if (!next) return result;
+        if (seen.has(next)) throw new Error('YouTube 페이지 토큰 반복');
+        seen.add(next);
     }
-    alert('잘못된 키이거나 해당키의 api 할당량을 초과했습니다.');
-    throw new Error('request fail');
-}
+    throw new Error('가져올 재생목록이 너무 큽니다. 범위를 줄여 주세요.');
+};
 
 export const getMyYTPlaylistInfos = async (): Promise<PlaylistInfo[]> => {
     const params: any = {
@@ -154,35 +154,19 @@ export const getYTPlaylistByID = async (id: string): Promise<PlaylistInfo> => {
         id: info.id,
         name: info.snippet.title,
         description: info.snippet.description,
-        thumbnails: info.snippet.thumbnails.default,
+        thumbnails: [info.snippet.thumbnails?.default?.url ?? ""],
         itemCount: info.contentDetails.itemCount
     }
 }
 
-export const urlToId = (url: string): { id: string, kind: SearchType } => {
-    if (url.substring(0, 4) === 'http') {
-        let result: any = {};
-        let qs = url.substring(url.indexOf('?') + 1).split('&');
-        for (let j = 0; j < qs.length; j++) {
-            const [kind, value] = qs[j].split('=');
-            result[kind] = value;
-        }
-        if (result['list']) {
-            return {
-                kind: SearchType.List,
-                id: result['list']
-            }
-        } else if (result['v']) {
-            return {
-                kind: SearchType.Music,
-                id: result['v']
-            }
-        } else if (url.indexOf('youtu.be/') !== -1) {
-            return {
-                kind: SearchType.Music,
-                id: url.split('youtu.be/')[1]
-            }
-        }
-    }
-    return {} as { id: string, kind: SearchType };
-}
+export const urlToId = (input: string): { id: string, kind: SearchType } => {
+    const url = new URL(input);
+    if (!['https:', 'http:'].includes(url.protocol)) throw new Error('지원하지 않는 URL입니다.');
+    const host = url.hostname.toLowerCase();
+    if (!['youtube.com','www.youtube.com','m.youtube.com','music.youtube.com','youtu.be','www.youtu.be'].includes(host)) throw new Error('YouTube URL을 입력해 주세요.');
+    const list = url.searchParams.get('list');
+    if (list) return {id:list,kind:SearchType.List};
+    const id = host.endsWith('youtu.be') ? url.pathname.split('/')[1] : url.searchParams.get('v') ?? (/^\/(shorts|embed)\/([^/]+)/.exec(url.pathname)?.[2]);
+    if (!id || !/^[a-zA-Z0-9_-]{11}$/.test(id)) throw new Error('유효한 동영상 URL이 아닙니다.');
+    return {id,kind:SearchType.Music};
+};

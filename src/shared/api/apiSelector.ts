@@ -1,3 +1,4 @@
+import { useFixtureApi } from 'shared/config/env';
 import { MusicInfo, PlaylistInfo } from "shared/model/constants";
 import smpServerAPI from 'shared/api/api';
 import testAPI from 'shared/api/testAPI';
@@ -12,5 +13,5 @@ export interface API {
     checkAuth: () => Promise<boolean>;
     doSignIn: (staySignedIn?: boolean) => Promise<void>;
 }
-const api: API = (process.env.MODE === "TEST" || process.env.STORYBOOK_MODE === "TEST") ? testAPI : smpServerAPI;
+const api: API = useFixtureApi ? testAPI : smpServerAPI;
 export default api;

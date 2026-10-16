@@ -1,3 +1,4 @@
+import { apiBaseUrl } from 'shared/config/env';
 import React, { useRef } from "react"
 import styles from 'features/navigation/ui/SideMenu.module.scss';
 import OuterClickEventCatcher from "shared/ui/OuterClickEventCatcher";
@@ -14,7 +15,7 @@ function SideMenu({ children, isActive, setActive }: SideMenuProps) {
     const logoutBtnClicked = (e: React.MouseEvent) => {
         e.stopPropagation();
 
-        const logoutURL = `${process.env.REACT_APP_API_URL}/logout`;
+        const logoutURL = `${apiBaseUrl}/logout`;
         fetch(logoutURL, {
             credentials: 'include',
             cache: 'no-cache'

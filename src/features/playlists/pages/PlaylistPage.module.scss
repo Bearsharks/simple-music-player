@@ -1,4 +1,4 @@
-@import '/src/global.scss';
+@use "/src/app/global.scss" as *;
 .container{
     display:grid;
     grid-template-columns: 160px 1fr;
@@ -10,7 +10,7 @@
 }
 
 .playlist{
-    
+
 }
 
 .playlist__item{
@@ -44,7 +44,7 @@
     text-overflow: ellipsis;
     overflow: hidden;
     display: -webkit-box;
-    -webkit-line-clamp: 2;    
+    -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
 }
 .metadata__item-count{

@@ -1,24 +1,15 @@
-import { atom, selector, useRecoilCallback } from "recoil";
-import { playlistInfoStateFamily } from 'features/playlists/model/playlistAtoms'
+import { atom, useStore } from "jotai";
+import { playlistInfoStateFamily } from 'features/playlists/model/playlistAtoms';
 import { MusicInfo, MusicInfoArrayCheck, MusicInfoItem } from "shared/model/constants";
 import keyGenerator from "shared/lib/keyGenerator";
-export const ModalOpenState = atom<boolean>({
-    key: "ModalOpen",
-    default: false
-})
-export const ModalInfoState = atom<ModalInfoData>({
-    key: "ModalInfo",
-    default: {} as ModalInfoData
-})
+export const ModalOpenState = atom<boolean>(false)
+export const ModalInfoState = atom<ModalInfoData>({} as ModalInfoData)
 
 export enum OptionSelectorKind {
     Playlist, SearchBar
 }
 
-export const OptionSelectorOpenState = atom<boolean>({
-    key: "optionSelectorOpen",
-    default: false
-})
+export const OptionSelectorOpenState = atom<boolean>(false)
 
 export enum PopupKind {
     PlaylistOptions, MusicOptions, SelectTgtPlaylist, SearchOptions, YTOptions, PlaylistItemOptions
@@ -32,20 +23,9 @@ export interface PopupInfo {
 
 
 
-const PopupInfoState = atom<PopupInfo[]>({
-    key: "popupInfoState",
-    default: []
-})
-export const getPopupInfoState = selector<PopupInfo[]>({
-    key: "getPopupInfo",
-    get: ({ get }) => {
-        return get(PopupInfoState);
-    }
-})
-export const popupOpenState = atom<boolean>({
-    key: "popupOpen",
-    default: false
-})
+const PopupInfoState = atom<PopupInfo[]>([])
+export const getPopupInfoState = atom((get) => get(PopupInfoState));
+export const popupOpenState = atom<boolean>(false)
 
 
 export interface ModalInfoData {
@@ -58,8 +38,9 @@ export enum ModalKind {
 }
 
 const useOpenPopup = () => {
-    return useRecoilCallback(({ set, snapshot }) =>
-        (kind: PopupKind, target: HTMLElement, data?: unknown) => {
+    const store = useStore();
+    const { set } = store;
+    return (kind: PopupKind, target: HTMLElement, data?: unknown) => {
             set(PopupInfoState, (prev) => {
                 const samePopup = prev.filter((info) => info.target === target && info.kind === kind);
                 if (samePopup.length) {
@@ -74,14 +55,15 @@ const useOpenPopup = () => {
 
             });
         }
-    )
+
 }
 export const useClosePopup = () => {
-    return useRecoilCallback(({ set }) =>
-        (key: string) => {
+    const store = useStore();
+    const { set } = store;
+    return (key: string) => {
             set(PopupInfoState, (prev) => prev.filter((info) => key !== info.key));
         }
-    )
+
 }
 export const useOpenMusicOptionsPopup = () => {
     const openPopup = useOpenPopup();
@@ -116,7 +98,9 @@ export const useOpenSearchOptionsPopup = () => {
 }
 
 export const useModalManager = function () {
-    return useRecoilCallback(({ set, snapshot }) => async (kind: ModalKind, data?: unknown) => {
+    const store = useStore();
+    const { set } = store;
+    return async (kind: ModalKind, data?: unknown) => {
         switch (kind) {
             case ModalKind.CreatePlaylist:
                 if (data && !MusicInfoArrayCheck(data)) {
@@ -133,7 +117,7 @@ export const useModalManager = function () {
                 if (typeof data !== "string") {
                     throw "playlist id is not string";
                 }
-                const playlistInfo = await snapshot.getPromise(playlistInfoStateFamily(data));
+                const playlistInfo = await store.get(playlistInfoStateFamily(data));
                 const popupData: ModalInfoData = {
                     kind: ModalKind.UpdatePlaylist,
                     data: playlistInfo
@@ -156,7 +140,7 @@ export const useModalManager = function () {
                 set(ModalOpenState, true);
             }
         }
-    });
+    };
 }
 
 

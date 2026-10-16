@@ -1,6 +1,6 @@
-import { ComponentStory, ComponentMeta } from '@storybook/react';
+import { StoryFn, Meta } from '@storybook/react';
 import PlayerController from 'features/player/ui/playerController/PlayerController';
-import { RecoilRoot } from 'recoil';
+import { Provider } from 'jotai';
 import { musicInfosFixture } from 'test/fixture';
 export default {
     title: 'components/PlayerController',
@@ -10,9 +10,9 @@ export default {
         , togglePlayState: { action: 'clicked' }
         , togglePlayerVisiblity: { action: 'clicked' }
     },
-} as ComponentMeta<typeof PlayerController>;
+} as Meta<typeof PlayerController>;
 
-const Template: ComponentStory<typeof PlayerController> = (args) => <RecoilRoot><PlayerController {...args} /></RecoilRoot>;
+const Template: StoryFn<typeof PlayerController> = (args) => <Provider><PlayerController {...args} /></Provider>;
 
 export const Inited = Template.bind({});
 Inited.args = {

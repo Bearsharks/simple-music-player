@@ -1,4 +1,4 @@
-@import "/src/global.scss";
+@use "/src/app/global.scss" as *;
 
 .header{
     height: var(--header-size);

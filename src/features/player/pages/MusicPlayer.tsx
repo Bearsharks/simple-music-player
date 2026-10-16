@@ -1,18 +1,19 @@
 import styles from 'features/player/pages/MusicPlayer.module.scss'
 import PlayerController from 'features/player/ui/playerController/PlayerController';
-import { useRecoilState, useRecoilValue } from 'recoil';
-import { curMusicInfoState, musicListState, musicPlayerState, useCurMusicManager } from 'features/playlists/model/playlistAtoms';
+import { useAtom, useAtomValue } from 'jotai';
+import { curMusicInfoState, musicListState, useCurMusicManager } from 'features/queue/model/queue';
+import { musicPlayerState } from 'features/player/model/playback';
 import { MusicInfoActionType, PlayerState } from 'shared/model/constants';
 
 import PlayerDetail from 'features/player/ui/playerDetail/PlayerDetail';
 import musiclistOpenState from 'features/queue/model/musiclistOpenState';
 
 function MusicPlayer() {
-    const [playerVisiblity, setPlayerVisiblity] = useRecoilState(musiclistOpenState);
-    const curMusicInfo = useRecoilValue(curMusicInfoState);
+    const [playerVisiblity, setPlayerVisiblity] = useAtom(musiclistOpenState);
+    const curMusicInfo = useAtomValue(curMusicInfoState);
     const curMusicManager = useCurMusicManager();
-    const playState = useRecoilValue(musicPlayerState);
-    const musicList = useRecoilValue(musicListState);
+    const playState = useAtomValue(musicPlayerState);
+    const musicList = useAtomValue(musicListState);
     const togglePlayerVisiblity = () => {
         playerVisiblity ? setPlayerVisiblity(false) : setPlayerVisiblity(true);
     }
@@ -31,10 +32,10 @@ function MusicPlayer() {
         const nextState: PlayerState = playState === PlayerState.PLAYING ?
             PlayerState.PAUSED : PlayerState.PLAYING;
         if (nextState === PlayerState.PLAYING) {
-            (window as any).player.playVideo();
+            (window as any).player?.playVideo();
         }
         else {
-            (window as any).player.pauseVideo();
+            (window as any).player?.pauseVideo();
         }
     }
     return (

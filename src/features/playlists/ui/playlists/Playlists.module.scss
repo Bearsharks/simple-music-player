@@ -1,4 +1,4 @@
-@import '/src/global.scss';
+@use "/src/app/global.scss" as *;
 
 .grid-container{
     display: grid;
@@ -27,7 +27,7 @@
 
 .wrapper{
     & h1{
-        margin: 15px 0 15px 15px;       
+        margin: 15px 0 15px 15px;
         font-family: initial;
     }
     & select{
@@ -52,7 +52,7 @@
     position:absolute;
     top: 60%;
     left: 60%;
-    visibility: hidden;    
+    visibility: hidden;
     border-radius: 50%;
     width: 25%;
     height: 25%;

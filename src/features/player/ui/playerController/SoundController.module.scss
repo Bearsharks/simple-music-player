@@ -1,4 +1,4 @@
-@import "../../../../app/global.scss";
+@use "/src/app/global.scss" as *;
 .wrapper{
     width:170px;
     height: 100%;

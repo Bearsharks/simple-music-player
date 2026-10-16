@@ -1,6 +1,3 @@
-import { atom } from "recoil";
+import { atom } from "jotai";
 
-export const sideMenuOpenState = atom<boolean>({
-    key: 'sideMenuOpen',
-    default: false
-});
+export const sideMenuOpenState = atom<boolean>(false);

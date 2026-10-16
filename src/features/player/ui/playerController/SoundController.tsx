@@ -4,7 +4,7 @@ function SoundController() {
     const barElement = useRef<HTMLDivElement>(null);
     const [volume, setVolume] = useState(100);
     const [isMuted, setMuted] = useState(false);
-    const savedCallback = useRef<() => void>();
+    const savedCallback = useRef<(() => void) | undefined>(undefined);
     const volumeUpdate = () => {
         const player = (window as any).player;
         if (!player) return;

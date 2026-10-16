@@ -1,11 +1,11 @@
+@use "/src/app/global.scss" as *;
 @import "material-icons/iconfont/material-icons.css";
 @import "noto-sans-kr/styles.css";
-@import "/src/global.scss";
 
 
 .App {
   text-align: center;
-  
+
 }
 html {
   box-sizing: border-box;
@@ -35,19 +35,19 @@ body{
   -webkit-user-select:none; -moz-user-select:none; -ms-user-select:none; user-select:none;
 }
 main{
-  width: 100vw;  
+  width: 100vw;
   margin: auto;
   max-width: 1450px;
   position:relative;
   @media (min-width: 950px) and (max-width: 1200px){
-    max-width: 950px;    
+    max-width: 950px;
   }
   @media (min-width: 1201px) and (max-width: 1570px){
-    max-width: 1200px;    
+    max-width: 1200px;
   }
-  
+
 }
-//1200px; 
+//1200px;
 //1000px;              1000이상부터 사이드로 40% 차지 1000이상부터 컨트롤러 숨기지않음
 //        그밑은 100%
 .curMusic{

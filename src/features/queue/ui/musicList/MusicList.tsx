@@ -1,9 +1,9 @@
 import { memo } from "react";
 import { MusicInfo, MusicInfoItem } from "shared/model/constants";
 import styles from 'features/queue/ui/musicList/MusicList.module.scss';
-import { DragDropContext, Droppable, DropResult, Draggable, DroppableProvided } from "react-beautiful-dnd";
-import { useRecoilValue } from "recoil";
-import { curMusicIdxState } from "features/playlists/model/playlistAtoms";
+import { DragDropContext, Droppable, DropResult, Draggable, DroppableProvided } from "@hello-pangea/dnd";
+import { useAtomValue } from "jotai";
+import { curMusicIdxState } from 'features/queue/model/queue';
 import { MusicItem } from "features/queue/ui/musicList/MusicItem";
 
 export interface MusicListProps {
@@ -51,7 +51,7 @@ interface MusicListItemsProps {
     playMusic: (idx: number | undefined) => void;
 }
 function MusicListItems({ provided, items, playMusic, openOptionsPopup }: MusicListItemsProps) {
-    const curMusicIdx = useRecoilValue(curMusicIdxState);
+    const curMusicIdx = useAtomValue(curMusicIdxState);
     return <div ref={provided.innerRef}>
         {items.map((item: MusicInfoItem, idx) =>
             <Draggable

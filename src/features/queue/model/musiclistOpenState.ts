@@ -1,8 +1,5 @@
-import { atom } from "recoil"
+import { atom } from "jotai"
 
-const musicListOpenState = atom<boolean>({
-    key: 'musiclistOpen',
-    default: false
-})
+const musicListOpenState = atom<boolean>(false)
 
 export default musicListOpenState;

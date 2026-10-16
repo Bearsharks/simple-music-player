@@ -27,3 +27,8 @@ Test.js
 /src/refs/secureInfo.js
 
 /src/MusicList/
+
+/dist
+/storybook-static
+/playwright-report
+/test-results

@@ -1,4 +1,4 @@
-@import '/src/global.scss';
+@use "/src/app/global.scss" as *;
 .linkActive{
     color : red;
 }
@@ -15,9 +15,9 @@
     display:flex;
     flex-direction: column;
     align-content: center;
-    
+
     background-color: $bg-secondary-color;
-        
+
     transform: translateX(150%);
     visibility: hidden;
     transition : all 0.5s ease;
@@ -59,7 +59,7 @@
     }
 }
 .options__icon{
-    
+
 }
 .options__text{
     display: flex;

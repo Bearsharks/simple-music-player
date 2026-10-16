@@ -1,7 +1,8 @@
 import { useParams } from "react-router-dom";
-import { useRecoilValue } from "recoil";
+import { useAtomValue } from "jotai";
 import Thumbnail from "shared/ui/Thumbnail";
-import { playlistInfoStateFamily, playlistItemStateFamily, useCurMusicManager } from "features/playlists/model/playlistAtoms";
+import { useCurMusicManager } from 'features/queue/model/queue';
+import { playlistInfoStateFamily, playlistItemStateFamily } from 'features/playlists/model/playlistAtoms';
 import styles from 'features/playlists/pages/PlaylistPage.module.scss';
 import { useOpenPlaylistItemOptionsPopup, useOpenPlaylistOptionsPopup } from "features/overlays/PopupStates";
 import { MusicInfoActionType, MusicInfoItem } from "shared/model/constants";
@@ -13,7 +14,7 @@ function PlaylistPage() {
     const openPlaylistOptionsPopup = useOpenPlaylistOptionsPopup();
     const param = useParams();
     const playlistID = param.id ? param.id : "";
-    const playlistInfo = useRecoilValue(playlistInfoStateFamily(playlistID));
+    const playlistInfo = useAtomValue(playlistInfoStateFamily(playlistID));
 
     return <div className={styles["container"]}>
         <div className={styles["thumbnail"]}>
@@ -45,7 +46,7 @@ export default PlaylistPage;
 function PlaylistItems({ playlistID }: { playlistID: string }) {
     const curMusicManager = useCurMusicManager();
     const openMusicOptionsPopup = useOpenPlaylistItemOptionsPopup();
-    const items = useRecoilValue(playlistItemStateFamily(playlistID));
+    const items = useAtomValue(playlistItemStateFamily(playlistID));
     const playMusic = (idx: number | undefined) => {
         curMusicManager({
             type: MusicInfoActionType.SET,

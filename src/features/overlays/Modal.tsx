@@ -1,4 +1,4 @@
-import { useRecoilState, useRecoilValue, } from 'recoil'
+import { useAtom, useAtomValue, } from 'jotai'
 import { ModalInfoState, ModalKind, ModalOpenState, useOpenYTOptionsPopup } from 'features/overlays/PopupStates';
 import styles from 'features/overlays/Modal.module.scss'
 import React, { Suspense } from 'react';
@@ -11,7 +11,7 @@ import FormBox, { FormItem } from 'features/playlists/ui/formBox/FormBox';
 import FormBoxPlaylist from 'features/playlists/ui/formBox/FormBoxPlaylist';
 
 function Modal() {
-    const [isOpen, setOpen] = useRecoilState(ModalOpenState);
+    const [isOpen, setOpen] = useAtom(ModalOpenState);
     return !isOpen ? <div></div> : (
         <div>
             <div className={`${styles['wrapper']}`}>
@@ -23,7 +23,7 @@ function Modal() {
 }
 
 function ModalForm({ setModalOpen }: { setModalOpen: (bool: boolean) => void }) {
-    const modalState = useRecoilValue(ModalInfoState);
+    const modalState = useAtomValue(ModalInfoState);
     const closePopup = () => {
         setModalOpen(false);
     }
@@ -49,7 +49,7 @@ export default Modal;
 
 function ImportMyYTPlaylistForm({ closePopup }: { closePopup: () => void }) {
     const playlistManager = usePlaylistManager();
-    const myYTPlaylistInfo = useRecoilValue(myYTPlaylistInfosState);
+    const myYTPlaylistInfo = useAtomValue(myYTPlaylistInfosState);
     const submit = async (tgtPlaylist: PlaylistInfo) => {
         let info = myYTPlaylistInfo.find((element) => element.id === tgtPlaylist.id);
         if (!info) throw "해당 재생목록이 존재하지 않음!";

@@ -1,9 +1,10 @@
-import { useRecoilSnapshot, useRecoilValue } from 'recoil'
+import { useStore, useAtomValue } from 'jotai'
 import { getPopupInfoState, PopupInfo, PopupKind, useModalManager, ModalKind, useOpenSelectTgtPlaylistPopup, useClosePopup } from 'features/overlays/PopupStates';
 import styles from 'features/overlays/Popup.module.scss'
 import { memo, useRef, useEffect, Suspense, useCallback } from 'react';
 import { MusicInfo, MusicInfoArrayCheck, MusicInfoItem, MusicListAction, MusicListActionType, PlaylistAction, PlaylistActionType, PlaylistInfo } from 'shared/model/constants';
-import { playlistInfosState, playlistItemStateFamily, useMusicListManager, usePlaylistManager } from 'features/playlists/model/playlistAtoms';
+import { useMusicListManager } from 'features/queue/model/queue';
+import { playlistInfosState, playlistItemStateFamily, usePlaylistManager } from 'features/playlists/model/playlistAtoms';
 import { searchByQuery } from 'features/youtube/api/youtubeSearch';
 import OptionSelector, { OptionInfo } from 'shared/ui/OptionSelector';
 import Spinner from 'shared/ui/Spinner';
@@ -96,7 +97,7 @@ function Popup({ popupInfo }: { popupInfo: PopupInfo }) {
 export default PopupWrapper;
 
 function PopupWrapper() {
-    const popupInfo: PopupInfo[] = useRecoilValue(getPopupInfoState);
+    const popupInfo: PopupInfo[] = useAtomValue(getPopupInfoState);
     return <>
         {popupInfo.map((info) => <Popup key={info.key} popupInfo={info}></Popup>)}
     </>
@@ -109,7 +110,7 @@ interface AppendPlaylistPopupProps {
     musicInfos: MusicInfo[];
 }
 function AppendPlaylistPopup({ musicInfos, setPopupOpen }: AppendPlaylistPopupProps) {
-    const playlistInfos = useRecoilValue(playlistInfosState);
+    const playlistInfos = useAtomValue(playlistInfosState);
     const playlistManager = usePlaylistManager();
     const modalManager = useModalManager();
     const openNewPlaylistModal = () => {
@@ -236,10 +237,10 @@ const PlaylistOptions = memo(function ({ evTarget, setPopupOpen, playlistid }: P
     const playlistManager = usePlaylistManager();
     const musicListManager = useMusicListManager();
     const modalManager = useModalManager();
-    const snapshot = useRecoilSnapshot();
+    const store = useStore();
     const openSelectTgtPlaylistPopup = useOpenSelectTgtPlaylistPopup();
     const addToPlaylist = async () => {
-        const items = await snapshot.getPromise(playlistItemStateFamily(playlistid));
+        const items = await store.get(playlistItemStateFamily(playlistid));
         openSelectTgtPlaylistPopup(evTarget, items);
     }
     const addToNextMusic = (playlistid: string) => {

@@ -1,133 +1,54 @@
-import { Suspense, useState } from 'react'
-import { act, Renderer, renderHook, RenderHookResult } from '@testing-library/react-hooks';
-import { RecoilRoot, useRecoilValue } from 'recoil';
-import { curMusicIdxState, curMusicInfoState, musicListState, useMusicListManager } from 'features/playlists/model/playlistAtoms';
-import { MusicInfo, MusicInfoItem, MusicListAction, MusicListActionType } from 'shared/model/constants';
-
+import { act, renderHook } from '@testing-library/react';
+import { Provider, createStore } from 'jotai';
+import { ReactNode } from 'react';
+import { queueState, useMusicListManager, useCurMusicManager, removeFromQueue } from 'features/queue/model/queue';
+import { MusicListActionType as T, MusicInfoActionType as M } from 'shared/model/constants';
 import { playlistFixture } from 'test/fixture';
-
-const getRenderHook = <TProps, TResult>(callback: (arg0: TProps) => TResult): RenderHookResult<TProps, TResult, Renderer<TProps>> => {
-    return renderHook(callback,
-        {
-            wrapper: ({ children }) => (
-                <>
-                    <div>
-                        <RecoilRoot override={true}>
-                            <Suspense fallback="">{children}</Suspense>
-                        </RecoilRoot>
-                    </div>
-                </>
-
-            ),
-        }
-    );
+import { reset } from 'shared/api/testAPI';
+function setup() {
+  const store = createStore();
+  const wrapper = ({children}: {children: ReactNode}) => <Provider store={store}>{children}</Provider>;
+  const hooks = renderHook(() => ({queue: useMusicListManager(), current: useCurMusicManager()}), {wrapper});
+  return { store, hooks };
 }
-
-function useRecoilTest() {
-    const musicList: MusicInfoItem[] = useRecoilValue(musicListState);
-    const curMusicIdx: number = useRecoilValue(curMusicIdxState);
-    const curMusic: MusicInfo = useRecoilValue(curMusicInfoState);
-    const manager_ = useMusicListManager();
-    const [count, setCount] = useState(0);
-    const reload = () => {
-        setCount(count + 1);
-    }
-    const manager = (action: MusicListAction) => {
-        manager_(action).then(() => {
-            reload();
-        })
-    }
-    return { musicList, curMusicIdx, curMusic, manager, reload };
-};
-
-describe('music list manager', () => {
-    it('LOAD APPEND ADD', async () => {
-        const { result, waitForNextUpdate } = getRenderHook(useRecoilTest);
-        if (!result.current) await waitForNextUpdate();
-        const setAction: MusicListAction = {
-            type: MusicListActionType.LOAD_PLAYLIST,
-            payload: playlistFixture.id
-        }
-        act(() => {
-            result.current.manager(setAction);
-        })
-        await waitForNextUpdate();
-        //load
-        expect(result.current.musicList.length).toBe(playlistFixture.items.length);
-        const appendAction: MusicListAction = {
-            type: MusicListActionType.APPEND_PLAYLIST,
-            payload: playlistFixture.id
-        }
-        act(() => {
-            result.current.manager(appendAction);
-        })
-        await waitForNextUpdate();
-        //append
-        expect(result.current.musicList.length).toBe(playlistFixture.items.length * 2);
-        for (let i = playlistFixture.items.length; i < playlistFixture.items.length * 2; i++) {
-            expect(result.current.musicList[i].name).toBe(playlistFixture.items[i - playlistFixture.items.length].name);
-        }
-        const addToNextAction: MusicListAction = {
-            type: MusicListActionType.ADD_TO_NEXT_PLAYLIST,
-            payload: playlistFixture.id
-        }
-        act(() => {
-            result.current.manager(addToNextAction);
-        })
-        await waitForNextUpdate();
-        //add to next
-        expect(result.current.musicList.length).toBe(playlistFixture.items.length * 3);
-        for (let i = 1; i <= playlistFixture.items.length; i++) {
-            expect(result.current.musicList[i].name).toBe(playlistFixture.items[i - 1].name);
-        }
-    });
-    it('APPEND ADD', async () => {
-        const { result, waitForNextUpdate } = getRenderHook(useRecoilTest);
-        if (!result.current) await waitForNextUpdate();
-        const appendAction: MusicListAction = {
-            type: MusicListActionType.APPEND_ITEMS,
-            payload: playlistFixture.items
-        }
-        act(() => {
-            result.current.manager(appendAction);
-        })
-        await waitForNextUpdate();
-        expect(result.current.musicList.length).toBe(playlistFixture.items.length);
-        const apptonext: MusicListAction = {
-            type: MusicListActionType.ADD_TO_NEXT,
-            payload: playlistFixture.items
-        }
-        act(() => {
-            result.current.manager(apptonext);
-        })
-        await waitForNextUpdate();
-        for (let i = 1; i <= playlistFixture.items.length; i++) {
-            expect(result.current.musicList[i].name).toBe(playlistFixture.items[i - 1].name);
-        }
-    });
-
-    it('delete', async () => {
-        const { result, waitForNextUpdate } = getRenderHook(useRecoilTest);
-        if (!result.current) await waitForNextUpdate();
-        const setAction: MusicListAction = {
-            type: MusicListActionType.LOAD_PLAYLIST,
-            payload: playlistFixture.id
-        }
-        act(() => {
-            result.current.manager(setAction);
-        })
-        await waitForNextUpdate();
-
-        const delAction: MusicListAction = {
-            type: MusicListActionType.DELETE,
-            payload: playlistFixture.items
-        }
-        act(() => {
-            result.current.manager(delAction);
-        })
-        await waitForNextUpdate();
-        expect(result.current.musicList.length).toBe(0);
-    });
+beforeEach(reset);
+it('loads, appends and inserts playlists with distinct queue keys', async () => {
+  const {store,hooks}=setup();
+  await act(() => hooks.result.current.queue({type:T.LOAD_PLAYLIST,payload:playlistFixture.id}));
+  const n=playlistFixture.items.length;
+  expect(store.get(queueState).items).toHaveLength(n);
+  await act(() => hooks.result.current.queue({type:T.APPEND_PLAYLIST,payload:playlistFixture.id}));
+  await act(() => hooks.result.current.queue({type:T.ADD_TO_NEXT_PLAYLIST,payload:playlistFixture.id}));
+  const {items}=store.get(queueState);
+  expect(items).toHaveLength(n*3);
+  expect(new Set(items.map(i=>i.key)).size).toBe(items.length);
+  expect(items[1].name).toBe(playlistFixture.items[0].name);
 });
-
-
+it('appends raw items, inserts next, reorders while preserving current item', async () => {
+ const {store,hooks}=setup();
+ await act(() => hooks.result.current.queue({type:T.APPEND_ITEMS,payload:playlistFixture.items}));
+ await act(() => hooks.result.current.queue({type:T.ADD_TO_NEXT,payload:playlistFixture.items}));
+ const key=store.get(queueState).items[0].key;
+ await act(() => hooks.result.current.queue({type:T.CHANGE_ORDER,payload:{from:0,to:2}}));
+ expect(store.get(queueState).index).toBe(2);
+ expect(store.get(queueState).items[2].key).toBe(key);
+});
+it('deletes last current track and keeps a valid selection; deletes all', async () => {
+ const {store,hooks}=setup();
+ await act(() => hooks.result.current.queue({type:T.APPEND_ITEMS,payload:playlistFixture.items}));
+ await act(() => hooks.result.current.current({type:M.SET_IDX,payload:1}));
+ await act(() => hooks.result.current.queue({type:T.DELETE,payload:[store.get(queueState).items[1]]}));
+ expect(store.get(queueState).index).toBe(0);
+ await act(() => hooks.result.current.queue({type:T.DELETE,payload:store.get(queueState).items}));
+ expect(store.get(queueState)).toEqual({items:[],index:0});
+});
+it('does not mutate caller arrays during deletion', () => {
+ const items=playlistFixture.items.map((v,i)=>({...v,key:String(i)}));
+ const result=removeFromQueue(items,1,new Set(['0']));
+ expect(items).toHaveLength(2);expect(result.index).toBe(0);
+});
+it('concurrent playlist appends retain both results', async () => {
+ const {store,hooks}=setup();
+ await act(async () => { await Promise.all([1,2].map(()=>hooks.result.current.queue({type:T.APPEND_PLAYLIST,payload:playlistFixture.id}))); });
+ expect(store.get(queueState).items).toHaveLength(playlistFixture.items.length*2);
+});

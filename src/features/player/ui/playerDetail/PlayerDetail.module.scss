@@ -1,8 +1,8 @@
-@import '/src/global.scss';
+@use "/src/app/global.scss" as *;
 .player-detail{
     z-index: 10;
     width: 100vw;
-    
+
     background-color: $bg-color;
     height: calc(100% - $player-size);
 
@@ -12,18 +12,18 @@
     "menus"
     "musiclist";
     grid-template-rows: calc(56px + 40vw) 44px calc(100% - 100px - 40vw);
-    grid-template-columns: auto;  
+    grid-template-columns: auto;
 
-    @media (min-width: 950px){  
+    @media (min-width: 950px){
         grid-template-areas:
     "player menus"
     "player musiclist";
-        grid-template-columns: auto 40%;  
+        grid-template-columns: auto 40%;
         grid-template-rows: 44px calc(100% - 44px);
     }
 
     transition: transform 0.6s ease;
-    
+
 }
 .player{
     grid-area: player;
@@ -37,16 +37,16 @@
     background-color: $bg-color;
     height: calc(100% - var(--header-size));
     position: fixed;
-    top: var(--header-size); 
+    top: var(--header-size);
 }
 .wrapper--hide{
     transform: translateY(100%);
     visibility: hidden;
 	transition: all 0.6s ease;
 }
-.player-detail__hide{   
+.player-detail__hide{
     transform: translateY(100%);
-	
+
 }
 .menus{
     grid-area: menus;
@@ -55,7 +55,7 @@
     align-items: center;
     text-align: center;
     border-bottom: 1px solid white;
-    
+
 
 }
 

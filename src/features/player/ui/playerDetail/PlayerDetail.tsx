@@ -3,7 +3,7 @@ import { MusicInfoItem, MusicListActionType } from 'shared/model/constants';
 import YoutubePlayer from 'features/player/ui/ConnectedYoutubePlayer';
 import { useOpenSelectTgtPlaylistPopup } from 'features/overlays/PopupStates';
 import MusicList from 'features/queue/ui/ConnectedMusicList';
-import { useMusicListManager } from 'features/playlists/model/playlistAtoms';
+import { useMusicListManager } from 'features/queue/model/queue';
 
 export interface PlayerDetailProps {
     playerVisiblity: boolean;

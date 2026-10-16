@@ -1,8 +1,8 @@
 import MusicList from 'features/queue/ui/musicList/MusicList';
 import { useOpenMusicOptionsPopup } from 'features/overlays/PopupStates';
-import { useCurMusicManager, useMusicListManager } from 'features/playlists/model/playlistAtoms';
+import { useCurMusicManager, useMusicListManager } from 'features/queue/model/queue';
 import { MusicInfoActionType, MusicInfoItem, MusicListActionType } from 'shared/model/constants';
-function MusicListRecoil({ items }: { items: MusicInfoItem[] }) {
+function MusicListConnected({ items }: { items: MusicInfoItem[] }) {
     const openMusicOptionsPopup = useOpenMusicOptionsPopup();
     const musicListManager = useMusicListManager();
     const curMusicManager = useCurMusicManager();
@@ -25,4 +25,4 @@ function MusicListRecoil({ items }: { items: MusicInfoItem[] }) {
         openOptionsPopup={openMusicOptionsPopup}
         changeOrder={changeOrder} />
 }
-export default MusicListRecoil;
+export default MusicListConnected;

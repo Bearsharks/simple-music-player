@@ -1,14 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
-import { atom, useRecoilCallback, useRecoilValue } from 'recoil';
+import { atom, useStore, useAtomValue } from 'jotai';
 import styles from 'features/overlays/Notice.module.scss'
 
-const noticeTextState = atom<{ id: number, text: string }>({
-    key: "noticeTextState",
-    default: { id: 0, text: "" }
-})
+const noticeTextState = atom<{ id: number, text: string }>({ id: 0, text: "" })
 export const useNotice = () => {
-    return useRecoilCallback(({ set }) =>
-        (text: string) => {
+    const store = useStore();
+    const { set } = store;
+    return (text: string) => {
             set(noticeTextState, (prev) => {
                 return {
                     id: prev.id + 1,
@@ -16,10 +14,10 @@ export const useNotice = () => {
                 }
             });
         }
-    )
+
 }
 function Notice() {
-    const noticeState = useRecoilValue(noticeTextState);
+    const noticeState = useAtomValue(noticeTextState);
     const [isShow, show] = useState(false);
     const timerRef = useRef<any>(null);
     useEffect(() => {

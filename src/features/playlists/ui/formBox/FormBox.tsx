@@ -12,7 +12,7 @@ export interface FormBoxProps {
     name: string;
     closePopup: () => void;
     submit: (data: any) => void;
-    children?: React.ReactChild | React.ReactChild[]
+    children?: React.ReactNode | React.ReactNode
 }
 function FormBox({ formItems, closePopup, submit, name, children }: FormBoxProps) {
     const curRef = useRef<HTMLFormElement>(null);

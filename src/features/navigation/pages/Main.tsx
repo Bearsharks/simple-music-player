@@ -1,14 +1,14 @@
 import styles from 'features/navigation/pages/Main.module.scss';
 import React, { Suspense } from 'react';
 import { Route, Routes, useNavigate } from 'react-router-dom';
-import SearchBarRecoil from 'features/search/ui/ConnectedSearchBar';
+import SearchBarConnected from 'features/search/ui/ConnectedSearchBar';
 import HamburgerBtn from 'features/navigation/ui/ConnectedHamburgerBtn';
 import SideMenu from 'features/navigation/ui/ConnectedSideMenu';
 import Spinner from 'shared/ui/Spinner';
 import FormPopup from 'features/overlays/Modal';
 import Popup from 'features/overlays/Popup';
 import musiclistOpenState from 'features/queue/model/musiclistOpenState';
-import { useSetRecoilState } from 'recoil';
+import { useSetAtom } from 'jotai';
 import MusicPlayer from 'features/player/pages/MusicPlayer';
 import Notice from 'features/overlays/Notice';
 const Playlists = React.lazy(() => import('features/playlists/ui/ConnectedPlaylists'));
@@ -16,7 +16,7 @@ const PlaylistPage = React.lazy(() => import('features/playlists/pages/PlaylistP
 
 function Main() {
     const navigate = useNavigate();
-    const setMusicListOpen = useSetRecoilState(musiclistOpenState);
+    const setMusicListOpen = useSetAtom(musiclistOpenState);
 
     const goToPlaylistPage = (id: string) => {
         navigate(`/playlist/${id}`);
@@ -35,7 +35,7 @@ function Main() {
                     </span>
                 </div>
                 <div className={styles["header__right-contents"]}>
-                    <SearchBarRecoil></SearchBarRecoil>
+                    <SearchBarConnected></SearchBarConnected>
                     <HamburgerBtn></HamburgerBtn>
                 </div>
                 <SideMenu></SideMenu>

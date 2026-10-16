@@ -1,17 +1,18 @@
 
-import { useRecoilValue } from "recoil";
-import { useMusicListManager, playlistInfosState } from "features/playlists/model/playlistAtoms";
+import { useAtomValue } from "jotai";
+import { useMusicListManager } from 'features/queue/model/queue';
+import { playlistInfosState } from 'features/playlists/model/playlistAtoms';
 import { useModalManager, ModalKind, useOpenPlaylistOptionsPopup } from 'features/overlays/PopupStates';
 import { MusicListAction, MusicListActionType, } from 'shared/model/constants';
 import Playlists from 'features/playlists/ui/playlists/Playlists';
 import Spinner from 'shared/ui/Spinner';
 import { Suspense } from 'react';
 
-interface PlaylistsRecoilProps {
+interface PlaylistsConnectedProps {
     goToPlaylistPage: (id: string) => void;
 }
-function PlaylistsRecoil(props: PlaylistsRecoilProps) {
-    const playlistInfos = useRecoilValue(playlistInfosState);
+function PlaylistsConnected(props: PlaylistsConnectedProps) {
+    const playlistInfos = useAtomValue(playlistInfosState);
     const musicListManager = useMusicListManager();
     const formPopupManager = useModalManager();
     const setPopupInfoState = useOpenPlaylistOptionsPopup();
@@ -45,4 +46,4 @@ function PlaylistsRecoil(props: PlaylistsRecoilProps) {
 }
 
 
-export default PlaylistsRecoil;
+export default PlaylistsConnected;

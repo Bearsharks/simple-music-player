@@ -1,4 +1,4 @@
-@import '/src/global.scss';
+@use "/src/app/global.scss" as *;
 .overlay-backdrop {
   border: 1px solid black;
   position:fixed;

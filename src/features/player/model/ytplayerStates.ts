@@ -1,6 +1,3 @@
-import { atom } from "recoil";
+import { atom } from "jotai";
 
-export const ytPlayerInitedState = atom<boolean>({
-    key:"ytPlayerInited",
-    default: false
-})
+export const ytPlayerInitedState = atom<boolean>(false)

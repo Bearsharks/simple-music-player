@@ -3,7 +3,7 @@ import { RefObject, useEffect } from "react";
 
 interface OuterClickEventCatcherProps {
     openState: [boolean, (_: boolean) => void];
-    wrapper: RefObject<HTMLDivElement>;
+    wrapper: RefObject<HTMLDivElement | null>;
     onClickHandler?: (arg0: MouseEvent | TouchEvent) => void;
 }
 function OuterClickEventCatcher({ wrapper, openState, onClickHandler }: OuterClickEventCatcherProps) {

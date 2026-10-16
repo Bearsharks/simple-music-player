@@ -1,4 +1,4 @@
-@import '/src/global.scss';
+@use "/src/app/global.scss" as *;
 .wrapper {
   position:absolute;
   bottom: 95px;

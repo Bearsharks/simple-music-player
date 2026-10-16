@@ -1,6 +1,6 @@
-import { ComponentStory, ComponentMeta } from '@storybook/react';
+import { StoryFn, Meta } from '@storybook/react';
 import Playlists from 'features/playlists/ui/playlists/Playlists';
-import { RecoilRoot } from 'recoil';
+import { Provider } from 'jotai';
 import { playlistInfosFixture } from 'test/fixture';
 export default {
     title: 'components/Playlists',
@@ -11,9 +11,9 @@ export default {
         openCreatePlaylistPopup: { action: 'clicked' },
         goToPlaylistPage: { action: 'clicked' },
     },
-} as ComponentMeta<typeof Playlists>;
+} as Meta<typeof Playlists>;
 
-const Template: ComponentStory<typeof Playlists> = (args) => <RecoilRoot><Playlists {...args} /></RecoilRoot>;
+const Template: StoryFn<typeof Playlists> = (args) => <Provider><Playlists {...args} /></Provider>;
 
 export const Inited = Template.bind({});
 Inited.args = {

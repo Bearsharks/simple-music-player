@@ -23,6 +23,7 @@ export interface Playlist {
     items: MusicInfo[]
 }
 export function MusicInfoCheck(params: unknown): params is MusicInfo {
+    if (!params || typeof params !== "object") return false;
     const musicInfo: MusicInfo = params as MusicInfo;
     return !!(musicInfo.name) && (!!musicInfo.query || !!musicInfo.videoID);
 }

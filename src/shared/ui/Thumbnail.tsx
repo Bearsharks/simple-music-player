@@ -1,6 +1,6 @@
 import styles from 'shared/ui/Thumbnail.module.scss';
 
-function Thumbnail({ thumbnails, name }: { thumbnails: string[], name: string }) {
+function Thumbnail({ thumbnails = [], name }: { thumbnails: string[], name: string }) {
     const imgs = ((): string[] => {
         if (thumbnails.length === 0) return [];
         let arr: string[] = thumbnails;

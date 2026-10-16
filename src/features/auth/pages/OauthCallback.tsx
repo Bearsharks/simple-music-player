@@ -2,11 +2,12 @@ import { useNavigate, useParams } from "react-router";
 import { memo, useEffect } from "react";
 function OauthCallback() {
     const param = useParams();
-    sessionStorage.setItem("access_token", param.token ? param.token : "");
+
     const navigate = useNavigate();
     useEffect(() => {
-        navigate("/");
-    }, [navigate]);
+        if (param.token) sessionStorage.setItem("access_token", param.token);
+        navigate("/", { replace: true });
+    }, [navigate, param.token]);
     return (
         <div></div>
     );

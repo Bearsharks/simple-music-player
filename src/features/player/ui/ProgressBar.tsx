@@ -21,7 +21,7 @@ function ProgressBar({ progress, setProgress }: { progress: Progress, setProgres
     }, []);
 
     useEffect(() => {
-        const percent: number = (progress.currentTime / progress.duration) * 100;
+        const percent: number = progress.duration > 0 ? Math.min(100, Math.max(0, (progress.currentTime / progress.duration) * 100)) : 0;
         if (thisElement.current) {
             thisElement.current.style.width = `${percent}%`;
         }
@@ -43,7 +43,7 @@ function ProgressBar({ progress, setProgress }: { progress: Progress, setProgres
             const zero = (sec >= 10) ? "" : "0"
             posX = posX < 10 ? 10 : posX;
             posX = posX > width - 10 ? width - 10 : posX;
-            timeInfo.current.style.transform = `translateX(${posX}px`;
+            timeInfo.current.style.transform = `translateX(${posX}px)`;
             timeInfo.current.textContent = `${min}:${zero}${sec}`;
         }
     }

@@ -1,6 +1,6 @@
-@import '/src/global.scss';
+@use "/src/app/global.scss" as *;
 
-.wrapper{ 
+.wrapper{
     display: flex;
     align-items: center;
     width: 100%;
@@ -12,9 +12,9 @@
     width: 100%;
     padding: 5px 10px;
 
-    display: grid;    
+    display: grid;
     grid-template-columns: 45px auto 50px;
-    grid-gap: 10px 10px;    
+    grid-gap: 10px 10px;
     justify-items: stretch;
     align-items: center;
     &:hover .overlay{

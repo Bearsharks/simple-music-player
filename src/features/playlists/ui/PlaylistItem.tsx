@@ -6,7 +6,7 @@ import Thumbnail from "shared/ui/Thumbnail";
 interface PlaylistItemProps {
     info: PlaylistInfo;
     onClick: (id: string) => void;
-    children?: React.ReactChild | React.ReactChild[];
+    children?: React.ReactNode | React.ReactNode;
 
 }
 function PlaylistItem({ info, children, onClick }: PlaylistItemProps) {

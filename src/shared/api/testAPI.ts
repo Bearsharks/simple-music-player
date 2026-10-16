@@ -4,11 +4,11 @@ import { MusicInfo, PlaylistInfo } from "shared/model/constants";
 import keyGenerator from "shared/lib/keyGenerator";
 import { playlistFixture } from 'test/fixture';
 let a: any = {
-    id1: playlistFixture
+    id1: structuredClone(playlistFixture)
 }
 export const reset = () => {
     a = {
-        id1: playlistFixture
+        id1: structuredClone(playlistFixture)
     }
 }
 export const testAPIget = (id: string, items: string) => {
@@ -27,7 +27,7 @@ const getPlaylistItems = async (id: string): Promise<MusicInfo[]> => {
     return a[id].items;
 };
 const createPlaylist = async (info: PlaylistInfo, items: MusicInfo[]): Promise<string> => {
-    info.id = keyGenerator()[0];
+    info = { ...info, id: keyGenerator()[0] };
     a[info.id] = {
         ...info,
         items: items ? items : []
@@ -42,8 +42,8 @@ const deletePlaylist = async (id: string): Promise<boolean> => {
 const updatePlaylist = async (playlist: { info: PlaylistInfo, items?: MusicInfo[] }): Promise<boolean> => {
     if (playlist.info.id && a[playlist.info.id]) {
         let origin: any = { ...a[playlist.info.id] };
-        origin.description = playlist.info.description ? playlist.info.description : origin.description;
-        origin.name = playlist.info.name ? playlist.info.name : origin.name;
+        origin.description = playlist.info.description ?? origin.description;
+        origin.name = playlist.info.name ?? origin.name;
         origin.items = playlist.items ? playlist.items : origin.items;
         a[playlist.info.id] = origin;
         return true;

@@ -1,33 +1,5 @@
-import { atom, selector, useRecoilCallback } from "recoil";
-import { PlaylistInfo } from "shared/model/constants";
-import { getMyYTPlaylistInfos } from "features/youtube/api/youtubeSearch";
-
-
-const YTPlaylistRequestIDState = atom({
-    key: 'YTPlaylistRequestID',
-    default: 0,
-});
-
-export const myYTPlaylistInfosState = selector<PlaylistInfo[]>({
-    key: 'myYTPlaylist',
-    get: async ({ get }) => {
-        get(YTPlaylistRequestIDState);
-        try {
-            const infos = await getMyYTPlaylistInfos();
-            return infos
-        } catch (e) {
-            console.error(e);
-            alert("재생목록 정보를 가져오지 못했습니다.")
-            return [];
-        }
-    }
-})
-
-// React component to refresh query
-export const useRefreshYTPlaylistInfos = () => {
-    return useRecoilCallback(
-        ({ set }) => async () => {
-            set(YTPlaylistRequestIDState, (id) => id + 1);
-        }
-    );
-}
+import { useSetAtom } from 'jotai';
+import { atomWithRefresh } from 'jotai/utils';
+import { getMyYTPlaylistInfos } from 'features/youtube/api/youtubeSearch';
+export const myYTPlaylistInfosState = atomWithRefresh(() => getMyYTPlaylistInfos());
+export const useRefreshYTPlaylistInfos = () => useSetAtom(myYTPlaylistInfosState);

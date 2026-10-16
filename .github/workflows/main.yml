@@ -1,42 +1,23 @@
-name: github pages deploy
-
+name: Validate
 on:
   push:
-    branches: [ master ]
+    branches: [master, 'refactor/**']
   pull_request:
-    branches: [ master ]
-
+    branches: [master]
+permissions:
+  contents: read
 jobs:
-  build: 
+  check:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: [14.x]
     steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-
-      - name: Cache node modules
-        id: node-cache
-        uses: actions/cache@v2
-        env:
-          cache-name: cache-node-modules
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
-          path: node_modules
-          key: ${{ runner.os }}-node-modules-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-modules-
-      - name: Install Dependencies
-        if: steps.node-cache.outputs.cache-hit != 'true'
-        run: npm install
-        
-      - name: Build
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - run: npm run check
+      - run: npm run build-storybook
         env:
-          CI: ""    
-        run: npm run build
-
-      - name: Deploy 🚀
-        uses: JamesIves/github-pages-deploy-action@4.1.7
-        with:
-          branch: gh-pages # The branch the action should deploy to.
-          folder: build # The folder the action should deploy.
+          STORYBOOK_DISABLE_TELEMETRY: '1'
+# Deployment is deliberately separate: validation must never publish a PR.

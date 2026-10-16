@@ -1,15 +1,15 @@
 
-import { ComponentStory, ComponentMeta } from '@storybook/react';
+import { StoryFn, Meta } from '@storybook/react';
 import SearchBar from 'features/search/ui/SearchBar';
-import { RecoilRoot } from 'recoil';
+import { Provider } from 'jotai';
 
 export default {
     title: 'features/search/ui/SearchBar',
     component: SearchBar,
     argTypes: { search: { action: 'clicked' } },
-} as ComponentMeta<typeof SearchBar>;
+} as Meta<typeof SearchBar>;
 
-const Template: ComponentStory<typeof SearchBar> = (args) => <RecoilRoot><SearchBar {...args} /></RecoilRoot>;
+const Template: StoryFn<typeof SearchBar> = (args) => <Provider><SearchBar {...args} /></Provider>;
 
 export const Shirinked = Template.bind({});
 Shirinked.args = {

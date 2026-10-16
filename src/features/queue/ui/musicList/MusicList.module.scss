@@ -1,11 +1,11 @@
-@import '/src/global.scss';
+@use "/src/app/global.scss" as *;
 
 .music-list{
     height: 100%;
     overflow: auto;
     @include append_scrollbar;
 }
-.wrapper{ 
+.wrapper{
     display: flex;
     align-items: center;
     width: 100%;

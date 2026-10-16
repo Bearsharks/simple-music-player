@@ -1,11 +1,11 @@
-@import '/src/global.scss';
+@use "/src/app/global.scss" as *;
 .wrapper{
     padding: 24px;
     @media (max-width:500px){
       padding:12px;
     }
   }
-  
+
 .formbox-item{
     margin-bottom: 24px;
     &:focus-within .formbox-item__label{
@@ -23,7 +23,7 @@
       border-bottom: 1px solid;
     }
 }
-  
+
   .form-item__label{
     font-size: small;
   }
@@ -36,7 +36,7 @@
     height: 30px;
     &:focus{
       outline: 0;
-      border-bottom: 2px solid #3ea6ff;      
+      border-bottom: 2px solid #3ea6ff;
       transition: all 0.7s ease;
     }
 }

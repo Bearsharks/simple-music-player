@@ -1,4 +1,4 @@
-@import "/src/global.scss";
+@use "/src/app/global.scss" as *;
 .wrapper{
     background-color: $bg-secondary-color;
     width: 240px;
