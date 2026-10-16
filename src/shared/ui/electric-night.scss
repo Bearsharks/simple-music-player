@@ -8,6 +8,8 @@
   --text: #fff;
   --muted: #a1a1b3;
   --purple: #a855ff;
+  --brand-hover: #b875ff;
+  --brand-pressed: #a553fa;
   --pink: #ff4d8d;
   --sky: #4cc9ff;
   --on-brand: #0b0b14;
@@ -160,7 +162,10 @@ h3 {
   color: var(--on-brand);
 }
 .primary-button:hover:not(:disabled) {
-  background: #b875ff;
+  background: var(--brand-hover);
+}
+.primary-button:active:not(:disabled) {
+  background: var(--brand-pressed);
 }
 .secondary-button {
   background: var(--surface);
@@ -171,8 +176,14 @@ h3 {
   background: var(--surface-raised);
 }
 .play-button {
-  background: var(--gradient);
+  background: var(--purple);
   color: var(--on-brand);
+}
+.play-button:hover:not(:disabled) {
+  background: var(--brand-hover);
+}
+.play-button:active:not(:disabled) {
+  background: var(--brand-pressed);
 }
 .danger-button {
   background: var(--danger);

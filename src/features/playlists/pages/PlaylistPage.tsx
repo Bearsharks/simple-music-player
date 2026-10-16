@@ -1,3 +1,5 @@
+import { Input } from "shared/ui/shadcn/input";
+import { Button } from "shared/ui/shadcn/button";
 import RestoreTitles from "../ui/RestoreTitles";
 import { fetchVideoTitles } from "features/youtube/api/videoMetadata";
 import ErrorToast from "shared/ui/ErrorToast";
@@ -53,9 +55,9 @@ export default function PlaylistPage() {
           재생목록을 찾을 수 없습니다
         </h1>
         <p>삭제되었거나 이 브라우저에 저장되지 않은 목록입니다.</p>
-        <button className="secondary-button" onClick={() => navigate("/")}>
+        <Button variant="secondary" className="secondary-button" onClick={() => navigate("/")}>
           라이브러리로 돌아가기
-        </button>
+        </Button>
       </section>
     );
   return <PlaylistDetail key={id} playlistID={id} />;
@@ -103,7 +105,7 @@ function PlaylistDetail({ playlistID }: { playlistID: string }) {
       </div>
       <div className={styles.actions}>
         <div>
-          <button
+          <Button variant="default"
             className="button play-button"
             disabled={!info.itemCount}
             onClick={async () => {
@@ -125,8 +127,8 @@ function PlaylistDetail({ playlistID }: { playlistID: string }) {
           >
             <Icon name="play" />
             전체 재생
-          </button>
-          <button
+          </Button>
+          <Button variant="secondary"
             className="secondary-button"
             aria-expanded={addOpen}
             aria-controls="add-video"
@@ -136,7 +138,7 @@ function PlaylistDetail({ playlistID }: { playlistID: string }) {
           >
             <Icon name="plus" />
             <span>곡 추가</span>
-          </button>
+          </Button>
         </div>
         <MoreVert
           onClick={(event) => options(event.currentTarget, playlistID)}
@@ -156,12 +158,12 @@ function PlaylistDetail({ playlistID }: { playlistID: string }) {
       {info.sourcePlaylistUrl && (
         <div className={styles.sourceNote}>
           <Icon name="link" />
-          <button
+          <Button variant="secondary"
             className="secondary-button"
             onClick={() => setResetOpen(true)}
           >
             원본으로 초기화
-          </button>
+          </Button>
         </div>
       )}
       {resetOpen && (
@@ -379,7 +381,7 @@ function AddVideo({
       <div className={styles.addFields}>
         <label>
           추가할 영상 URL
-          <input
+          <Input
             ref={input}
             type="url"
             placeholder="https://www.youtube.com/watch?v=…"
@@ -395,7 +397,7 @@ function AddVideo({
         </label>
         <label>
           곡 이름 (선택)
-          <input
+          <Input
             maxLength={120}
             placeholder="나만의 곡 이름"
             disabled={busy}
@@ -403,9 +405,9 @@ function AddVideo({
             onChange={(e) => setName(e.target.value)}
           />
         </label>
-        <button className="primary-button" disabled={busy}>
+        <Button variant="default" className="primary-button" disabled={busy}>
           {busy ? "추가 중…" : duplicate ? "중복해서 추가" : "곡 추가"}
-        </button>
+        </Button>
       </div>
       <ErrorToast message={error} />
       <span className="sr-only" role="status">

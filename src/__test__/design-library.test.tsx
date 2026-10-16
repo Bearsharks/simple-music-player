@@ -1,5 +1,6 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { vi } from "vitest";
+import userEvent from "@testing-library/user-event";
 import Playlists from "features/playlists/ui/playlists/Playlists";
 const info = (id: string, name: string) => ({
   id,
@@ -54,7 +55,8 @@ it("keeps create and play actions separate from navigation", () => {
   expect(create).toHaveBeenCalledOnce();
 });
 
-it("sorts recent lists by persisted creation date and uses a stable fallback for legacy lists", () => {
+it("sorts recent lists by persisted creation date and uses a stable fallback for legacy lists", async () => {
+  const user = userEvent.setup();
   const props = {
     goToPlaylistPage: vi.fn(),
     playPlaylist: vi.fn(),
@@ -85,9 +87,8 @@ it("sorts recent lists by persisted creation date and uses a stable fallback for
     "A legacy 열기",
     "Z legacy 열기",
   ]);
-  fireEvent.change(screen.getByRole("combobox", { name: "재생목록 정렬" }), {
-    target: { value: "name" },
-  });
+  await user.click(screen.getByRole("combobox", { name: "재생목록 정렬" }));
+  await user.click(await screen.findByRole("option", { name: "이름순" }));
   expect(names()).toEqual([
     "A legacy 열기",
     "Newer 열기",

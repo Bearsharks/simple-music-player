@@ -202,7 +202,7 @@ try {
         .click();
       await page.getByRole("button", { name: "더보기", exact: true }).click();
       await page
-        .getByRole("button", { name: "재생목록 삭제", exact: true })
+        .getByRole("menuitem", { name: "재생목록 삭제", exact: true })
         .click();
       await page.getByRole("button", { name: "취소", exact: true }).click();
       await expect(
@@ -210,7 +210,7 @@ try {
       ).toBeVisible();
       await page.getByRole("button", { name: "더보기", exact: true }).click();
       await page
-        .getByRole("button", { name: "재생목록 삭제", exact: true })
+        .getByRole("menuitem", { name: "재생목록 삭제", exact: true })
         .click();
       await page.getByRole("button", { name: "삭제", exact: true }).click();
       await page

@@ -80,9 +80,9 @@ it('supports song playback and menus from the keyboard without a mouse-only clic
 it('opens a keyboard menu, restores focus on Escape, and saves to the selected playlist after a failed append', async()=>{
  const id=await api.createPlaylist(info,[]);const user=userEvent.setup();await setup();
  const opener=screen.getByRole('button',{name:'곡 메뉴 열기'});await user.click(opener);
- expect(screen.getByRole('button',{name:'다음 음악으로 재생'})).toHaveFocus();
- await user.keyboard('{Escape}');expect(screen.queryByRole('group',{name:'선택 메뉴'})).not.toBeInTheDocument();expect(opener).toHaveFocus();
- await user.keyboard('{Enter}');await user.tab();await user.tab();await act(async()=>{await user.keyboard(' ');});
+ expect(screen.getByRole("menuitem",{name:'다음 음악으로 재생'})).toHaveFocus();
+ await user.keyboard('{Escape}');expect(screen.queryByRole("menu",{name:'선택 메뉴'})).not.toBeInTheDocument();expect(opener).toHaveFocus();
+ await user.keyboard('{Enter}');await user.keyboard('{ArrowDown}{ArrowDown}');await act(async()=>{await user.keyboard(' ');});
  const dialog=await screen.findByRole('dialog',{name:'재생목록에 추가'});
  await user.click(await within(dialog).findByRole('button',{name:'내 목록 선택'}));
  expect(screen.getByLabelText('선택한 재생목록')).toHaveValue('내 목록');
@@ -107,10 +107,10 @@ it('protects playlist deletion, keeps failure retryable, then returns from the d
  const id=await api.createPlaylist(info,[song]);const store=await detail(id);const user=userEvent.setup();
  await screen.findByRole('heading',{name:'내 목록'});
  const opener=screen.getByRole('button',{name:'더보기'});
- await user.click(opener);await user.click(screen.getByRole('button',{name:'재생목록 삭제'}));
+ await user.click(opener);await user.click(screen.getByRole("menuitem",{name:'재생목록 삭제'}));
  expect(await screen.findByRole('dialog',{name:'재생목록 삭제'})).toHaveTextContent('“내 목록” 재생목록과 저장한 1곡');
  await user.click(screen.getByRole('button',{name:'취소'}));expect(await api.getPlaylistItems(id)).toHaveLength(1);expect(opener).toHaveFocus();
- await user.click(opener);await user.click(screen.getByRole('button',{name:'재생목록 삭제'}));
+ await user.click(opener);await user.click(screen.getByRole("menuitem",{name:'재생목록 삭제'}));
  const remove=vi.spyOn(api,'deletePlaylist').mockRejectedValueOnce(new Error('삭제 실패'));
  await user.click(await screen.findByRole('button',{name:'삭제'}));
  expect(await screen.findByRole('alert')).toHaveTextContent('삭제 실패');expect(screen.getByRole('dialog')).toBeInTheDocument();
@@ -124,7 +124,7 @@ it('protects playlist deletion, keeps failure retryable, then returns from the d
 it('deletes a stored track without confirmation and retries Undo while preserving the queue', async()=>{
  const id=await api.createPlaylist(info,[song]);const store=await detail(id);const user=userEvent.setup();
  await user.click(await screen.findByRole('button',{name:'저장한 곡 더보기'}));
- await user.click(screen.getByRole('button',{name:'재생목록에서 삭제'}));
+ await user.click(screen.getByRole("menuitem",{name:'재생목록에서 삭제'}));
  const undo=await screen.findByRole('button',{name:'실행 취소'});
  expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
  expect(await api.getPlaylistItems(id)).toEqual([]);
@@ -147,7 +147,7 @@ it('replaces the playlist picker with creation and import dialogs without leavin
  const user=userEvent.setup();await setup();const opener=screen.getByRole('button',{name:'곡 메뉴 열기'});
  const overflow=document.body.style.overflow;
  await user.click(opener);
- await act(async()=>{await user.click(screen.getByRole('button',{name:'재생목록에 추가'}));});
+ await act(async()=>{await user.click(screen.getByRole("menuitem",{name:'재생목록에 추가'}));});
  const choice=await screen.findByRole('button',{name:'새 재생목록 선택'});
  await user.click(choice);await user.click(screen.getByRole('button',{name:'추가'}));
  expect(await screen.findByRole('dialog',{name:'새 재생목록'})).toBeInTheDocument();
@@ -191,13 +191,13 @@ it("returns deletion focus to the next track, then to add when the list becomes 
   await user.click(
     await screen.findByRole("button", { name: "저장한 곡 더보기" }),
   );
-  await user.click(screen.getByRole("button", { name: "재생목록에서 삭제" }));
+  await user.click(screen.getByRole("menuitem", { name: "재생목록에서 삭제" }));
   await waitFor(() =>
     expect(document.querySelector("[data-track-focus]")).toHaveFocus(),
   );
   expect(document.activeElement).toHaveAttribute("aria-label", "남은 곡 재생");
   await user.click(screen.getByRole("button", { name: "남은 곡 더보기" }));
-  await user.click(screen.getByRole("button", { name: "재생목록에서 삭제" }));
+  await user.click(screen.getByRole("menuitem", { name: "재생목록에서 삭제" }));
   await waitFor(() =>
     expect(screen.getByRole("button", { name: "곡 추가 열기" })).toHaveFocus(),
   );
@@ -214,7 +214,7 @@ it("appends a whole saved playlist at the queue end without replacing its curren
   const store = await detail(id);
   const user = userEvent.setup();
   await user.click(await screen.findByRole("button", { name: "더보기" }));
-  await user.click(screen.getByRole("button", { name: "대기열 끝에 추가" }));
+  await user.click(screen.getByRole("menuitem", { name: "대기열 끝에 추가" }));
   await waitFor(() => expect(store.get(queueState).items).toHaveLength(2));
   expect(store.get(queueState).items.map((item) => item.name)).toEqual([
     "저장한 곡",

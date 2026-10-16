@@ -1,3 +1,4 @@
+import { Button } from "shared/ui/shadcn/button";
 import { Component, type ReactNode } from "react";
 /** Local read recovery. It never writes or clears user data. */
 export default class ReadBoundary extends Component<
@@ -19,7 +20,7 @@ export default class ReadBoundary extends Component<
             확인하고 다시 시도해 주세요.
           </p>
         )}
-        <button
+        <Button variant="secondary"
           className="secondary-button"
           onClick={() => {
             this.props.onRetry();
@@ -27,7 +28,7 @@ export default class ReadBoundary extends Component<
           }}
         >
           다시 시도
-        </button>
+        </Button>
       </section>
     );
   }

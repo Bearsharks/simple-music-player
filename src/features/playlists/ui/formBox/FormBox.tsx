@@ -1,3 +1,7 @@
+import { Button } from "shared/ui/shadcn/button";
+import { Input } from "shared/ui/shadcn/input";
+import { Textarea } from "shared/ui/shadcn/textarea";
+import { Label } from "shared/ui/shadcn/label";
 import ErrorToast from "shared/ui/ErrorToast";
 import { useId, useRef, useState, type FormEvent, type ReactNode } from "react";
 import styles from "./FormBox.module.scss";
@@ -68,36 +72,47 @@ export default function FormBox({
             className={`${styles["formbox-item"]} ${item.readonly ? styles["formbox-item--readonly"] : ""}`}
           >
             <div className={styles["formbox-item__label"]}>
-              <label htmlFor={`${prefix}-${item.id}`}>{item.name}</label>
+              <Label htmlFor={`${prefix}-${item.id}`}>{item.name}</Label>
             </div>
-            <input
-              className={styles.formbox__input}
-              id={`${prefix}-${item.id}`}
-              name={item.id}
-              {...(item.readonly
-                ? { value: item.value ?? "" }
-                : { defaultValue: item.value })}
-              readOnly={item.readonly}
-              required={item.require}
-            />
+            {item.id === "description" ? (
+              <Textarea
+                className={styles.formbox__input}
+                id={`${prefix}-${item.id}`}
+                name={item.id}
+                defaultValue={item.value}
+                rows={3}
+                maxLength={Math.max(1000, item.value?.length ?? 0)}
+                required={item.require}
+              />
+            ) : (
+              <Input
+                className={styles.formbox__input}
+                id={`${prefix}-${item.id}`}
+                name={item.id}
+                {...(item.readonly ? { value: item.value ?? "" } : { defaultValue: item.value })}
+                readOnly={item.readonly}
+                maxLength={Math.max(120, item.value?.length ?? 0)}
+                required={item.require}
+              />
+            )}
           </div>
         ))}
         {children && <div>{children}</div>}
         <ErrorToast message={error} />
         <div className={styles["formbox-actions"]}>
-          <button
+          <Button variant="secondary"
             type="button"
             className={styles["formbox-actions__button"]}
             onClick={closePopup}
           >
             취소
-          </button>
-          <button
+          </Button>
+          <Button
             type="submit"
             className={`${styles["formbox-actions__button--white"]} ${styles["formbox-actions__button"]}`}
           >
             {busy ? "저장 중…" : submitLabel}
-          </button>
+          </Button>
         </div>
       </fieldset>
     </form>

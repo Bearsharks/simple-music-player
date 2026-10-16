@@ -334,17 +334,17 @@ it("keeps the simulated official player instance through tabs, close/reopen, res
   expect(screen.getByRole("tab", { name: "대기열 (2)" })).toHaveFocus();
   await user.click(screen.getByRole("button", { name: "곡 a 더보기" }));
   expect(
-    screen.getByRole("group", { name: "선택 메뉴" }).closest("dialog"),
+    screen.getByRole("menu", { name: "선택 메뉴" }).closest("dialog"),
   ).not.toBeNull();
   await user.keyboard("{Escape}");
   expect(
-    screen.queryByRole("group", { name: "선택 메뉴" }),
+    screen.queryByRole("menu", { name: "선택 메뉴" }),
   ).not.toBeInTheDocument();
   expect(
     screen.getByRole("dialog", { name: "지금 재생 및 대기열" }),
   ).toBeInTheDocument();
   await user.click(screen.getByRole("button", { name: "곡 a 더보기" }));
-  await user.click(screen.getByRole("button", { name: "대기열에서 삭제" }));
+  await user.click(screen.getByRole("menuitem", { name: "대기열에서 삭제" }));
   await waitFor(() =>
     expect(document.querySelector("[data-track-focus]")).toHaveFocus(),
   );

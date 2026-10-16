@@ -1,3 +1,4 @@
+import { Button } from "shared/ui/shadcn/button";
 import { useEffect, useRef, useState } from "react";
 import { useAtomValue } from "jotai";
 import {
@@ -23,7 +24,7 @@ export default function RestoreTitles({ playlistID }: { playlistID: string }) {
   return (
     <>
       {candidates.length > 0 && (
-        <button
+        <Button variant="secondary"
           type="button"
           className="secondary-button"
           disabled={busy}
@@ -64,7 +65,7 @@ export default function RestoreTitles({ playlistID }: { playlistID: string }) {
           }}
         >
           {busy ? "제목 불러오는 중…" : "원래 곡 제목 가져오기"}
-        </button>
+        </Button>
       )}
       <ErrorToast message={error} />
     </>

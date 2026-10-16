@@ -10,3 +10,7 @@
 .playlist {
   width: 100%;
 }
+.menu {
+  max-width: calc(100vw - 16px);
+  max-height: var(--radix-dropdown-menu-content-available-height);
+}

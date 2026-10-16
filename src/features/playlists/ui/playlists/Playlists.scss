@@ -27,33 +27,27 @@
   margin: 24px 0;
 }
 .library-search {
+  position: relative;
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding-left: 12px;
-  background: #14141f;
-  border: 1px solid var(--line);
-  border-radius: 10px;
   max-width: 360px;
   flex: 1;
   min-width: 0;
 }
 .library-search > .icon {
+  position: absolute;
+  left: 13px;
+  z-index: 1;
   color: var(--muted);
   width: 18px;
   height: 18px;
 }
-.library-search input {
+.library-search .loopy-control[data-slot="input"] {
   width: 100%;
-  border: 0;
-  background: transparent;
-  padding: 10px 8px;
-  font-size: 14px;
+  padding-left: 40px;
 }
-.library-tools select {
-  font-size: 13px;
-  background: #14141f;
-  border-color: var(--line);
+.library-tools [data-slot="select-trigger"] {
+  font-size: 14px;
   max-width: 160px;
 }
 .playlist-grid {
@@ -85,7 +79,7 @@
   width: 44px;
   display: grid;
   place-items: center;
-  background: var(--gradient);
+  background: var(--purple);
   color: var(--on-brand);
   box-shadow: 0 4px 20px #0005;
   opacity: 0;
@@ -98,6 +92,12 @@
   background: var(--surface);
   color: white;
   border: 1px solid var(--control-line);
+}
+.card-play:not(.add):hover:not(:disabled) {
+  background: var(--brand-hover);
+}
+.card-play:not(.add):active:not(:disabled) {
+  background: var(--brand-pressed);
 }
 .playlist-card:hover .card-play,
 .playlist-card:focus-within .card-play {

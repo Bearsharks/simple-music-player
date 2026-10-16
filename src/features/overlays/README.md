@@ -75,3 +75,20 @@ playlists/queue/youtube를 연결하는 기존 조정 코드다. search/player/p
 ## 2026-10-16 사용 피드백
 
 Dialog는 pointerdown과 pointerup 모두 backdrop에서 발생한 경우만 click으로 닫는다. 내부 텍스트 선택·드래그 후 바깥에 놓기, 취소된 포인터, 바깥에서 안으로 놓기는 닫지 않는다. native cancel/Escape·busy 보호는 유지한다. 폼 오류는 shared/ui/ErrorToast로 표시하며 입력을 지우지 않는다. 모달 안 토스트는 기존 OverlayPortal 범위 안에 남겨 입력/저장 버튼을 가리지 않는다.
+
+## shadcn menu adoption
+
+`Popup` now owns a controlled shadcn Radix DropdownMenu (`modal=false`). Its
+`ExternalMenuTrigger` adapter forwards the original imperative API's invoking
+button to Radix without rendering a duplicate button or moving DOM. The content
+is portaled into that trigger's captured native dialog, or body, and Radix owns
+positioning, collision handling, outside interaction, arrows/Home/End/typeahead
+and Escape. The old focusout/outer-click listener no longer wraps this menu.
+Options are real menuitems. Async selection prevents Radix's automatic close;
+manager success still closes, pending blocks duplicate/dismissal, and failures
+use ErrorToast while keeping the menu available for retry. Interacting with the
+error toast does not dismiss the failed menu. Modal-opening actions first return
+focus to the invoking button so the new task's own return-focus target is valid.
+Deleted-row focus fallback remains in the feature. See shared/ui/shadcn/README.md
+for upstream source and the scoped CSS pipeline. Native Dialog and Notice remain
+existing implementations.

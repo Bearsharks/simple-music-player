@@ -1,4 +1,3 @@
-import { createPortal } from "react-dom";
 import { useStore, useAtomValue } from "jotai";
 import {
   getPopupInfoState,
@@ -10,7 +9,7 @@ import {
   useClosePopup,
 } from "features/overlays/PopupStates";
 import styles from "features/overlays/Popup.module.scss";
-import { memo, useRef, Suspense, useCallback, useLayoutEffect } from "react";
+import { memo, useRef, Suspense } from "react";
 import {
   MusicInfo,
   MusicInfoArrayCheck,
@@ -31,10 +30,14 @@ import { searchByQuery } from "features/youtube/api/youtubeSearch";
 import OptionSelector, { OptionInfo } from "shared/ui/OptionSelector";
 import Spinner from "shared/ui/Spinner";
 import FormBoxPlaylist from "features/playlists/ui/formBox/FormBoxPlaylist";
-import OuterClickEventCatcher from "shared/ui/OuterClickEventCatcher";
 import Dialog from "shared/ui/Dialog";
 import { useNotice } from "./Notice";
-import { positionPopup } from "./positionPopup";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from "shared/ui/shadcn/dropdown-menu";
+import ExternalMenuTrigger from "./ExternalMenuTrigger";
 
 function InnerPopup({
   setOpen,
@@ -118,7 +121,7 @@ function Popup({ popupInfo }: { popupInfo: PopupInfo }) {
   // its original native-dialog scope until its own cleanup has completed.
   const list = popupInfo.target.closest<HTMLElement>("[data-track-list]");
   const origin = useRef({
-    dialog: popupInfo.target.closest("dialog[open]"),
+    dialog: popupInfo.target.closest<HTMLDialogElement>("dialog[open]"),
     list,
     index: list
       ? [...list.querySelectorAll("[data-track-key]")].indexOf(
@@ -131,110 +134,79 @@ function Popup({ popupInfo }: { popupInfo: PopupInfo }) {
   const close = () => {
     closePopup(popupInfo.key);
   };
-  const handleResize = useCallback(
-    (width: number, height: number) => {
-      const target: HTMLElement = popupInfo.target as HTMLElement;
-      if (!curRef.current || !target) return;
-      const root = curRef.current;
-      const container = origin.current.dialog?.getBoundingClientRect();
-      const bounds = {
-        left: Math.max(0, container?.left ?? 0),
-        top: Math.max(0, container?.top ?? 0),
-        right: Math.min(width, container?.right ?? width),
-        bottom: Math.min(height, container?.bottom ?? height),
-      };
-      root.style.maxWidth = `${Math.max(0, bounds.right - bounds.left - 16)}px`;
-      root.style.maxHeight = `${Math.max(0, bounds.bottom - bounds.top - 16)}px`;
-      const position = positionPopup(
-        target.getBoundingClientRect(),
-        {
-          width: root.offsetWidth,
-          height: root.offsetHeight,
-        },
-        bounds,
-      );
-      root.style.transform = `translate(${position.left}px, ${position.top}px)`;
-      curRef.current.style.visibility = "initial";
-    },
-    [popupInfo.target],
-  );
-
-  useLayoutEffect(() => {
-    const root = curRef.current!;
-    const resize = () => handleResize(window.innerWidth, window.innerHeight);
-    resize();
-    root.querySelector<HTMLElement>('button, input, [tabindex="0"]')?.focus();
-    const keydown = (event: KeyboardEvent) => {
-      if (event.key === "Escape" && !root.querySelector('[aria-busy="true"]')) {
-        event.preventDefault();
-        event.stopPropagation();
-        closePopup(popupInfo.key);
-      }
-    };
-    const focusout = (event: FocusEvent) => {
-      if (
-        event.relatedTarget &&
-        !root.contains(event.relatedTarget as Node) &&
-        !root.querySelector('[aria-busy="true"]')
-      )
-        closePopup(popupInfo.key);
-    };
-    root.addEventListener("keydown", keydown);
-    root.addEventListener("focusout", focusout);
-    window.addEventListener("resize", resize);
-    // A menu error or a container resize can change the available placement.
-    const observer =
-      typeof ResizeObserver === "undefined" ? null : new ResizeObserver(resize);
-    observer?.observe(root);
-    if (origin.current.dialog) observer?.observe(origin.current.dialog);
-    return () => {
-      root.removeEventListener("keydown", keydown);
-      root.removeEventListener("focusout", focusout);
-      window.removeEventListener("resize", resize);
-      observer?.disconnect();
-      const target = popupInfo.target;
-      if (
-        !root.contains(document.activeElement) &&
-        document.activeElement !== document.body
-      )
-        return;
-      if (target.isConnected && !target.closest("[inert]")) {
-        target.focus();
-        return;
-      }
-      const { list, index, scope } = origin.current;
-      const rows = list?.querySelectorAll<HTMLElement>("[data-track-key]");
-      const neighbor = rows?.[Math.min(Math.max(index, 0), rows.length - 1)];
-      const fallback =
-        neighbor?.querySelector<HTMLElement>("[data-track-focus]") ??
-        scope?.querySelector<HTMLElement>("[data-empty-track-focus]");
-      if (fallback?.isConnected && !fallback.closest("[inert], [hidden]"))
-        fallback.focus();
-    };
-  }, [popupInfo.key, popupInfo.target, handleResize, closePopup]);
-
-  const node = (
-    <div
-      data-dialog-popover
-      className={`${styles["wrapper"]}`}
-      ref={curRef}
-      style={{ visibility: "hidden" }}
+  const restoreFocus = () => {
+    const root = curRef.current;
+    if (
+      document.activeElement !== document.body &&
+      !root?.contains(document.activeElement)
+    )
+      return;
+    const target = popupInfo.target;
+    if (target.isConnected && !target.closest("[inert]")) {
+      target.focus();
+      return;
+    }
+    const { list, index, scope } = origin.current;
+    const rows = list?.querySelectorAll<HTMLElement>("[data-track-key]");
+    const neighbor = rows?.[Math.min(Math.max(index, 0), rows.length - 1)];
+    const fallback =
+      neighbor?.querySelector<HTMLElement>("[data-track-focus]") ??
+      scope?.querySelector<HTMLElement>("[data-empty-track-focus]");
+    if (fallback?.isConnected && !fallback.closest("[inert], [hidden]"))
+      fallback.focus();
+  };
+  const isBusy = () =>
+    Boolean(curRef.current?.querySelector('[aria-busy="true"]'));
+  return (
+    <DropdownMenu
+      open
+      modal={false}
+      onOpenChange={(open) => {
+        if (!open && !isBusy()) close();
+      }}
     >
-      <InnerPopup info={popupInfo} setOpen={close}></InnerPopup>
-      <OuterClickEventCatcher
-        openState={[
-          true,
-          () => {
-            if (!curRef.current?.querySelector('[aria-busy="true"]')) close();
-          },
-        ]}
-        wrapper={curRef}
-      ></OuterClickEventCatcher>
-    </div>
+      <DropdownMenuTrigger asChild>
+        <ExternalMenuTrigger target={popupInfo.target} />
+      </DropdownMenuTrigger>
+      <DropdownMenuContent
+        ref={curRef}
+        aria-label="선택 메뉴"
+        aria-labelledby={undefined}
+        portalContainer={origin.current.dialog}
+        collisionBoundary={origin.current.dialog}
+        collisionPadding={8}
+        sideOffset={4}
+        align="end"
+        className={styles.menu}
+        onFocusCapture={(event) => {
+          if (event.target === event.currentTarget)
+            event.currentTarget
+              .querySelector<HTMLElement>(
+                '[role="menuitem"]:not([data-disabled])',
+              )
+              ?.focus();
+        }}
+        onEscapeKeyDown={(event) => {
+          if (isBusy()) event.preventDefault();
+        }}
+        onInteractOutside={(event) => {
+          if (
+            isBusy() ||
+            (event.target as HTMLElement)?.closest(
+              '[data-overlay-notice="error"]',
+            )
+          )
+            event.preventDefault();
+        }}
+        onCloseAutoFocus={(event) => {
+          event.preventDefault();
+          restoreFocus();
+        }}
+      >
+        <InnerPopup info={popupInfo} setOpen={close} />
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
-  // Menus invoked inside a native player sheet belong to its focus/top-layer scope.
-  const scope = origin.current.dialog;
-  return scope ? createPortal(node, scope) : node;
 }
 export default PopupWrapper;
 
@@ -348,6 +320,7 @@ const useGetMusicOptions = (
     setPopupOpen(false);
   };
   const addToPlaylist = (items: MusicInfo[]) => {
+    evTarget.focus();
     openSelectTgtPlaylistPopup(evTarget, items);
     setPopupOpen(false);
   };
@@ -455,6 +428,7 @@ const PlaylistOptions = memo(function ({
   const openSelectTgtPlaylistPopup = useOpenSelectTgtPlaylistPopup();
   const addToPlaylist = async () => {
     const items = await store.get(playlistItemStateFamily(playlistid));
+    evTarget.focus();
     openSelectTgtPlaylistPopup(evTarget, items);
   };
   const addToNextMusic = async (playlistid: string) => {
@@ -470,10 +444,14 @@ const PlaylistOptions = memo(function ({
       payload: playlistid,
     });
   };
-  const updatePlaylistInfo = (playlistid: string) =>
-    modalManager(ModalKind.UpdatePlaylist, playlistid);
-  const deletePlaylist = (playlistid: string) =>
-    modalManager(ModalKind.DeletePlaylist, playlistid);
+  const updatePlaylistInfo = (playlistid: string) => {
+    evTarget.focus();
+    return modalManager(ModalKind.UpdatePlaylist, playlistid);
+  };
+  const deletePlaylist = (playlistid: string) => {
+    evTarget.focus();
+    return modalManager(ModalKind.DeletePlaylist, playlistid);
+  };
   const onClickHandlerWrapper =
     (callback: (id: string) => void | Promise<void>) => async () => {
       await callback(playlistid);

@@ -1,3 +1,4 @@
+import { Button } from "shared/ui/shadcn/button";
 import OverlayPortal from "shared/ui/OverlayPortal";
 import { useEffect, useRef, useState } from "react";
 import { atom, useAtomValue, useSetAtom } from "jotai";
@@ -62,18 +63,18 @@ function NoticeContent({
     <div className={styles.wrapper} aria-busy={busy}>
       <p role="status">{notice.text}</p>
       {notice.action && (
-        <button type="button" disabled={busy} onClick={run}>
+        <Button variant="ghost" type="button" disabled={busy} onClick={run}>
           {busy ? "복원 중…" : notice.action.label}
-        </button>
+        </Button>
       )}
-      <button
+      <Button variant="ghost"
         type="button"
         disabled={busy}
         aria-label="알림 닫기"
         onClick={() => setVisible(false)}
       >
         닫기
-      </button>
+      </Button>
       {error && <p role="alert">{error}</p>}
     </div>
   );

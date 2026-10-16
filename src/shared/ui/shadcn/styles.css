@@ -1,0 +1,135 @@
+/* Utilities only: never install Tailwind Preflight over the existing product. */
+@import "tailwindcss/theme.css" layer(theme) prefix(ui);
+@import "tailwindcss/utilities.css" prefix(ui) source(none);
+@source "./*.tsx";
+
+@theme inline {
+  --color-background: var(--canvas);
+  --color-foreground: var(--text);
+  --color-popover: var(--surface);
+  --color-popover-foreground: var(--text);
+  --color-primary: var(--purple);
+  --color-primary-foreground: var(--on-brand);
+  --color-secondary: var(--surface);
+  --color-secondary-foreground: var(--text);
+  --color-muted: var(--surface-raised);
+  --color-muted-foreground: var(--muted);
+  --color-accent: var(--surface-raised);
+  --color-accent-foreground: var(--text);
+  --color-destructive: var(--danger);
+  --color-border: var(--line);
+  --color-input: var(--control-line);
+  --color-ring: var(--sky);
+  --radius-md: var(--radius-control);
+}
+
+/* Product adapters are scoped to adopted primitives. Legacy layout remains SCSS. */
+.loopy-control[data-slot] {
+  font-family: var(--font);
+  border-style: solid;
+}
+.loopy-control[data-slot]:focus-visible {
+  outline: 2px solid var(--sky);
+  outline-offset: 4px;
+  box-shadow: none;
+}
+.loopy-control[data-slot]:disabled {
+  opacity: 0.42;
+  cursor: not-allowed;
+}
+.loopy-control[data-slot="button"] {
+  min-height: 44px;
+  height: auto;
+  border-radius: 10px;
+  font-weight: 600;
+}
+.loopy-control[data-slot="button"].play-button {
+  min-height: 48px;
+}
+.loopy-control[data-slot="button"][data-variant="secondary"] {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  color: var(--text);
+}
+.loopy-control[data-slot="button"][data-variant="secondary"]:hover:not(
+    :disabled
+  ) {
+  background: var(--surface-raised);
+}
+.loopy-control[data-slot="button"][data-variant="destructive"] {
+  background: var(--danger);
+  color: var(--on-brand);
+}
+.loopy-control[data-slot="button"][data-variant="default"] {
+  background: var(--purple);
+  color: var(--on-brand);
+}
+.loopy-control[data-slot="button"][data-variant="default"]:hover:not(
+    :disabled
+  ) {
+  background: var(--brand-hover);
+}
+.loopy-control[data-slot="button"][data-variant="default"]:active:not(
+    :disabled
+  ) {
+  background: var(--brand-pressed);
+}
+.loopy-control[data-slot="button"][data-size="icon"] {
+  width: 44px;
+  height: 44px;
+  padding: 0;
+}
+.loopy-control[data-slot="input"],
+.loopy-control[data-slot="textarea"],
+.loopy-control[data-slot="select-trigger"] {
+  min-height: 44px;
+  background: var(--canvas);
+  color: var(--text);
+  border: 1px solid var(--control-line);
+  border-radius: 10px;
+  padding: 11px 13px;
+  font-size: 16px;
+}
+.loopy-control[data-slot="textarea"] {
+  field-sizing: fixed;
+  resize: vertical;
+}
+.loopy-control[data-slot][aria-invalid="true"] {
+  border-color: var(--danger);
+}
+.loopy-control[data-slot="select-content"],
+.loopy-control[data-slot="dropdown-menu-content"] {
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--text);
+  border-radius: 12px;
+  padding: 6px;
+  z-index: 140;
+  box-shadow: 0 12px 32px rgb(0 0 0 / 0.32);
+}
+.loopy-control[data-slot="select-item"],
+.loopy-control[data-slot="dropdown-menu-item"] {
+  min-height: 44px;
+  border-radius: 6px;
+  font-size: 14px;
+  white-space: normal;
+}
+.loopy-control[data-slot="select-item"][data-highlighted],
+.loopy-control[data-slot="dropdown-menu-item"][data-highlighted] {
+  background: var(--surface-raised);
+  color: var(--text);
+  outline-offset: -2px;
+}
+.loopy-control[data-slot="select-item"] [data-slot="select-item-indicator"] {
+  color: var(--purple);
+}
+.loopy-control[data-slot="dropdown-menu-item"][data-variant="destructive"] {
+  color: var(--danger);
+}
+.loopy-control[data-slot="dropdown-menu-item"][data-disabled] {
+  opacity: 0.42;
+}
+.loopy-control[data-slot="label"] {
+  font-size: 13px;
+  line-height: 1.5;
+}

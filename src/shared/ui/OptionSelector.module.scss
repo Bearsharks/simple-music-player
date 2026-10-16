@@ -1,37 +1,9 @@
 .wrapper {
-  background: var(--surface-raised);
   width: 240px;
-  max-width: calc(100vw - 16px);
-  padding: 6px;
-  border: 1px solid var(--line);
-  border-radius: 12px;
-  box-shadow: 0 12px 40px #0007;
+  max-width: calc(100vw - 32px);
 }
-.options {
-  width: 100%;
-  display: flex;
-  min-height: 48px;
-  align-items: center;
-  padding: 6px;
-  border-radius: 8px;
-  text-align: left;
-}
-.options:hover {
-  background: #ffffff09;
-}
-.options__icon {
-  display: grid;
-  place-items: center;
-  width: 28px;
-  height: 28px;
-  margin: 4px;
-  color: var(--muted);
-}
-.options__icon span {
-  font-size: 20px;
-}
-.options__text {
-  margin: 0 8px;
-  font-size: 14px;
-  color: var(--text);
+.wrapper p {
+  margin: 8px;
+  color: var(--danger);
+  overflow-wrap: anywhere;
 }

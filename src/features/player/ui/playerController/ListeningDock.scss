@@ -77,7 +77,10 @@
   flex: none;
 }
 .transport-play:hover:not(:disabled) {
-  background: #b875ff;
+  background: var(--brand-hover);
+}
+.transport-play:active:not(:disabled) {
+  background: var(--brand-pressed);
 }
 .seek-control {
   display: flex;

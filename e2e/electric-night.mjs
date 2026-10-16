@@ -105,6 +105,40 @@ try {
       await page
         .getByRole("button", { name: "새벽의 파형 열기", exact: true })
         .waitFor();
+      const sortTrigger = page.getByRole("combobox", { name: "재생목록 정렬" });
+      await sortTrigger.focus();
+      await page.keyboard.press("Enter");
+      await expect(page.getByRole("listbox")).toBeVisible();
+      await page.keyboard.press("End");
+      await page.keyboard.press("Enter");
+      await expect(sortTrigger).toHaveText("이름순");
+      await expect(sortTrigger).toBeFocused();
+      await sortTrigger.click();
+      await page
+        .getByRole("option", { name: "최근 추가순", exact: true })
+        .click();
+      const inputStyle = await page
+        .getByRole("textbox", { name: "라이브러리 검색" })
+        .evaluate((node) => ({
+          height: node.getBoundingClientRect().height,
+          background: getComputedStyle(node).backgroundColor,
+          border: getComputedStyle(node).borderTopColor,
+        }));
+      expect(inputStyle.height).toBeGreaterThanOrEqual(44);
+      expect(inputStyle.background).toBe("rgb(11, 11, 20)");
+      expect(inputStyle.border).toBe("rgb(107, 107, 128)");
+      const primaryStyle = await page
+        .getByRole("button", { name: "새 재생목록", exact: true })
+        .evaluate((node) => ({
+          background: getComputedStyle(node).backgroundColor,
+          color: getComputedStyle(node).color,
+          image: getComputedStyle(node).backgroundImage,
+        }));
+      expect(primaryStyle).toEqual({
+        background: "rgb(168, 85, 255)",
+        color: "rgb(11, 11, 20)",
+        image: "none",
+      });
       const librarySeed = await page
         .locator(".playlist-card")
         .first()
@@ -187,8 +221,19 @@ try {
           .getByRole("button", { name: "검증용 곡 01 더보기", exact: true })
           .last()
           .click();
-        const menu = page.getByRole("group", { name: "선택 메뉴" });
+        const menu = page.getByRole("menu", { name: "선택 메뉴" });
         await expect(menu).toBeVisible();
+        await page.keyboard.press("End");
+        await expect(
+          page.getByRole("menuitem", { name: "대기열에서 삭제", exact: true }),
+        ).toBeFocused();
+        await page.keyboard.press("Home");
+        await expect(
+          page.getByRole("menuitem", {
+            name: "다음 음악으로 재생",
+            exact: true,
+          }),
+        ).toBeFocused();
         expect(
           await menu.evaluate((node) =>
             Boolean(node.closest("dialog.now-panel")),
@@ -205,7 +250,7 @@ try {
           .last()
           .click();
         await page
-          .getByRole("button", { name: "재생목록에 추가", exact: true })
+          .getByRole("menuitem", { name: "재생목록에 추가", exact: true })
           .click();
         await page
           .getByRole("button", { name: "새 재생목록 선택", exact: true })
@@ -340,19 +385,35 @@ try {
         await expect(page.getByRole("alert")).toHaveCount(0);
         // Pointer drag has no edit-mode gate and persists immediately.
         const dragFrom = await savedHandle.boundingBox();
-        const dragTo = await savedTracks.getByRole("button", {name:"검증용 곡 01 순서 드래그",exact:true}).boundingBox();
-        await page.mouse.move(dragFrom.x + dragFrom.width/2, dragFrom.y + dragFrom.height/2);
+        const dragTo = await savedTracks
+          .getByRole("button", {
+            name: "검증용 곡 01 순서 드래그",
+            exact: true,
+          })
+          .boundingBox();
+        await page.mouse.move(
+          dragFrom.x + dragFrom.width / 2,
+          dragFrom.y + dragFrom.height / 2,
+        );
         await page.mouse.down();
-        await page.mouse.move(dragTo.x + dragTo.width/2, dragTo.y + dragTo.height/2, {steps:12});
+        await page.mouse.move(
+          dragTo.x + dragTo.width / 2,
+          dragTo.y + dragTo.height / 2,
+          { steps: 12 },
+        );
         await page.mouse.up();
-        await expect(savedTracks.locator("[data-track-focus]").first()).toHaveAttribute("aria-label", "검증용 곡 02 재생");
+        await expect(
+          savedTracks.locator("[data-track-focus]").first(),
+        ).toHaveAttribute("aria-label", "검증용 곡 02 재생");
         await keyboardMove(savedHandle, "ArrowDown");
-        await expect(savedTracks.locator("[data-track-focus]").first()).toHaveAttribute("aria-label", "검증용 곡 01 재생");
+        await expect(
+          savedTracks.locator("[data-track-focus]").first(),
+        ).toHaveAttribute("aria-label", "검증용 곡 01 재생");
         await savedTracks
           .getByRole("button", { name: "검증용 곡 02 더보기", exact: true })
           .click();
         await page
-          .getByRole("button", { name: "재생목록에서 삭제", exact: true })
+          .getByRole("menuitem", { name: "재생목록에서 삭제", exact: true })
           .click();
         await expect(
           savedTracks.locator(
@@ -384,7 +445,7 @@ try {
           .getByRole("button", { name: "검증용 곡 02 더보기", exact: true })
           .click();
         await page
-          .getByRole("button", { name: "대기열에서 삭제", exact: true })
+          .getByRole("menuitem", { name: "대기열에서 삭제", exact: true })
           .click();
         await expect(
           queuePanel.locator(
@@ -463,7 +524,7 @@ try {
           .getByRole("button", { name: "더보기", exact: true })
           .click();
         await page
-          .getByRole("button", { name: "대기열 끝에 추가", exact: true })
+          .getByRole("menuitem", { name: "대기열 끝에 추가", exact: true })
           .click();
         await page
           .getByRole("button", { name: "재생 대기열", exact: true })
@@ -481,7 +542,7 @@ try {
           .last()
           .click();
         const lastMenu = await page
-          .getByRole("group", { name: "선택 메뉴", exact: true })
+          .getByRole("menu", { name: "선택 메뉴", exact: true })
           .boundingBox();
         const panelBounds = await queuePanel.boundingBox();
         expect(lastMenu.y + lastMenu.height).toBeLessThanOrEqual(
@@ -496,7 +557,7 @@ try {
           );
         }
         await page
-          .getByRole("button", { name: "대기열에서 삭제", exact: true })
+          .getByRole("menuitem", { name: "대기열에서 삭제", exact: true })
           .click();
         await expect(
           page.getByRole("button", { name: "실행 취소", exact: true }),

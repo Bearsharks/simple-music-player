@@ -71,3 +71,9 @@ Playlists.tsx는 로컬 이름 필터·정렬·카드/빈 상태를 제공한다
 RestoreTitles는 생성된 임시 제목만 찾아 YouTube oEmbed를 조회한다. PATCH_METADATA는 key와 이전 제목이 모두 일치하는 항목에만 합치므로 삭제·재정렬·사용자 제목 수정과 충돌하지 않는다. 수동 제목은 보존한다.
 
 LibraryBackup은 백업 JSON 내보내기와 확인 후 추가 가져오기를 제공한다. 기존 목록을 덮어쓰지 않고 전체 가져오기를 단일 IndexedDB transaction으로 저장한다. 10MB/500목록/10000곡 상한과 스키마·영상ID 검증을 거치고 썸네일 URL은 재구성한다. origin 사이 자동 이전은 하지 않는다.
+
+Library sort uses the adopted shadcn Radix Select with the existing in-memory
+recent/name sorting; search text is not reset and no data write occurs. General
+CTA and form fields use shared shadcn Button/Input/Textarea/Label, while cards,
+DnD handles and feature layouts keep their existing ownership. Native file input,
+media controls and dialog lifetimes are not converted to another framework.

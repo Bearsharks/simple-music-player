@@ -1,3 +1,4 @@
+import { Button } from "shared/ui/shadcn/button";
 import ErrorToast from "shared/ui/ErrorToast";
 import PlaylistImport from "features/youtube/ui/PlaylistImport";
 import { useAtom, useAtomValue } from "jotai";
@@ -109,7 +110,7 @@ function PlaylistForm({
       submitLabel={create ? "만들기" : "변경 저장"}
     >
       {create && (
-        <button
+        <Button variant="secondary"
           type="button"
           className={styles.importYTBtn}
           onClick={() => modal(ModalKind.ImportYTPlaylistLink)}
@@ -118,7 +119,7 @@ function PlaylistForm({
             add
           </span>
           유튜브에서 가져오기
-        </button>
+        </Button>
       )}
     </FormBox>
   );
@@ -166,22 +167,22 @@ function DeleteConfirmation({
       </p>
       <ErrorToast message={error} />
       <div className={styles.confirmationActions}>
-        <button
+        <Button variant="secondary"
           type="button"
           className="secondary-button"
           disabled={busy}
           onClick={close}
         >
           취소
-        </button>
-        <button
+        </Button>
+        <Button variant="destructive"
           type="button"
           className="button danger-button"
           disabled={busy}
           onClick={remove}
         >
           {busy ? "삭제 중…" : "삭제"}
-        </button>
+        </Button>
       </div>
     </section>
   );

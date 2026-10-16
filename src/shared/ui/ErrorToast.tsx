@@ -1,3 +1,4 @@
+import { Button } from "shared/ui/shadcn/button";
 import { useEffect, useState } from "react";
 import OverlayPortal from "./OverlayPortal";
 import "./ErrorToast.scss";
@@ -8,16 +9,16 @@ export default function ErrorToast({ message }: { message: string }) {
   if (!message || dismissed) return null;
   return (
     <OverlayPortal>
-      <div className="error-toast">
+      <div className="error-toast" data-overlay-notice="error">
         <p role="alert">{message}</p>
-        <button
+        <Button variant="ghost"
           type="button"
           className="icon-button"
           aria-label="오류 알림 닫기"
           onClick={() => setDismissed(true)}
         >
           ×
-        </button>
+        </Button>
       </div>
     </OverlayPortal>
   );
