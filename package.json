@@ -23,7 +23,8 @@
     "build-storybook": "storybook build",
     "check": "npm run check:boundaries && npm run typecheck && npm test && npm run build",
     "check:boundaries": "node tools/check-boundaries.mjs",
-    "test:browser": "node e2e/smoke.mjs"
+    "test:browser": "node e2e/smoke.mjs",
+    "impact": "node tools/feature-impact.mjs"
   },
   "devDependencies": {
     "@playwright/test": "1.64.1",

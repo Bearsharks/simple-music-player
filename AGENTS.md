@@ -1,6 +1,7 @@
 # Working on Simple Music Player
 
-- Read `docs/ARCHITECTURE.md` and the relevant feature README first.
+- Start with `docs/CHANGE-GUIDE.md`, then read only the relevant feature README and its entry files. Use `npm run impact -- <feature>` before changing a contract; expand inspection to listed consumers when needed.
+- Update the feature README when entry points, dependencies, invariants or verification commands change. Report remaining coupling and untested behavior explicitly.
 - Keep changes within a feature; application wiring belongs in `src/app`, reusable UI and infrastructure in `src/shared`.
 - Never log or commit credentials, OAuth tokens or private environment values. Do not run production API mutations during verification.
 - Preserve playlist CRUD, import/search, queue reorder/selection, player controls and routing. Add regression tests for changed behavior.

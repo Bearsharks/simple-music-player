@@ -19,3 +19,7 @@ The server is not part of this repository. Playlist CRUD/auth endpoint compatibi
 - `features/player/api/iframe.ts` owns script loading; the remaining legacy global player access is a documented follow-up, not a second state store.
 - Run `npm run check` after each change. Vitest mocks validate behavior; browser rendering, real login and YouTube playback require separate evidence.
 - `docs/IMPROVEMENT-PLAN.md` is the prioritized follow-up plan. Do not silently execute optional backend replacement or product redesign from that backlog.
+
+## Change discovery
+
+Use [CHANGE-GUIDE.md](CHANGE-GUIDE.md) and `npm run impact -- <feature>` to narrow inspection. Feature READMEs contain entry files, contract invariants, consumers, targeted tests and explicit gaps. Folder boundaries do not yet eliminate cross-feature deep imports or cyclic feature-level dependencies.
