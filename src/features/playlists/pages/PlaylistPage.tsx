@@ -182,9 +182,19 @@ function PlaylistItems({ playlistID }: { playlistID: string }) {
   const [status, setStatus] = useState("");
   const [busy, setBusy] = useState(false);
   const pending = useRef(false);
+  const focusedHandle = useRef<HTMLElement | null>(null);
+  useLayoutEffect(() => {
+    if (busy || !focusedHandle.current) return;
+    const handle = focusedHandle.current;
+    focusedHandle.current = null;
+    if (handle.isConnected && document.activeElement === document.body) handle.focus();
+  }, [busy]);
   const move = async (from: number, to: number) => {
     if (pending.current || from === to) return;
     pending.current = true;
+    focusedHandle.current = document.activeElement instanceof HTMLElement &&
+      document.activeElement.hasAttribute("data-rfd-drag-handle-draggable-id")
+      ? document.activeElement : null;
     setBusy(true);
     const item = items[from];
     try {

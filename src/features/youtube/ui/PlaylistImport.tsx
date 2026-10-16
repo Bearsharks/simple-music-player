@@ -211,9 +211,6 @@ export default function PlaylistImport({
             ? "목록을 불러오는 중입니다. 미리보기에서 재생을 눌러 확인할 수 있습니다."
             : "목록을 미리보기에서 불러온 뒤 저장하세요."}
       </p>
-      <p className="import-disclosure">
-        비공개·삭제된 영상은 제목을 가져오지 못할 수 있습니다.
-      </p>
       {!confirmReset && <ErrorToast message={error || previewError} />}
       <div className="import-actions">
         <button className="secondary-button" disabled={busy} onClick={close}>

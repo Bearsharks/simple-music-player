@@ -24,3 +24,12 @@
 도메인 변경은 localStorage origin도 바꾼다. 자동 데이터 이전을 약속하지 않는다. ChatGPT Sites 전환도 사용자 지시로 보류했다.
 
 공식 문서: https://docs.github.com/en/pages/configuring-a-custom-domain-for-your-github-pages-site/managing-a-custom-domain-for-your-github-pages-site
+
+## 2026-10-16 전환 요청 갱신
+
+- 제품 이름: loopy. 대상 도메인: loopy.bearsharks.dev.
+- 사용자가 GitHub/Cloudflare 설정을 직접 진행한다. Cloudflare 로그인/설정 대행 중지.
+- 사용자 승인: 기존 데이터 내보내기를 기다리지 않고 전환. 기존 origin의 IndexedDB 데이터는 삭제하지 않지만 새 origin에서 직접 읽을 수 없다.
+- 새 도메인용 빌드: `VITE_BASE_PATH=/ npm run build`; 기본 기존 URL용 빌드는 `/simple-music-player/`를 유지한다. BrowserRouter는 Vite BASE_URL을 사용한다.
+- 배포 직전 gh-pages 최신 커밋을 가져오고 사용자 설정으로 생성된 CNAME을 보존한다. DNS/인증서 검증 완료 전 연결 성공으로 보고하지 않는다.
+- 백업 내보내기/가져오기는 추가 기능으로 남긴다. origin 간 자동 이전이라고 설명하지 않는다.
