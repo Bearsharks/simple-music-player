@@ -117,7 +117,16 @@ try {
           exact: true,
         });
         await expect(emptyPlay).toBeDisabled();
-        await emptyPlay.hover();
+        // Disabled shadcn Button intentionally has pointer-events:none. Move
+        // the real pointer over its box without requiring it to receive events.
+        await expect(emptyPlay).toHaveCSS("pointer-events", "none");
+        const emptyPlayBox = await emptyPlay.boundingBox();
+        expect(emptyPlayBox).not.toBeNull();
+        await page.mouse.move(
+          emptyPlayBox.x + emptyPlayBox.width / 2,
+          emptyPlayBox.y + emptyPlayBox.height / 2,
+        );
+        await expect(emptyPlay).toBeDisabled();
         await expect(emptyPlay).toHaveCSS(
           "background-image",
           "linear-gradient(100deg, rgb(168, 85, 255) 0%, rgb(91, 158, 246) 100%)",
