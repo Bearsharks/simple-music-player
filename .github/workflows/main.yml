@@ -24,6 +24,7 @@ jobs:
           for i in $(seq 1 30); do curl -fsS http://127.0.0.1:4173/simple-music-player/ >/dev/null && break; sleep 1; done
           npm run test:browser
       - name: Design prototype preview
+        if: ${{ !cancelled() }}
         run: |
           python3 -m http.server 4174 --bind 127.0.0.1 > /tmp/prototype.log 2>&1 &
           for i in $(seq 1 30); do curl -fsS http://127.0.0.1:4174/ >/dev/null && break; sleep 1; done
@@ -32,7 +33,7 @@ jobs:
         if: always()
         with:
           name: browser-screenshots
-          path: test-results/*.png
+          path: test-results/
           retention-days: 7
       - run: npm run build-storybook
         env:

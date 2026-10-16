@@ -266,7 +266,7 @@
   document.addEventListener('change',e=>{if(e.target.id==='sort'){state.sort=e.target.value;render();}if(e.target.id==='save-destination'){const isNew=e.target.value==='new';$('#new-list-name').hidden=!isNew;$('#new-list-name input').required=isNew;}});
   $('#queue-scrim').addEventListener('click',closeQueue);
   document.addEventListener('keydown',e=>{
-    if(e.target.getAttribute('role')==='tab'&&['ArrowLeft','ArrowRight','Home','End'].includes(e.key)){e.preventDefault();state.queueTab=e.key==='Home'?'now':e.key==='End'?'queue':state.queueTab==='now'?'queue':'now';render();$('#'+(state.queueTab==='now'?'now-tab':'queue-tab'))?.focus();return;}
+    if(e.target.getAttribute?.('role')==='tab'&&['ArrowLeft','ArrowRight','Home','End'].includes(e.key)){e.preventDefault();state.queueTab=e.key==='Home'?'now':e.key==='End'?'queue':state.queueTab==='now'?'queue':'now';render();$('#'+(state.queueTab==='now'?'now-tab':'queue-tab'))?.focus();return;}
     if($('#modal').open)return;
     if(e.key==='Escape'&&state.queueOpen){e.preventDefault();closeQueue();return;}
     if(e.key==='Tab'&&state.queueOpen&&smallScreen()){const f=$$('button:not(:disabled),input:not(:disabled),[tabindex="0"]',$('#queue-panel')).filter(el=>!el.closest('[hidden]'));if(!f.length)return;const first=f[0],last=f[f.length-1];if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}}

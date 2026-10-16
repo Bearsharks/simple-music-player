@@ -1,0 +1,25 @@
+{
+  "date": "2026-10-16",
+  "mode": "jsdom with native dialog polyfill; no visual-layout or live-media claim",
+  "passed": 16,
+  "checks": [
+    "8 seeded playlists; production source and storage are not used",
+    "Actual create form makes a valid empty playlist and opens add-track flow",
+    "Video URL addition saves title and track count",
+    "Playback is explicitly simulated and creates an independent queue",
+    "Empty playlist action adds a track; it does not clear existing playback",
+    "Saved reorder does not change the active queue",
+    "Single-track deletion has functional Undo without extra confirmation",
+    "Injected write failure preserves input; identical retry succeeds",
+    "Whole-playlist deletion confirms, returns to library and preserves playback",
+    "Import has explicit mock preview and a separate save step",
+    "Source reset previews, confirms, and replaces only the saved copy",
+    "Queue reorder keeps the current track identity",
+    "Queue can be saved into a new independent playlist",
+    "Simulated playback error offers retry without losing queue",
+    "Narrow-screen queue acts as modal; Escape returns to the app",
+    "No fetch calls, no JavaScript runtime errors; isolated persistence only"
+  ],
+  "networkCalls": 0,
+  "errors": []
+}
