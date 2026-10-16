@@ -407,9 +407,13 @@ it("lets one native cancel close only the top dialog after responsive re-registr
     const user = userEvent.setup();
     const rendered = render(<Example />);
     cleanup = rendered.unmount;
-    await user.click(screen.getByRole("button", { name: "폭 전환" }));
-    await user.click(screen.getByRole("button", { name: "폭 전환" }));
     const child = screen.getByRole("dialog", { name: "자식 작업" });
+    const childClose = vi.spyOn(child as HTMLDialogElement, "close");
+    const childShow = vi.spyOn(child as HTMLDialogElement, "showModal");
+    await user.click(screen.getByRole("button", { name: "폭 전환" }));
+    await user.click(screen.getByRole("button", { name: "폭 전환" }));
+    expect(childClose).not.toHaveBeenCalled();
+    expect(childShow).not.toHaveBeenCalled();
     await user.keyboard("{Escape}");
     expect(child).toHaveAttribute("open");
     const cancel = new Event("cancel", { cancelable: true });
@@ -482,5 +486,50 @@ it.each([0, 20])(
     );
     expect(screen.queryByRole("alert")).not.toBeInTheDocument();
     expect(store.get(queueState).index).toBe(0);
+  },
+);
+
+it.each([true, false])(
+  "applies a deferred native mode after a foreground task closes (initial modal: %s)",
+  async (initialModal) => {
+    function Example() {
+      const [modal, setModal] = useState(initialModal);
+      const [child, setChild] = useState(false);
+      return (
+        <>
+          <Dialog
+            label="대기열 전환"
+            priority={0}
+            modal={modal}
+            onClose={() => {}}
+          >
+            <button onClick={() => setChild(true)}>작업 시작</button>
+          </Dialog>
+          {child && (
+            <Dialog label="편집 작업" onClose={() => setChild(false)}>
+              <button onClick={() => setModal((value) => !value)}>
+                반응형 변경
+              </button>
+            </Dialog>
+          )}
+        </>
+      );
+    }
+    const user = userEvent.setup();
+    const { container } = render(<Example />);
+    const panel = document.querySelector('dialog[aria-label="대기열 전환"]')!;
+    await user.click(screen.getByRole("button", { name: "작업 시작" }));
+    await user.click(screen.getByRole("button", { name: "반응형 변경" }));
+    expect(panel.getAttribute("aria-modal")).toBe(initialModal ? "true" : null);
+    expect(container).toHaveAttribute("inert");
+    await user.keyboard("{Escape}");
+    await waitFor(() =>
+      expect(panel.getAttribute("aria-modal")).toBe(
+        initialModal ? null : "true",
+      ),
+    );
+    expect(panel).toHaveAttribute("open");
+    expect(container.hasAttribute("inert")).toBe(!initialModal);
+    expect(document.body.style.overflow).toBe(initialModal ? "" : "hidden");
   },
 );

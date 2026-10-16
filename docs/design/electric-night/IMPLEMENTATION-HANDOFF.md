@@ -5,7 +5,7 @@
 ## 현재 상태
 
 - 소스 동결: 부모 검수/CI 준비 완료. 이 구현자는 커밋·push·배포하지 않았다.
-- `npm_config_cache=/tmp/music-player-npm-cache npm run check`: **91 tests / 15 files**, feature boundary 84 files, TypeScript, production build 통과.
+- `npm_config_cache=/tmp/music-player-npm-cache npm run check`: **96 tests / 16 files**, feature boundary 86 files, TypeScript, production build 통과.
 - `git diff --check`, e2e 3파일 `node --check` 통과.
 - 이전 CI `38869455394`에서 생성 smoke 1440/1280/390 및 Electric Night 320px가 통과했다. 390px 중첩 Escape 이후 부모 큐까지 닫힌 실패를 수정했으며, 이번 변경의 실제 Chromium 결과는 대기 중이다.
 - 로컬 Chromium은 `socket() failed: Operation not permitted`로 시작하지 못했다. 아래 실제 브라우저 판정/스크린샷 비교는 아직 통과로 표시하지 않는다.
@@ -102,3 +102,11 @@
 - portal 대상 변경이 NoticeContent를 재마운트하여 소비한 Undo를 다시 노출하던 별도 결함도 확인했다. 기존 코드에서 새 소비/닫힘 회귀가 실패함을 확인했고, 동일 portal 컨테이너를 이동해 상태를 유지하도록 수정했다. 복원 중 중복 실행 방지와 실패 메시지도 유지된다.
 - 새 unit 3건과 기존 88건이 모두 통과했다. e2e에는 살아 있는 Undo와 추가 버튼의 비중첩, Tab/Shift+Tab, 실제 클릭, 다음 생성 폼에서의 Undo 실행 및 입력 보존을 추가했다. 폼 전환 뒤 소비한 Undo가 부활하지 않는지도 확인한다.
 - Electric Night harness는 각 viewport의 실패 artifact를 유지하며 다음 viewport를 계속 검사한다. 마지막에 실패 목록 JSON과 AggregateError로 nonzero 종료한다. assertion/타임아웃을 완화하지 않았다.
+
+## 4차 CI 반응형 close watcher·dock 경계
+
+- CI `38873790121`에서 기본 smoke와 320/768/1024/1280px는 통과했다. 실패를 viewport별로 수집해 390px Escape와 1440px 마지막 행 메뉴의 독립 결함을 동시에 확인했다.
+- 390 이벤트 기록에는 Escape keydown 이후 반응형 close/show가 실행되고 native cancel은 없었다. 1440의 같은 단계는 close/show 다음 cancel이 정상 발생했다. 작업 dialog가 열린 동안 부모의 native 모드 변경을 유예하여 자식 close watcher를 교체하지 않도록 했다. 작업 종료 후 최신 요청 모드로 전환하고 잠금은 정상 정리한다.
+- 기존 코드에 ‘자식 native close/show 없음’ 회귀를 적용하면 불필요한 close 1회로 실패한다. 수정 후 통과하며, 양방향 유예 해제 회귀 2건도 추가했다. iframe DOM과 실제 player는 계속 유지한다.
+- 1440 실패 메뉴는 y700에서 아래로 펼쳐져 dock y872 밑에 마지막 항목이 들어갔다. dialog 경계까지 고려한 flip/clamp를 기능 내부 helper로 분리하고 실제 좌표 회귀를 추가했다. Chromium도 마지막 메뉴의 전체 rect가 panel/dock 위인지 확인한 뒤 일반 클릭한다.
+- 전체 96테스트/16파일·86파일 경계·타입·빌드·diff/스크립트 문법이 통과했다. 실제 Chromium 재실행 결과와 마지막 1440 확대 검수는 다음 CI에서 판정한다.

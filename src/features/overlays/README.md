@@ -65,3 +65,9 @@ playlists/queue/youtube를 연결하는 기존 조정 코드다. search/player/p
 - OverlayPortal은 동일 DOM 컨테이너를 현재 최상위 modal scope로 이동한다. portal 대상 자체를 교체하지 않으므로 Notice의 소비/닫힘/복원 중/오류 상태가 작업 전환이나 breakpoint 변경으로 초기화되지 않는다. 이미 실행하거나 닫은 Undo는 다시 나타나지 않는다.
 - 페이지에서는 dock 위 알림 위치를 유지하고, 작업 dialog/queue sheet에서는 별도 정상 흐름 영역으로 공간을 확보한다. Submit/취소/transport 위에 fixed 알림을 겹치지 않는다. Undo는 dialog의 Tab 순서와 스크롤 영역 안에 계속 있다.
 - `notice-overlay.test.tsx`는 중첩·반응형 위치 이동, 소비/닫힘, 진행 중/실패 후 재시도 상태를 확인한다. Chromium은 실제 살아 있는 Undo를 둔 picker submit의 hit-test/Tab 순서와 다음 폼에서 Undo 실행을 검증한다.
+
+## 반응형 native 작업 보호·메뉴 경계
+
+- 높은 우선순위의 작업 dialog가 열린 동안 낮은 우선순위 panel의 native modal/nonmodal 모드 변경은 유예한다. CSS 폭은 반응하지만 자식 dialog를 close/showModal로 재생성하지 않는다. 마지막 상위 작업이 닫히면 요청된 모드로 전환하고 inert/scroll lock을 정리한다. Escape와 resize가 겹쳐 native close watcher가 교체되는 경쟁을 피한다.
+- 메뉴는 viewport와 트리거의 native dialog 경계 교집합 안에 배치한다. 아래 공간이 모자라면 위로 열고 8px 안쪽으로 제한하므로 desktop queue 아래 dock이 마지막 메뉴 항목을 가리지 않는다. 크기/오류 메시지 변경도 ResizeObserver로 재배치하며 긴 메뉴는 자체 스크롤한다.
+- `popup-position` 테스트는 실제 CI의 마지막 행 좌표, 좁은 sheet, 높이가 부족한 경계를 확인한다. `electric-night`는 자식 native close/show가 발생하지 않는지와 유예 모드가 작업 종료 후 양방향으로 반영되는지 검증한다.

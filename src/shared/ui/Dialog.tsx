@@ -9,6 +9,9 @@ const openDialogs: {
   layer: HTMLElement;
   priority: number;
 }[] = [];
+const modalModeListeners = new Set<() => void>();
+const notifyModalMode = () =>
+  modalModeListeners.forEach((listener) => listener());
 const originalInert = new Map<HTMLElement, boolean>();
 let originalOverflow = "";
 function syncModalEnvironment() {
@@ -63,7 +66,7 @@ export default function Dialog({
   onClose,
   children,
   open = true,
-  modal = true,
+  modal: requestedModal = true,
   className = "",
   priority = 10,
 }: {
@@ -77,6 +80,7 @@ export default function Dialog({
 }) {
   const [layer] = useState(() => document.createElement("div"));
   const content = useRef<HTMLDialogElement>(null);
+  const [modal, setModal] = useState(requestedModal);
   const close = useRef(onClose);
   close.current = onClose;
   const requestClose = () => {
@@ -90,6 +94,22 @@ export default function Dialog({
     if (openDialogs.length) syncModalEnvironment();
     return () => layer.remove();
   }, [layer]);
+  useLayoutEffect(() => {
+    const updateMode = () => {
+      // Keep a background panel's native mode stable while a higher-priority
+      // task is open. Reopening that task to reorder the top layer would replace
+      // its native close watcher in the middle of a resize/Escape gesture.
+      const hasHigherTask = openDialogs.some(
+        (scope) => scope.root !== content.current && scope.priority > priority,
+      );
+      if (!hasHigherTask) setModal(requestedModal);
+    };
+    modalModeListeners.add(updateMode);
+    updateMode();
+    return () => {
+      modalModeListeners.delete(updateMode);
+    };
+  }, [requestedModal, priority]);
   useLayoutEffect(() => {
     const root = content.current!;
     if (!open) return;
@@ -112,6 +132,7 @@ export default function Dialog({
     openDialogs.push(scope);
     openDialogs.sort((a, b) => a.priority - b.priority);
     syncModalEnvironment();
+    notifyModalMode();
     // A responsive panel sits below an already-open task dialog in the native top layer.
     const top = openDialogs.at(-1)!;
     if (native && top.root !== root) {
@@ -178,6 +199,7 @@ export default function Dialog({
       else root.removeAttribute("open");
       if (previousFocus?.isConnected && !previousFocus.closest("[inert]"))
         previousFocus.focus();
+      notifyModalMode();
     };
   }, [layer, open, modal, priority]);
   useLayoutEffect(() => {

@@ -219,6 +219,11 @@ try {
         for (const width of [1199, 1200, 1199]) {
           await page.setViewportSize({ width, height: viewport.height });
           await expect(page.getByLabel("공개 재생목록 URL")).toBeVisible();
+          // Background responsive changes must not recreate the task's native
+          // close watcher. Its parent keeps its mode until the task is closed.
+          expect(
+            await page.locator("dialog.now-panel").getAttribute("aria-modal"),
+          ).toBe(viewport.width < 1200 ? "true" : null);
           expect(
             await page.evaluate(() => ({
               inert: document.querySelector("#root").hasAttribute("inert"),
@@ -243,6 +248,10 @@ try {
         await expect(
           page.getByRole("button", { name: "대기열 닫기", exact: true }),
         ).toBeVisible();
+        await expect(page.locator("dialog.now-panel")).toHaveAttribute(
+          "aria-modal",
+          "true",
+        );
         expect(
           await page.evaluate(() => ({
             open: document.querySelectorAll("dialog[open]").length,
@@ -457,6 +466,21 @@ try {
           .getByRole("button", { name: "검증용 곡 20 더보기", exact: true })
           .last()
           .click();
+        const lastMenu = await page
+          .getByRole("group", { name: "선택 메뉴", exact: true })
+          .boundingBox();
+        const panelBounds = await queuePanel.boundingBox();
+        expect(lastMenu.y + lastMenu.height).toBeLessThanOrEqual(
+          panelBounds.y + panelBounds.height - 8,
+        );
+        if (viewport.width >= 1200) {
+          const dockBounds = await page
+            .locator(".listening-dock")
+            .boundingBox();
+          expect(lastMenu.y + lastMenu.height).toBeLessThanOrEqual(
+            dockBounds.y,
+          );
+        }
         await page
           .getByRole("button", { name: "대기열에서 삭제", exact: true })
           .click();

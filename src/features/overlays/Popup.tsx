@@ -34,6 +34,7 @@ import FormBoxPlaylist from "features/playlists/ui/formBox/FormBoxPlaylist";
 import OuterClickEventCatcher from "shared/ui/OuterClickEventCatcher";
 import Dialog from "shared/ui/Dialog";
 import { useNotice } from "./Notice";
+import { positionPopup } from "./positionPopup";
 
 function InnerPopup({
   setOpen,
@@ -134,16 +135,25 @@ function Popup({ popupInfo }: { popupInfo: PopupInfo }) {
     (width: number, height: number) => {
       const target: HTMLElement = popupInfo.target as HTMLElement;
       if (!curRef.current || !target) return;
-      const { offsetWidth, offsetHeight } = curRef.current;
-      const { left, top, bottom } = target.getBoundingClientRect();
-      const x = width >= left + offsetWidth ? left : width - offsetWidth;
-      const y =
-        height >= bottom + offsetHeight
-          ? bottom
-          : top - offsetHeight >= 0
-            ? top - offsetHeight
-            : height - offsetHeight;
-      curRef.current.style.transform = `translate(${x}px, ${y}px)`;
+      const root = curRef.current;
+      const container = origin.current.dialog?.getBoundingClientRect();
+      const bounds = {
+        left: Math.max(0, container?.left ?? 0),
+        top: Math.max(0, container?.top ?? 0),
+        right: Math.min(width, container?.right ?? width),
+        bottom: Math.min(height, container?.bottom ?? height),
+      };
+      root.style.maxWidth = `${Math.max(0, bounds.right - bounds.left - 16)}px`;
+      root.style.maxHeight = `${Math.max(0, bounds.bottom - bounds.top - 16)}px`;
+      const position = positionPopup(
+        target.getBoundingClientRect(),
+        {
+          width: root.offsetWidth,
+          height: root.offsetHeight,
+        },
+        bounds,
+      );
+      root.style.transform = `translate(${position.left}px, ${position.top}px)`;
       curRef.current.style.visibility = "initial";
     },
     [popupInfo.target],
@@ -172,10 +182,16 @@ function Popup({ popupInfo }: { popupInfo: PopupInfo }) {
     root.addEventListener("keydown", keydown);
     root.addEventListener("focusout", focusout);
     window.addEventListener("resize", resize);
+    // A menu error or a container resize can change the available placement.
+    const observer =
+      typeof ResizeObserver === "undefined" ? null : new ResizeObserver(resize);
+    observer?.observe(root);
+    if (origin.current.dialog) observer?.observe(origin.current.dialog);
     return () => {
       root.removeEventListener("keydown", keydown);
       root.removeEventListener("focusout", focusout);
       window.removeEventListener("resize", resize);
+      observer?.disconnect();
       const target = popupInfo.target;
       if (
         !root.contains(document.activeElement) &&
