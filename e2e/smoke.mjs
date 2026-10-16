@@ -107,7 +107,7 @@ try {
         await expect(page.getByLabel("추가할 영상 URL")).toBeFocused();
         await expect(page.locator(".studio-content")).toContainText("0곡");
         await page
-          .getByRole("button", { name: "라이브러리로 돌아가기", exact: true })
+          .getByRole("navigation", { name: "현재 위치", exact: true }).getByRole("link", { name: "라이브러리", exact: true })
           .click();
         await page
           .getByRole("button", { name: `${name} 열기`, exact: true })
@@ -167,7 +167,7 @@ try {
       });
       if (await closeQueue.isVisible()) await closeQueue.click();
       await page
-        .getByRole("button", { name: "라이브러리로 돌아가기", exact: true })
+        .getByRole("navigation", { name: "현재 위치", exact: true }).getByRole("link", { name: "라이브러리", exact: true })
         .click();
       await expect(page.locator(".cover-open").first()).toHaveAttribute(
         "aria-label",
@@ -189,7 +189,7 @@ try {
         { loads: ["abcdefghijk"], time: 42, state: 1 },
       );
       await page
-        .getByRole("button", { name: "라이브러리로 돌아가기", exact: true })
+        .getByRole("navigation", { name: "현재 위치", exact: true }).getByRole("link", { name: "라이브러리", exact: true })
         .click();
       await page.screenshot({
         path: `test-results/library-${viewport.width}.png`,
