@@ -1,3 +1,5 @@
+> 최신 상태: 저장 재생목록은 IndexedDB를 사용한다. 영상 URL 추가·로컬 순서 변경·삭제를 지원하며 sourcePlaylistUrl이 있는 목록만 명시적인 원본 초기화를 제공한다. 옛 서버 데이터는 자동 회수하지 않는다. [저장소 이전 근거](STORAGE-MIGRATION.md)
+
 # 최신 정정: 편집 화면 복원
 
 2026-10-16 사용자 지시에 따라 App은 기존 navigation/Main, playlists, queue, player, overlays를 다시 연결한다. 로그인 게이트는 없다. 저장 목록 CRUD는 shared/api/localAPI.ts를 사용한다. 오른쪽 대기열의 순서 변경/삭제 및 저장 목록으로 추가하는 동작을 유지한다. 현재 대기열은 접속 중 상태이며 저장 목록으로 추가한 내용이 로컬에 영속된다.

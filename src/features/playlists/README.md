@@ -30,3 +30,9 @@ shared/api/apiSelector.ts가 저장 어댑터. queue/model/queue.ts가 목록 �
 변경한 계약, 영향을 받는 소비자, 실행한 테스트와 결과, 미검증 항목을 적는다. 새 공개 함수나 의존 관계를 만들면 이 README도 갱신한다.
 
 [전체 구조](../../../docs/ARCHITECTURE.md) · [작업 시작 지도](../../../docs/CHANGE-GUIDE.md)
+
+## IndexedDB와 원본 초기화
+
+localAPI는 IndexedDB transaction 완료 후 성공을 반환한다. sourcePlaylistUrl이 있는 가져오기 목록만 원본 초기화를 표시한다. 초기화는 명시적 미리보기와 교체 확인 후 수행한다. 일반 목록은 영상 URL로 추가하고 위/아래 버튼으로 순서를 저장할 수 있다. 재생 대기열의 편집은 저장 목록과 독립적이다.
+
+회귀: `npm test -- src/__test__/localAPI.test.ts src/__test__/playlist-edit.test.tsx src/__test__/playlistImport.test.tsx`
