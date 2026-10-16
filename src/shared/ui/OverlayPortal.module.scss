@@ -1,0 +1,10 @@
+.layer:empty {
+  display: none;
+}
+.layer[data-overlay-scope="modal"] {
+  flex: none;
+  min-width: 0;
+  margin: 0 16px calc(16px + var(--safe-bottom));
+  max-height: 40dvh;
+  overflow: auto;
+}

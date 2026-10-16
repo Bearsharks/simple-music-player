@@ -33,3 +33,14 @@
   flex-basis: 100%;
   color: var(--danger);
 }
+
+// Task dialogs and player sheets reserve real space for actionable notices.
+// Fixed viewport placement would cover their submit/clear/transport controls.
+:global([data-overlay-scope="modal"]) > .wrapper {
+  position: static;
+  inset: auto;
+  transform: none;
+  width: 100%;
+  max-width: none;
+  box-shadow: none;
+}

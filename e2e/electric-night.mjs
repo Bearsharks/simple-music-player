@@ -10,6 +10,7 @@ const browser = await chromium.launch({
 const base =
   process.env.TEST_URL || "http://127.0.0.1:4173/simple-music-player/";
 fs.mkdirSync("test-results", { recursive: true });
+const failures = [];
 try {
   for (const viewport of [
     { width: 320, height: 844 },
@@ -450,6 +451,18 @@ try {
         expect(
           await page.evaluate(() => window.__simulatedPlayer.loads),
         ).toEqual(["v0000000000", "v0000000000"]);
+        // Leave a real, unconsumed Undo active while opening nested forms.
+        // It must occupy normal modal flow, not cover the picker submit button.
+        await queuePanel
+          .getByRole("button", { name: "검증용 곡 20 더보기", exact: true })
+          .last()
+          .click();
+        await page
+          .getByRole("button", { name: "대기열에서 삭제", exact: true })
+          .click();
+        await expect(
+          page.getByRole("button", { name: "실행 취소", exact: true }),
+        ).toBeVisible();
         // Switching the new-selection dialog to import deliberately navigates
         // on success, but only a narrow modal queue must close for the detail.
         await page.evaluate(() => {
@@ -464,10 +477,61 @@ try {
         await page
           .getByRole("button", { name: "새 재생목록 선택", exact: true })
           .click();
-        await page.getByRole("button", { name: "추가", exact: true }).click();
+        const picker = page.getByRole("dialog", {
+          name: "재생목록에 추가",
+          exact: true,
+        });
+        const pickerSubmit = picker.getByRole("button", {
+          name: "추가",
+          exact: true,
+        });
+        const liveUndo = picker.getByRole("button", {
+          name: "실행 취소",
+          exact: true,
+        });
+        await expect(liveUndo).toBeVisible();
+        expect(
+          await liveUndo.evaluate(
+            (node) => getComputedStyle(node.parentElement).position,
+          ),
+        ).toBe("static");
+        const submitRect = await pickerSubmit.boundingBox();
+        const undoRect = await liveUndo.boundingBox();
+        expect(submitRect.y + submitRect.height).toBeLessThanOrEqual(
+          undoRect.y,
+        );
+        await pickerSubmit.focus();
+        await page.keyboard.press("Tab");
+        await expect(liveUndo).toBeFocused();
+        await page.keyboard.press("Shift+Tab");
+        await expect(pickerSubmit).toBeFocused();
+        await pickerSubmit.click(); // A normal hit-tested click while Undo remains active.
+        const creation = page.getByRole("dialog", {
+          name: "새 재생목록",
+          exact: true,
+        });
+        await expect(
+          creation.getByRole("button", { name: "실행 취소", exact: true }),
+        ).toBeVisible();
+        await page.getByLabel("제목", { exact: true }).fill("유지할 작업 입력");
+        await creation
+          .getByRole("button", { name: "실행 취소", exact: true })
+          .click();
+        await expect(page.getByLabel("제목", { exact: true })).toHaveValue(
+          "유지할 작업 입력",
+        );
+        await expect(queuePanel.locator('[role="tab"]').last()).toHaveText(
+          "대기열 (40)",
+        );
+        await expect(
+          page.getByRole("button", { name: "실행 취소", exact: true }),
+        ).toHaveCount(0);
         await page
           .getByRole("button", { name: "유튜브에서 가져오기", exact: true })
           .click();
+        await expect(
+          page.getByRole("button", { name: "실행 취소", exact: true }),
+        ).toHaveCount(0);
         await page
           .getByLabel("공개 재생목록 URL")
           .fill("https://youtube.com/playlist?list=PLtest123");
@@ -594,11 +658,26 @@ try {
       await context.tracing
         .stop({ path: `${prefix}-trace.zip` })
         .catch(() => {});
-      throw error;
+      failures.push({ viewport, error: error.stack || String(error) });
+      console.error(
+        `Electric Night ${viewport.width}px failed: ${error.message}`,
+      );
     } finally {
       await page.close();
     }
   }
 } finally {
   await browser.close();
+}
+if (failures.length) {
+  fs.writeFileSync(
+    "test-results/electric-failures.json",
+    JSON.stringify(failures, null, 2),
+  );
+  throw new AggregateError(
+    failures.map(
+      (failure) => new Error(`${failure.viewport.width}px: ${failure.error}`),
+    ),
+    `${failures.length} Electric Night viewport(s) failed`,
+  );
 }

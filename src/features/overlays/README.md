@@ -59,3 +59,9 @@ playlists/queue/youtube를 연결하는 기존 조정 코드다. search/player/p
 - native dialog의 Escape는 `cancel` 한 곳에서 처리한다. document keydown으로 먼저 닫으면 동일 Escape가 아래 dialog의 close watcher까지 닫을 수 있으므로 수동 Escape는 jsdom/미지원 환경 fallback에만 사용한다. cancel은 전파를 막고 최상위 modal만 닫으며 busy 쓰기는 계속 보호한다.
 - 곡 메뉴는 열린 순간의 dialog/list/행 위치를 보존한다. 삭제로 트리거가 사라지면 같은 위치의 다음 곡(마지막이면 이전 곡)에 포커스를 주고, 빈 목록은 추가 버튼/큐 닫기로 복귀한다. `MusicItem`의 `data-track-key`/`data-track-focus`, 목록의 `data-track-list`는 이 기존 연결의 DOM 계약이다.
 - 큐 조작은 ‘대기열 끝에 추가’/‘대기열에서 삭제’로 표시한다. 전체 재생목록 메뉴의 끝 추가도 기존 `APPEND_PLAYLIST` manager를 사용하며 현재 곡을 바꾸지 않는다.
+
+## 알림과 작업 폼의 공간·상태 보존
+
+- OverlayPortal은 동일 DOM 컨테이너를 현재 최상위 modal scope로 이동한다. portal 대상 자체를 교체하지 않으므로 Notice의 소비/닫힘/복원 중/오류 상태가 작업 전환이나 breakpoint 변경으로 초기화되지 않는다. 이미 실행하거나 닫은 Undo는 다시 나타나지 않는다.
+- 페이지에서는 dock 위 알림 위치를 유지하고, 작업 dialog/queue sheet에서는 별도 정상 흐름 영역으로 공간을 확보한다. Submit/취소/transport 위에 fixed 알림을 겹치지 않는다. Undo는 dialog의 Tab 순서와 스크롤 영역 안에 계속 있다.
+- `notice-overlay.test.tsx`는 중첩·반응형 위치 이동, 소비/닫힘, 진행 중/실패 후 재시도 상태를 확인한다. Chromium은 실제 살아 있는 Undo를 둔 picker submit의 hit-test/Tab 순서와 다음 폼에서 Undo 실행을 검증한다.

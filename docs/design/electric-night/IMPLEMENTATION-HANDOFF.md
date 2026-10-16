@@ -5,7 +5,7 @@
 ## 현재 상태
 
 - 소스 동결: 부모 검수/CI 준비 완료. 이 구현자는 커밋·push·배포하지 않았다.
-- `npm_config_cache=/tmp/music-player-npm-cache npm run check`: **88 tests / 14 files**, feature boundary 83 files, TypeScript, production build 통과.
+- `npm_config_cache=/tmp/music-player-npm-cache npm run check`: **91 tests / 15 files**, feature boundary 84 files, TypeScript, production build 통과.
 - `git diff --check`, e2e 3파일 `node --check` 통과.
 - 이전 CI `38869455394`에서 생성 smoke 1440/1280/390 및 Electric Night 320px가 통과했다. 390px 중첩 Escape 이후 부모 큐까지 닫힌 실패를 수정했으며, 이번 변경의 실제 Chromium 결과는 대기 중이다.
 - 로컬 Chromium은 `socket() failed: Operation not permitted`로 시작하지 못했다. 아래 실제 브라우저 판정/스크린샷 비교는 아직 통과로 표시하지 않는다.
@@ -94,3 +94,11 @@
 - boolean ready false→true가 동일 React 배치에 들어가면 load effect의 값이 바뀌지 않는 원인을 unit에서도 재현했다. 준비된 인스턴스 identity를 load effect가 소비하도록 수정했으며, 현재 active instance만 사용한다. SDK·큐·저장 계약은 바꾸지 않았다.
 - 새 테스트를 기존 코드에 적용하면 microtask ready 케이스가 1회/예상 2회로 실패하고 지연 ready는 통과한다. 수정 후 두 케이스가 모두 통과한다. 테스트 전용 act의 중간 flush가 문제를 감추지 않도록 해당 재시도만 정상 React scheduler/비-act polling으로 실행한다. ready를 느리게 바꿔 회피하지 않았다.
 - 오류/준비 중에는 PLAYING의 이전 값으로 일시정지 아이콘을 표시하지 않는다. 실제 Chromium의 나머지 390px 흐름 및 768/1024/1280/1440px는 다음 CI 결과로 판정한다.
+
+## 3차 CI 알림·폼 간섭
+
+- CI `38872710927`에서 390px 미디어 재시도는 통과했다. 이후 저장 picker의 추가 버튼을 fixed Undo가 가리는 실제 hit-test 실패가 나왔다.
+- 공통 OverlayPortal/Notice 배치를 수정했다. 현재 최상위 modal에서는 알림이 폼 뒤의 정상 흐름 영역을 차지하며 queue sheet도 별도 공간을 확보한다. 살아 있는 Undo를 지우거나 강제 클릭으로 우회하지 않는다.
+- portal 대상 변경이 NoticeContent를 재마운트하여 소비한 Undo를 다시 노출하던 별도 결함도 확인했다. 기존 코드에서 새 소비/닫힘 회귀가 실패함을 확인했고, 동일 portal 컨테이너를 이동해 상태를 유지하도록 수정했다. 복원 중 중복 실행 방지와 실패 메시지도 유지된다.
+- 새 unit 3건과 기존 88건이 모두 통과했다. e2e에는 살아 있는 Undo와 추가 버튼의 비중첩, Tab/Shift+Tab, 실제 클릭, 다음 생성 폼에서의 Undo 실행 및 입력 보존을 추가했다. 폼 전환 뒤 소비한 Undo가 부활하지 않는지도 확인한다.
+- Electric Night harness는 각 viewport의 실패 artifact를 유지하며 다음 viewport를 계속 검사한다. 마지막에 실패 목록 JSON과 AggregateError로 nonzero 종료한다. assertion/타임아웃을 완화하지 않았다.
