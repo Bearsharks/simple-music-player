@@ -16,16 +16,14 @@ export function MusicItem({
   isCurMusic,
 }: MusicItemProps) {
   const popupOpen = (event: React.MouseEvent) => {
-    openOptionsPopup(event.target as HTMLElement, [item]);
+    openOptionsPopup(event.currentTarget as HTMLElement, [item]);
   };
   return (
     <div className={styles["wrapper"]}>
       <div className={styles[`grid-container`]}>
-        <div
+        <button type="button"
           className={`${styles[`grid-item`]} ${styles["grid-item--fit"]}`}
-          onClick={() => {
-            playMusic(idx);
-          }}
+          aria-label={`${item.name} 재생`} onClick={() => playMusic(idx)}
         >
           {item.thumbnail ? (
             <img
@@ -37,33 +35,30 @@ export function MusicItem({
               src={item.thumbnail}
             />
           ) : (
-            <div className={styles["thumbnail"]}>
+            <span className={styles["thumbnail"]}>
               <span className="material-icons md-32">question_mark</span>
-            </div>
+            </span>
           )}
-          <div
+          <span
             className={`${styles["overlay"]} ${isCurMusic && styles["overlay--show"]}`}
           >
             <span className="material-icons md-32">play_arrow</span>
-          </div>
-        </div>
-        <div
-          className={styles[`grid-item`]}
-          onClick={() => {
-            playMusic(idx);
-          }}
+          </span>
+        </button>
+        <button type="button" className={styles[`grid-item`]}
+          aria-label={`${item.name} 재생`} onClick={() => playMusic(idx)}
         >
-          <div className={styles[`grid-item__text`]} title={item.name}>
+          <span className={styles[`grid-item__text`]} title={item.name}>
             {item.name}
-          </div>
-          <div
+          </span>
+          <span
             className={`${styles[`grid-item__text`]} ${styles[`grid-item__text--light`]}`}
             title={item.owner}
           >
             {item.owner}
-          </div>
-        </div>
-        <MoreVert onClick={popupOpen}></MoreVert>
+          </span>
+        </button>
+        <MoreVert onClick={popupOpen} label={`${item.name} 더보기`}></MoreVert>
       </div>
     </div>
   );

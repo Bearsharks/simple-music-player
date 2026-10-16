@@ -5,7 +5,7 @@
 ## 최소 읽기 경로
 
 - `api/youtubeSearch.ts` — URL 파싱·조회·페이지 처리
-- `model/YTPlaylistState.ts` — 내 YouTube 목록 상태
+- `ui/PlaylistImport.tsx` — 공개 URL 미리보기·로컬 저장·명시적 원본 초기화
 
 ## 연결과 영향 범위
 
@@ -15,7 +15,7 @@ overlays가 검색·가져오기에 사용하고 player가 곡 정보를 조회�
 
 ## 보존할 계약
 
-401/403 자동 재시도 금지. OAuth 발급·갱신은 하지 않는다. 페이지 토큰 순환/과다 페이지 차단. 허용 호스트와 video ID 검증. 기본 URL 라이브러리는 API 키를 사용하지 않는다.
+401/403 자동 재시도 금지. OAuth 발급·갱신은 하지 않는다. 페이지 토큰 순환/과다 페이지 차단. 허용 호스트와 video ID 검증. 현재 공개 URL 가져오기는 공식 iframe이 제공한 곡 ID를 사용하며 API 키를 사용하지 않는다.
 
 ## 검증
 
@@ -29,3 +29,9 @@ overlays가 검색·가져오기에 사용하고 player가 곡 정보를 조회�
 변경한 계약, 영향을 받는 소비자, 실행한 테스트와 결과, 미검증 항목을 적는다. 새 공개 함수나 의존 관계를 만들면 이 README도 갱신한다.
 
 [전체 구조](../../../docs/ARCHITECTURE.md) · [작업 시작 지도](../../../docs/CHANGE-GUIDE.md)
+
+## 저장과 초기화
+
+가져오기 저장은 완료까지 기다리고 입력/미리보기/취소를 잠그며 중복 제출을 막는다. 실패 시 현재 입력과 미리보기를 보존한다. 원본 초기화는 미리보기 후 교체 확인을 한 번 요청한다. 저장 목록 manager의 전체 교체 세대가 바뀌므로 초기화 이전 개별 곡 삭제의 Undo는 기존 편집본을 새 원본에 다시 섞지 않는다.
+
+회귀: `npm test -- src/__test__/playlistImport.test.tsx src/__test__/playlistState.test.tsx`.

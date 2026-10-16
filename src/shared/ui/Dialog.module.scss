@@ -1,0 +1,22 @@
+.backdrop {
+  position: fixed;
+  inset: 0;
+  background: #0009;
+  backdrop-filter: blur(8px);
+  z-index: 101;
+}
+.content {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #1a1d21;
+  border: 1px solid #ffffff16;
+  border-radius: 16px;
+  box-shadow: 0 24px 90px #0008;
+  z-index: 102;
+  width: 90vw;
+  max-width: 500px;
+  max-height: 90dvh;
+  overflow: auto;
+}

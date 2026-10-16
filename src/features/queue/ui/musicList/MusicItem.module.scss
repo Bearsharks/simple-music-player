@@ -11,6 +11,7 @@
   min-width: 0;
 }
 .grid-item {
+  text-align: left;
   min-width: 0;
   cursor: pointer;
   position: relative;
@@ -25,6 +26,7 @@
   place-items: center;
 }
 .grid-item__text {
+  display: block;
   font-size: 11px;
   white-space: nowrap;
   overflow: hidden;
@@ -53,3 +55,5 @@
   font-size: 22px;
   color: #ffb49a;
 }
+
+.grid-item:focus-visible .overlay { opacity: 1; }

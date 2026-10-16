@@ -14,8 +14,11 @@ export default function Playlists(props: PlaylistsProps) {
     p.name.toLocaleLowerCase().includes(query.toLocaleLowerCase()),
   );
   if (sort === "name") items.sort((a, b) => a.name.localeCompare(b.name));
-  else items.reverse();
-  const count = props.playlistInfos.reduce((n, p) => n + p.itemCount, 0);
+  // Legacy lists have no known creation time; use a stable name/ID fallback.
+  else items.sort((a, b) =>
+    (b.createdAt ?? 0) - (a.createdAt ?? 0) || a.name.localeCompare(b.name) || a.id.localeCompare(b.id),
+  );
+  const count = props.playlistInfos.reduce((n, p) => n + (p.itemCount || 0), 0);
   return (
     <div className="library-home">
       <section className="library-hero">
@@ -130,6 +133,7 @@ export default function Playlists(props: PlaylistsProps) {
                 <button
                   className="card-play"
                   aria-label={`${p.name} 재생`}
+                  disabled={!p.itemCount}
                   onClick={() => props.playPlaylist(p.id)}
                 >
                   <span className="material-icons" aria-hidden="true">

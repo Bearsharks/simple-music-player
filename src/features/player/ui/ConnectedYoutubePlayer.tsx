@@ -9,7 +9,7 @@ import { musicPlayerState, musicPlayerProgressState } from 'features/player/mode
 
 const handleKeyboardEvent = (e: KeyboardEvent) => {
 	const target = e.target as HTMLElement | null;
-	if (target?.closest('input,textarea,select,button,[contenteditable=true]') || e.ctrlKey || e.metaKey || e.altKey) return;
+	if (e.defaultPrevented || target?.closest('input,textarea,select,button,[contenteditable=true],[role=dialog],[role=group]') || e.ctrlKey || e.metaKey || e.altKey) return;
 	const player = (window as any).player;
 	if (!player) return;
 	if ([' ', 'ArrowRight', 'ArrowLeft', 'm'].includes(e.key)) e.preventDefault();

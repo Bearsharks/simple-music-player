@@ -12,9 +12,9 @@
 
 ## 현재 제품 진입점
 
-URL 추가·저장·목록 선택·YouTube 임베드: [library](../src/features/library/README.md). 최신 App은 navigation/Main과 아래 편집 기능들을 다시 마운트한다. URL 가져오기 진입은 youtube/ui/PlaylistImport.tsx, 저장은 shared/api/localAPI.ts다. library 링크 화면은 기본 경로가 아니다.
+App → navigation/Main이 현재 진입 경로다. URL 가져오기는 youtube/ui/PlaylistImport.tsx, 저장 목록은 playlists, 현재 대기열은 queue, 재생은 player가 담당한다. 저장 어댑터는 shared/api/localAPI.ts다. library 링크 화면은 과거 중간 구현이며 기본 경로가 아니다.
 
-## 보존된 편집 모듈 → 진입점
+## 현재 기능 → 진입점
 
 | 요청 | 우선 읽을 문서 | 함께 볼 조건 |
 | --- | --- | --- |
@@ -23,7 +23,7 @@ URL 추가·저장·목록 선택·YouTube 임베드: [library](../src/features/
 | 곡 추가/순서/현재 곡 | [queue](../src/features/queue/README.md) | 현재 곡 계약 변경 시 player |
 | 재생/음량/진행률 | [player](../src/features/player/README.md) | 곡 선택은 queue, 메타데이터는 youtube |
 | 검색 입력 | [search](../src/features/search/README.md) | 결과 메뉴는 overlays, API는 youtube |
-| URL 가져오기/YouTube 조회 | [youtube](../src/features/youtube/README.md) | 토큰은 shared/api, 결과 소비자는 overlays/player |
+| URL 가져오기/YouTube 조회 | [youtube](../src/features/youtube/README.md) | 저장은 shared/api, 결과 소비자는 playlists/player |
 | 팝업/모달/알림 | [overlays](../src/features/overlays/README.md) | 비즈니스 동작은 실제 상태 소유 기능 |
 
 ## 현재 경계의 한계

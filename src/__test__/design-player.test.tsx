@@ -28,3 +28,17 @@ it("handles a zero-duration track without an invalid seek value", () => {
   );
   expect(screen.getByRole("slider", { name: "재생 위치" })).toBeDisabled();
 });
+
+vi.mock('features/player/api/iframe', () => ({loadIframeApi: () => new Promise(() => {})}));
+import YoutubePlayer from 'features/player/ui/ConnectedYoutubePlayer';
+import { Provider } from 'jotai';
+it('does not let global player shortcuts consume dialog, input or button keys', () => {
+  const play=vi.fn(),seek=vi.fn();
+  render(<Provider><YoutubePlayer/><div role="dialog" aria-label="작업 중" tabIndex={-1}>잠시 기다려 주세요.</div><input aria-label="이름"/><button>선택</button></Provider>);
+  (window as any).player={getPlayerState:()=>2,playVideo:play,seekTo:seek,getCurrentTime:()=>20};
+  fireEvent.keyDown(screen.getByRole('dialog'),{key:' '});
+  fireEvent.keyDown(screen.getByLabelText('이름'),{key:'ArrowRight'});
+  fireEvent.keyDown(screen.getByRole('button',{name:'선택'}),{key:' '});
+  expect(play).not.toHaveBeenCalled();expect(seek).not.toHaveBeenCalled();
+  fireEvent.keyDown(document.body,{key:' '});expect(play).toHaveBeenCalledOnce();
+});

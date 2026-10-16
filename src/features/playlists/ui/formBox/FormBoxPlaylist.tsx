@@ -8,7 +8,7 @@ export interface FormBoxPlaylistProps {
     name: string;
     closePopup: () => void;
     playlistInfos: PlaylistInfo[]
-    submit: (_: PlaylistInfo) => void;
+    submit: (_: PlaylistInfo) => void | Promise<void>;
 }
 function FormBoxPlaylist({ name, closePopup, submit, playlistInfos }: FormBoxPlaylistProps) {
     const [selectedPlaylist, selectPlaylist] = useState({} as PlaylistInfo);
@@ -17,7 +17,7 @@ function FormBoxPlaylist({ name, closePopup, submit, playlistInfos }: FormBoxPla
         selectPlaylist(tgt);
     }
     const submitHandler = () => {
-        submit(selectedPlaylist);
+        return submit(selectedPlaylist);
     }
     const formItems: FormItem[] = [{ id: "name", name: "선택한 재생목록", value: selectedPlaylist.name, require: true, readonly: true }];
     return <FormBox
@@ -25,15 +25,17 @@ function FormBoxPlaylist({ name, closePopup, submit, playlistInfos }: FormBoxPla
         name={name}
         closePopup={closePopup}
         submit={submitHandler}
+        submitLabel="추가"
     >
         <div className={styles['grid-container']}>
             {playlistInfos.map((info: PlaylistInfo) =>
-                <div key={info.id} className={styles['grid-item']} style={info.id === selectedPlaylist.id ? { "background": "white" } : {}}
+                <button type="button" key={info.id} className={styles['grid-item']}
+                    aria-pressed={info.id === selectedPlaylist.id} aria-label={`${info.name} 선택`}
                     onClick={() => playlistItemClickHandler(info)}>
                     <div>
                         <PlaylistItem info={info} onClick={() => { }}></PlaylistItem>
                     </div>
-                </div>
+                </button>
             )}
 
         </div>

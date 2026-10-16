@@ -1,5 +1,5 @@
 import type { API } from './apiSelector';
-import type { Playlist } from 'shared/model/constants';
+import type { Playlist, PlaylistInfo, MusicInfo } from 'shared/model/constants';
 export const DATABASE_NAME = 'simple-music-player-local-v1';
 const STORE = 'playlists';
 // Original 9e52a5c used server playlists; do not invent a legacy localStorage schema.
@@ -24,25 +24,40 @@ async function transaction<T>(mode: IDBTransactionMode, run: (store: IDBObjectSt
     catch(e) { tx.abort(); reject(e); }
   });
 }
+function canonical(info: PlaylistInfo, items: MusicInfo[], id = info.id): Playlist {
+  if (!Array.isArray(items)) throw new Error('재생목록 곡 형식이 올바르지 않습니다.');
+  return {
+    info: {
+      ...info,
+      id,
+      name: typeof info.name === 'string' && info.name.trim() ? info.name.trim() : '새 재생목록',
+      description: typeof info.description === 'string' ? info.description : '',
+      itemCount: items.length,
+      thumbnails: items.map(item => item.thumbnail).filter(value => typeof value === 'string' && value.length > 0).slice(0, 4),
+    },
+    items,
+  };
+}
 async function find(id: string): Promise<Playlist> {
   const item = await transaction<Playlist | undefined>('readonly', (store, done) => {const req=store.get(id); req.onsuccess=()=>done(req.result);});
   if (!item) throw new Error('목록을 찾을 수 없습니다.');
-  return item;
+  return canonical(item.info, item.items);
 }
 const api: API = {
-  getPlaylistInfos: async () => (await transaction<Playlist[]>('readonly',(store,done)=>{const req=store.getAll();req.onsuccess=()=>done(req.result);})).map(p=>p.info),
+  getPlaylistInfos: async () => (await transaction<Playlist[]>('readonly',(store,done)=>{const req=store.getAll();req.onsuccess=()=>done(req.result);})).map(p=>canonical(p.info,p.items).info),
   getPlaylistInfo: async id => (await find(id)).info,
   getPlaylistItems: async id => (await find(id)).items,
   createPlaylist: async (info,items) => {
     const id = crypto.randomUUID();
-    return transaction('readwrite',(store,done)=>{store.add({info:{...info,id},items});done(id);});
+    const playlist = canonical({ ...info, createdAt: Date.now() }, items, id);
+    return transaction('readwrite',(store,done)=>{store.add(playlist);done(id);});
   },
   deletePlaylist: async id => transaction('readwrite',(store,done)=>{const req=store.get(id);req.onsuccess=()=>{if(!req.result){done(false);return;}store.delete(id);done(true);};}),
   updatePlaylist: async playlist => transaction('readwrite',(store,done)=>{
     const req=store.get(playlist.info.id);req.onsuccess=()=>{
       const previous = req.result as Playlist | undefined;
       if(!previous){done(false);return;}
-      store.put({info:playlist.info,items:playlist.items ?? previous.items});done(true);
+      store.put(canonical({ ...previous.info, ...playlist.info, createdAt: previous.info.createdAt }, playlist.items ?? previous.items));done(true);
     };
   }),
 };

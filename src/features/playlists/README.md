@@ -4,7 +4,7 @@
 
 ## 최소 읽기 경로
 
-- `model/playlistAtoms.ts` — 조회·CRUD·서버 데이터 갱신
+- `model/playlistAtoms.ts` — 조회·로컬 CRUD·동일 세션 변경 직렬화
 - `pages/PlaylistPage.tsx` — 상세 화면
 - `ui/ConnectedPlaylists.tsx` — 목록의 상태·동작 연결
 
@@ -22,7 +22,7 @@ shared/api/apiSelector.ts가 저장 어댑터. queue/model/queue.ts가 목록 �
 
 - 빠른 회귀: `npm test -- src/__test__/playlistState.test.tsx`
 - 제출 전: `npm run check`
-- 검증 공백: 동일 목록의 동시 서버 변경, 실제 서버 CRUD 실패 복구는 추가 검증이 필요하다.
+- 검증 공백: 다른 탭의 동시 IndexedDB 수정은 자동 동기화하지 않는다. 실제 브라우저 저장 권한/용량 한계는 별도 확인한다.
 - UI 변경은 관련 Storybook 또는 fixture 화면으로 확인하고 실제 확인하지 못한 항목은 보고한다.
 
 ## 완료 보고
@@ -42,3 +42,13 @@ localAPI는 IndexedDB transaction 완료 후 성공을 반환한다. sourcePlayl
 Playlists.tsx는 로컬 이름 필터·정렬·카드/빈 상태를 제공한다. 카드 재생과 목록 열기는 독립 버튼이다. PlaylistPage에서 곡 추가·원본 초기화·저장 순서 편집을 유지한다.
 
 [디자인 기록](../../../docs/DESIGN-REFRESH.md)
+
+## 생성·삭제·복구 계약
+
+- `localAPI`는 저장한 items로 `itemCount`와 최대 4개 `thumbnails`를 계산한다. 일반 생성의 빈 배열/설명도 정상화하고 `createdAt`을 저장한다. 업데이트는 원래 생성 시각을 유지한다. 과거 목록에 생성 시각을 만들어 넣지 않으며 최근 정렬은 시각 없는 목록을 이름/ID로 안정 정렬한다. IndexedDB DB명·버전·키 경로는 바뀌지 않는다.
+- `usePlaylistManager`는 같은 Jotai store의 쓰기를 직렬화한다. API 예외 또는 update=false는 저장 실패로 전달하며 성공 전 atom을 덮어쓰지 않는다. create/update/append 폼은 저장 완료를 기다리고 중복 제출을 막으며 오류/입력을 보존한다.
+- 전체 목록 삭제는 overlays의 이름·곡 수 확인을 거친다. 성공 후 IDs에서 제거하되 기존 info/items atom을 RESET하여 삭제된 행을 재조회하지 않는다. `PlaylistPage`는 IDs로 상세 진입을 검증하고 현재 목록 삭제 시 라이브러리로 이동한다. 없는 URL은 복귀 버튼을 표시한다.
+- `DELETE_ITEMS`는 성공 시 `{deletedCount, undo}`를 반환한다. overlays의 알림은 이 콜백으로 곡만 복원한다. Undo는 이후 APPEND/순서 변경과 메타데이터를 보존하며 반복 실행은 중복 추가하지 않는다. 전체 목록 삭제 또는 곡 전체 교체(원본 초기화 포함) 뒤의 이전 Undo는 거부한다. 실패한 Undo는 다시 시도할 수 있다. 알림은 닫거나 다음 알림으로 대체할 때까지 유지되며 새로고침 후 복구 기록은 유지하지 않는다.
+- UPDATE의 기존 곡 재정렬은 key를 유지한다. 새로운 곡/원본 가져오기는 새 key를 받는다. 저장 목록 편집과 Undo는 현재 재생 queue를 변경하지 않는다.
+
+빠른 회귀: `npm test -- src/__test__/localAPI.test.ts src/__test__/playlistState.test.tsx src/__test__/overlay-regressions.test.tsx src/__test__/design-library.test.tsx`.

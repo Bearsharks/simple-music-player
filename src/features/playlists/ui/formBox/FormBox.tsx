@@ -1,5 +1,5 @@
-import React, { useRef } from "react";
-import styles from "features/playlists/ui/formBox/FormBox.module.scss";
+import { useId, useRef, useState, type FormEvent, type ReactNode } from 'react';
+import styles from './FormBox.module.scss';
 export interface FormItem {
   id: string;
   name: string;
@@ -11,78 +11,58 @@ export interface FormBoxProps {
   formItems: FormItem[];
   name: string;
   closePopup: () => void;
-  submit: (data: any) => void;
-  children?: React.ReactNode | React.ReactNode;
+  submit: (data: Record<string, string>) => void | Promise<void>;
+  submitLabel?: string;
+  children?: ReactNode;
 }
-function FormBox({
-  formItems,
-  closePopup,
-  submit,
-  name,
-  children,
-}: FormBoxProps) {
-  const curRef = useRef<HTMLFormElement>(null);
-  const onClickHandler = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (curRef.current) {
-      const formEle = curRef.current;
-      let data = {} as any;
-      const arr = formEle.getElementsByTagName("input");
-      for (let i = 0; i < arr.length; i++) {
-        data[formItems[i].id] = arr[i].value.trim();
-        if (formItems[i].require && !data[formItems[i].id]) {
-          return;
-        }
+export default function FormBox({ formItems, closePopup, submit, submitLabel = '저장', name, children }: FormBoxProps) {
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState('');
+  const pending = useRef(false);
+  const prefix = useId();
+  const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (pending.current) return;
+    const form = event.currentTarget;
+    const values = new FormData(form);
+    const data: Record<string, string> = {};
+    for (const item of formItems) {
+      data[item.id] = String(values.get(item.id) ?? '').trim();
+      if (item.require && !data[item.id]) {
+        setError(`${item.name}을 입력해 주세요.`);
+        (form.elements.namedItem(item.id) as HTMLInputElement)?.focus();
+        return;
       }
-      submit(data);
     }
-  };
-  const stopPropa = (e: React.KeyboardEvent) => {
-    e.stopPropagation();
+    pending.current = true;
+    setBusy(true);
+    setError('');
+    try { await submit(data); }
+    catch (error) { setError(error instanceof Error ? error.message : '저장하지 못했습니다. 다시 시도해 주세요.'); }
+    finally { pending.current = false; setBusy(false); }
   };
   return (
-    <form
-      ref={curRef}
-      onSubmit={onClickHandler}
-      onKeyDown={stopPropa}
-      className={styles["wrapper"]}
-    >
+    <form onSubmit={onSubmit} className={styles.wrapper} aria-busy={busy}>
       <h2>{name}</h2>
       <br />
-      {formItems.map((item: FormItem) => (
-        <div
-          key={item.id}
-          className={`${styles["formbox-item"]} ${item.readonly && styles["formbox-item--readonly"]}`}
-        >
-          <div className={styles["formbox-item__label"]}>
-            <label htmlFor={item.id}>{item.name}</label>
+      <fieldset disabled={busy} className={styles.fields}>
+        {formItems.map(item => (
+          <div key={item.id} className={`${styles['formbox-item']} ${item.readonly ? styles['formbox-item--readonly'] : ''}`}>
+            <div className={styles['formbox-item__label']}><label htmlFor={`${prefix}-${item.id}`}>{item.name}</label></div>
+            <input className={styles.formbox__input} id={`${prefix}-${item.id}`} name={item.id}
+              {...(item.readonly ? { value: item.value ?? '' } : { defaultValue: item.value })}
+              readOnly={item.readonly} required={item.require} />
           </div>
-          <input
-            className={styles["formbox__input"]}
-            id={item.id}
-            defaultValue={item.value}
-            readOnly={item.readonly}
-          ></input>
-          <br></br>
+        ))}
+        {children && <div>{children}</div>}
+        {error && <p role="alert">{error}</p>}
+        <div className={styles['formbox-actions']}>
+          <button type="button" className={styles['formbox-actions__button']} onClick={closePopup}>취소</button>
+          <button type="submit" className={`${styles['formbox-actions__button--white']} ${styles['formbox-actions__button']}`}>
+            {busy ? '저장 중…' : submitLabel}
+          </button>
         </div>
-      ))}
-      {children && <div>{children}</div>}
-      <div className={styles["formbox-actions"]}>
-        <button
-          type="button"
-          className={styles["formbox-actions__button"]}
-          onClick={closePopup}
-        >
-          취소
-        </button>
-        <button
-          type="submit"
-          className={`${styles["formbox-actions__button--white"]} ${styles["formbox-actions__button"]}`}
-        >
-          제출
-        </button>
-      </div>
+      </fieldset>
     </form>
   );
 }
-export default FormBox;

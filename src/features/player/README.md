@@ -37,3 +37,5 @@ StrictMode에서도 취소된 생성과 unmount player를 정리한다. duration
 ListeningDock.scss와 PlayerController.tsx가 고정 재생바를 소유한다. ProgressBar는 실제 range 입력이며 문서 너비로 seek 좌표를 계산하지 않는다. PlayerDetail은 넓은 화면의 고정 패널과 좁은 화면의 접근성 처리된 드로어다.
 
 [디자인 기록](../../../docs/DESIGN-REFRESH.md)
+
+전역 재생 단축키는 input/button 외에도 열린 dialog/선택 메뉴 및 이미 처리된 키 이벤트를 건너뛴다. 로딩 중 dialog 컨테이너에 포커스가 있어도 배경 음악 조작이 가로채지 않는다. 회귀: `npm test -- src/__test__/design-player.test.tsx`.

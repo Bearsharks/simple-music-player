@@ -69,6 +69,7 @@ export interface PlaylistAction {
 }
 
 export interface PlaylistInfo {
+    createdAt?: number,
     sourcePlaylistUrl?: string,
     id: string,
     name: string,

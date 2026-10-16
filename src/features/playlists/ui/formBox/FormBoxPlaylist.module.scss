@@ -21,3 +21,5 @@
     background-color: $bg-secondary-color;
   }
 }
+
+.grid-item[aria-pressed="true"] { outline: 2px solid currentColor; outline-offset: 2px; }

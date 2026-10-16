@@ -1,7 +1,7 @@
 import { useStore, useAtomValue } from 'jotai'
 import { getPopupInfoState, PopupInfo, PopupKind, useModalManager, ModalKind, useOpenSelectTgtPlaylistPopup, useClosePopup } from 'features/overlays/PopupStates';
 import styles from 'features/overlays/Popup.module.scss'
-import { memo, useRef, useEffect, Suspense, useCallback } from 'react';
+import { memo, useRef, Suspense, useCallback, useLayoutEffect } from 'react';
 import { MusicInfo, MusicInfoArrayCheck, MusicInfoItem, MusicListAction, MusicListActionType, PlaylistAction, PlaylistActionType, PlaylistInfo } from 'shared/model/constants';
 import { useMusicListManager } from 'features/queue/model/queue';
 import { playlistInfosState, playlistItemStateFamily, usePlaylistManager } from 'features/playlists/model/playlistAtoms';
@@ -10,7 +10,8 @@ import OptionSelector, { OptionInfo } from 'shared/ui/OptionSelector';
 import Spinner from 'shared/ui/Spinner';
 import FormBoxPlaylist from 'features/playlists/ui/formBox/FormBoxPlaylist';
 import OuterClickEventCatcher from 'shared/ui/OuterClickEventCatcher';
-import ResizeEventCatcher from 'shared/ui/ResizeEventCatcher';
+import Dialog from 'shared/ui/Dialog';
+import { useNotice } from './Notice';
 
 function InnerPopup({ setOpen, info }: { setOpen: (_: boolean) => void, info: PopupInfo }) {
     const children = (() => {
@@ -76,10 +77,31 @@ function Popup({ popupInfo }: { popupInfo: PopupInfo }) {
         curRef.current.style.visibility = "initial";
     }, [popupInfo.target]);
 
-    useEffect(() => {
-        const { innerWidth, innerHeight } = window;
-        handleResize(innerWidth, innerHeight);
-    }, [popupInfo.target, handleResize]);
+    useLayoutEffect(() => {
+        const root = curRef.current!;
+        const resize = () => handleResize(window.innerWidth, window.innerHeight);
+        resize();
+        root.querySelector<HTMLElement>('button, input, [tabindex="0"]')?.focus();
+        const keydown = (event: KeyboardEvent) => {
+            if (event.key === 'Escape' && !root.querySelector('[aria-busy="true"]')) {
+                event.preventDefault(); event.stopPropagation(); closePopup(popupInfo.key);
+            }
+        };
+        const focusout = (event: FocusEvent) => {
+            if (event.relatedTarget && !root.contains(event.relatedTarget as Node) && !root.querySelector('[aria-busy="true"]')) closePopup(popupInfo.key);
+        };
+        root.addEventListener('keydown', keydown);
+        root.addEventListener('focusout', focusout);
+        window.addEventListener('resize', resize);
+        return () => {
+            root.removeEventListener('keydown', keydown);
+            root.removeEventListener('focusout', focusout);
+            window.removeEventListener('resize', resize);
+            const target = popupInfo.target;
+            if ((root.contains(document.activeElement) || document.activeElement === document.body) &&
+                target.isConnected && !target.closest('[inert]')) target.focus();
+        };
+    }, [popupInfo.key, popupInfo.target, handleResize, closePopup]);
 
     return <div
         className={`${styles['wrapper']}`}
@@ -87,19 +109,24 @@ function Popup({ popupInfo }: { popupInfo: PopupInfo }) {
         style={{ 'visibility': 'hidden' }}
     >
         <InnerPopup info={popupInfo} setOpen={close}></InnerPopup>
-        <OuterClickEventCatcher openState={[true, close]} wrapper={curRef}></OuterClickEventCatcher>
-        <ResizeEventCatcher
-            target={window.document.getElementById("root") as Element}
-            onResizeHandler={handleResize}
-        ></ResizeEventCatcher>
+        <OuterClickEventCatcher openState={[true, () => {
+            if (!curRef.current?.querySelector('[aria-busy="true"]')) close();
+        }]} wrapper={curRef}></OuterClickEventCatcher>
+
     </div>
 }
 export default PopupWrapper;
 
 function PopupWrapper() {
     const popupInfo: PopupInfo[] = useAtomValue(getPopupInfoState);
+    const close = useClosePopup();
     return <>
-        {popupInfo.map((info) => <Popup key={info.key} popupInfo={info}></Popup>)}
+        {popupInfo.map(info => info.kind === PopupKind.SelectTgtPlaylist && MusicInfoArrayCheck(info.data) ?
+            <Dialog key={info.key} label="재생목록에 추가" onClose={() => close(info.key)}>
+                <Suspense fallback={<Spinner />}>
+                    <AppendPlaylistPopup setPopupOpen={() => close(info.key)} musicInfos={info.data as MusicInfo[]} />
+                </Suspense>
+            </Dialog> : <Popup key={info.key} popupInfo={info} />)}
     </>
 }
 
@@ -123,7 +150,7 @@ function AppendPlaylistPopup({ musicInfos, setPopupOpen }: AppendPlaylistPopupPr
         , itemCount: -1
     }
 
-    const submit = (tgt: PlaylistInfo) => {
+    const submit = async (tgt: PlaylistInfo) => {
         if (tgt.id === playlistDummy.id) {
             openNewPlaylistModal();
             return;
@@ -137,7 +164,7 @@ function AppendPlaylistPopup({ musicInfos, setPopupOpen }: AppendPlaylistPopupPr
                 items: musicInfos
             }
         }
-        playlistManager(appendAction);
+        await playlistManager(appendAction);
         setPopupOpen(false);
     }
 
@@ -160,24 +187,25 @@ interface MusicOptionsProps {
 const useGetMusicOptions = (musicInfos: MusicInfo[], setPopupOpen: (isOpen: boolean) => void, evTarget: HTMLElement): OptionInfo[] => {
     const musicListManager = useMusicListManager();
     const openSelectTgtPlaylistPopup = useOpenSelectTgtPlaylistPopup();
-    const addToNextMusic = (musicInfos: MusicInfo[]) => {
+    const addToNextMusic = async (musicInfos: MusicInfo[]) => {
         const action: MusicListAction = {
             type: MusicListActionType.ADD_TO_NEXT,
             payload: musicInfos
         }
-        musicListManager(action);
+        await musicListManager(action);
         setPopupOpen(false);
     }
-    const appendMusic = (musicInfos: MusicInfo[]) => {
+    const appendMusic = async (musicInfos: MusicInfo[]) => {
         const action: MusicListAction = {
             type: MusicListActionType.APPEND_ITEMS,
             payload: musicInfos
         }
-        musicListManager(action);
+        await musicListManager(action);
         setPopupOpen(false);
     }
     const addToPlaylist = (items: MusicInfo[]) => {
         openSelectTgtPlaylistPopup(evTarget, items);
+        setPopupOpen(false);
     }
     return [{ icon: "playlist_play", name: "다음 음악으로 재생", onClickHandler: () => addToNextMusic(musicInfos) },
     { icon: "queue_music", name: "목록에 추가", onClickHandler: () => appendMusic(musicInfos) },
@@ -186,12 +214,12 @@ const useGetMusicOptions = (musicInfos: MusicInfo[], setPopupOpen: (isOpen: bool
 const MusicOptions = memo(function ({ setPopupOpen, musicInfos, evTarget }: MusicOptionsProps) {
     const musicOptions = useGetMusicOptions(musicInfos, setPopupOpen, evTarget);
     const musicListManager = useMusicListManager();
-    const deleteMusic = (items: MusicInfo[]) => {
+    const deleteMusic = async (items: MusicInfo[]) => {
         const delAction: MusicListAction = {
             type: MusicListActionType.DELETE,
             payload: items
         }
-        musicListManager(delAction);
+        await musicListManager(delAction);
         setPopupOpen(false);
     }
     const options = [
@@ -209,18 +237,13 @@ interface PlaylistItemOptionsProps {
 }
 const PlaylistItemOptions = memo(function ({ setPopupOpen, evTarget, musicInfos, playlistID }: PlaylistItemOptionsProps) {
     const musicOptions = useGetMusicOptions(musicInfos, setPopupOpen, evTarget);
-    const playlistManager = usePlaylistManager();
-    const deleteMusic = (items: MusicInfoItem[]) => {
-        const delAction: PlaylistAction = {
-            type: PlaylistActionType.DELETE_ITEMS,
-            payload: {
-                id: playlistID,
-                items: items
-            }
-        }
-        playlistManager(delAction);
+    const manager = usePlaylistManager();
+    const notice = useNotice();
+    const deleteMusic = async (items: MusicInfoItem[]) => {
+        const result = await manager({ type: PlaylistActionType.DELETE_ITEMS, payload: { id: playlistID, items } });
+        if (result?.deletedCount) notice(`${result.deletedCount}곡을 저장 목록에서 삭제했습니다.`, { label: '실행 취소', run: result.undo });
         setPopupOpen(false);
-    }
+    };
     const options = [
         ...musicOptions,
         { icon: "remove_circle_outline", name: "재생목록에서 삭제", onClickHandler: () => deleteMusic(musicInfos) }
@@ -234,7 +257,6 @@ interface PlaylistOptionsProps {
     playlistid: string;
 }
 const PlaylistOptions = memo(function ({ evTarget, setPopupOpen, playlistid }: PlaylistOptionsProps) {
-    const playlistManager = usePlaylistManager();
     const musicListManager = useMusicListManager();
     const modalManager = useModalManager();
     const store = useStore();
@@ -243,33 +265,24 @@ const PlaylistOptions = memo(function ({ evTarget, setPopupOpen, playlistid }: P
         const items = await store.get(playlistItemStateFamily(playlistid));
         openSelectTgtPlaylistPopup(evTarget, items);
     }
-    const addToNextMusic = (playlistid: string) => {
+    const addToNextMusic = async (playlistid: string) => {
         const action: MusicListAction = {
             type: MusicListActionType.ADD_TO_NEXT_PLAYLIST,
             payload: playlistid
         }
-        musicListManager(action);
+        await musicListManager(action);
     }
-    const updatePlaylistInfo = (playlistid: string) => {
-        modalManager(ModalKind.UpdatePlaylist, playlistid);
-    }
-    const deletePlaylist = (playlistid: string) => {
-        playlistManager({
-            type: PlaylistActionType.DELETE,
-            payload: playlistid
-        });
-    }
-    const onClickHandlerWrapper = (callback: (data: any) => void) => {
-        return () => {
-            callback(playlistid);
-            setPopupOpen(false);
-        }
-    }
+    const updatePlaylistInfo = (playlistid: string) => modalManager(ModalKind.UpdatePlaylist, playlistid);
+    const deletePlaylist = (playlistid: string) => modalManager(ModalKind.DeletePlaylist, playlistid);
+    const onClickHandlerWrapper = (callback: (id: string) => void | Promise<void>) => async () => {
+        await callback(playlistid);
+        setPopupOpen(false);
+    };
     const options = [
         { icon: "playlist_add", name: "재생목록에 추가", onClickHandler: onClickHandlerWrapper(addToPlaylist) },
         { icon: "playlist_play", name: "다음 음악으로 추가", onClickHandler: onClickHandlerWrapper(addToNextMusic) },
         { icon: "edit", name: "재생목록 수정", onClickHandler: onClickHandlerWrapper(updatePlaylistInfo) },
-        { icon: "library_add_check", name: "재생목록 삭제", onClickHandler: onClickHandlerWrapper(deletePlaylist) },
+        { icon: "delete_outline", name: "재생목록 삭제", onClickHandler: onClickHandlerWrapper(deletePlaylist) },
     ];
     return <OptionSelector options={options} />;
 })
@@ -291,7 +304,7 @@ const SearchBarOptions = memo(function ({ setPopupOpen, textarea }: SearchBarOpt
                 type: type,
                 payload: searchResult
             }
-            musicListManager(action);
+            await musicListManager(action);
         } catch (e) {
             console.error(e);
         } finally {
@@ -325,7 +338,3 @@ const YTOptions = memo(function ({ setPopupOpen }: { setPopupOpen: (isOpen: bool
     ]
     return <OptionSelector options={options} />;
 });
-
-function PopupInfoState(PopupInfoState: any) {
-    throw new Error('Function not implemented.');
-}

@@ -7,6 +7,7 @@ export default function PlaylistImport({close, original}: {close: () => void; or
   const [url, setUrl] = useState(original?.sourcePlaylistUrl ?? ''); const [name, setName] = useState(original?.name ?? '');
   const [id, setId] = useState(''); const [ids, setIds] = useState<string[]>([]);
   const [error, setError] = useState(''); const [busy, setBusy] = useState(false);
+  const pending = useRef(false);
   const host = useRef<HTMLDivElement>(null); const playerRef = useRef<any>(null);
   const manager = usePlaylistManager();
   useEffect(() => {
@@ -33,16 +34,18 @@ export default function PlaylistImport({close, original}: {close: () => void; or
   }, [id]);
   const preview = (e: FormEvent) => { e.preventDefault(); try { const p = parsePlaylistUrl(url); setIds([]); setError(''); setId(p.id); } catch(e) {setError((e as Error).message);} };
   const save = async () => {
+    if (pending.current || !ids.length) return;
     if (original && !window.confirm('로컬에서 추가·삭제·정렬한 내용을 지우고 지금 불러온 원본 목록으로 교체할까요?')) return;
+    pending.current = true;
     setBusy(true);
     try {
       await manager({type:original ? PlaylistActionType.UPDATE : PlaylistActionType.CREATE,payload:{info:{...original,id:original?.id ?? '',sourcePlaylistUrl:`https://www.youtube.com/playlist?list=${id}`,name:name.trim() || 'YouTube 재생목록',description:`원본: https://www.youtube.com/playlist?list=${id}`,itemCount:ids.length,thumbnails:ids.slice(0,4).map(v=>`https://i.ytimg.com/vi/${v}/default.jpg`)},items:ids.map((videoID,i)=>({videoID,name:`동영상 ${i+1} (${videoID})`,query:'',owner:'',thumbnail:`https://i.ytimg.com/vi/${videoID}/default.jpg`}))}});
       close();
-    } catch(e) { setError((e as Error).message); } finally {setBusy(false);}
+    } catch(e) { setError((e as Error).message); } finally {pending.current = false; setBusy(false);}
   };
-  return <section style={{padding:16,maxWidth:560,width:'min(90vw,560px)',maxHeight:'85vh',overflow:'auto'}} aria-label="재생목록 URL 가져오기">
+  return <section style={{padding:16,maxWidth:560,width:'100%',maxHeight:'85vh',overflow:'auto'}} aria-label="재생목록 URL 가져오기" aria-busy={busy}>
     <h2>{original ? '원본으로 초기화' : '재생목록 URL 가져오기'}</h2>
-    <form onSubmit={preview}><label>공개 재생목록 URL<input style={{width:'100%'}} type="url" required readOnly={!!original} value={url} onChange={e=>setUrl(e.target.value)} /></label><label>목록 이름<input style={{width:'100%'}} maxLength={120} value={name} onChange={e=>setName(e.target.value)} /></label><button>미리보기</button></form>
+    <form onSubmit={preview}><fieldset disabled={busy} style={{border:0,padding:0,margin:0}}><label>공개 재생목록 URL<input style={{width:'100%'}} type="url" required readOnly={!!original} value={url} onChange={e=>setUrl(e.target.value)} /></label><label>목록 이름<input style={{width:'100%'}} maxLength={120} value={name} onChange={e=>setName(e.target.value)} /></label><button>미리보기</button></fieldset></form>
     <div ref={host} style={{minHeight:id?220:0}} />
     <p role="status">{ids.length ? `플레이어가 제공한 ${ids.length}곡을 로컬 편집 목록으로 저장합니다.` : '목록을 미리보기에서 불러온 뒤 저장하세요.'}</p>
     <p>API 키 없이 곡 ID와 썸네일을 가져옵니다. 곡 제목은 자동 조회하지 않습니다. 원본 전체 포함 여부는 보장하지 않으며, 저장 후 원본 변경이 편집본을 덮어쓰지 않습니다.</p>

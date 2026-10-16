@@ -1,4 +1,5 @@
 import { atom, useStore } from "jotai";
+import { useCallback } from "react";
 import { playlistInfoStateFamily } from 'features/playlists/model/playlistAtoms';
 import { MusicInfo, MusicInfoArrayCheck, MusicInfoItem } from "shared/model/constants";
 import keyGenerator from "shared/lib/keyGenerator";
@@ -34,7 +35,7 @@ export interface ModalInfoData {
 }
 
 export enum ModalKind {
-    CreatePlaylist, UpdatePlaylist, ImportYTPlaylistLink
+    CreatePlaylist, UpdatePlaylist, ImportYTPlaylistLink, DeletePlaylist
 }
 
 const useOpenPopup = () => {
@@ -60,9 +61,9 @@ const useOpenPopup = () => {
 export const useClosePopup = () => {
     const store = useStore();
     const { set } = store;
-    return (key: string) => {
+    return useCallback((key: string) => {
             set(PopupInfoState, (prev) => prev.filter((info) => key !== info.key));
-        }
+        }, [set]);
 
 }
 export const useOpenMusicOptionsPopup = () => {
@@ -123,6 +124,13 @@ export const useModalManager = function () {
                     data: playlistInfo
                 }
                 set(ModalInfoState, popupData);
+                set(ModalOpenState, true);
+            } break;
+
+            case ModalKind.DeletePlaylist: {
+                if (typeof data !== 'string') throw new Error('재생목록을 찾을 수 없습니다.');
+                const info = await store.get(playlistInfoStateFamily(data));
+                set(ModalInfoState, { kind, data: info });
                 set(ModalOpenState, true);
             } break;
 

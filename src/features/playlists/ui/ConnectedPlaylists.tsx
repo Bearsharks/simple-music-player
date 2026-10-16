@@ -11,36 +11,42 @@ import {
 import { MusicListAction, MusicListActionType } from "shared/model/constants";
 import Playlists from "features/playlists/ui/playlists/Playlists";
 import Spinner from "shared/ui/Spinner";
-import { Suspense } from "react";
+import { Suspense, useState } from "react";
 
 interface PlaylistsConnectedProps {
   goToPlaylistPage: (id: string) => void;
 }
 function PlaylistsConnected(props: PlaylistsConnectedProps) {
+  const [error, setError] = useState("");
   const setQueueOpen = useSetAtom(musiclistOpenState);
   const playlistInfos = useAtomValue(playlistInfosState);
   const musicListManager = useMusicListManager();
   const formPopupManager = useModalManager();
   const setPopupInfoState = useOpenPlaylistOptionsPopup();
   const setMusiclist = (playlistid: string) => {
+    if (!playlistInfos.find(playlist => playlist.id === playlistid)?.itemCount) return;
     const action: MusicListAction = {
       type: MusicListActionType.LOAD_PLAYLIST,
       payload: playlistid,
     };
-    void musicListManager(action).then(() => setQueueOpen(true));
+    setError("");
+    void musicListManager(action).then(() => setQueueOpen(true)).catch(error => {
+      setError(error instanceof Error ? error.message : "재생목록을 불러오지 못했습니다.");
+    });
   };
 
   const openOptionsSelector = (
     e: React.MouseEvent<HTMLElement>,
     playlistid: string,
   ) => {
-    setPopupInfoState(e.target as HTMLElement, playlistid);
+    setPopupInfoState(e.currentTarget, playlistid);
   };
   const openCreatePlaylistPopup = () => {
     formPopupManager(ModalKind.CreatePlaylist);
   };
   return (
     <div>
+      {error && <p role="alert">{error}</p>}
       <Suspense fallback={<Spinner></Spinner>}>
         <Playlists
           goToPlaylistPage={props.goToPlaylistPage}

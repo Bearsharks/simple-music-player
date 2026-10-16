@@ -1,3 +1,4 @@
+import { playlistItemStateFamily } from "features/playlists/model/playlistAtoms";
 import { vi } from 'vitest';
 vi.mock('shared/config/env', () => ({useFixtureApi:true}));
 import { act, renderHook } from '@testing-library/react';
@@ -53,4 +54,14 @@ it('concurrent playlist appends retain both results', async () => {
  const {store,hooks}=setup();
  await act(async () => { await Promise.all([1,2].map(()=>hooks.result.current.queue({type:T.APPEND_PLAYLIST,payload:playlistFixture.id}))); });
  expect(store.get(queueState).items).toHaveLength(playlistFixture.items.length*2);
+});
+
+it('keeps the current song, its key and queue when an empty playlist is loaded', async () => {
+ const {store,hooks}=setup();
+ await act(()=>hooks.result.current.queue({type:T.LOAD_PLAYLIST,payload:playlistFixture.id}));
+ await act(()=>hooks.result.current.current({type:M.SET_IDX,payload:1}));
+ store.set(playlistItemStateFamily('empty'),[]);
+ const before=store.get(queueState);
+ await act(()=>hooks.result.current.queue({type:T.LOAD_PLAYLIST,payload:'empty'}));
+ expect(store.get(queueState)).toBe(before);
 });

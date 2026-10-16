@@ -27,6 +27,7 @@ export function useMusicListManager() {
         if ([T.LOAD_PLAYLIST, T.APPEND_PLAYLIST, T.ADD_TO_NEXT_PLAYLIST].includes(action.type)) {
             incoming = toMusicInfoItems(await store.get(playlistItemStateFamily(action.payload)));
         } else if ([T.APPEND_ITEMS, T.ADD_TO_NEXT].includes(action.type)) incoming = toMusicInfoItems(action.payload);
+        if (action.type === T.LOAD_PLAYLIST && incoming.length === 0) return;
         // Read AFTER async loading: concurrent appends must not overwrite each other.
         const { items, index } = store.get(queueState);
         if (action.type === T.LOAD_PLAYLIST) store.set(queueState, { items: incoming, index: 0 });

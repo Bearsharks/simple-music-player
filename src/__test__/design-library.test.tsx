@@ -53,3 +53,24 @@ it("keeps create and play actions separate from navigation", () => {
   fireEvent.click(screen.getByRole("button", { name: "새 재생목록" }));
   expect(create).toHaveBeenCalledOnce();
 });
+
+it('sorts recent lists by persisted creation date and uses a stable fallback for legacy lists', () => {
+ const props={goToPlaylistPage:vi.fn(),playPlaylist:vi.fn(),openCreatePlaylistPopup:vi.fn(),openOptionsSelector:vi.fn()};
+ const lists=[{...info('a','Newer'),createdAt:2000},{...info('z','Older'),createdAt:1000},info('legacy-z','Z legacy'),info('legacy-a','A legacy')];
+ const {rerender}=render(<Playlists {...props} playlistInfos={lists}/>);
+ const names=()=>screen.getAllByRole('button',{name:/ 열기$/}).map(button=>button.getAttribute('aria-label'));
+ expect(names()).toEqual(['Newer 열기','Older 열기','A legacy 열기','Z legacy 열기']);
+ rerender(<Playlists {...props} playlistInfos={[...lists].reverse()}/>);
+ expect(names()).toEqual(['Newer 열기','Older 열기','A legacy 열기','Z legacy 열기']);
+ fireEvent.change(screen.getByRole('combobox',{name:'재생목록 정렬'}),{target:{value:'name'}});
+ expect(names()).toEqual(['A legacy 열기','Newer 열기','Older 열기','Z legacy 열기']);
+});
+
+it('disables empty-playlist playback while keeping navigation available', () => {
+ const play=vi.fn(),open=vi.fn();
+ render(<Playlists playlistInfos={[{...info('empty','빈 목록'),itemCount:0}]} goToPlaylistPage={open} playPlaylist={play} openCreatePlaylistPopup={vi.fn()} openOptionsSelector={vi.fn()}/>);
+ const button=screen.getByRole('button',{name:'빈 목록 재생'});
+ expect(button).toBeDisabled();fireEvent.click(button);expect(play).not.toHaveBeenCalled();
+ fireEvent.click(screen.getByRole('button',{name:'빈 목록 열기'}));expect(open).toHaveBeenCalledWith('empty');
+ expect(document.body).not.toHaveTextContent('NaN');
+});

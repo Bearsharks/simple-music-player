@@ -30,3 +30,9 @@ items와 index는 queueState 한 값으로 관리한다. 삭제 후 현재 곡 �
 변경한 계약, 영향을 받는 소비자, 실행한 테스트와 결과, 미검증 항목을 적는다. 새 공개 함수나 의존 관계를 만들면 이 README도 갱신한다.
 
 [전체 구조](../../../docs/ARCHITECTURE.md) · [작업 시작 지도](../../../docs/CHANGE-GUIDE.md)
+
+## 빈 목록과 키보드 보호
+
+`LOAD_PLAYLIST`가 빈 곡 배열을 읽으면 현재 queue 객체와 index를 그대로 보존한다. 카드/상세의 빈 목록 재생도 비활성화한다. 큐 비우기는 명시적 DELETE 동작이다. 곡 썸네일/제목은 기본 button, 더보기는 곡명이 포함된 button이며 Enter/Space로 조작할 수 있다. 저장 목록 삭제/Undo는 queue를 건드리지 않는다.
+
+회귀: `npm test -- src/__test__/musicList.test.tsx src/__test__/overlay-regressions.test.tsx`.

@@ -1,96 +1,87 @@
 import PlaylistImport from 'features/youtube/ui/PlaylistImport';
-import { useAtom, useAtomValue, } from 'jotai'
-import { ModalInfoState, ModalKind, ModalOpenState, useOpenYTOptionsPopup } from 'features/overlays/PopupStates';
-import styles from 'features/overlays/Modal.module.scss'
-import React, { Suspense } from 'react';
-import { MusicInfo, Playlist, PlaylistAction, PlaylistActionType, PlaylistInfo } from 'shared/model/constants';
-import youtubeSearch, { getYTPlaylistByID, SearchType, urlToId } from 'features/youtube/api/youtubeSearch';
-import Spinner from 'shared/ui/Spinner';
+import { useAtom, useAtomValue } from 'jotai';
+import { ModalInfoState, ModalKind, ModalOpenState, useModalManager } from './PopupStates';
+import styles from './Modal.module.scss';
+import { useRef, useState } from 'react';
+import { MusicInfo, PlaylistActionType, PlaylistInfo } from 'shared/model/constants';
+import Dialog from 'shared/ui/Dialog';
 import { usePlaylistManager } from 'features/playlists/model/playlistAtoms';
 import FormBox, { FormItem } from 'features/playlists/ui/formBox/FormBox';
-import FormBoxPlaylist from 'features/playlists/ui/formBox/FormBoxPlaylist';
 
-function Modal() {
-    const [isOpen, setOpen] = useAtom(ModalOpenState);
-    return !isOpen ? <div></div> : (
-        <div>
-            <div className={`${styles['wrapper']}`}>
-                <ModalForm setModalOpen={setOpen} />
-            </div>
-            <div className={`${styles['overlay-backdrop']}`} onClick={() => setOpen(false)}></div>
-        </div>
-    );
+const labels = {
+  [ModalKind.CreatePlaylist]: '새 재생목록',
+  [ModalKind.UpdatePlaylist]: '재생목록 수정',
+  [ModalKind.ImportYTPlaylistLink]: '재생목록 URL 가져오기',
+  [ModalKind.DeletePlaylist]: '재생목록 삭제',
+};
+export default function Modal() {
+  const [isOpen, setOpen] = useAtom(ModalOpenState);
+  const state = useAtomValue(ModalInfoState);
+  if (!isOpen) return null;
+  const close = () => setOpen(false);
+  return <Dialog label={labels[state.kind]} onClose={close}>
+    {state.kind === ModalKind.ImportYTPlaylistLink ? <PlaylistImport close={close} /> :
+      state.kind === ModalKind.DeletePlaylist ?
+        <DeleteConfirmation key={state.data.id} info={state.data} close={close} /> :
+        <PlaylistForm key={`${state.kind}-${state.data?.id ?? ''}`} kind={state.kind} closePopup={close}
+          playlistInfo={state.kind === ModalKind.UpdatePlaylist ? state.data : undefined}
+          musicInfos={state.kind === ModalKind.CreatePlaylist ? state.data : undefined} />}
+  </Dialog>;
 }
 
-function ModalForm({ setModalOpen }: { setModalOpen: (bool: boolean) => void }) {
-    const modalState = useAtomValue(ModalInfoState);
-    const closePopup = () => {
-        setModalOpen(false);
-    }
-    const children = (() => {
-        switch (modalState.kind) {
-            case ModalKind.CreatePlaylist:
-                return <PlaylistForm kind={modalState.kind} closePopup={closePopup} musicInfos={modalState.data} />;
-            case ModalKind.UpdatePlaylist:
-                return <PlaylistForm kind={modalState.kind} closePopup={closePopup} playlistInfo={modalState.data} />;
-            case ModalKind.ImportYTPlaylistLink:
-                return <PlaylistImport close={closePopup} />
-            default:
-                return <div></div>;
-        }
-    })();
-    return children;
+function PlaylistForm({ closePopup, kind, playlistInfo, musicInfos }: {
+  closePopup: () => void;
+  kind: ModalKind;
+  playlistInfo?: PlaylistInfo;
+  musicInfos?: MusicInfo[];
+}) {
+  const formItems: FormItem[] = [
+    { id: 'name', name: '제목', value: playlistInfo?.name ?? '', require: true },
+    { id: 'description', name: '설명', value: playlistInfo?.description ?? '' },
+  ];
+  const manager = usePlaylistManager();
+  const modal = useModalManager();
+  const create = kind === ModalKind.CreatePlaylist;
+  const submit = async (data: Record<string, string>) => {
+    await manager({
+      type: create ? PlaylistActionType.CREATE : PlaylistActionType.UPDATE,
+      payload: { info: { ...playlistInfo, ...data }, ...(musicInfos ? { items: musicInfos } : {}) },
+    });
+    closePopup();
+  };
+  return <FormBox name={create ? '새 재생목록' : '재생목록 수정'} formItems={formItems}
+    closePopup={closePopup} submit={submit} submitLabel={create ? '만들기' : '변경 저장'}>
+    {create && <button type="button" className={styles.importYTBtn} onClick={() => modal(ModalKind.ImportYTPlaylistLink)}>
+      <span className="material-icons" aria-hidden="true">add</span>유튜브에서 가져오기
+    </button>}
+  </FormBox>;
 }
-export default Modal;
 
-interface PlaylistFormProps {
-    closePopup: () => void;
-    kind: ModalKind;
-    playlistInfo?: PlaylistInfo;
-    musicInfos?: MusicInfo[];
-}
-
-function PlaylistForm({ closePopup, kind, playlistInfo, musicInfos }: PlaylistFormProps) {
-    const formItems: FormItem[] = [
-        { id: "name", name: "제목", value: playlistInfo ? playlistInfo.name : "", require: true },
-        { id: "description", name: "설명", value: playlistInfo ? playlistInfo.description : "" },
-    ];
-    const playlistManager = usePlaylistManager();
-    const openYTPopup = useOpenYTOptionsPopup();
-    const submit = (data: any) => {
-        let info: any = {};
-        if (playlistInfo) info = { ...playlistInfo };
-
-        for (let item of formItems) {
-            info[item.id] = data[item.id];
-        }
-
-        const payload = musicInfos ? {
-            info: info as PlaylistInfo,
-            items: musicInfos
-        } : { info: info as PlaylistInfo };
-
-        const action: PlaylistAction = {
-            type: kind === ModalKind.CreatePlaylist ? PlaylistActionType.CREATE : PlaylistActionType.UPDATE,
-            payload: payload
-        }
-        playlistManager(action);
-        closePopup();
-    }
-    const btnClickHandler = (event: React.MouseEvent) => {
-        event.preventDefault();
-        openYTPopup(event.target as HTMLElement);
-    }
-    const name = (playlistInfo?.name) ? playlistInfo.name : "새 재생목록";
-    return <FormBox name={name} formItems={formItems} closePopup={closePopup} submit={submit}>
-        {kind === ModalKind.CreatePlaylist ?
-            <button className={styles['importYTBtn']} onClick={btnClickHandler}>
-                <span className='material-icons'>
-                    add
-                </span>
-                유튜브에서 가져오기
-            </button> : ""
-        }
-    </FormBox>
-
+function DeleteConfirmation({ info, close }: { info: PlaylistInfo; close: () => void }) {
+  const manager = usePlaylistManager();
+  const pending = useRef(false);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState('');
+  const remove = async () => {
+    if (pending.current) return;
+    pending.current = true;
+    setBusy(true);
+    setError('');
+    try {
+      await manager({ type: PlaylistActionType.DELETE, payload: info.id });
+      close();
+    } catch (error) {
+      setError(error instanceof Error ? error.message : '삭제하지 못했습니다. 다시 시도해 주세요.');
+    } finally { pending.current = false; setBusy(false); }
+  };
+  return <section className={styles.confirmation} aria-busy={busy}>
+    <h2>재생목록 삭제</h2>
+    <p>“{info.name}” 재생목록과 저장한 {info.itemCount}곡을 삭제할까요?</p>
+    <p>이 브라우저의 저장 목록에서 삭제되며 되돌릴 수 없습니다. 현재 재생 대기열과 YouTube 원본은 유지됩니다.</p>
+    {error && <p role="alert">{error}</p>}
+    <div className={styles.confirmationActions}>
+      <button type="button" disabled={busy} onClick={close}>취소</button>
+      <button type="button" disabled={busy} onClick={remove}>{busy ? '삭제 중…' : '삭제'}</button>
+    </div>
+  </section>;
 }
