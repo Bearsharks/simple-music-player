@@ -23,6 +23,12 @@ jobs:
           npx vite preview --host 127.0.0.1 --port 4173 > /tmp/vite.log 2>&1 &
           for i in $(seq 1 30); do curl -fsS http://127.0.0.1:4173/simple-music-player/ >/dev/null && break; sleep 1; done
           npm run test:browser
+      - name: Custom domain root smoke
+        run: |
+          VITE_BASE_PATH=/ npm run build
+          VITE_BASE_PATH=/ npx vite preview --host 127.0.0.1 --port 4175 > /tmp/vite-domain.log 2>&1 &
+          for i in $(seq 1 30); do curl -fsS http://127.0.0.1:4175/ >/dev/null && break; sleep 1; done
+          TEST_URL=http://127.0.0.1:4175/ node e2e/smoke.mjs
       - name: Design prototype preview
         if: ${{ !cancelled() }}
         run: |
