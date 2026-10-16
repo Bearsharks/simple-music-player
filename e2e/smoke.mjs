@@ -22,6 +22,16 @@ try {
   await page.getByText('저장 검증 곡',{exact:true}).waitFor();
   await page.reload();await page.getByText('저장 검증 곡',{exact:true}).waitFor();
   fs.mkdirSync('test-results',{recursive:true});await page.screenshot({path:`test-results/music-player-${viewport.width}.png`,fullPage:true});
+  const csp = await page.locator('meta[http-equiv="Content-Security-Policy"]').getAttribute('content');
+  if (!csp?.includes("object-src 'none'") || csp.includes("script-src 'self' 'unsafe-inline'")) throw new Error('Missing script policy');
+  const blocked = await page.evaluate(() => new Promise(resolve => {
+    const timeout = setTimeout(() => resolve(false), 2000);
+    document.addEventListener('securitypolicyviolation', function listener(e) {
+      if (e.violatedDirective.startsWith('script-src')) { clearTimeout(timeout); document.removeEventListener('securitypolicyviolation',listener); resolve(true); }
+    });
+    const script = document.createElement('script'); script.textContent = 'window.__smpInjected = true'; document.head.append(script);
+  }));
+  if (!blocked || await page.evaluate(() => window.__smpInjected === true)) throw new Error('Inline script not blocked');
   const overflow=await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth);
   console.log(JSON.stringify({viewport,errors,overflow}));
   if(errors.length) throw new Error('Browser runtime errors');
