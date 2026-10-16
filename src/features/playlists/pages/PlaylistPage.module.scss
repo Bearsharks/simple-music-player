@@ -214,3 +214,20 @@
     margin-left: 4px;
   }
 }
+.metadata__name h1 {
+  word-break: keep-all;
+}
+.tableHeading {
+  grid-template-columns: 30px 1fr auto;
+}
+.playlist__item > div:last-of-type {
+  flex: 1;
+  min-width: 0;
+  margin-left: 4px;
+}
+.playlist__item > button {
+  flex-shrink: 0;
+}
+.addVideo {
+  background: #111b2b;
+}

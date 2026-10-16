@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { useSetAtom } from "jotai";
 import type { MusicInfoItem } from "shared/model/constants";
 import { MusicListActionType } from "shared/model/constants";
@@ -14,6 +15,12 @@ export default function PlayerDetail({
   playerVisiblity,
   musicList,
 }: PlayerDetailProps) {
+  const [wide, setWide] = useState(() => window.innerWidth >= 1200);
+  useEffect(() => {
+    const resize = () => setWide(window.innerWidth >= 1200);
+    window.addEventListener("resize", resize);
+    return () => window.removeEventListener("resize", resize);
+  }, []);
   const save = useOpenSelectTgtPlaylistPopup();
   const manage = useMusicListManager();
   const setOpen = useSetAtom(musiclistOpenState);
@@ -21,6 +28,8 @@ export default function PlayerDetail({
     <aside
       className={`now-panel ${playerVisiblity ? "is-open" : ""}`}
       aria-label="지금 재생 및 대기열"
+      inert={!wide && !playerVisiblity}
+      aria-hidden={!wide && !playerVisiblity}
     >
       <div className="now-heading">
         <div>

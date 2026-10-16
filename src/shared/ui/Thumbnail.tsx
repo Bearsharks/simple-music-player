@@ -28,7 +28,10 @@ function Thumbnail({
           {imgs.map((img: string, idx) => (
             <img
               className={styles["img"]}
-              key={idx}
+              key={img + idx}
+              onError={(e) => {
+                e.currentTarget.style.visibility = "hidden";
+              }}
               src={img}
               alt={""}
               style={imgs.length === 1 ? { width: "100%", height: "100%" } : {}}

@@ -20,7 +20,13 @@ export default function PlayerController(props: PlayerControllerProps) {
       <div className="dock-track">
         <div className="dock-art">
           {props.musicInfo.thumbnail ? (
-            <img src={props.musicInfo.thumbnail} alt="" />
+            <img
+              src={props.musicInfo.thumbnail}
+              alt=""
+              onError={(e) => {
+                e.currentTarget.style.visibility = "hidden";
+              }}
+            />
           ) : (
             <span className="material-icons" aria-hidden="true">
               graphic_eq

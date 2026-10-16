@@ -179,6 +179,12 @@ function PlaylistItems({ playlistID }: { playlistID: string }) {
       {items.map((item, idx) => (
         <div key={item.key} className={styles["playlist__item"]}>
           <div>{idx + 1}.</div>
+          <MusicItem
+            idx={idx}
+            item={item}
+            playMusic={playMusic}
+            openOptionsPopup={openPopup}
+          ></MusicItem>
           <button
             aria-label={`${item.name} 위로`}
             disabled={idx === 0}
@@ -193,12 +199,7 @@ function PlaylistItems({ playlistID }: { playlistID: string }) {
           >
             ↓
           </button>
-          <MusicItem
-            idx={idx}
-            item={item}
-            playMusic={playMusic}
-            openOptionsPopup={openPopup}
-          ></MusicItem>
+
         </div>
       ))}
     </>

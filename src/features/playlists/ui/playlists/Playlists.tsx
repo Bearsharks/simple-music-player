@@ -110,13 +110,18 @@ export default function Playlists(props: PlaylistsProps) {
                   aria-label={`${p.name} 열기`}
                   onClick={() => props.goToPlaylistPage(p.id)}
                 >
-                  {p.thumbnails?.[0] ? (
-                    <img src={p.thumbnails[0]} alt="" />
-                  ) : (
-                    <span className="cover-type" aria-hidden="true">
-                      {p.name.slice(0, 2)}
-                      <small>PERSONAL MIX</small>
-                    </span>
+                  <span className="cover-type" aria-hidden="true">
+                    {p.name.slice(0, 2)}
+                    <small>PERSONAL MIX</small>
+                  </span>
+                  {p.thumbnails?.[0] && (
+                    <img
+                      src={p.thumbnails[0]}
+                      alt=""
+                      onError={(e) => {
+                        e.currentTarget.style.visibility = "hidden";
+                      }}
+                    />
                   )}
                 </button>
                 <span className="cover-index">

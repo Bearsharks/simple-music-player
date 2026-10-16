@@ -879,3 +879,46 @@ button {
     scroll-behavior: auto !important;
   }
 }
+.mobile-wordmark {
+  display: none;
+}
+.cover-open {
+  position: relative;
+}
+.cover-open img {
+  position: absolute;
+  inset: 0;
+}
+.sidebar-bottom small {
+  font-size: 8px;
+  white-space: nowrap;
+}
+.quiet,
+.queue-empty,
+.now-footer {
+  color: #8290a6;
+}
+.library-footnote {
+  color: #738198;
+}
+@media (max-width: 760px) {
+  .mobile-wordmark {
+    display: inline;
+    font-size: 20px;
+    font-weight: 800;
+    letter-spacing: -1px;
+    margin-right: 4px;
+  }
+  .mobile-wordmark span {
+    color: var(--accent);
+  }
+  .breadcrumb > span:not(.mobile-wordmark) {
+    display: none;
+  }
+  .breadcrumb > strong {
+    font-size: 10px;
+  }
+  .record-art .floating-note {
+    display: none;
+  }
+}

@@ -96,7 +96,7 @@ export default function Main() {
             devices
           </span>
           <div>
-            이 브라우저에 저장<small>로그인 없이, 나만의 라이브러리</small>
+            이 브라우저에 저장<small>로그인 없는 나만의 공간</small>
           </div>
           <span className="status-dot" />
         </div>
@@ -104,6 +104,9 @@ export default function Main() {
       <div className="studio-main">
         <header className="studio-topbar">
           <div className="breadcrumb">
+            <span className="mobile-wordmark">
+              smp<span>.</span>
+            </span>
             <button
               aria-label="라이브러리로 돌아가기"
               disabled={location.pathname === "/"}

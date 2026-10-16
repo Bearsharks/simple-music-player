@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import { chromium } from '@playwright/test';
 const browser=await chromium.launch({executablePath:process.env.CHROMIUM_PATH || undefined,headless:true});
 try {
- for(const viewport of [{width:1280,height:800},{width:390,height:844}]) {
+ for(const viewport of [{width:1440,height:960},{width:1280,height:800},{width:390,height:844}]) {
   const page=await browser.newPage({viewport});const errors=[];page.on('pageerror',e=>errors.push(e.message));
   await page.route('https://**/*',route=>route.fulfill({status:200,contentType:'text/plain',body:''}));
   await page.addInitScript(()=>{window.YT={Player:class {

@@ -1,6 +1,7 @@
 import { resetDatabase } from 'test/resetDatabase';
 import {render, screen, act} from '@testing-library/react';
-import {Provider} from 'jotai';
+import {Provider,createStore} from 'jotai';
+import {playlistInfosState} from 'features/playlists/model/playlistAtoms';
 import {vi} from 'vitest';
 import App from 'app/App';
 vi.mock('features/player/api/iframe',()=>({loadIframeApi:async()=>({Player:class {
@@ -9,7 +10,8 @@ vi.mock('features/player/api/iframe',()=>({loadIframeApi:async()=>({Player:class
 beforeEach(async()=>{await resetDatabase();localStorage.clear();window.history.replaceState({},'', '/simple-music-player/');vi.stubGlobal('ResizeObserver',class {observe(){} disconnect(){} unobserve(){}});});
 afterEach(()=>vi.unstubAllGlobals());
 it('renders the original playlist workspace without a login gate',async()=>{
- await act(async()=>{render(<Provider><App/></Provider>);});
+ const store=createStore(); await store.get(playlistInfosState);
+ await act(async()=>{render(<Provider store={store}><App/></Provider>);});
  expect(await screen.findByRole('button',{name:'새 재생목록'})).toBeInTheDocument();
  expect(screen.queryByText('로그인')).not.toBeInTheDocument();
 });

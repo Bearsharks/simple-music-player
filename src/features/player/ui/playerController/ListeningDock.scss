@@ -384,3 +384,14 @@
     margin-bottom: 15px;
   }
 }
+.now-panel .now-close {
+  display: none;
+}
+.volume-control input {
+  accent-color: var(--accent);
+}
+@media (max-width: 1199px) {
+  .now-panel .now-close {
+    display: grid;
+  }
+}
