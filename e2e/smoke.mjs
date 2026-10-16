@@ -8,9 +8,25 @@ try {
   for (const viewport of [{ width: 1440, height: 960 }, { width: 1280, height: 800 }, { width: 390, height: 844 }]) {
     const page = await browser.newPage({ viewport });
     const errors = [];
+    const context = page.context();
+    await context.tracing.start({ screenshots: true, snapshots: true, sources: true });
+    try {
     page.on('pageerror', error => errors.push(error.message));
     await page.route('https://**/*', route => route.fulfill({ status: 200, contentType: 'text/plain', body: '' }));
     await page.addInitScript(() => {
+      window.__interactionTrace = [];
+      for (const type of ['pointerdown', 'click', 'focusin', 'focusout']) {
+        document.addEventListener(type, event => {
+          const target = event.target;
+          window.__interactionTrace.push({
+            type,
+            target: target instanceof Element ? `${target.tagName} ${target.getAttribute('aria-label') || target.textContent?.trim().slice(0, 80) || ''}` : '',
+            popupCount: document.querySelectorAll('[role="group"][aria-label="선택 메뉴"]').length,
+            dialogs: document.querySelectorAll('[role="dialog"]').length,
+          });
+          if (window.__interactionTrace.length > 80) window.__interactionTrace.shift();
+        }, true);
+      }
       window.__simulatedPlayer = { loads: [], time: 0, state: 0 };
       window.YT = { Player: class {
         constructor(_host, config) { this.config = config; queueMicrotask(() => config.events.onReady()); }
@@ -101,6 +117,19 @@ try {
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth > innerWidth);
     console.log(JSON.stringify({ viewport, errors, overflow, media: 'simulated-only' }));
     if (errors.length || overflow) throw new Error('Browser runtime errors or horizontal overflow');
-    await page.close();
+    await context.tracing.stop();
+    } catch (error) {
+      const prefix = `test-results/failure-${viewport.width}`;
+      fs.mkdirSync('test-results', { recursive: true });
+      await Promise.allSettled([
+        page.screenshot({ path: `${prefix}.png`, fullPage: true }),
+        page.content().then(html => fs.writeFileSync(`${prefix}.html`, html)),
+        page.locator('body').ariaSnapshot().then(snapshot => fs.writeFileSync(`${prefix}-aria.txt`, snapshot)),
+        page.evaluate(() => ({ interactions: window.__interactionTrace, player: window.__simulatedPlayer,
+          activeElement: document.activeElement?.outerHTML })).then(state => fs.writeFileSync(`${prefix}-state.json`, JSON.stringify({ viewport, errors, ...state }, null, 2))),
+      ]);
+      await context.tracing.stop({ path: `${prefix}-trace.zip` }).catch(() => {});
+      throw error;
+    } finally { await page.close(); }
   }
 } finally { await browser.close(); }

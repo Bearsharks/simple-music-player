@@ -42,3 +42,5 @@ playlists/queue/youtube를 연결하는 기존 조정 코드다. search/player/p
 
 빠른 회귀: `npm test -- src/__test__/overlay-regressions.test.tsx src/__test__/playlistImport.test.tsx`.
 모바일 queue sheet의 focus 정책은 player/navigation 디자인 패스에서 별도 적용한다.
+
+외부 클릭 감지는 다음 `pointerdown`을 capture 단계에서 관찰한다. 팝업을 여는 click 버블링을 새 리스너가 다시 받아 즉시 닫는 경쟁을 피한다. `popup-events.test.tsx`는 React의 동기 mount 이후 같은 click이 document로 올라가는 순서와 내부/외부 pointer 동작을 회귀 검증한다.

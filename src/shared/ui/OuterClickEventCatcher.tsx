@@ -9,7 +9,7 @@ interface OuterClickEventCatcherProps {
 function OuterClickEventCatcher({ wrapper, openState, onClickHandler }: OuterClickEventCatcherProps) {
     const [isOpen, setOpen] = openState;
     useEffect(() => {
-        const onClickOutsideHandler = (event: MouseEvent | TouchEvent) => {
+        const onClickOutsideHandler = (event: PointerEvent) => {
             if (wrapper.current && wrapper.current.contains(event.target as Node)) {
 
                 return;
@@ -18,11 +18,11 @@ function OuterClickEventCatcher({ wrapper, openState, onClickHandler }: OuterCli
 
             setOpen(false);
         };
-        document.addEventListener('click', onClickOutsideHandler);
-        document.addEventListener('touchend', onClickOutsideHandler);
+        // Observe the next pointer gesture before target handlers. Listening to the
+        // bubbling click can consume the same click that just mounted this popup.
+        document.addEventListener('pointerdown', onClickOutsideHandler, true);
         return () => {
-            document.removeEventListener('click', onClickOutsideHandler);
-            document.removeEventListener('touchend', onClickOutsideHandler);
+            document.removeEventListener('pointerdown', onClickOutsideHandler, true);
         };
     }, [setOpen, wrapper, onClickHandler]);
     return <></>;
