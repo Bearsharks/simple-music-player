@@ -1,8 +1,8 @@
 import React from 'react';
 import { ComponentStory, ComponentMeta } from '@storybook/react';
-import MusicList from 'components/musicList/MusicList';
+import MusicList from 'features/queue/ui/musicList/MusicList';
 import { RecoilRoot } from 'recoil';
-import { musicInfosFixture } from 'refs/fixture';
+import { musicInfosFixture } from 'test/fixture';
 
 export default {
     title: 'components/MusicList',

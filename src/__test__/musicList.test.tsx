@@ -1,10 +1,10 @@
 import { Suspense, useState } from 'react'
 import { act, Renderer, renderHook, RenderHookResult } from '@testing-library/react-hooks';
 import { RecoilRoot, useRecoilValue } from 'recoil';
-import { curMusicIdxState, curMusicInfoState, musicListState, useMusicListManager } from 'recoilStates/playlistAtoms';
-import { MusicInfo, MusicInfoItem, MusicListAction, MusicListActionType } from 'refs/constants';
+import { curMusicIdxState, curMusicInfoState, musicListState, useMusicListManager } from 'features/playlists/model/playlistAtoms';
+import { MusicInfo, MusicInfoItem, MusicListAction, MusicListActionType } from 'shared/model/constants';
 
-import { playlistFixture } from 'refs/fixture';
+import { playlistFixture } from 'test/fixture';
 
 const getRenderHook = <TProps, TResult>(callback: (arg0: TProps) => TResult): RenderHookResult<TProps, TResult, Renderer<TProps>> => {
     return renderHook(callback,

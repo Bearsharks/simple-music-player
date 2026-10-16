@@ -1,7 +1,7 @@
 import { ComponentStory, ComponentMeta } from '@storybook/react';
-import Playlists from 'components/playlists/Playlists';
+import Playlists from 'features/playlists/ui/playlists/Playlists';
 import { RecoilRoot } from 'recoil';
-import { playlistInfosFixture } from 'refs/fixture';
+import { playlistInfosFixture } from 'test/fixture';
 export default {
     title: 'components/Playlists',
     component: Playlists,

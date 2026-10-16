@@ -1,10 +1,10 @@
 import React from 'react';
 import { ComponentStory, ComponentMeta } from '@storybook/react';
-import OptionSelector from 'components/OptionSelector';
+import OptionSelector from 'shared/ui/OptionSelector';
 import { RecoilRoot } from 'recoil';
-import { options } from 'refs/fixture';
+import { options } from 'test/fixture';
 export default {
-    title: 'components/OptionSelector',
+    title: 'shared/ui/OptionSelector',
     component: OptionSelector,
     argTypes: { openPopUpBox: { action: 'clicked' } },
 } as ComponentMeta<typeof OptionSelector>;

@@ -1,7 +1,7 @@
 import { ComponentStory, ComponentMeta } from '@storybook/react';
-import PlayerController from 'components/playerController/PlayerController';
+import PlayerController from 'features/player/ui/playerController/PlayerController';
 import { RecoilRoot } from 'recoil';
-import { musicInfosFixture } from 'refs/fixture';
+import { musicInfosFixture } from 'test/fixture';
 export default {
     title: 'components/PlayerController',
     component: PlayerController,

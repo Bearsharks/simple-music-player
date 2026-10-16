@@ -1,10 +1,10 @@
 
 import { ComponentStory, ComponentMeta } from '@storybook/react';
-import SearchBar from 'components/SearchBar';
+import SearchBar from 'features/search/ui/SearchBar';
 import { RecoilRoot } from 'recoil';
 
 export default {
-    title: 'components/SearchBar',
+    title: 'features/search/ui/SearchBar',
     component: SearchBar,
     argTypes: { search: { action: 'clicked' } },
 } as ComponentMeta<typeof SearchBar>;
