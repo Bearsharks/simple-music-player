@@ -47,3 +47,14 @@ it("does not fetch when cancelled", async () => {
   expect(await fetchVideoTitles(["abcdefghijk"], c.signal)).toEqual({});
   expect(f).not.toHaveBeenCalled();
 });
+it("bounds stalled lookups and reports partial failure without hanging", async () => {
+  vi.useFakeTimers();
+  vi.stubGlobal("fetch", vi.fn((_url, options) => new Promise((_resolve, reject) => {
+    options.signal.addEventListener("abort", () => reject(new Error("aborted")));
+  })));
+  try {
+    const request = fetchVideoTitles(["abcdefghijk"]);
+    await vi.advanceTimersByTimeAsync(12001);
+    expect(await request).toEqual({});
+  } finally { vi.useRealTimers(); }
+});

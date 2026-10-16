@@ -46,7 +46,7 @@ function MusicList({
           {(provided) => (
             <div ref={provided.innerRef} {...provided.droppableProps}>
               {items.map((item, idx) => (
-                <Draggable key={item.key} draggableId={item.key} index={idx}>
+                <Draggable disableInteractiveElementBlocking key={item.key} draggableId={item.key} index={idx}>
                   {(provided) => (
                     <div
                       ref={provided.innerRef}

@@ -338,6 +338,16 @@ try {
           savedTracks.locator("[data-track-focus]").first(),
         ).toHaveAttribute("aria-label", "검증용 곡 01 재생");
         await expect(page.getByRole("alert")).toHaveCount(0);
+        // Pointer drag has no edit-mode gate and persists immediately.
+        const dragFrom = await savedHandle.boundingBox();
+        const dragTo = await savedTracks.getByRole("button", {name:"검증용 곡 01 순서 드래그",exact:true}).boundingBox();
+        await page.mouse.move(dragFrom.x + dragFrom.width/2, dragFrom.y + dragFrom.height/2);
+        await page.mouse.down();
+        await page.mouse.move(dragTo.x + dragTo.width/2, dragTo.y + dragTo.height/2, {steps:12});
+        await page.mouse.up();
+        await expect(savedTracks.locator("[data-track-focus]").first()).toHaveAttribute("aria-label", "검증용 곡 02 재생");
+        await keyboardMove(savedHandle, "ArrowDown");
+        await expect(savedTracks.locator("[data-track-focus]").first()).toHaveAttribute("aria-label", "검증용 곡 01 재생");
         await savedTracks
           .getByRole("button", { name: "검증용 곡 02 더보기", exact: true })
           .click();

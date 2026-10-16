@@ -243,6 +243,7 @@ function PlaylistItems({ playlistID }: { playlistID: string }) {
             <div ref={drop.innerRef} {...drop.droppableProps}>
               {items.map((item, idx) => (
                 <Draggable
+                  disableInteractiveElementBlocking
                   key={item.key}
                   draggableId={item.key}
                   index={idx}
