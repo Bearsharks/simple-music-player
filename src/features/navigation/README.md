@@ -44,3 +44,10 @@ Main.tsx와 StudioShell.scss가 Electric Night 앱 프레임을 소유한다. �
 - Modal의 `onCreated(id, context)`는 빈 목록(`empty`), 가져오기(`import`), 선택곡 저장(`selection`)을 구분한다. 빈 목록은 새 상세의 URL 입력, 가져오기는 제목에 포커스를 두며 채워진 목록의 추가 폼은 접는다. 새 상세로 이동할 때 좁은 modal sheet만 닫고 데스크톱 큐는 유지한다. 선택곡/큐 저장은 현재 경로·열림·포커스를 유지한다. 모든 생성은 실제 재생/큐를 바꾸지 않는다.
 - 목록 읽기 오류는 ReadBoundary에서 실패 상태로 표시한다. `useReloadPlaylists`는 atom 조회를 다시 요청하고 `playlistReadRevision`으로 양쪽 boundary를 함께 재생성한다. 데이터 삭제/초기화는 하지 않는다.
 - 브라우저 검수: `npm run test:browser`. 실제 생성 smoke와 별도 fixture 레이아웃 캡처를 모두 실행한다. 후자는 320/390/768/1024/1280/1440px를 검사한다.
+
+## 현재 위치
+
+`ui/Breadcrumb.tsx`는 실제 `/playlist/:id`와 기존 playlist ID/info atom만 구독한다.
+홈은 라이브러리, 상세는 라이브러리 링크와 저장 이름을 표시한다. 읽기 중/실패/삭제된
+ID는 이름 영역에만 격리되며 플레이어를 재마운트하거나 별도 저장소를 만들지 않는다.
+검증: `library-navigation.test.tsx`의 이름 변경·삭제·실패와 iframe DOM 유지 회귀.

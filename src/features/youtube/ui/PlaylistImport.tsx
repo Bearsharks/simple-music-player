@@ -1,13 +1,15 @@
 import { useNotice } from "features/overlays/Notice";
+import Icon from "shared/ui/Icon";
 import ErrorToast from "shared/ui/ErrorToast";
 import { fetchVideoTitles } from "../api/videoMetadata";
-import { useEffect, useRef, useState, type FormEvent } from "react";
-import { loadIframeApi } from "features/player/api/iframe";
-import { parsePlaylistUrl } from "features/library/model/library";
+import { useId, useRef, useState } from "react";
 import { usePlaylistManager } from "features/playlists/model/playlistAtoms";
 import { PlaylistActionType, type PlaylistInfo } from "shared/model/constants";
 import Dialog from "shared/ui/Dialog";
-import Icon from "shared/ui/Icon";
+import { Button } from "shared/ui/shadcn/button";
+import { Input } from "shared/ui/shadcn/input";
+import { Label } from "shared/ui/shadcn/label";
+import { usePlaylistPreview } from "./usePlaylistPreview";
 import "./PlaylistImport.scss";
 export default function PlaylistImport({
   close,
@@ -20,103 +22,20 @@ export default function PlaylistImport({
 }) {
   const [url, setUrl] = useState(original?.sourcePlaylistUrl ?? "");
   const [name, setName] = useState(original?.name ?? "");
-  const [id, setId] = useState("");
-  const [attempt, setAttempt] = useState(0);
-  const [ids, setIds] = useState<string[]>([]);
-  const [previewError, setPreviewError] = useState("");
+  const preview = usePlaylistPreview(original?.sourcePlaylistUrl);
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
   const [confirmReset, setConfirmReset] = useState(false);
   const pending = useRef(false);
-  const host = useRef<HTMLDivElement>(null);
+  const pointerReady = useRef(false);
+  const fieldID = useId();
+  const errorID = `${fieldID}-error`;
   const manager = usePlaylistManager();
   const notice = useNotice();
-  useEffect(() => {
-    if (!id) return;
-    let cancelled = false;
-    let player: any;
-    let poll: ReturnType<typeof setInterval> | undefined;
-    const read = () => {
-      const values = player?.getPlaylist?.();
-      if (!cancelled && Array.isArray(values) && values.length) {
-        if (
-          !values.every(
-            (value: unknown) =>
-              typeof value === "string" && /^[\w-]{11}$/.test(value),
-          )
-        ) {
-          setPreviewError("곡 ID 형식을 확인하지 못했습니다.");
-          return;
-        }
-        setIds((previous) =>
-          previous.join(",") === values.join(",") ? previous : values,
-        );
-        setPreviewError("");
-        clearTimeout(timeout);
-      }
-    };
-    const timeout = setTimeout(() => {
-      if (!cancelled)
-        setPreviewError(
-          "목록이 표시되지 않으면 미리보기에서 재생을 눌러 주세요. 비공개·임베드 제한 목록은 가져올 수 없습니다.",
-        );
-    }, 15000);
-    loadIframeApi()
-      .then((YT) => {
-        if (cancelled || !host.current) return;
-        const mount = document.createElement("div");
-        host.current.replaceChildren(mount);
-        player = new YT.Player(mount, {
-          width: "100%",
-          height: 220,
-          playerVars: {
-            listType: "playlist",
-            list: id,
-            playsinline: 1,
-            autoplay: 0,
-            origin: location.origin,
-          },
-          events: {
-            onReady: () => {
-              if (cancelled) return;
-              read();
-              poll = setInterval(read, 1000);
-            },
-            onStateChange: read,
-            onError: () => {
-              if (!cancelled)
-                setPreviewError(
-                  "YouTube에서 목록을 재생할 수 없습니다. 공개 여부와 임베드 제한을 확인해 주세요.",
-                );
-            },
-          },
-        });
-      })
-      .catch((e) => {
-        if (!cancelled) setPreviewError(e.message);
-      });
-    return () => {
-      cancelled = true;
-      clearTimeout(timeout);
-      clearInterval(poll);
-      player?.destroy();
-    };
-  }, [id, attempt]);
-  const preview = (event: FormEvent) => {
-    event.preventDefault();
-    try {
-      const parsed = parsePlaylistUrl(url);
-      setIds([]);
-      setError("");
-      setPreviewError("");
-      setId(parsed.id);
-      setAttempt((value) => value + 1);
-    } catch (e) {
-      setError((e as Error).message);
-    }
-  };
   const save = async () => {
-    if (pending.current || !ids.length) return;
+    const candidate = preview.getReady();
+    if (pending.current || !candidate) return;
+    const { id, ids } = candidate;
     pending.current = true;
     setBusy(true);
     setError("");
@@ -163,91 +82,132 @@ export default function PlaylistImport({
       aria-busy={busy}
     >
       <h2>{original ? "원본으로 초기화" : "YouTube 재생목록 가져오기"}</h2>
-      <ol className="import-steps" aria-label="가져오기 단계">
-        <li className={!ids.length ? "active" : ""}>1. URL 확인</li>
-        <li className={ids.length ? "active" : ""}>2. 미리보기 · 저장</li>
-      </ol>
-      <form onSubmit={preview}>
+      <form
+        onSubmit={(event) => {
+          event.preventDefault();
+          if (!preview.getReady()) return;
+          original ? setConfirmReset(true) : void save();
+        }}
+        onKeyDown={(event) => {
+          if (event.key === "Enter" && event.nativeEvent.isComposing)
+            event.preventDefault();
+        }}
+      >
         <fieldset disabled={busy}>
-          <label>
-            공개 재생목록 URL
-            <input
+          <div className="import-field">
+            <Label htmlFor={`${fieldID}-url`}>공개 재생목록 URL</Label>
+            <Input
+              id={`${fieldID}-url`}
               type="url"
               placeholder="https://www.youtube.com/playlist?list=…"
               required
               readOnly={!!original}
               value={url}
+              aria-invalid={preview.invalid || undefined}
+              aria-errormessage={preview.invalid ? errorID : undefined}
               onChange={(event) => {
                 setUrl(event.target.value);
-                setId("");
-                setIds([]);
+                preview.invalidate();
+                pointerReady.current = false;
                 setError("");
-                setPreviewError("");
+              }}
+              onBlur={() => preview.load(url)}
+              onKeyDown={(event) => {
+                if (event.key !== "Enter") return;
+                event.preventDefault();
+                if (!event.nativeEvent.isComposing) preview.load(url);
               }}
             />
-          </label>
-          <label>
-            목록 이름
-            <input
-              maxLength={120}
+          </div>
+          <div className="import-field">
+            <Label htmlFor={`${fieldID}-name`}>목록 이름</Label>
+            <Input
+              id={`${fieldID}-name`}
+              maxLength={Math.max(120, original?.name.length ?? 0)}
               placeholder="나만의 재생목록"
               value={name}
               onChange={(event) => setName(event.target.value)}
             />
-          </label>
-          <button className="secondary-button">
-            <Icon name="play" />
-            {id ? "다시 미리보기" : "미리보기"}
-          </button>
+          </div>
         </fieldset>
-      </form>
-      <div ref={host} className="import-preview" hidden={!id} />
-      <p role="status" className="import-status">
-        {ids.length
-          ? busy
+        <div
+          ref={preview.host}
+          className="import-preview"
+          hidden={!preview.id}
+        />
+        <p role="status" className="import-status">
+          {preview.status === "loading" && !busy && (
+            <span className="import-loading" aria-hidden="true">
+              <Icon name="reset" />
+            </span>
+          )}
+          {busy
             ? "제목을 불러와 저장 중…"
-            : `${ids.length}곡`
-          : id
-            ? "목록을 불러오는 중입니다. 미리보기에서 재생을 눌러 확인할 수 있습니다."
-            : "목록을 미리보기에서 불러온 뒤 저장하세요."}
-      </p>
-      {!confirmReset && <ErrorToast message={error || previewError} />}
-      <div className="import-actions">
-        <button className="secondary-button" disabled={busy} onClick={close}>
-          취소
-        </button>
-        <button
-          className="primary-button"
-          disabled={!ids.length || busy}
-          onClick={() => (original ? setConfirmReset(true) : void save())}
-        >
-          {busy ? "저장 중…" : original ? "원본으로 교체" : "로컬에 저장"}
-        </button>
-      </div>
+            : preview.status === "ready"
+              ? `${preview.ids.length}곡`
+              : preview.status === "loading"
+                ? "재생목록을 불러오는 중…"
+                : ""}
+        </p>
+        {!confirmReset && (
+          <ErrorToast message={error || preview.error} alertId={errorID} />
+        )}
+        {preview.status === "error" && preview.id && (
+          <Button
+            type="button"
+            variant="secondary"
+            disabled={busy}
+            onClick={() => preview.load(url, true)}
+          >
+            다시 시도
+          </Button>
+        )}
+        <div className="import-actions">
+          <Button
+            type="button"
+            variant="secondary"
+            disabled={busy}
+            onClick={close}
+          >
+            취소
+          </Button>
+          <Button
+            type="submit"
+            disabled={preview.status !== "ready" || busy}
+            onPointerDown={() => {
+              pointerReady.current = Boolean(preview.getReady());
+            }}
+            onClick={(event) => {
+              // A blur which starts a load must never turn the same pointer
+              // gesture into an implicit save, even for an immediate onReady.
+              if (event.detail > 0 && !pointerReady.current)
+                event.preventDefault();
+            }}
+          >
+            {busy ? "저장 중…" : original ? "원본으로 교체" : "재생목록 추가"}
+          </Button>
+        </div>
+      </form>
       {confirmReset && (
         <Dialog label="원본 교체 확인" onClose={() => setConfirmReset(false)}>
           <section className="playlist-import" aria-busy={busy}>
             <h2>원본 목록으로 교체할까요?</h2>
             <p>
               “{original?.name}”의 로컬 추가·삭제·정렬 내용을 지우고 미리보기의{" "}
-              {ids.length}곡으로 교체합니다. 현재 대기열은 유지됩니다.
+              {preview.ids.length}곡으로 교체합니다. 현재 대기열은 유지됩니다.
             </p>
             <ErrorToast message={error} />
             <div className="import-actions">
-              <button
-                className="secondary-button"
+              <Button
+                variant="secondary"
                 disabled={busy}
                 onClick={() => setConfirmReset(false)}
               >
                 취소
-              </button>
-              <button
-                className="button danger-button"
-                disabled={busy}
-                onClick={save}
-              >
+              </Button>
+              <Button variant="destructive" disabled={busy} onClick={save}>
                 {busy ? "저장 중…" : "교체"}
-              </button>
+              </Button>
             </div>
           </section>
         </Dialog>

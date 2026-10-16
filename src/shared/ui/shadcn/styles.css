@@ -26,6 +26,7 @@
 /* Product adapters are scoped to adopted primitives. Legacy layout remains SCSS. */
 .loopy-control[data-slot] {
   font-family: var(--font);
+  border-width: 0;
   border-style: solid;
 }
 .loopy-control[data-slot]:focus-visible {
@@ -37,44 +38,44 @@
   opacity: 0.42;
   cursor: not-allowed;
 }
-.loopy-control[data-slot="button"] {
+.loopy-control[data-slot][data-loopy-button] {
   min-height: 44px;
   height: auto;
   border-radius: 10px;
   font-weight: 600;
 }
-.loopy-control[data-slot="button"].play-button {
+.loopy-control[data-slot][data-loopy-button].play-button {
   min-height: 48px;
 }
-.loopy-control[data-slot="button"][data-variant="secondary"] {
+.loopy-control[data-slot][data-loopy-button][data-variant="secondary"] {
   background: var(--surface);
   border: 1px solid var(--line);
   color: var(--text);
 }
-.loopy-control[data-slot="button"][data-variant="secondary"]:hover:not(
+.loopy-control[data-slot][data-loopy-button][data-variant="secondary"]:hover:not(
     :disabled
   ) {
   background: var(--surface-raised);
 }
-.loopy-control[data-slot="button"][data-variant="destructive"] {
+.loopy-control[data-slot][data-loopy-button][data-variant="destructive"] {
   background: var(--danger);
   color: var(--on-brand);
 }
-.loopy-control[data-slot="button"][data-variant="default"] {
+.loopy-control[data-slot][data-loopy-button][data-variant="default"] {
   background: var(--purple);
   color: var(--on-brand);
 }
-.loopy-control[data-slot="button"][data-variant="default"]:hover:not(
+.loopy-control[data-slot][data-loopy-button][data-variant="default"]:hover:not(
     :disabled
   ) {
   background: var(--brand-hover);
 }
-.loopy-control[data-slot="button"][data-variant="default"]:active:not(
+.loopy-control[data-slot][data-loopy-button][data-variant="default"]:active:not(
     :disabled
   ) {
   background: var(--brand-pressed);
 }
-.loopy-control[data-slot="button"][data-size="icon"] {
+.loopy-control[data-slot][data-loopy-button][data-size="icon"] {
   width: 44px;
   height: 44px;
   padding: 0;

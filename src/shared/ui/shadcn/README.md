@@ -35,6 +35,9 @@ References:
   `ExternalMenuTrigger` exposes the original invoking button ref to Radix,
   without reparenting, duplicating, or replacing that button. Feature actions,
   save failures, busy guards and deleted-row focus fallback stay feature-owned.
+- A `data-loopy-button` marker keeps Button styling when a Radix `asChild` trigger
+  supplies its own data-slot. The compatibility boundary explicitly resets border
+  width to zero; only controls and popup surfaces receive a 1px border.
 - Native Dialog, player sheet, Notice/ErrorToast, Tabs, range and media lifetime
   are **not** replaced by shadcn. This source adoption does not claim otherwise.
 

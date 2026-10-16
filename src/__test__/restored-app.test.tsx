@@ -1,5 +1,5 @@
 vi.mock("features/youtube/api/videoMetadata", async (original) => ({
-  ...await original<typeof import("features/youtube/api/videoMetadata")>(),
+  ...(await original<typeof import("features/youtube/api/videoMetadata")>()),
   fetchVideoTitles: async () => ({}),
 }));
 import { resetDatabase } from "test/resetDatabase";
@@ -142,19 +142,14 @@ it.each([390, 1440])(
     });
     await user.click(save);
     await user.click(
-      await screen.findByRole("button", { name: "새 재생목록 선택" }),
+      await screen.findByRole("button", { name: "새 재생목록 만들기" }),
     );
-    await user.click(screen.getByRole("button", { name: "추가" }));
-    await user.type(screen.getByLabelText("제목"), "듣던 대기열 저장");
-    await user.click(
-      within(screen.getByRole("dialog", { name: "새 재생목록" })).getByRole(
-        "button",
-        { name: "만들기" },
-      ),
-    );
+    await user.clear(screen.getByLabelText("이름"));
+    await user.type(screen.getByLabelText("이름"), "듣던 대기열 저장");
+    await user.click(screen.getByRole("button", { name: "만들고 추가" }));
     await waitFor(() =>
       expect(
-        screen.queryByRole("dialog", { name: "새 재생목록" }),
+        screen.queryByRole("dialog", { name: "재생목록에 추가" }),
       ).not.toBeInTheDocument(),
     );
     expect(window.location.pathname).toBe(
@@ -197,11 +192,12 @@ it.each([390, 1440])(
       "https://youtube.com/playlist?list=PLtest123",
     );
     await user.type(screen.getByLabelText("목록 이름"), "가져온 음악");
-    await user.click(screen.getByRole("button", { name: "미리보기" }));
     await waitFor(() =>
-      expect(screen.getByRole("button", { name: "로컬에 저장" })).toBeEnabled(),
+      expect(
+        screen.getByRole("button", { name: "재생목록 추가" }),
+      ).toBeEnabled(),
     );
-    await user.click(screen.getByRole("button", { name: "로컬에 저장" }));
+    await user.click(screen.getByRole("button", { name: "재생목록 추가" }));
     await waitFor(() =>
       expect(
         screen.getByRole("heading", { name: "가져온 음악" }),

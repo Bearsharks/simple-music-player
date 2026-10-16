@@ -6,36 +6,21 @@
   font-size: 22px;
   margin: 0 0 12px;
 }
-.import-intro {
-  color: var(--muted);
-  font-size: 14px;
-  margin-bottom: 20px;
-}
-.import-steps {
-  list-style: none;
-  display: flex;
-  gap: 16px;
-  padding: 0 0 12px;
-  margin: 0 0 24px;
-  border-bottom: 1px solid var(--line);
-  color: var(--muted);
-  font-size: 12px;
-}
-.import-steps .active {
-  color: #d0a3f7;
-}
 .playlist-import fieldset {
   border: 0;
   padding: 0;
   margin: 0;
   min-width: 0;
 }
-.playlist-import label {
+.import-field {
   display: flex;
   flex-direction: column;
   gap: 8px;
   font-size: 13px;
   margin-bottom: 20px;
+}
+.import-status:empty {
+  display: none;
 }
 .playlist-import input {
   width: 100%;
@@ -57,11 +42,6 @@
   font-size: 13px;
   margin: 20px 0 12px;
 }
-.import-disclosure {
-  color: var(--muted);
-  font-size: 12px;
-  line-height: 1.7;
-}
 .import-actions {
   flex-wrap: wrap;
   display: flex;
@@ -78,5 +58,29 @@
   }
   .import-actions > button {
     flex: 1;
+  }
+}
+
+.import-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.import-loading {
+  display: inline-block;
+  animation: import-spin 1s linear infinite;
+}
+.import-loading .icon {
+  width: 16px;
+  height: 16px;
+}
+@keyframes import-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .import-loading {
+    animation: none;
   }
 }

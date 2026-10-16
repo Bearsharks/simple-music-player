@@ -16,6 +16,7 @@ import Spinner from "shared/ui/Spinner";
 import Cover from "shared/ui/Cover";
 import Icon from "shared/ui/Icon";
 import ReadBoundary from "shared/ui/ReadBoundary";
+import Breadcrumb from "../ui/Breadcrumb";
 import "./StudioShell.scss";
 const Playlists = lazy(
   () => import("features/playlists/ui/ConnectedPlaylists"),
@@ -104,7 +105,6 @@ export default function Main() {
             <SidebarLibrary />
           </Suspense>
         </ReadBoundary>
-
       </aside>
       <div className="studio-main">
         <header className="studio-topbar">
@@ -116,21 +116,8 @@ export default function Main() {
             >
               loopy<span>.</span>
             </button>
-            <button
-              className="icon-button back-button"
-              aria-label="라이브러리로 돌아가기"
-              disabled={home}
-              onClick={() => navigate("/")}
-            >
-              <Icon name="arrow" />
-            </button>
-            <span className="crumb-root">내 음악</span>
-            <span className="slash">/</span>
-            <span className="crumb-current">
-              {home ? "라이브러리" : "재생목록"}
-            </span>
+            <Breadcrumb />
           </div>
-
         </header>
         <main id="workspace" tabIndex={-1} className="studio-content">
           <ReadBoundary

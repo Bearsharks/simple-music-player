@@ -110,6 +110,23 @@ try {
       await page.keyboard.press("Enter");
       await expect(page.getByRole("listbox")).toBeVisible();
       await page.keyboard.press("End");
+      await expect(
+        page.getByRole("option", { name: "이름순", exact: true }),
+      ).toBeFocused();
+      await page.screenshot({
+        path: `test-results/app-sort-open-${viewport.width}.png`,
+        fullPage: true,
+      });
+      const optionStyle = await page
+        .getByRole("option", { name: "이름순", exact: true })
+        .evaluate((node) => ({
+          border: getComputedStyle(node).borderTopWidth,
+          radius: getComputedStyle(node).borderTopLeftRadius,
+          height: node.getBoundingClientRect().height,
+        }));
+      expect(optionStyle.border).toBe("0px");
+      expect(optionStyle.radius).toBe("6px");
+      expect(optionStyle.height).toBeGreaterThanOrEqual(44);
       await page.keyboard.press("Enter");
       await expect(sortTrigger).toHaveText("이름순");
       await expect(sortTrigger).toBeFocused();
@@ -156,6 +173,75 @@ try {
           main: false,
         });
       };
+      const breadcrumb = page.getByRole("navigation", { name: "현재 위치" });
+      await expect(breadcrumb.locator('[aria-current="page"]')).toHaveText(
+        "라이브러리",
+      );
+      await expect(breadcrumb.getByRole("link")).toHaveCount(0);
+      if ([390, 1440].includes(viewport.width)) {
+        const libraryMenu = page.getByRole("button", {
+          name: "라이브러리 더보기",
+          exact: true,
+        });
+        expect((await libraryMenu.boundingBox()).height).toBeGreaterThanOrEqual(
+          44,
+        );
+        await libraryMenu.click();
+        const downloadPromise = page.waitForEvent("download");
+        await page
+          .getByRole("menuitem", { name: "목록 내보내기", exact: true })
+          .click();
+        const download = await downloadPromise;
+        expect(download.suggestedFilename()).toBe("loopy-playlists.json");
+        const exported = JSON.parse(
+          fs.readFileSync(await download.path(), "utf8"),
+        );
+        expect(exported.playlists).toHaveLength(8);
+        await libraryMenu.click();
+        const chooserPromise = page.waitForEvent("filechooser");
+        await page
+          .getByRole("menuitem", { name: "백업 가져오기", exact: true })
+          .click();
+        const chooser = await chooserPromise;
+        await expect(page.getByRole("menu")).toHaveCount(0);
+        await chooser.setFiles({
+          name: "invalid.json",
+          mimeType: "application/json",
+          buffer: Buffer.from("invalid"),
+        });
+        await expect(page.getByRole("alert")).toBeVisible();
+        await page
+          .getByRole("button", { name: "오류 알림 닫기", exact: true })
+          .click();
+        await libraryMenu.click();
+        const nextChooser = page.waitForEvent("filechooser");
+        await page
+          .getByRole("menuitem", { name: "백업 가져오기", exact: true })
+          .click();
+        await (
+          await nextChooser
+        ).setFiles({
+          name: "backup.json",
+          mimeType: "application/json",
+          buffer: Buffer.from(
+            JSON.stringify({
+              format: "smp-playlists",
+              version: 1,
+              playlists: [],
+            }),
+          ),
+        });
+        const backupDialog = page.getByRole("dialog", {
+          name: "백업 가져오기",
+          exact: true,
+        });
+        await expect(backupDialog).toBeVisible();
+        await backupDialog
+          .getByRole("button", { name: "취소", exact: true })
+          .click();
+        await expect(libraryMenu).toBeFocused();
+        await expect(page.locator(".playlist-card")).toHaveCount(8);
+      }
       await assertFits("library");
       if (viewport.width === 390) {
         expect(
@@ -181,6 +267,12 @@ try {
           .first()
           .getAttribute("data-cover-seed"),
       ).toBe(librarySeed);
+      await expect(
+        breadcrumb.getByRole("link", { name: "라이브러리" }),
+      ).toBeVisible();
+      await expect(breadcrumb.locator('[aria-current="page"]')).toHaveText(
+        "새벽의 파형",
+      );
       await expect(page.getByLabel("추가할 영상 URL")).toHaveCount(0);
       await assertFits("detail");
       await page.screenshot({
@@ -188,6 +280,21 @@ try {
         fullPage: true,
       });
       if ([390, 1440].includes(viewport.width)) {
+        await page
+          .locator("main")
+          .getByRole("button", { name: "더보기", exact: true })
+          .click();
+        await page
+          .getByRole("menuitem", { name: "재생목록 수정", exact: true })
+          .click();
+        await page.screenshot({
+          path: `test-results/app-edit-form-${viewport.width}.png`,
+          fullPage: true,
+        });
+        await page.keyboard.press("Escape");
+        await expect(
+          page.getByRole("dialog", { name: "재생목록 수정", exact: true }),
+        ).toHaveCount(0);
         await page
           .getByRole("button", { name: "전체 재생", exact: true })
           .click();
@@ -244,7 +351,7 @@ try {
         await expect(
           page.getByRole("button", { name: "대기열 닫기", exact: true }),
         ).toBeVisible();
-        // Nested native top layers: menu → destination picker → creation → import.
+        // Nested native top layers: menu → one-screen destination editor.
         await page
           .getByRole("button", { name: "검증용 곡 01 더보기", exact: true })
           .last()
@@ -252,18 +359,40 @@ try {
         await page
           .getByRole("menuitem", { name: "재생목록에 추가", exact: true })
           .click();
+        await expect(
+          page.getByRole("button", { name: "수정하고 추가", exact: true }),
+        ).toBeDisabled();
         await page
-          .getByRole("button", { name: "새 재생목록 선택", exact: true })
+          .getByRole("button", { name: "새벽의 파형 선택", exact: true })
           .click();
-        await page.getByRole("button", { name: "추가", exact: true }).click();
-        await expect(page.getByLabel("제목", { exact: true })).toBeFocused();
+        await expect(page.getByLabel("이름", { exact: true })).toHaveValue(
+          "새벽의 파형",
+        );
+        await page.getByLabel("설명 (선택)").fill("아직 저장하지 않은 설명");
+        await page.screenshot({
+          path: `test-results/app-picker-existing-${viewport.width}.png`,
+          fullPage: true,
+        });
         await page
-          .getByRole("button", { name: "유튜브에서 가져오기", exact: true })
+          .getByRole("button", { name: "새 재생목록 만들기", exact: true })
           .click();
-        await expect(page.getByLabel("공개 재생목록 URL")).toBeFocused();
+        await expect(page.getByLabel("이름", { exact: true })).toBeFocused();
+        await page.screenshot({
+          path: `test-results/app-picker-new-${viewport.width}.png`,
+          fullPage: true,
+        });
+        const labelStyle = await page
+          .locator('label[data-slot="label"]')
+          .first()
+          .evaluate((node) => ({
+            border: getComputedStyle(node).borderTopWidth,
+            height: node.getBoundingClientRect().height,
+          }));
+        expect(labelStyle.border).toBe("0px");
+        expect(labelStyle.height).toBeLessThan(40);
         for (const width of [1199, 1200, 1199]) {
           await page.setViewportSize({ width, height: viewport.height });
-          await expect(page.getByLabel("공개 재생목록 URL")).toBeVisible();
+          await expect(page.getByLabel("이름", { exact: true })).toBeVisible();
           // Background responsive changes must not recreate the task's native
           // close watcher. Its parent keeps its mode until the task is closed.
           expect(
@@ -280,7 +409,7 @@ try {
             await page.evaluate(() =>
               Boolean(
                 document.activeElement.closest(
-                  'dialog[aria-label="재생목록 URL 가져오기"]',
+                  'dialog[aria-label="재생목록에 추가"]',
                 ),
               ),
             ),
@@ -288,7 +417,7 @@ try {
         }
         await page.keyboard.press("Escape");
         await expect(
-          page.getByRole("dialog", { name: "재생목록 URL 가져오기" }),
+          page.getByRole("dialog", { name: "재생목록에 추가" }),
         ).toHaveCount(0);
         await expect(
           page.getByRole("button", { name: "대기열 닫기", exact: true }),
@@ -333,13 +462,14 @@ try {
         });
         await saveQueue.click();
         await page
-          .getByRole("button", { name: "새 재생목록 선택", exact: true })
+          .getByRole("button", { name: "새 재생목록 만들기", exact: true })
           .click();
-        await page.getByRole("button", { name: "추가", exact: true }).click();
-        await page.getByLabel("제목", { exact: true }).fill("보존한 대기열");
-        await page.getByRole("button", { name: "만들기", exact: true }).click();
+        await page.getByLabel("이름", { exact: true }).fill("보존한 대기열");
+        await page
+          .getByRole("button", { name: "만들고 추가", exact: true })
+          .click();
         await expect(
-          page.getByRole("dialog", { name: "새 재생목록", exact: true }),
+          page.getByRole("dialog", { name: "재생목록에 추가", exact: true }),
         ).toHaveCount(0);
         expect(page.url()).toBe(routeBeforeSave);
         await expect(saveQueue).toBeFocused();
@@ -444,6 +574,20 @@ try {
         await queuePanel
           .getByRole("button", { name: "검증용 곡 02 더보기", exact: true })
           .click();
+        await page.screenshot({
+          path: `test-results/app-queue-menu-${viewport.width}.png`,
+          fullPage: true,
+        });
+        const menuItemStyle = await page
+          .getByRole("menuitem", { name: "대기열에서 삭제", exact: true })
+          .evaluate((node) => ({
+            border: getComputedStyle(node).borderTopWidth,
+            radius: getComputedStyle(node).borderTopLeftRadius,
+            height: node.getBoundingClientRect().height,
+          }));
+        expect(menuItemStyle.border).toBe("0px");
+        expect(menuItemStyle.radius).toBe("6px");
+        expect(menuItemStyle.height).toBeGreaterThanOrEqual(44);
         await page
           .getByRole("menuitem", { name: "대기열에서 삭제", exact: true })
           .click();
@@ -556,14 +700,17 @@ try {
             dockBounds.y,
           );
         }
+        await page.screenshot({
+          path: `test-results/app-queue-bottom-menu-${viewport.width}.png`,
+          fullPage: true,
+        });
         await page
           .getByRole("menuitem", { name: "대기열에서 삭제", exact: true })
           .click();
         await expect(
           page.getByRole("button", { name: "실행 취소", exact: true }),
         ).toBeVisible();
-        // Switching the new-selection dialog to import deliberately navigates
-        // on success, but only a narrow modal queue must close for the detail.
+        // Undo remains reachable beside the one-screen editor; standalone import is tested next.
         await page.evaluate(() => {
           window.__beforeImportPlayer = window.player;
         });
@@ -574,14 +721,14 @@ try {
           })
           .click();
         await page
-          .getByRole("button", { name: "새 재생목록 선택", exact: true })
+          .getByRole("button", { name: "새 재생목록 만들기", exact: true })
           .click();
         const picker = page.getByRole("dialog", {
           name: "재생목록에 추가",
           exact: true,
         });
         const pickerSubmit = picker.getByRole("button", {
-          name: "추가",
+          name: "만들고 추가",
           exact: true,
         });
         const liveUndo = picker.getByRole("button", {
@@ -604,17 +751,9 @@ try {
         await expect(liveUndo).toBeFocused();
         await page.keyboard.press("Shift+Tab");
         await expect(pickerSubmit).toBeFocused();
-        await pickerSubmit.click(); // A normal hit-tested click while Undo remains active.
-        const creation = page.getByRole("dialog", {
-          name: "새 재생목록",
-          exact: true,
-        });
-        await expect(
-          creation.getByRole("button", { name: "실행 취소", exact: true }),
-        ).toBeVisible();
-        await page.getByLabel("제목", { exact: true }).fill("유지할 작업 입력");
+        await page.getByLabel("이름", { exact: true }).fill("유지할 작업 입력");
         const titleBox = await page
-          .getByLabel("제목", { exact: true })
+          .getByLabel("이름", { exact: true })
           .boundingBox();
         await page.mouse.move(
           titleBox.x + 20,
@@ -623,15 +762,15 @@ try {
         await page.mouse.down();
         await page.mouse.move(2, 2, { steps: 10 });
         await page.mouse.up();
-        await expect(creation).toBeVisible();
-        await expect(page.getByLabel("제목", { exact: true })).toHaveValue(
+        await expect(picker).toBeVisible();
+        await expect(page.getByLabel("이름", { exact: true })).toHaveValue(
           "유지할 작업 입력",
         );
 
-        await creation
+        await picker
           .getByRole("button", { name: "실행 취소", exact: true })
           .click();
-        await expect(page.getByLabel("제목", { exact: true })).toHaveValue(
+        await expect(page.getByLabel("이름", { exact: true })).toHaveValue(
           "유지할 작업 입력",
         );
         await expect(queuePanel.locator('[role="tab"]').last()).toHaveText(
@@ -640,6 +779,22 @@ try {
         await expect(
           page.getByRole("button", { name: "실행 취소", exact: true }),
         ).toHaveCount(0);
+        await pickerSubmit.click(); // Normal hit-tested click after a real Undo, no overlay dismissal workaround.
+        await expect(picker).toHaveCount(0);
+        await page
+          .getByRole("button", { name: "대기열 닫기", exact: true })
+          .click();
+        await page
+          .getByRole("navigation", { name: "현재 위치" })
+          .getByRole("link", { name: "라이브러리" })
+          .click();
+        await page
+          .getByRole("button", { name: "새 재생목록", exact: true })
+          .click();
+        await page.screenshot({
+          path: `test-results/app-create-form-${viewport.width}.png`,
+          fullPage: true,
+        });
         await page
           .getByRole("button", { name: "유튜브에서 가져오기", exact: true })
           .click();
@@ -651,10 +806,7 @@ try {
           .fill("https://youtube.com/playlist?list=PLtest123");
         await page.getByLabel("목록 이름").fill("가져온 검수 목록");
         await page
-          .getByRole("button", { name: "미리보기", exact: true })
-          .click();
-        await page
-          .getByRole("button", { name: "로컬에 저장", exact: true })
+          .getByRole("button", { name: "재생목록 추가", exact: true })
           .click();
         await expect(
           page.getByRole("heading", { name: "가져온 검수 목록", exact: true }),
@@ -665,18 +817,9 @@ try {
             () => window.player === window.__beforeImportPlayer,
           ),
         ).toBe(true);
-        if (viewport.width >= 1200) {
-          await expect(
-            page.getByRole("button", { name: "대기열 닫기", exact: true }),
-          ).toBeVisible();
-          await page
-            .getByRole("button", { name: "대기열 닫기", exact: true })
-            .click();
-        } else {
-          await expect(
-            page.getByRole("button", { name: "대기열 닫기", exact: true }),
-          ).toHaveCount(0);
-        }
+        await expect(
+          page.getByRole("button", { name: "대기열 닫기", exact: true }),
+        ).toHaveCount(0);
       }
       if (viewport.width === 1440) {
         await page.evaluate(async () => {
@@ -704,7 +847,7 @@ try {
           db.close();
         });
         await page.goto(base);
-        await expect(page.locator(".playlist-card")).toHaveCount(32);
+        await expect(page.locator(".playlist-card")).toHaveCount(33);
         await page.locator(".card-title").last().scrollIntoViewIfNeeded();
         await assertFits("30+ lists");
         await page

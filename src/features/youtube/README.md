@@ -38,10 +38,16 @@ overlays가 검색·가져오기에 사용하고 player가 곡 정보를 조회�
 
 ## Electric Night 가져오기
 
-`PlaylistImport.scss`가 URL → 공식 미리보기 → 로컬 저장 단계를 표현한다. URL 변경은 이전 preview/저장 후보를 무효화하며 같은 URL도 다시 미리보기할 수 있다. 미리보기 로딩 오류와 저장 오류를 분리하여 iframe polling이 실패한 저장 메시지를 지우지 않는다. 원본 교체는 미리보기 뒤 단일 native 확인 dialog에서만 실행한다. CREATE 성공은 선택적 `onCreated(id)`로 조립 계층에 알린다. 프로토타입 모의 데이터/시계/저장은 제품에 포함하지 않는다.
+`PlaylistImport`는 URL blur/Enter에서 자동 미리보기를 시작한다. 단계 표시와 수동 미리보기 버튼은 없다. `usePlaylistPreview`가 요청 세대, 공식 preview player와 타이머를 소유한다. URL onChange는 즉시 이전 후보를 폐기하므로 원래 URL로 되돌아와도 다시 로드한다. 편집하지 않은 URL의 반복 blur/Enter는 중복 요청하지 않고 실패는 명시적 재시도로만 다시 요청한다. 미리보기 로딩 오류와 저장 오류를 분리하여 iframe polling이 실패한 저장 메시지를 지우지 않는다. 원본 교체는 미리보기 뒤 단일 native 확인 dialog에서만 실행한다. CREATE 성공은 선택적 `onCreated(id)`로 조립 계층에 알린다. 프로토타입 모의 데이터/시계/저장은 제품에 포함하지 않는다.
 
 ## 원래 곡 제목
 
 videoMetadata.ts는 공식 https://www.youtube.com/oembed 에서 title/author_name만 사용한다. 응답 HTML은 실행·렌더링하지 않는다. credentials omit, no-referrer, 영상 ID 검증, 중복 제거, 동시 4개, 전체 12초 중단, 오류 자동 재시도 없음. 가져오기 및 이름 없는 개별 영상 추가에서 조회하고 실패는 기존 임시 제목을 보존한다. 저장된 임시 제목은 별도 복구 버튼에서 재시도한다.
 
 2026-10-16 실제 FloP_f-VK_k 응답에서 ‘심규선 ‘Sister’ (Live) | Official Lyric Video’ 제목과 GitHub Pages Origin에 대한 CORS 허용을 확인했다. 모든 영상/목록의 가용성이나 실제 재생을 보장하지 않는다.
+
+URL Enter는 저장하지 않고 IME Enter를 무시한다. 유효한 영상 ID가 1개 이상인 현재
+요청만 ‘재생목록 추가’를 활성화한다. timeout/error 후 늦은 응답은 되살아나지 않는다.
+미리보기 로딩 중에는 닫을 수 있지만 실제 저장 중에는 닫기/입력/중복 제출을 잠근다.
+원본 URL이 readonly인 경우 최초 자동 로드하며 기존 교체 확인을 유지한다.
+추가 회귀: `playlist-preview.test.tsx` (StrictMode, stale 결과, 재시도, cleanup).

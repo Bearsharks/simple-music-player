@@ -1,5 +1,5 @@
 vi.mock("features/youtube/api/videoMetadata", async (original) => ({
-  ...await original<typeof import("features/youtube/api/videoMetadata")>(),
+  ...(await original<typeof import("features/youtube/api/videoMetadata")>()),
   fetchVideoTitles: async () => ({}),
 }));
 import { resetDatabase } from "test/resetDatabase";
@@ -44,13 +44,13 @@ it("imports player-provided IDs into editable local storage without login", asyn
   fireEvent.change(screen.getByLabelText("목록 이름"), {
     target: { value: "내 음악" },
   });
-  fireEvent.click(screen.getByRole("button", { name: "미리보기" }));
+  fireEvent.blur(screen.getByLabelText("공개 재생목록 URL"));
   await waitFor(() =>
     expect(
-      screen.getByRole("button", { name: "로컬에 저장" }),
+      screen.getByRole("button", { name: "재생목록 추가" }),
     ).not.toBeDisabled(),
   );
-  fireEvent.click(screen.getByRole("button", { name: "로컬에 저장" }));
+  fireEvent.click(screen.getByRole("button", { name: "재생목록 추가" }));
   await waitFor(() => expect(close).toHaveBeenCalledOnce());
   const lists = await api.getPlaylistInfos();
   expect(lists[0].name).toBe("내 음악");
@@ -86,7 +86,7 @@ it("reset requires confirmation and replaces the local copy without changing its
       <PlaylistImport original={original} close={close} />
     </Provider>,
   );
-  fireEvent.click(screen.getByRole("button", { name: "미리보기" }));
+
   await waitFor(() =>
     expect(
       screen.getByRole("button", { name: "원본으로 교체" }),
@@ -125,21 +125,21 @@ it("keeps a failed save visible while preview polling continues and permits retr
   fireEvent.change(screen.getByLabelText("공개 재생목록 URL"), {
     target: { value: "https://youtube.com/playlist?list=PLtest123" },
   });
-  fireEvent.click(screen.getByRole("button", { name: "미리보기" }));
+  fireEvent.blur(screen.getByLabelText("공개 재생목록 URL"));
   await waitFor(() =>
-    expect(screen.getByRole("button", { name: "로컬에 저장" })).toBeEnabled(),
+    expect(screen.getByRole("button", { name: "재생목록 추가" })).toBeEnabled(),
   );
   const create = vi
     .spyOn(api, "createPlaylist")
     .mockRejectedValueOnce(new Error("저장 공간 부족"));
-  fireEvent.click(screen.getByRole("button", { name: "로컬에 저장" }));
+  fireEvent.click(screen.getByRole("button", { name: "재생목록 추가" }));
   await screen.findByRole("alert");
   await new Promise((resolve) => setTimeout(resolve, 1100));
   expect(screen.getByRole("alert")).toHaveTextContent("저장 공간 부족");
   expect(screen.getByLabelText("공개 재생목록 URL")).toHaveValue(
     "https://youtube.com/playlist?list=PLtest123",
   );
-  fireEvent.click(screen.getByRole("button", { name: "로컬에 저장" }));
+  fireEvent.click(screen.getByRole("button", { name: "재생목록 추가" }));
   await waitFor(() => expect(close).toHaveBeenCalledOnce());
   expect(create).toHaveBeenCalledTimes(2);
   create.mockRestore();

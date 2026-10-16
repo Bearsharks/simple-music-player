@@ -29,7 +29,9 @@ import {
 import { searchByQuery } from "features/youtube/api/youtubeSearch";
 import OptionSelector, { OptionInfo } from "shared/ui/OptionSelector";
 import Spinner from "shared/ui/Spinner";
-import FormBoxPlaylist from "features/playlists/ui/formBox/FormBoxPlaylist";
+import FormBoxPlaylist, {
+  type PlaylistDestination,
+} from "features/playlists/ui/formBox/FormBoxPlaylist";
 import Dialog from "shared/ui/Dialog";
 import { useNotice } from "./Notice";
 import {
@@ -221,6 +223,7 @@ function PopupWrapper() {
           <Dialog
             key={info.key}
             label="재생목록에 추가"
+            className="playlist-destination"
             onClose={() => close(info.key)}
           >
             <Suspense fallback={<Spinner />}>
@@ -248,35 +251,31 @@ function AppendPlaylistPopup({
 }: AppendPlaylistPopupProps) {
   const playlistInfos = useAtomValue(playlistInfosState);
   const playlistManager = usePlaylistManager();
-  const modalManager = useModalManager();
-  const openNewPlaylistModal = () => {
-    modalManager(ModalKind.CreatePlaylist, musicInfos);
-    setPopupOpen(false);
-  };
-  const playlistDummy: PlaylistInfo = {
-    id: "newPlaylist",
-    name: "새 재생목록",
-    description: "",
-    thumbnails: [],
-    itemCount: -1,
-  };
-
-  const submit = async (tgt: PlaylistInfo) => {
-    if (tgt.id === playlistDummy.id) {
-      openNewPlaylistModal();
-      return;
-    }
-    let info = playlistInfos.find((element) => element.id === tgt.id);
-    if (!info) throw "해당 재생목록이 존재하지 않음!";
-    const appendAction: PlaylistAction = {
-      type: PlaylistActionType.APPEND,
+  const notice = useNotice();
+  const submit = async (destination: PlaylistDestination) => {
+    const existing = destination.id;
+    if (existing && !playlistInfos.some((item) => item.id === existing))
+      throw new Error("목록을 찾을 수 없습니다. 다른 목록을 선택해 주세요.");
+    await playlistManager({
+      type: existing ? PlaylistActionType.APPEND : PlaylistActionType.CREATE,
       payload: {
-        info: { id: tgt.id },
+        info: existing
+          ? { id: existing, ...destination.changes }
+          : {
+              id: "",
+              name: destination.name,
+              description: destination.description,
+            },
         items: musicInfos,
       },
-    };
-    await playlistManager(appendAction);
+    });
+    const savedName = destination.name;
     setPopupOpen(false);
+    notice(
+      existing
+        ? `“${savedName}”에 ${musicInfos.length}곡을 추가했습니다.`
+        : `“${savedName}”을 만들고 ${musicInfos.length}곡을 추가했습니다.`,
+    );
   };
 
   return (
@@ -284,7 +283,8 @@ function AppendPlaylistPopup({
       <FormBoxPlaylist
         name={"재생목록에 추가"}
         closePopup={() => setPopupOpen(false)}
-        playlistInfos={[playlistDummy, ...playlistInfos]}
+        playlistInfos={playlistInfos}
+        trackCount={musicInfos.length}
         submit={submit}
       />
     </div>

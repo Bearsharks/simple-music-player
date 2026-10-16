@@ -6,7 +6,13 @@ import type { PlaylistInfo } from "shared/model/constants";
 import Cover from "shared/ui/Cover";
 import Icon from "shared/ui/Icon";
 import "./Playlists.scss";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "shared/ui/shadcn/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "shared/ui/shadcn/select";
 export interface PlaylistsProps {
   goToPlaylistPage: (id: string, focusAdd?: boolean) => void;
   openCreatePlaylistPopup: () => void;
@@ -52,26 +58,31 @@ export default function Playlists(props: PlaylistsProps) {
             {props.playlistInfos.length}개의 재생목록 · {count}곡
           </p>
         </div>
-        {hasLists && (
-          <div className="heading-actions">
-            <Button variant="secondary"
-              className="secondary-button"
-              aria-label="YouTube 가져오기"
-              onClick={props.openImportPlaylist}
-            >
-              <Icon name="download" />
-              <span>가져오기</span>
-            </Button>
-            <Button variant="default"
-              className="primary-button"
-              aria-label="새 재생목록"
-              onClick={props.openCreatePlaylistPopup}
-            >
-              <Icon name="plus" />
-              <span>새 재생목록</span>
-            </Button>
-          </div>
-        )}
+        <div className="heading-actions">
+          {hasLists && (
+            <>
+              <Button
+                variant="secondary"
+                className="secondary-button"
+                aria-label="YouTube 가져오기"
+                onClick={props.openImportPlaylist}
+              >
+                <Icon name="download" />
+                <span>가져오기</span>
+              </Button>
+              <Button
+                variant="default"
+                className="primary-button"
+                aria-label="새 재생목록"
+                onClick={props.openCreatePlaylistPopup}
+              >
+                <Icon name="plus" />
+                <span>새 재생목록</span>
+              </Button>
+            </>
+          )}
+          <LibraryBackup />
+        </div>
       </header>
       {hasLists ? (
         <>
@@ -171,7 +182,11 @@ export default function Playlists(props: PlaylistsProps) {
               <Icon name="search" />
               <h2>찾는 재생목록이 없어요</h2>
               <p>“{query}”에 맞는 이름을 찾지 못했습니다.</p>
-              <Button variant="secondary" className="secondary-button" onClick={() => setQuery("")}>
+              <Button
+                variant="secondary"
+                className="secondary-button"
+                onClick={() => setQuery("")}
+              >
                 검색 지우기
               </Button>
             </div>
@@ -194,14 +209,16 @@ export default function Playlists(props: PlaylistsProps) {
             듣고 싶은 곡을 하나씩 담아보세요.
           </p>
           <div className="actions">
-            <Button variant="default"
+            <Button
+              variant="default"
               className="primary-button"
               onClick={props.openImportPlaylist}
             >
               <Icon name="download" />
               YouTube 가져오기
             </Button>
-            <Button variant="secondary"
+            <Button
+              variant="secondary"
               className="secondary-button"
               aria-label="새 재생목록"
               onClick={props.openCreatePlaylistPopup}
@@ -211,7 +228,6 @@ export default function Playlists(props: PlaylistsProps) {
           </div>
         </div>
       )}
-      <LibraryBackup />
     </section>
   );
 }

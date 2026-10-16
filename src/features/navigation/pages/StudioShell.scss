@@ -263,11 +263,7 @@
   .breadcrumb {
     gap: 8px;
   }
-  .crumb-root,
-  .slash,
-  .back-button:disabled {
-    display: none;
-  }
+
   .crumb-current {
     white-space: nowrap;
     overflow: hidden;
@@ -306,5 +302,26 @@
   }
 }
 
-.library-backup { display:flex; gap:8px; flex-wrap:wrap; margin-top:24px; }
-.library-backup > button { font-size:12px; color:var(--text-secondary); }
+.breadcrumb-nav {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+.breadcrumb-nav > a,
+.breadcrumb-nav > .slash {
+  flex-shrink: 0;
+}
+.breadcrumb-nav > a {
+  color: var(--muted);
+  text-decoration: none;
+}
+.breadcrumb-nav > a:hover {
+  color: var(--text);
+}
+.breadcrumb-nav .crumb-current {
+  min-width: 0;
+}
+.mobile-wordmark {
+  flex-shrink: 0;
+}

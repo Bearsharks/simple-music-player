@@ -77,3 +77,16 @@ recent/name sorting; search text is not reset and no data write occurs. General
 CTA and form fields use shared shadcn Button/Input/Textarea/Label, while cards,
 DnD handles and feature layouts keep their existing ownership. Native file input,
 media controls and dialog lifetimes are not converted to another framework.
+
+## 목적지 편집과 전역 백업
+
+`FormBoxPlaylist`는 위에서 저장 목적지를 선택하고 아래에서 실제 이름·설명을 편집한다.
+목적지별 draft를 보존하고 취소는 쓰지 않는다. 신규는 CREATE에 metadata+선택곡을
+한 번 전달하고, 기존은 APPEND에 변경한 metadata만 합쳐 실행 시점의 최신 곡 뒤에
+추가한다. 기존 긴 metadata를 잘라내지 않는다. 저장 실패는 draft/선택곡을 보존한다.
+성공은 현재 화면·대기열을 유지한다. 회귀: `playlist-picker.test.tsx`.
+
+LibraryBackup은 라이브러리 헤더의 ‘라이브러리 더보기’ 메뉴다. file input은 메뉴 밖
+안정된 owner에 남고 항목의 동기 사용자 activation에서 chooser를 연다. 메뉴를 닫아도
+파일 응답을 받으며 검증/확인/원자적 추가 가져오기는 기존 계약 그대로다.
+회귀: `library-navigation.test.tsx`; 실제 chooser/다운로드/포커스는 Chromium suite.
