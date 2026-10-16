@@ -75,6 +75,8 @@ export enum PlaylistActionType {
   UPDATE,
   APPEND,
   DELETE_ITEMS,
+  MOVE_ITEM,
+  PATCH_METADATA,
 }
 export interface PlaylistAction {
   type: PlaylistActionType;

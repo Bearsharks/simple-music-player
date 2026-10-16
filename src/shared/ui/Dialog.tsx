@@ -81,6 +81,17 @@ export default function Dialog({
   const [layer] = useState(() => document.createElement("div"));
   const content = useRef<HTMLDialogElement>(null);
   const [modal, setModal] = useState(requestedModal);
+  // A click may be retargeted to the dialog after selecting text and releasing
+  // on its backdrop. Dismiss only gestures which both start and end outside.
+  const backdropPress = useRef<number | null>(null);
+  const isBackdrop = (target: EventTarget, x: number, y: number) => {
+    const root = content.current;
+    if (!root) return false;
+    if (target === root.parentElement) return true;
+    if (target !== root) return false;
+    const rect = root.getBoundingClientRect();
+    return x < rect.left || x > rect.right || y < rect.top || y > rect.bottom;
+  };
   const close = useRef(onClose);
   close.current = onClose;
   const requestClose = () => {
@@ -211,8 +222,34 @@ export default function Dialog({
     <div
       className={modal && open ? styles.backdrop : undefined}
       hidden={!open}
+      onPointerDownCapture={(event) => {
+        backdropPress.current =
+          event.button === 0 &&
+          modal &&
+          isBackdrop(event.target, event.clientX, event.clientY)
+            ? event.pointerId
+            : null;
+      }}
+      onPointerUpCapture={(event) => {
+        if (
+          backdropPress.current !== event.pointerId ||
+          !isBackdrop(event.target, event.clientX, event.clientY)
+        )
+          backdropPress.current = null;
+      }}
+      onPointerCancelCapture={() => {
+        backdropPress.current = null;
+      }}
       onClick={(event) => {
-        if (event.target === event.currentTarget && modal) requestClose();
+        const startedOutside = backdropPress.current !== null;
+        backdropPress.current = null;
+        if (
+          startedOutside &&
+          modal &&
+          openDialogs.at(-1)?.root === content.current &&
+          isBackdrop(event.target, event.clientX, event.clientY)
+        )
+          requestClose();
       }}
     >
       <dialog
@@ -226,17 +263,6 @@ export default function Dialog({
           event.preventDefault();
           event.stopPropagation();
           if (openDialogs.at(-1)?.root === event.currentTarget) requestClose();
-        }}
-        onClick={(event) => {
-          if (event.target !== event.currentTarget || !modal) return;
-          const rect = event.currentTarget.getBoundingClientRect();
-          if (
-            event.clientX < rect.left ||
-            event.clientX > rect.right ||
-            event.clientY < rect.top ||
-            event.clientY > rect.bottom
-          )
-            requestClose();
         }}
       >
         {children}

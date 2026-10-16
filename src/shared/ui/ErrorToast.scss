@@ -1,0 +1,28 @@
+.error-toast {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border: 1px solid var(--danger, #ff7d9f);
+  border-radius: 12px;
+  background: var(--surface, #1a1a26);
+  color: var(--text, white);
+  box-shadow: 0 8px 32px #0008;
+  max-width: min(460px, calc(100vw - 32px));
+  margin: 8px;
+}
+.error-toast p {
+  margin: 0;
+  overflow-wrap: anywhere;
+  flex: 1;
+}
+.error-toast button {
+  flex-shrink: 0;
+}
+[data-overlay-scope="page"] .error-toast {
+  position: fixed;
+  bottom: 104px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 200;
+}

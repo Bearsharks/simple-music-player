@@ -71,3 +71,7 @@ playlists/queue/youtube를 연결하는 기존 조정 코드다. search/player/p
 - 높은 우선순위의 작업 dialog가 열린 동안 낮은 우선순위 panel의 native modal/nonmodal 모드 변경은 유예한다. CSS 폭은 반응하지만 자식 dialog를 close/showModal로 재생성하지 않는다. 마지막 상위 작업이 닫히면 요청된 모드로 전환하고 inert/scroll lock을 정리한다. Escape와 resize가 겹쳐 native close watcher가 교체되는 경쟁을 피한다.
 - 메뉴는 viewport와 트리거의 native dialog 경계 교집합 안에 배치한다. 아래 공간이 모자라면 위로 열고 8px 안쪽으로 제한하므로 desktop queue 아래 dock이 마지막 메뉴 항목을 가리지 않는다. 크기/오류 메시지 변경도 ResizeObserver로 재배치하며 긴 메뉴는 자체 스크롤한다.
 - `popup-position` 테스트는 실제 CI의 마지막 행 좌표, 좁은 sheet, 높이가 부족한 경계를 확인한다. `electric-night`는 자식 native close/show가 발생하지 않는지와 유예 모드가 작업 종료 후 양방향으로 반영되는지 검증한다.
+
+## 2026-10-16 사용 피드백
+
+Dialog는 pointerdown과 pointerup 모두 backdrop에서 발생한 경우만 click으로 닫는다. 내부 텍스트 선택·드래그 후 바깥에 놓기, 취소된 포인터, 바깥에서 안으로 놓기는 닫지 않는다. native cancel/Escape·busy 보호는 유지한다. 폼 오류는 shared/ui/ErrorToast로 표시하며 입력을 지우지 않는다. 모달 안 토스트는 기존 OverlayPortal 범위 안에 남겨 입력/저장 버튼을 가리지 않는다.

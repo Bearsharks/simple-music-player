@@ -350,8 +350,7 @@ it("keeps the simulated official player instance through tabs, close/reopen, res
   );
   expect(document.activeElement).toHaveAttribute("aria-label", "곡 b 재생");
   await user.click(await screen.findByRole("button", { name: "실행 취소" }));
-  await user.click(screen.getByRole("button", { name: "대기열 순서 편집" }));
-  await user.click(screen.getByRole("button", { name: "곡 b 위로" }));
+  expect(screen.getByRole("button", { name: "곡 b 순서 드래그" })).toBeEnabled();
   await user.click(screen.getByRole("button", { name: "대기열 닫기" }));
   await user.click(screen.getByRole("button", { name: "재생 대기열" }));
   await act(async () => {

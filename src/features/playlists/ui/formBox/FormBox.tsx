@@ -1,3 +1,4 @@
+import ErrorToast from "shared/ui/ErrorToast";
 import { useId, useRef, useState, type FormEvent, type ReactNode } from "react";
 import styles from "./FormBox.module.scss";
 export interface FormItem {
@@ -82,11 +83,7 @@ export default function FormBox({
           </div>
         ))}
         {children && <div>{children}</div>}
-        {error && (
-          <p role="alert" className="form-error">
-            {error}
-          </p>
-        )}
+        <ErrorToast message={error} />
         <div className={styles["formbox-actions"]}>
           <button
             type="button"

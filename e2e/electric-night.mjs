@@ -306,36 +306,38 @@ try {
             .getByRole("button", { name: "대기열 닫기", exact: true })
             .click();
         // Saved editing while a desktop queue is open must not alter current playback.
-        await page
-          .getByRole("button", { name: "순서 편집", exact: true })
-          .click();
         const savedTracks = page.getByRole("region", {
           name: "저장한 곡",
           exact: true,
         });
-        const moveUp = savedTracks.getByRole("button", {
-          name: "검증용 곡 02 위로",
+        const savedHandle = savedTracks.getByRole("button", {
+          name: "검증용 곡 02 순서 드래그",
           exact: true,
         });
+        const keyboardMove = async (handle, direction) => {
+          await handle.focus();
+          await page.keyboard.press("Space");
+          await page.keyboard.press(direction);
+          await page.waitForTimeout(300);
+          await page.keyboard.press("Space");
+        };
         await page.evaluate(() => {
           window.__failNextWrite = true;
         });
-        await moveUp.click();
-        await expect(savedTracks.getByRole("alert")).toContainText(
-          "검증용 저장 실패",
-        );
-        await expect(moveUp).toBeFocused();
-        await page.keyboard.press("Enter");
-        const moveDown = savedTracks.getByRole("button", {
-          name: "검증용 곡 02 아래로",
-          exact: true,
-        });
-        await expect(moveDown).toBeFocused();
-        await expect(moveUp).toBeDisabled();
-        await page.keyboard.press("Enter");
-        await expect(moveDown).toBeFocused();
-        await expect(moveUp).toBeEnabled();
-        await expect(savedTracks.getByRole("alert")).toHaveCount(0);
+        await keyboardMove(savedHandle, "ArrowUp");
+        await expect(page.getByRole("alert")).toContainText("검증용 저장 실패");
+        await expect(
+          savedTracks.locator("[data-track-focus]").first(),
+        ).toHaveAttribute("aria-label", "검증용 곡 01 재생");
+        await keyboardMove(savedHandle, "ArrowUp");
+        await expect(
+          savedTracks.locator("[data-track-focus]").first(),
+        ).toHaveAttribute("aria-label", "검증용 곡 02 재생");
+        await keyboardMove(savedHandle, "ArrowDown");
+        await expect(
+          savedTracks.locator("[data-track-focus]").first(),
+        ).toHaveAttribute("aria-label", "검증용 곡 01 재생");
+        await expect(page.getByRole("alert")).toHaveCount(0);
         await savedTracks
           .getByRole("button", { name: "검증용 곡 02 더보기", exact: true })
           .click();
@@ -388,13 +390,15 @@ try {
             exact: true,
           }),
         ).toBeVisible();
-        await page
-          .getByRole("button", { name: "대기열 순서 편집", exact: true })
-          .click();
-        await page
-          .getByRole("button", { name: "검증용 곡 02 위로", exact: true })
-          .last()
-          .click();
+        await keyboardMove(
+          page
+            .getByRole("button", {
+              name: "검증용 곡 02 순서 드래그",
+              exact: true,
+            })
+            .last(),
+          "ArrowUp",
+        );
         expect(
           await page.evaluate(() => window.__simulatedPlayer.loads),
         ).toEqual(["v0000000000"]);
@@ -538,6 +542,21 @@ try {
           creation.getByRole("button", { name: "실행 취소", exact: true }),
         ).toBeVisible();
         await page.getByLabel("제목", { exact: true }).fill("유지할 작업 입력");
+        const titleBox = await page
+          .getByLabel("제목", { exact: true })
+          .boundingBox();
+        await page.mouse.move(
+          titleBox.x + 20,
+          titleBox.y + titleBox.height / 2,
+        );
+        await page.mouse.down();
+        await page.mouse.move(2, 2, { steps: 10 });
+        await page.mouse.up();
+        await expect(creation).toBeVisible();
+        await expect(page.getByLabel("제목", { exact: true })).toHaveValue(
+          "유지할 작업 입력",
+        );
+
         await creation
           .getByRole("button", { name: "실행 취소", exact: true })
           .click();

@@ -131,7 +131,27 @@ export function usePlaylistManager() {
         };
         let items: MusicInfoItem[] = previous;
         let replaced = false;
-        if (action.type === DELETE_ITEMS) {
+        if (action.type === PlaylistActionType.PATCH_METADATA) {
+          items = previous.map((item) => {
+            const patch = action.payload.patches.find(
+              (patch: { key: string; previousName: string }) =>
+                patch.key === item.key && patch.previousName === item.name,
+            );
+            return patch
+              ? { ...item, name: patch.name, owner: patch.owner || item.owner }
+              : item;
+          });
+        } else if (action.type === PlaylistActionType.MOVE_ITEM) {
+          const moving = previous.find(
+            (item) => item.key === action.payload.key,
+          );
+          if (!moving) return;
+          items = previous.filter((item) => item.key !== moving.key);
+          const before = items.findIndex(
+            (item) => item.key === action.payload.beforeKey,
+          );
+          items.splice(before < 0 ? items.length : before, 0, moving);
+        } else if (action.type === DELETE_ITEMS) {
           const removed = new Set(
             action.payload.items.map((item: MusicInfoItem) => item.key),
           );

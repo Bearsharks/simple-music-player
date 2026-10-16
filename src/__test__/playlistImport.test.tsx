@@ -1,3 +1,7 @@
+vi.mock("features/youtube/api/videoMetadata", async (original) => ({
+  ...await original<typeof import("features/youtube/api/videoMetadata")>(),
+  fetchVideoTitles: async () => ({}),
+}));
 import { resetDatabase } from "test/resetDatabase";
 import {
   fireEvent,

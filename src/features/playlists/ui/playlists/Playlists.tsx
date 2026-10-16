@@ -1,3 +1,4 @@
+import LibraryBackup from "../LibraryBackup";
 import { useEffect, useRef, useState } from "react";
 import type { PlaylistInfo } from "shared/model/constants";
 import Cover from "shared/ui/Cover";
@@ -199,11 +200,7 @@ export default function Playlists(props: PlaylistsProps) {
           </div>
         </div>
       )}
-      {hasLists && (
-        <footer className="library-footnote">
-          목록은 이 브라우저에 저장됩니다. 원본 YouTube 목록은 바뀌지 않아요.
-        </footer>
-      )}
+      <LibraryBackup />
     </section>
   );
 }

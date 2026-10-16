@@ -272,3 +272,6 @@
     font-size: 12px;
   }
 }
+
+.item > :global(.icon-button) { flex: 0 0 44px; cursor: grab; }
+.item > :global(.icon-button):active { cursor: grabbing; }

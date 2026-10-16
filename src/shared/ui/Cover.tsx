@@ -87,7 +87,7 @@ export default function Cover({
           fontFamily="Arial,sans-serif"
           letterSpacing="2"
         >
-          SMP
+          loopy
         </text>
       </svg>
       {thumbnail && failed !== thumbnail && (

@@ -39,3 +39,9 @@ overlays가 검색·가져오기에 사용하고 player가 곡 정보를 조회�
 ## Electric Night 가져오기
 
 `PlaylistImport.scss`가 URL → 공식 미리보기 → 로컬 저장 단계를 표현한다. URL 변경은 이전 preview/저장 후보를 무효화하며 같은 URL도 다시 미리보기할 수 있다. 미리보기 로딩 오류와 저장 오류를 분리하여 iframe polling이 실패한 저장 메시지를 지우지 않는다. 원본 교체는 미리보기 뒤 단일 native 확인 dialog에서만 실행한다. CREATE 성공은 선택적 `onCreated(id)`로 조립 계층에 알린다. 프로토타입 모의 데이터/시계/저장은 제품에 포함하지 않는다.
+
+## 원래 곡 제목
+
+videoMetadata.ts는 공식 https://www.youtube.com/oembed 에서 title/author_name만 사용한다. 응답 HTML은 실행·렌더링하지 않는다. credentials omit, no-referrer, 영상 ID 검증, 중복 제거, 동시 4개, 전체 12초 중단, 오류 자동 재시도 없음. 가져오기 및 이름 없는 개별 영상 추가에서 조회하고 실패는 기존 임시 제목을 보존한다. 저장된 임시 제목은 별도 복구 버튼에서 재시도한다.
+
+2026-10-16 실제 FloP_f-VK_k 응답에서 ‘심규선 ‘Sister’ (Live) | Official Lyric Video’ 제목과 GitHub Pages Origin에 대한 CORS 허용을 확인했다. 모든 영상/목록의 가용성이나 실제 재생을 보장하지 않는다.

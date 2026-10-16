@@ -1,3 +1,6 @@
+import { useNotice } from "features/overlays/Notice";
+import ErrorToast from "shared/ui/ErrorToast";
+import { fetchVideoTitles } from "../api/videoMetadata";
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { loadIframeApi } from "features/player/api/iframe";
 import { parsePlaylistUrl } from "features/library/model/library";
@@ -27,6 +30,7 @@ export default function PlaylistImport({
   const pending = useRef(false);
   const host = useRef<HTMLDivElement>(null);
   const manager = usePlaylistManager();
+  const notice = useNotice();
   useEffect(() => {
     if (!id) return;
     let cancelled = false;
@@ -117,6 +121,7 @@ export default function PlaylistImport({
     setBusy(true);
     setError("");
     try {
+      const titles = await fetchVideoTitles(ids);
       const result = await manager({
         type: original ? PlaylistActionType.UPDATE : PlaylistActionType.CREATE,
         payload: {
@@ -129,15 +134,20 @@ export default function PlaylistImport({
           },
           items: ids.map((videoID, index) => ({
             videoID,
-            name: `동영상 ${index + 1} (${videoID})`,
+            name: titles[videoID]?.name ?? `동영상 ${index + 1} (${videoID})`,
             query: "",
-            owner: "",
+            owner: titles[videoID]?.owner ?? "",
             thumbnail: `https://i.ytimg.com/vi/${videoID}/default.jpg`,
           })),
         },
       });
       setConfirmReset(false);
       close();
+      const missing = ids.filter((videoID) => !titles[videoID]).length;
+      if (missing)
+        notice(
+          `${missing}곡의 제목을 가져오지 못했습니다. 목록에서 ‘원래 곡 제목 가져오기’로 다시 시도할 수 있습니다.`,
+        );
       if (result?.createdId) onCreated?.(result.createdId);
     } catch (e) {
       setError((e as Error).message);
@@ -153,10 +163,6 @@ export default function PlaylistImport({
       aria-busy={busy}
     >
       <h2>{original ? "원본으로 초기화" : "YouTube 재생목록 가져오기"}</h2>
-      <p className="import-intro">
-        공개 재생목록을 미리 보고, 이 브라우저에 편집 가능한 목록으로
-        저장합니다.
-      </p>
       <ol className="import-steps" aria-label="가져오기 단계">
         <li className={!ids.length ? "active" : ""}>1. URL 확인</li>
         <li className={ids.length ? "active" : ""}>2. 미리보기 · 저장</li>
@@ -198,21 +204,17 @@ export default function PlaylistImport({
       <div ref={host} className="import-preview" hidden={!id} />
       <p role="status" className="import-status">
         {ids.length
-          ? `플레이어가 제공한 ${ids.length}곡을 로컬 편집 목록으로 저장합니다.`
+          ? busy
+            ? "제목을 불러와 저장 중…"
+            : `${ids.length}곡`
           : id
             ? "목록을 불러오는 중입니다. 미리보기에서 재생을 눌러 확인할 수 있습니다."
             : "목록을 미리보기에서 불러온 뒤 저장하세요."}
       </p>
       <p className="import-disclosure">
-        API 키 없이 곡 ID와 썸네일을 가져옵니다. 곡 제목은 자동 조회하지
-        않습니다. 원본 전체 포함 여부는 보장하지 않으며, 저장 후 원본 변경이
-        편집본을 덮어쓰지 않습니다.
+        비공개·삭제된 영상은 제목을 가져오지 못할 수 있습니다.
       </p>
-      {(error || previewError) && !confirmReset && (
-        <p className="form-error" role="alert">
-          {error || previewError}
-        </p>
-      )}
+      {!confirmReset && <ErrorToast message={error || previewError} />}
       <div className="import-actions">
         <button className="secondary-button" disabled={busy} onClick={close}>
           취소
@@ -233,11 +235,7 @@ export default function PlaylistImport({
               “{original?.name}”의 로컬 추가·삭제·정렬 내용을 지우고 미리보기의{" "}
               {ids.length}곡으로 교체합니다. 현재 대기열은 유지됩니다.
             </p>
-            {error && (
-              <p role="alert" className="form-error">
-                {error}
-              </p>
-            )}
+            <ErrorToast message={error} />
             <div className="import-actions">
               <button
                 className="secondary-button"

@@ -211,3 +211,77 @@ it("invalidates old Undo after replacing all tracks from the original source", a
     (await store.get(playlistItemStateFamily(id))).map((item) => item.name),
   ).toEqual(["새 원본곡"]);
 });
+it("saves drag order immediately, preserves it on write failure and merges metadata without resurrecting deleted tracks", async () => {
+  const { store, result } = setup();
+  const id = (await store.get(playlistIDsState))[0];
+  const original = await store.get(playlistItemStateFamily(id));
+  const first = original[0],
+    second = original[1];
+  const spy = vi
+    .spyOn(api, "updatePlaylist")
+    .mockRejectedValueOnce(new Error("저장 실패"));
+  await expect(
+    result.current({
+      type: T.MOVE_ITEM,
+      payload: { info: { id }, key: second.key, beforeKey: first.key },
+    }),
+  ).rejects.toThrow("저장 실패");
+  expect((await store.get(playlistItemStateFamily(id)))[0].key).toBe(first.key);
+  spy.mockRestore();
+  await act(() =>
+    result.current({
+      type: T.MOVE_ITEM,
+      payload: { info: { id }, key: second.key, beforeKey: first.key },
+    }),
+  );
+  expect((await store.get(playlistItemStateFamily(id)))[0].key).toBe(
+    second.key,
+  );
+  await act(() =>
+    result.current({ type: T.DELETE_ITEMS, payload: { id, items: [first] } }),
+  );
+  await act(() =>
+    result.current({
+      type: T.PATCH_METADATA,
+      payload: {
+        info: { id },
+        patches: [
+          {
+            key: first.key,
+            previousName: first.name,
+            name: "삭제 곡",
+            owner: "",
+          },
+          {
+            key: second.key,
+            previousName: second.name,
+            name: "원래 제목",
+            owner: "가수",
+          },
+        ],
+      },
+    }),
+  );
+  const current = await store.get(playlistItemStateFamily(id));
+  expect(current.some((i) => i.key === first.key)).toBe(false);
+  expect(current[0].name).toBe("원래 제목");
+  await act(() =>
+    result.current({
+      type: T.PATCH_METADATA,
+      payload: {
+        info: { id },
+        patches: [
+          {
+            key: second.key,
+            previousName: second.name,
+            name: "오래된 응답",
+            owner: "",
+          },
+        ],
+      },
+    }),
+  );
+  expect((await store.get(playlistItemStateFamily(id)))[0].name).toBe(
+    "원래 제목",
+  );
+});

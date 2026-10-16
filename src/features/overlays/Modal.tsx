@@ -1,3 +1,4 @@
+import ErrorToast from "shared/ui/ErrorToast";
 import PlaylistImport from "features/youtube/ui/PlaylistImport";
 import { useAtom, useAtomValue } from "jotai";
 import {
@@ -163,11 +164,7 @@ function DeleteConfirmation({
         이 브라우저의 저장 목록에서 삭제되며 되돌릴 수 없습니다. 현재 재생
         대기열과 YouTube 원본은 유지됩니다.
       </p>
-      {error && (
-        <p className="form-error" role="alert">
-          {error}
-        </p>
-      )}
+      <ErrorToast message={error} />
       <div className={styles.confirmationActions}>
         <button
           type="button"

@@ -43,7 +43,6 @@ export default function PlayerDetail({
     return () => window.removeEventListener("resize", resize);
   }, []);
   const [tab, setTab] = useAtom(playerPanelTabState);
-  const [editing, setEditing] = useState(false);
   const [clearOpen, setClearOpen] = useState(false);
   const save = useOpenSelectTgtPlaylistPopup();
   const manage = useMusicListManager();
@@ -206,16 +205,6 @@ export default function PlayerDetail({
                 <button
                   className="icon-button"
                   disabled={!musicList.length}
-                  aria-label="대기열 순서 편집"
-                  title="대기열 순서 편집"
-                  aria-pressed={editing}
-                  onClick={() => setEditing(!editing)}
-                >
-                  <Icon name="edit" />
-                </button>
-                <button
-                  className="icon-button"
-                  disabled={!musicList.length}
                   aria-label="대기열을 재생목록에 저장"
                   title="대기열을 재생목록에 저장"
                   onClick={(event) => save(event.currentTarget, musicList)}
@@ -236,7 +225,6 @@ export default function PlayerDetail({
             {musicList.length ? (
               <MusicList
                 items={musicList}
-                editing={editing}
                 currentStatus={status}
               />
             ) : (
@@ -246,10 +234,6 @@ export default function PlayerDetail({
                 <small>재생목록의 재생 버튼을 눌러 시작하세요.</small>
               </div>
             )}
-            <p className="queue-footnote">
-              현재 곡을 포함한 전체 대기열입니다. 순서를 드래그하거나 순서 편집
-              버튼으로 바꿀 수 있습니다. 저장한 목록은 바뀌지 않습니다.
-            </p>
           </section>
         </div>
       </Dialog>

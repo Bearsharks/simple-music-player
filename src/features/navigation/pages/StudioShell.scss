@@ -307,3 +307,6 @@
     font-size: 9px;
   }
 }
+
+.library-backup { display:flex; gap:8px; flex-wrap:wrap; margin-top:24px; }
+.library-backup > button { font-size:12px; color:var(--text-secondary); }

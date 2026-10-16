@@ -1,3 +1,7 @@
+import RestoreTitles from "../ui/RestoreTitles";
+import { fetchVideoTitles } from "features/youtube/api/videoMetadata";
+import ErrorToast from "shared/ui/ErrorToast";
+import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import { Suspense, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useAtomValue, useSetAtom } from "jotai";
@@ -62,7 +66,6 @@ function PlaylistDetail({ playlistID }: { playlistID: string }) {
   const [addOpen, setAddOpen] = useState(
     !info.itemCount || Boolean(location.state?.focusAdd),
   );
-  const [editing, setEditing] = useState(false);
   const [resetOpen, setResetOpen] = useState(false);
   const [error, setError] = useState("");
   const heading = useRef<HTMLHeadingElement>(null);
@@ -134,26 +137,12 @@ function PlaylistDetail({ playlistID }: { playlistID: string }) {
             <Icon name="plus" />
             <span>곡 추가</span>
           </button>
-          <button
-            className={`secondary-button ${styles.editButton}`}
-            aria-label="순서 편집"
-            aria-pressed={editing}
-            disabled={!info.itemCount}
-            onClick={() => setEditing(!editing)}
-          >
-            <Icon name="edit" />
-            <span>{editing ? "편집 완료" : "순서 편집"}</span>
-          </button>
         </div>
         <MoreVert
           onClick={(event) => options(event.currentTarget, playlistID)}
         />
       </div>
-      {error && (
-        <p className="form-error" role="alert">
-          {error}
-        </p>
-      )}
+      <ErrorToast message={error} />
       {addOpen && (
         <AddVideo
           playlistID={playlistID}
@@ -161,16 +150,12 @@ function PlaylistDetail({ playlistID }: { playlistID: string }) {
         />
       )}
       <Suspense fallback={<Spinner />}>
-        <PlaylistItems playlistID={playlistID} editing={editing} />
+        <RestoreTitles playlistID={playlistID} />
+        <PlaylistItems playlistID={playlistID} />
       </Suspense>
-      <div className={styles.sourceNote}>
-        <Icon name="device" />
-        <span>저장 목록을 편집해도 현재 재생 대기열은 바뀌지 않습니다.</span>
-      </div>
       {info.sourcePlaylistUrl && (
         <div className={styles.sourceNote}>
           <Icon name="link" />
-          <span>가져온 원본은 자동으로 동기화하지 않습니다.</span>
           <button
             className="secondary-button"
             onClick={() => setResetOpen(true)}
@@ -187,13 +172,7 @@ function PlaylistDetail({ playlistID }: { playlistID: string }) {
     </div>
   );
 }
-function PlaylistItems({
-  playlistID,
-  editing,
-}: {
-  playlistID: string;
-  editing: boolean;
-}) {
+function PlaylistItems({ playlistID }: { playlistID: string }) {
   const items = useAtomValue(playlistItemStateFamily(playlistID));
   const curMusicManager = useCurMusicManager();
   const reveal = useSetAtom(revealQueueOnFirstPlay);
@@ -203,39 +182,19 @@ function PlaylistItems({
   const [status, setStatus] = useState("");
   const [busy, setBusy] = useState(false);
   const pending = useRef(false);
-  const pendingFocus = useRef<HTMLButtonElement | null>(null);
-  useLayoutEffect(() => {
-    if (busy || !pendingFocus.current) return;
-    const button = pendingFocus.current;
-    pendingFocus.current = null;
-    if (
-      !button.isConnected ||
-      (document.activeElement !== document.body &&
-        document.activeElement !== button)
-    )
-      return;
-    // Native disabled controls may lose focus while IndexedDB is pending.
-    // At an end position, keep keyboard editing on the opposite move control.
-    const row = button.closest("[data-saved-row]");
-    const target = button.disabled
-      ? (row?.querySelector<HTMLButtonElement>(
-          "[data-order-control]:not(:disabled)",
-        ) ?? row?.querySelector<HTMLButtonElement>("[data-track-focus]"))
-      : button;
-    target?.focus();
-  }, [busy]);
-  const move = async (from: number, to: number, button: HTMLButtonElement) => {
-    if (pending.current) return;
+  const move = async (from: number, to: number) => {
+    if (pending.current || from === to) return;
     pending.current = true;
-    pendingFocus.current = document.activeElement === button ? button : null;
     setBusy(true);
-    const ordered = [...items];
-    const [item] = ordered.splice(from, 1);
-    ordered.splice(to, 0, item);
+    const item = items[from];
     try {
       await manager({
-        type: PlaylistActionType.UPDATE,
-        payload: { info: { id: playlistID }, items: ordered },
+        type: PlaylistActionType.MOVE_ITEM,
+        payload: {
+          info: { id: playlistID },
+          key: item.key,
+          beforeKey: items[to + (from < to ? 1 : 0)]?.key,
+        },
       });
       setError("");
       setStatus(`${item.name}, ${to + 1}번째로 이동했습니다.`);
@@ -251,7 +210,7 @@ function PlaylistItems({
       <div className={styles.tableHeading}>
         <span>#</span>
         <span>곡 / 아티스트</span>
-        <span>{editing ? "순서 편집" : `${items.length}곡`}</span>
+        <span>{items.length}곡</span>
       </div>
       {!items.length && (
         <div className={styles.empty}>
@@ -260,59 +219,63 @@ function PlaylistItems({
           <p>영상 URL을 붙여넣으면 이 목록에 저장됩니다.</p>
         </div>
       )}
-      {error && (
-        <p className="form-error" role="alert">
-          {error}
-        </p>
-      )}
+      <ErrorToast message={error} />
       <span className="sr-only" role="status">
         {status}
       </span>
-      {items.map((item, idx) => (
-        <div
-          key={item.key}
-          data-saved-row
-          className={`${styles.item} ${editing ? styles.editing : ""}`}
-        >
-          <span className={styles.number}>{idx + 1}</span>
-          <MusicItem
-            idx={idx}
-            item={item}
-            playMusic={(index) => {
-              void curMusicManager({
-                type: MusicInfoActionType.SET,
-                payload: { idx: index, list: items },
-              });
-              reveal();
-            }}
-            openOptionsPopup={(target, tracks) =>
-              options(target, playlistID, tracks)
-            }
-          />
-          {editing && (
-            <div className={styles.order}>
-              <button
-                className="icon-button"
-                data-order-control
-                aria-label={`${item.name} 위로`}
-                disabled={busy || idx === 0}
-                onClick={(event) => move(idx, idx - 1, event.currentTarget)}
-              >
-                <Icon name="up" />
-              </button>
-              <button
-                className="icon-button"
-                data-order-control
-                aria-label={`${item.name} 아래로`}
-                disabled={busy || idx === items.length - 1}
-                onClick={(event) => move(idx, idx + 1, event.currentTarget)}
-              >
-                <Icon name="down" />
-              </button>
+      <DragDropContext
+        onDragEnd={({ source, destination }) => {
+          if (destination) void move(source.index, destination.index);
+        }}
+      >
+        <Droppable droppableId={`saved-${playlistID}`}>
+          {(drop) => (
+            <div ref={drop.innerRef} {...drop.droppableProps}>
+              {items.map((item, idx) => (
+                <Draggable
+                  key={item.key}
+                  draggableId={item.key}
+                  index={idx}
+                  isDragDisabled={busy}
+                >
+                  {(drag) => (
+                    <div
+                      ref={drag.innerRef}
+                      {...drag.draggableProps}
+                      data-saved-row
+                      className={styles.item}
+                    >
+                      <button
+                        className="icon-button"
+                        {...drag.dragHandleProps}
+                        aria-label={`${item.name} 순서 드래그`}
+                        disabled={busy}
+                      >
+                        <Icon name="grip" />
+                      </button>
+                      <MusicItem
+                        idx={idx}
+                        item={item}
+                        playMusic={(index) => {
+                          void curMusicManager({
+                            type: MusicInfoActionType.SET,
+                            payload: { idx: index, list: items },
+                          });
+                          reveal();
+                        }}
+                        openOptionsPopup={(target, tracks) =>
+                          options(target, playlistID, tracks)
+                        }
+                      />
+                    </div>
+                  )}
+                </Draggable>
+              ))}
+              {drop.placeholder}
             </div>
           )}
-        </div>
-      ))}
+        </Droppable>
+      </DragDropContext>
     </section>
   );
 }
@@ -360,6 +323,9 @@ function AddVideo({
           }
           pending.current = true;
           setBusy(true);
+          const metadata = name.trim()
+            ? {}
+            : await fetchVideoTitles([parsed.id]);
           await manager({
             type: PlaylistActionType.APPEND,
             payload: {
@@ -367,9 +333,12 @@ function AddVideo({
               items: [
                 {
                   videoID: parsed.id,
-                  name: name.trim() || `동영상 (${parsed.id})`,
+                  name:
+                    name.trim() ||
+                    metadata[parsed.id]?.name ||
+                    `동영상 (${parsed.id})`,
                   query: "",
-                  owner: "",
+                  owner: metadata[parsed.id]?.owner ?? "",
                   thumbnail: `https://i.ytimg.com/vi/${parsed.id}/default.jpg`,
                 },
               ],
@@ -427,11 +396,7 @@ function AddVideo({
           {busy ? "추가 중…" : duplicate ? "중복해서 추가" : "곡 추가"}
         </button>
       </div>
-      {error && (
-        <p role="alert" className="form-error">
-          {error}
-        </p>
-      )}
+      <ErrorToast message={error} />
       <span className="sr-only" role="status">
         {status}
       </span>

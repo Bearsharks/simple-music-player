@@ -62,3 +62,14 @@ const api: API = {
   }),
 };
 export default api;
+
+export async function exportPlaylists(): Promise<Playlist[]> {
+  return transaction('readonly', (store, done) => {
+    const req = store.getAll(); req.onsuccess = () => done(req.result.map((p: Playlist) => canonical(p.info, p.items)));
+  });
+}
+/** One atomic write; existing lists are never replaced by a backup. */
+export async function importPlaylists(playlists: Playlist[]): Promise<void> {
+  const rows = playlists.map(p => canonical({...p.info, createdAt: p.info.createdAt ?? Date.now()}, p.items, crypto.randomUUID()));
+  await transaction<void>('readwrite', (store, done) => { for (const row of rows) store.add(row); done(); });
+}

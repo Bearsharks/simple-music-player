@@ -63,7 +63,7 @@ export default function Main() {
         <button
           className="studio-logo"
           onClick={() => navigate("/")}
-          aria-label="SMP 홈"
+          aria-label="loopy 홈"
         >
           <span className="logo-bars" aria-hidden="true">
             <i />
@@ -71,7 +71,7 @@ export default function Main() {
             <i />
             <i />
           </span>
-          smp<span className="logo-dot">.</span>
+          loopy<span className="logo-dot">.</span>
         </button>
         <nav className="sidebar-nav">
           <button
@@ -104,13 +104,7 @@ export default function Main() {
             <SidebarLibrary />
           </Suspense>
         </ReadBoundary>
-        <div className="sidebar-bottom">
-          <Icon name="device" />
-          <div>
-            <strong>이 브라우저에 저장</strong>
-            <small>로그인 없이, 나만의 음악 공간</small>
-          </div>
-        </div>
+
       </aside>
       <div className="studio-main">
         <header className="studio-topbar">
@@ -118,9 +112,9 @@ export default function Main() {
             <button
               className="mobile-wordmark"
               onClick={() => navigate("/")}
-              aria-label="SMP 홈"
+              aria-label="loopy 홈"
             >
-              smp<span>.</span>
+              loopy<span>.</span>
             </button>
             <button
               className="icon-button back-button"
@@ -136,9 +130,7 @@ export default function Main() {
               {home ? "라이브러리" : "재생목록"}
             </span>
           </div>
-          <span className="local-badge">
-            <i /> 이 브라우저에 저장
-          </span>
+
         </header>
         <main id="workspace" tabIndex={-1} className="studio-content">
           <ReadBoundary

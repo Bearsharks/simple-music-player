@@ -1,3 +1,4 @@
+import ErrorToast from "shared/ui/ErrorToast";
 import { revealQueueOnFirstPlay } from "features/queue/model/musiclistOpenState";
 
 import { useAtomValue, useSetAtom } from "jotai";
@@ -55,7 +56,7 @@ function PlaylistsConnected(props: PlaylistsConnectedProps) {
   };
   return (
     <div>
-      {error && <p role="alert">{error}</p>}
+      <ErrorToast message={error} />
       <Suspense fallback={<Spinner></Spinner>}>
         <Playlists
           goToPlaylistPage={props.goToPlaylistPage}
