@@ -1,28 +1,36 @@
-@use "/src/app/global.scss" as *;
-.wrapper{
-    background-color: $bg-secondary-color;
-    width: 240px;
-    padding: 8px 0;
-    border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 2px;
+.wrapper {
+  background: #1b1e23;
+  width: 230px;
+  padding: 6px;
+  border: 1px solid #ffffff16;
+  border-radius: 11px;
+  box-shadow: 0 12px 40px #0007;
 }
-.options{
-    width: 100%;
-    display: flex;
-    height: 48px;
-    align-items: center;
-    padding: 8px 0;
-    &:hover{
-        background-color: rgba(255,255,255,0.1);
-        cursor: pointer;
-    }
+.options {
+  width: 100%;
+  display: flex;
+  min-height: 40px;
+  align-items: center;
+  padding: 5px;
+  border-radius: 7px;
 }
-.options__icon{
-    width: 24px;
-    height: 24px;
-    margin: 8px;
-    fill: #aaa;
+.options:hover {
+  background: #ffffff09;
+  cursor: pointer;
 }
-.options__text{
-    margin: 0 8px;
+.options__icon {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  margin: 3px;
+  color: #8b96a5;
+}
+.options__icon span {
+  font-size: 18px;
+}
+.options__text {
+  margin: 0 8px;
+  font-size: 11px;
+  color: #d4d9e0;
 }

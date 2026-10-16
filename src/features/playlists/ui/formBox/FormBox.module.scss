@@ -1,62 +1,57 @@
-@use "/src/app/global.scss" as *;
-.wrapper{
-    padding: 24px;
-    @media (max-width:500px){
-      padding:12px;
-    }
-  }
-
-.formbox-item{
-    margin-bottom: 24px;
-    &:focus-within .formbox-item__label{
-        color: #3ea6ff;
-        transition: all 0.5s ease;
-    }
+.wrapper {
+  padding: 28px;
 }
-  .formbox-item--readonly{
-    margin-bottom: 24px;
-    &:focus-within .formbox-item__label{
-        color: inherit;
-    }
-    &:focus-within .formbox__input:focus{
-      outline: inherit;
-      border-bottom: 1px solid;
-    }
+.wrapper h2 {
+  font-size: 22px;
+  letter-spacing: -0.8px;
 }
-
-  .form-item__label{
-    font-size: small;
-  }
-  .formbox__input{
-    background-color: transparent;
-    color: white;
-    width: 100%;
-    border: 0;
-    border-bottom: 1px solid;
-    height: 30px;
-    &:focus{
-      outline: 0;
-      border-bottom: 2px solid #3ea6ff;
-      transition: all 0.7s ease;
-    }
+.formbox-item {
+  margin-bottom: 18px;
 }
-  .formbox-actions{
-    display: flex;
-    align-items: center;
-      justify-content: flex-end;
+.formbox-item__label {
+  font-size: 11px;
+  color: #8d96a4;
+  margin-bottom: 8px;
+}
+.formbox__input {
+  width: 100%;
+  background: #101215;
+  color: #f1f2ed;
+  border: 1px solid #ffffff18;
+  border-radius: 8px;
+  min-height: 44px;
+  padding: 10px 12px;
+}
+.formbox__input:focus {
+  border-color: #ffb49a90;
+  outline: 2px solid #ffb49a20;
+}
+.formbox-item--readonly {
+  opacity: 0.7;
+}
+.formbox-actions {
+  display: flex;
+  justify-content: end;
+  align-items: center;
+  gap: 8px;
+  margin-top: 24px;
+}
+.formbox-actions__button {
+  min-width: 72px;
+  min-height: 40px;
+  border-radius: 7px;
+  color: #9ca4b0;
+  display: grid;
+  place-items: center;
+  font-size: 12px;
+}
+.formbox-actions__button--white {
+  background: #ffb49a;
+  color: #3b2723;
+  font-weight: 650;
+}
+@media (max-width: 500px) {
+  .wrapper {
+    padding: 22px;
   }
-  .formbox-actions__button{
-    width: 70px;
-    height: 40px;
-    font-weight: 300;
-    border-radius: 3px;
-    background-color: transparent;
-    cursor: pointer;
-    display: flex;
-      justify-content: center;
-      align-items: center;
-  }
-  .formbox-actions__button--white{
-    background-color: white;
-    color: $bg-color;
-  }
+}

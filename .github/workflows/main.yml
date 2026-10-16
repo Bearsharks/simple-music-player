@@ -1,7 +1,7 @@
 name: Validate
 on:
   push:
-    branches: [master, 'refactor/**']
+    branches: [master, 'refactor/**', 'design/**']
   pull_request:
     branches: [master]
 permissions:
@@ -23,6 +23,12 @@ jobs:
           npx vite preview --host 127.0.0.1 --port 4173 > /tmp/vite.log 2>&1 &
           for i in $(seq 1 30); do curl -fsS http://127.0.0.1:4173/simple-music-player/ >/dev/null && break; sleep 1; done
           npm run test:browser
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: always()
+        with:
+          name: browser-screenshots
+          path: test-results/*.png
+          retention-days: 7
       - run: npm run build-storybook
         env:
           STORYBOOK_DISABLE_TELEMETRY: '1'

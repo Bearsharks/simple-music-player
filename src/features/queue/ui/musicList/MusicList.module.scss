@@ -1,20 +1,31 @@
-@use "/src/app/global.scss" as *;
-
-.music-list{
-    height: 100%;
-    overflow: auto;
-    @include append_scrollbar;
+.music-list {
+  width: 100%;
+  overflow: hidden;
 }
-.wrapper{
-    display: flex;
-    align-items: center;
-    width: 100%;
+.wrapper {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 9px 3px;
+  border-radius: 7px;
+  margin-bottom: 3px;
+  border: 1px solid transparent;
 }
-.wrapper--selected{
-    background-color: rgba(255, 255, 255, 0.1);
+.wrapper:hover {
+  background: #ffffff06;
 }
-
-.drag_handle{
-    width: 32px;
-    padding-left: 10px;
+.wrapper--selected {
+  background: #ffb49a08;
+  border-color: #ffb49a12;
+}
+.drag_handle {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  color: #454e59;
+  width: 18px;
+  cursor: grab;
+}
+.drag_handle span {
+  font-size: 17px;
 }

@@ -1,69 +1,56 @@
-import React, { useEffect, useRef } from "react";
-import { PlayerState, Progress } from "shared/model/constants";
-import styles from "features/player/ui/ProgressBar.module.scss"
-
-
-function ProgressBar({ progress, setProgress }: { progress: Progress, setProgress: (_: Progress) => void }) {
-    const thisElement = useRef<HTMLDivElement>(null);
-    const timeInfo = useRef<HTMLSpanElement>(null);
-    useEffect(() => {
-        const mytimer = setInterval(function () {
-            const player = (window as any).player;
-            if (player?.getPlayerState() === PlayerState.PLAYING ||
-                player?.getPlayerState() === PlayerState.PAUSED
-            ) {
-                setProgress({ currentTime: player.getCurrentTime(), duration: player.getDuration() });
-            }
-        }, 1000);
-        return () => {
-            clearInterval(mytimer);
+import { useEffect } from "react";
+import { PlayerState, type Progress } from "shared/model/constants";
+const format = (seconds: number) => {
+  const n = Number.isFinite(seconds) ? Math.max(0, Math.floor(seconds)) : 0;
+  return `${Math.floor(n / 60)}:${String(n % 60).padStart(2, "0")}`;
+};
+export default function ProgressBar({
+  progress,
+  setProgress,
+}: {
+  progress: Progress;
+  setProgress: (p: Progress) => void;
+}) {
+  useEffect(() => {
+    const timer = setInterval(() => {
+      const p = (window as any).player;
+      if (
+        [PlayerState.PLAYING, PlayerState.PAUSED].includes(p?.getPlayerState())
+      )
+        setProgress({
+          currentTime: p.getCurrentTime(),
+          duration: p.getDuration(),
+        });
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [setProgress]);
+  const duration = Number.isFinite(progress.duration)
+    ? Math.max(0, progress.duration)
+    : 0;
+  const current = Math.min(duration, Math.max(0, progress.currentTime || 0));
+  return (
+    <div className="seek-control">
+      <time>{format(current)}</time>
+      <input
+        aria-label="재생 위치"
+        type="range"
+        min={0}
+        max={duration || 1}
+        step={1}
+        value={current}
+        disabled={!duration || (window as any).player === undefined}
+        onChange={(e) => {
+          const t = Number(e.target.value);
+          (window as any).player?.seekTo(t);
+          setProgress({ ...progress, currentTime: t });
+        }}
+        style={
+          {
+            "--seek": `${duration ? (current / duration) * 100 : 0}%`,
+          } as React.CSSProperties
         }
-    }, []);
-
-    useEffect(() => {
-        const percent: number = progress.duration > 0 ? Math.min(100, Math.max(0, (progress.currentTime / progress.duration) * 100)) : 0;
-        if (thisElement.current) {
-            thisElement.current.style.width = `${percent}%`;
-        }
-    }, [progress]);
-
-    const progressClickHandler = (event: React.MouseEvent) => {
-        const time = (event.clientX / (document.body.offsetWidth - 12)) * progress.duration;
-        (window as any).player?.seekTo(time);
-    }
-
-    let needForRAF = true;
-    const updateTimeInfo = (posX: number) => {
-        needForRAF = true;
-        if (timeInfo.current) {
-            const width = (document.body.offsetWidth - 12);
-            const time = (posX / width) * progress.duration;
-            const min = Math.floor(time / 60);
-            const sec = Math.round(time % 60);
-            const zero = (sec >= 10) ? "" : "0"
-            posX = posX < 10 ? 10 : posX;
-            posX = posX > width - 10 ? width - 10 : posX;
-            timeInfo.current.style.transform = `translateX(${posX}px)`;
-            timeInfo.current.textContent = `${min}:${zero}${sec}`;
-        }
-    }
-
-    const mm = (e: React.MouseEvent) => {
-        if (needForRAF) {
-            needForRAF = false;
-            requestAnimationFrame(() => updateTimeInfo(e.clientX));
-        }
-    }
-    return (
-        <div className={styles[`wrapper`]}
-            onClick={progressClickHandler}
-            onMouseMove={mm}>
-            <span ref={timeInfo}>4:38</span>
-            <div className={styles[`progress-bar`]} >
-                <div ref={thisElement} className={styles[`progress`]}></div>
-            </div>
-
-        </div>
-    )
+      />
+      <time>{format(duration)}</time>
+    </div>
+  );
 }
-export default ProgressBar;
