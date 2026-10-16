@@ -1,6 +1,6 @@
 # search: 검색 입력
 
-현재 제품은 library 기능을 사용한다. 이 폴더는 이전 편집 기능의 재사용을 위해 보존되며 App에 연결되어 있지 않다.
+로그인 제거 후 기존 편집 화면에 다시 연결되어 있다. 저장 목록은 shared/api/localAPI.ts, URL 가져오기는 youtube/ui/PlaylistImport.tsx를 사용한다.
 
 ## 최소 읽기 경로
 

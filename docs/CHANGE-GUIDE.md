@@ -12,7 +12,7 @@
 
 ## 현재 제품 진입점
 
-URL 추가·저장·목록 선택·YouTube 임베드: [library](../src/features/library/README.md). App은 library만 마운트한다. 아래 표의 기능들은 이전 편집 모듈을 보존한 것이며 현재 화면에는 연결되지 않는다.
+URL 추가·저장·목록 선택·YouTube 임베드: [library](../src/features/library/README.md). 최신 App은 navigation/Main과 아래 편집 기능들을 다시 마운트한다. URL 가져오기 진입은 youtube/ui/PlaylistImport.tsx, 저장은 shared/api/localAPI.ts다. library 링크 화면은 기본 경로가 아니다.
 
 ## 보존된 편집 모듈 → 진입점
 

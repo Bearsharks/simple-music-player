@@ -1,3 +1,5 @@
+import { vi } from 'vitest';
+vi.mock('shared/config/env', () => ({useFixtureApi:true}));
 import { act, renderHook } from '@testing-library/react';
 import { Provider, createStore } from 'jotai';
 import { ReactNode } from 'react';

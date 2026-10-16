@@ -1,3 +1,4 @@
+import PlaylistImport from 'features/youtube/ui/PlaylistImport';
 import { useAtom, useAtomValue, } from 'jotai'
 import { ModalInfoState, ModalKind, ModalOpenState, useOpenYTOptionsPopup } from 'features/overlays/PopupStates';
 import styles from 'features/overlays/Modal.module.scss'
@@ -33,7 +34,7 @@ function ModalForm({ setModalOpen }: { setModalOpen: (bool: boolean) => void }) 
             case ModalKind.UpdatePlaylist:
                 return <PlaylistForm kind={modalState.kind} closePopup={closePopup} playlistInfo={modalState.data} />;
             case ModalKind.ImportYTPlaylistLink:
-                return <ImportYTPlaylistLink closePopup={closePopup} ></ImportYTPlaylistLink>
+                return <PlaylistImport close={closePopup} />
             default:
                 return <div></div>;
         }
@@ -41,40 +42,6 @@ function ModalForm({ setModalOpen }: { setModalOpen: (bool: boolean) => void }) 
     return children;
 }
 export default Modal;
-
-function ImportYTPlaylistLink({ closePopup }: { closePopup: () => void }) {
-    const playlistManager = usePlaylistManager();
-    const formItems: FormItem[] = [{ id: "url", name: "재생목록 URL", value: "", require: true }];
-    const submit = async (data: any) => {
-        const url: string = data.url;
-        if (!url) return;
-        const { id, kind } = urlToId(url);
-        if (!id || kind !== SearchType.List) return;
-        try {
-            const info = await getYTPlaylistByID(id);
-            const playlist: Playlist = {
-                info: info,
-                items: await youtubeSearch(info.id, SearchType.List)
-            }
-            const createAction: PlaylistAction = {
-                type: PlaylistActionType.CREATE,
-                payload: playlist
-            }
-            playlistManager(createAction);
-        } catch (e) {
-            console.error(e);
-            alert('재생목록을 가져오지 못했습니다');
-        } finally {
-            closePopup();
-        }
-    }
-
-    return <FormBox name='유튜브 재생목록 가져오기'
-        formItems={formItems}
-        closePopup={closePopup}
-        submit={submit} />
-}
-
 
 interface PlaylistFormProps {
     closePopup: () => void;

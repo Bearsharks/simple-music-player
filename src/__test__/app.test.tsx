@@ -1,7 +1,7 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { StrictMode } from 'react';
 import { vi } from 'vitest';
-import App from 'app/App';
+import App from 'features/library/ui/LocalLibrary';
 import { LIBRARY_KEY } from 'features/library/model/library';
 beforeEach(() => localStorage.clear());
 afterEach(() => vi.restoreAllMocks());
