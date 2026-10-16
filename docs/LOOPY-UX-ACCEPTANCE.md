@@ -23,3 +23,11 @@
 ## 판정 범위
 
 브라우저 재생은 명시적인 모의 미디어로 검증했다. 실제 YouTube 오디오, 실제 휴대전화/Safari, 모든 영상의 메타데이터 가용성, 전체 접근성 인증은 별도다. oEmbed가 실패하면 임시 제목을 유지하고 재시도할 수 있다. 도메인 DNS/인증서/배포는 별도로 확인하며 CI 통과로 HTTPS 발급 완료를 주장하지 않는다.
+
+## 공개 배포 확인
+
+- gh-pages 99af8a9 배포, Pages Actions 38892988121 성공. 사용자 GitHub 설정의 CNAME(loopy.bearsharks.dev)을 보존했다.
+- https://loopy.bearsharks.dev/release.json 에서 sourceCommit 912d8d8 확인.
+- 실제 클라우드 브라우저에서 HTTPS 홈페이지 렌더링과 임시 검수 목록 생성 → 영상 URL 추가 → ‘심규선 ‘Sister’ (Live) | Official Lyric Video’ 및 채널명 저장 확인. 이 확인은 실제 공개 oEmbed 응답을 사용했으며, 영상 재생은 누르지 않았다.
+- HTTP 도메인 및 기존 https://bearsharks.github.io/simple-music-player/ 주소가 https://loopy.bearsharks.dev/ 로 301 이동함을 확인.
+- 사용자 데이터는 삭제하지 않았다. 새 도메인의 목록은 origin 별도이며, 브라우저 검수 목록은 검수용 클라우드 프로필 안에만 존재한다.
