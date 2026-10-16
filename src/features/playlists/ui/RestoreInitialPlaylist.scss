@@ -1,0 +1,18 @@
+.initial-restore {
+  padding: 28px;
+}
+.initial-restore h2 {
+  font-size: 22px;
+  word-break: keep-all;
+  overflow-wrap: break-word;
+}
+.initial-restore p {
+  color: var(--muted);
+}
+.initial-restore > div {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 24px;
+}

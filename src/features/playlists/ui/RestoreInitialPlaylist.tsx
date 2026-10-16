@@ -8,6 +8,7 @@ import { usePlaylistManager } from "../model/playlistAtoms";
 import { useNotice } from "features/overlays/Notice";
 import { Button } from "shared/ui/shadcn/button";
 import ErrorToast from "shared/ui/ErrorToast";
+import "./RestoreInitialPlaylist.scss";
 
 /** Fetch the immutable tracks only when this explicit restore task is opened. */
 export default function RestoreInitialPlaylist({
@@ -48,7 +49,7 @@ export default function RestoreInitialPlaylist({
     };
   }, [playlistID, attempt]);
   return (
-    <section className="clear-queue" aria-busy={busy}>
+    <section className="initial-restore" aria-busy={busy}>
       <h2>
         {snapshot
           ? `처음 가져온 ${snapshot.items.length}곡으로 복원할까요?`

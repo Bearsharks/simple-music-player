@@ -257,6 +257,13 @@ try {
         expect(title.height).toBeLessThan(40);
         expect(actions.y).toBeGreaterThanOrEqual(title.y + title.height);
       }
+      if (viewport.width === 390) {
+        const title = await page
+          .getByRole("heading", { name: "내 라이브러리", exact: true })
+          .boundingBox();
+        const actions = await page.locator(".heading-actions").boundingBox();
+        expect(actions.y).toBeLessThan(title.y + title.height);
+      }
       if (viewport.width <= 760) {
         expect(
           await page
@@ -1115,6 +1122,12 @@ try {
           }),
         ).toBeVisible();
         expect((await readImported()).items).toHaveLength(3);
+        await expect(
+          page.getByRole("heading", {
+            name: "처음 가져온 2곡으로 복원할까요?",
+            exact: true,
+          }),
+        ).toHaveCSS("word-break", "keep-all");
         await page.screenshot({
           path: `test-results/app-source-restore-${viewport.width}.png`,
           fullPage: true,
@@ -1250,6 +1263,23 @@ try {
         });
         await page.setViewportSize({ width: 390, height: 844 });
         await assertFits("200% text narrow approximation");
+        const enlargedHeading = await page
+          .locator(".page-heading > div")
+          .first()
+          .boundingBox();
+        const enlargedActions = await page
+          .locator(".heading-actions")
+          .boundingBox();
+        expect(enlargedActions.y).toBeGreaterThanOrEqual(
+          enlargedHeading.y + enlargedHeading.height,
+        );
+        for (const action of await page
+          .locator(".heading-actions button")
+          .all()) {
+          const bounds = await action.boundingBox();
+          expect(bounds.x).toBeGreaterThanOrEqual(16);
+          expect(bounds.x + bounds.width).toBeLessThanOrEqual(374);
+        }
         await assertSortReadable();
         await page.screenshot({
           path: "test-results/app-text-200-390.png",
@@ -1279,6 +1309,21 @@ try {
           .evaluate(() => ({
             dialogEvents: window.__dialogAudit,
             activeElement: document.activeElement.outerHTML,
+            mainOverflow: [...document.querySelectorAll(".studio-main *")]
+              .filter((node) => {
+                const bounds = node.getBoundingClientRect();
+                return (
+                  bounds.width &&
+                  (bounds.right > innerWidth + 1 || bounds.left < -1)
+                );
+              })
+              .slice(0, 20)
+              .map((node) => ({
+                tag: node.tagName,
+                className: String(node.className),
+                text: node.textContent?.slice(0, 80),
+                rect: node.getBoundingClientRect().toJSON(),
+              })),
           }))
           .then((value) =>
             fs.writeFileSync(

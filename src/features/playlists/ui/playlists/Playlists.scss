@@ -1,8 +1,13 @@
 .page-heading {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: 16px;
+}
+.page-heading > :first-child {
+  min-width: 0;
+  max-width: 100%;
 }
 .page-heading h1 {
   font-size: 28px;
@@ -17,6 +22,7 @@
 }
 .heading-actions {
   display: flex;
+  margin-left: auto;
   gap: 8px;
   flex: none;
 }
