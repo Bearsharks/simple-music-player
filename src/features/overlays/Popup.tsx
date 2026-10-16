@@ -311,7 +311,6 @@ const SearchBarOptions = memo(function ({ setPopupOpen, textarea }: SearchBarOpt
     ]
     return <OptionSelector options={options} />;
 });
-//formPopupManager(ModalKind.ImportMyYTPlaylist);
 const YTOptions = memo(function ({ setPopupOpen }: { setPopupOpen: (isOpen: boolean) => void }) {
     const modalManager = useModalManager();
     const openModal = (kind: ModalKind) => {
@@ -319,10 +318,6 @@ const YTOptions = memo(function ({ setPopupOpen }: { setPopupOpen: (isOpen: bool
         setPopupOpen(false);
     }
     const options = [
-        {
-            icon: "playlist_add", name: "내 재생목록 가져오기",
-            onClickHandler: () => openModal(ModalKind.ImportMyYTPlaylist)
-        },
         {
             icon: "add_link", name: "링크에서 가져오기",
             onClickHandler: () => openModal(ModalKind.ImportYTPlaylistLink)

@@ -1,4 +1,4 @@
-import { getToken } from "shared/api/api";
+import { youtubeApiKey } from "shared/config/env";
 import { MusicInfo, PlaylistInfo } from "shared/model/constants";
 
 export enum SearchType {
@@ -101,16 +101,11 @@ export const YTFetch = async (url: string, pageToken?: string): Promise<any[]> =
     const result: any[] = [];
     const seen = new Set<string>();
     let next = pageToken;
-    let refreshed = false;
+    if (!youtubeApiKey) throw new Error('곡 메타데이터 조회에는 별도 API 키가 필요합니다. URL 목록 재생에는 필요하지 않습니다.');
     for (let page = 0; page < 100; page++) {
         const requestUrl = new URL(url);
         if (next) requestUrl.searchParams.set('pageToken', next);
-        let token = sessionStorage.getItem('access_token');
-        if (!token) { token = await getToken(); sessionStorage.setItem('access_token', token); }
-        const response = await fetch(requestUrl, { headers: { Authorization: `Bearer ${token}` } });
-        if (response.status === 401 && !refreshed) {
-            sessionStorage.removeItem('access_token'); refreshed = true; page--; continue;
-        }
+        const response = await fetch(requestUrl, { headers: { 'X-Goog-Api-Key': youtubeApiKey } });
         if (!response.ok) throw new Error(`YouTube 요청 실패 (${response.status}). 권한 또는 할당량을 확인해 주세요.`);
         const data = await response.json();
         if (!Array.isArray(data.items)) throw new Error('YouTube 응답 형식 오류');
@@ -122,26 +117,6 @@ export const YTFetch = async (url: string, pageToken?: string): Promise<any[]> =
     }
     throw new Error('가져올 재생목록이 너무 큽니다. 범위를 줄여 주세요.');
 };
-
-export const getMyYTPlaylistInfos = async (): Promise<PlaylistInfo[]> => {
-    const params: any = {
-        part: `snippet,contentDetails`,
-        mine: true,
-        maxResults: 50,
-        //fields: `nextPageToken,items(id,snippet(title,description,thumbnails,contentDetails))`
-    };
-    let query: string = Object.keys(params).map(k => encodeURIComponent(k) + '=' + encodeURIComponent(params[k])).join('&');
-    let items = await YTFetch(`https://www.googleapis.com/youtube/v3/playlists?${query}`);
-    return items.map((info: any): PlaylistInfo => {
-        return {
-            id: info.id,
-            name: info.snippet.title,
-            description: info.snippet.description,
-            thumbnails: [info.snippet.thumbnails.default.url],
-            itemCount: info.contentDetails.itemCount
-        }
-    })
-}
 
 export const getYTPlaylistByID = async (id: string): Promise<PlaylistInfo> => {
     const params: any = {

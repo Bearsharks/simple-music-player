@@ -1,3 +1,11 @@
+# 제품 방향 갱신 — 2026-10-16
+
+사용자 결정: 로그인/자체 서버 기반 기능을 제거하고 공개 URL 목록을 로컬에 저장한다. 아래 이전 계획의 OAuth·서버 연동 복구 항목은 취소된 방향이며 실행하지 않는다. 현재 P0는 URL 저장·복원·임베드 실재생·모바일 확인·정적 호스팅 배포다. P1은 목록 내보내기/가져오기와 이름 변경이며 아직 구현하지 않았다.
+
+현재 상태는 [LOCAL-PLAYLISTS.md](LOCAL-PLAYLISTS.md)를 우선한다.
+
+## 이전 계획 (기록)
+
 # Simple Music Player 개선안과 우선순위
 
 작성/확인: 2026-10-16. 대상: Bearsharks/simple-music-player. 작업 브랜치: `refactor/feature-modernization`.

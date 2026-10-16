@@ -1,5 +1,7 @@
 # playlists: 저장 재생목록
 
+현재 제품은 library 기능을 사용한다. 이 폴더는 이전 편집 기능의 재사용을 위해 보존되며 App에 연결되어 있지 않다.
+
 ## 최소 읽기 경로
 
 - `model/playlistAtoms.ts` — 조회·CRUD·서버 데이터 갱신
@@ -14,7 +16,7 @@ shared/api/apiSelector.ts가 저장 어댑터. queue/model/queue.ts가 목록 �
 
 ## 보존할 계약
 
-저장 재생목록과 현재 대기열은 별개다. 삭제 입력 배열 불변, itemCount/썸네일 일치, 모듈 import 시 네트워크 요청 금지. 서버→로컬 저장 변경은 별도 제품 결정이다.
+저장 재생목록과 현재 대기열은 별개다. 삭제 입력 배열 불변, itemCount/썸네일 일치, 모듈 import 시 네트워크 요청 금지. 저장 어댑터는 localAPI 또는 fixture다.
 
 ## 검증
 

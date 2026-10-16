@@ -1,6 +1,6 @@
 import { urlToId, SearchType, YTFetch } from 'features/youtube/api/youtubeSearch';
 import { vi } from 'vitest';
-vi.mock('shared/api/api', () => ({getToken: vi.fn(async ()=>'test-token')}));
+vi.mock('shared/config/env', () => ({youtubeApiKey: 'public-test-key'}));
 afterEach(()=>{vi.unstubAllGlobals();sessionStorage.clear();});
 it.each(['https://youtu.be/abcdefghijk?t=4','https://www.youtube.com/watch?v=abcdefghijk&x=1','https://youtube.com/shorts/abcdefghijk'])('parses video URL %s',url=>{
  expect(urlToId(url)).toEqual({id:'abcdefghijk',kind:SearchType.Music});
@@ -15,9 +15,9 @@ it('does not retry quota errors or include bearer tokens in URLs',async()=>{
  expect(request).toHaveBeenCalledTimes(1);
  expect(String(request.mock.calls[0][0])).not.toContain('token');
 });
-it('refreshes at most once on repeated 401',async()=>{
+it('does not retry 401 or request OAuth refresh',async()=>{
  const request=vi.fn(async(_input: RequestInfo | URL, _init?: RequestInit)=>new Response('{}',{status:401}));vi.stubGlobal('fetch',request);
- await expect(YTFetch('https://www.googleapis.com/youtube/v3/videos')).rejects.toThrow('401');expect(request).toHaveBeenCalledTimes(2);
+ await expect(YTFetch('https://www.googleapis.com/youtube/v3/videos')).rejects.toThrow('401');expect(request).toHaveBeenCalledTimes(1);
 });
 it('collects pages and detects a repeated token',async()=>{
  const request=vi.fn(async(_input: RequestInfo | URL, _init?: RequestInit)=>new Response(JSON.stringify({items:[{}],nextPageToken:'same'}),{status:200}));vi.stubGlobal('fetch',request);

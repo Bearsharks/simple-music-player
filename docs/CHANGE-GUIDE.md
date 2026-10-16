@@ -10,11 +10,14 @@
 4. 내부 구현 변경은 기능 안에 한정한다. export, atom, 공통 타입, API, 라우팅 계약을 바꾸면 소비자까지 추적한다.
 5. 기능 README의 빠른 테스트 후 `npm run check`를 실행한다. UI·외부 서비스 검증 공백은 따로 적는다.
 
-## 요청 → 진입점
+## 현재 제품 진입점
+
+URL 추가·저장·목록 선택·YouTube 임베드: [library](../src/features/library/README.md). App은 library만 마운트한다. 아래 표의 기능들은 이전 편집 모듈을 보존한 것이며 현재 화면에는 연결되지 않는다.
+
+## 보존된 편집 모듈 → 진입점
 
 | 요청 | 우선 읽을 문서 | 함께 볼 조건 |
 | --- | --- | --- |
-| 로그인/만료/콜백 | [auth](../src/features/auth/README.md) | 서버 계약 또는 로그아웃 변경 시 shared/api, navigation |
 | 메뉴/모바일 화면 조립 | [navigation](../src/features/navigation/README.md) | 조립된 기능의 레이아웃·라우팅 변경 시 |
 | 저장 목록 생성/수정/삭제 | [playlists](../src/features/playlists/README.md) | 폼 동작은 overlays, 대기열 가져오기는 queue |
 | 곡 추가/순서/현재 곡 | [queue](../src/features/queue/README.md) | 현재 곡 계약 변경 시 player |

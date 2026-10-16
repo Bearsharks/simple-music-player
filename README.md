@@ -1,3 +1,11 @@
+# Simple Music Player — 로컬 URL 재생목록
+
+현재 앱은 로그인 없이 공개 YouTube 재생목록 URL과 이름을 브라우저에 저장하고 공식 임베드로 재생합니다. 자체 서버/API 키 설정 없이 `npm ci && npm run dev`로 시작합니다. `npm run check`로 검사합니다.
+
+저장되는 것은 링크이며 곡 파일이나 전체 메타데이터 복사본이 아닙니다. 사이트 데이터 삭제·주소 변경·다른 기기에는 자동 이전되지 않습니다. [현재 구조](docs/ARCHITECTURE.md), [작업 지도](docs/CHANGE-GUIDE.md), [변경 보고](docs/LOCAL-PLAYLISTS.md).
+
+## 이전 버전 기록 (현재 동작 설명 아님)
+
 # 개발 안내 — 기능 단위 구조 / 2026-10-16
 
 - Node.js 24 (`nvm use`), `npm ci`

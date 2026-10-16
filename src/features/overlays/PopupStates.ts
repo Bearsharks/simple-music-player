@@ -34,7 +34,7 @@ export interface ModalInfoData {
 }
 
 export enum ModalKind {
-    CreatePlaylist, UpdatePlaylist, ImportMyYTPlaylist, ImportYTPlaylistLink
+    CreatePlaylist, UpdatePlaylist, ImportYTPlaylistLink
 }
 
 const useOpenPopup = () => {
@@ -125,13 +125,7 @@ export const useModalManager = function () {
                 set(ModalInfoState, popupData);
                 set(ModalOpenState, true);
             } break;
-            case ModalKind.ImportMyYTPlaylist: {
-                const popupData: ModalInfoData = {
-                    kind: ModalKind.ImportMyYTPlaylist
-                }
-                set(ModalInfoState, popupData);
-                set(ModalOpenState, true);
-            } break;
+
             case ModalKind.ImportYTPlaylistLink: {
                 const popupData: ModalInfoData = {
                     kind: ModalKind.ImportYTPlaylistLink

@@ -14,9 +14,6 @@ export const reset = () => {
 export const testAPIget = (id: string, items: string) => {
     return a[id][items];
 }
-const getToken = async (): Promise<string> => {
-    return "aasdfasfasdf";
-}
 const getPlaylistInfos = async (): Promise<PlaylistInfo[]> => {
     return Object.entries(a).map(el => el[1]) as any;
 }
@@ -52,12 +49,11 @@ const updatePlaylist = async (playlist: { info: PlaylistInfo, items?: MusicInfo[
 
 };
 
-const checkAuth = async () => true;
-const doSignIn = async () => { };
+
+
 
 const _: API = {
     getPlaylistInfos, getPlaylistInfo, getPlaylistItems,
     createPlaylist, deletePlaylist, updatePlaylist,
-    getToken, checkAuth, doSignIn
 };
 export default _;

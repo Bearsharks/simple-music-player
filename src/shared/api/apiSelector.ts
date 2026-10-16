@@ -1,6 +1,6 @@
 import { useFixtureApi } from 'shared/config/env';
 import { MusicInfo, PlaylistInfo } from "shared/model/constants";
-import smpServerAPI from 'shared/api/api';
+import localAPI from './localAPI';
 import testAPI from 'shared/api/testAPI';
 export interface API {
     getPlaylistInfos: () => Promise<PlaylistInfo[]>;
@@ -9,9 +9,6 @@ export interface API {
     createPlaylist: (info: PlaylistInfo, items: MusicInfo[]) => Promise<string>;
     deletePlaylist: (id: string) => Promise<boolean>;
     updatePlaylist: (playlist: { info: PlaylistInfo, items?: MusicInfo[] }) => Promise<boolean>;
-    getToken: () => Promise<string>;
-    checkAuth: () => Promise<boolean>;
-    doSignIn: (staySignedIn?: boolean) => Promise<void>;
 }
-const api: API = useFixtureApi ? testAPI : smpServerAPI;
+const api: API = useFixtureApi ? testAPI : localAPI;
 export default api;

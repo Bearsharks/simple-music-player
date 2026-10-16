@@ -1,5 +1,7 @@
 # player: YouTube 재생·컨트롤
 
+현재 제품은 library 기능을 사용한다. 이 폴더는 이전 편집 기능의 재사용을 위해 보존되며 App에 연결되어 있지 않다.
+
 ## 최소 읽기 경로
 
 - `ui/ConnectedYoutubePlayer.tsx` — 플레이어 생성·이벤트·해제

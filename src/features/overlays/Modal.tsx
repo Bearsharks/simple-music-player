@@ -5,7 +5,6 @@ import React, { Suspense } from 'react';
 import { MusicInfo, Playlist, PlaylistAction, PlaylistActionType, PlaylistInfo } from 'shared/model/constants';
 import youtubeSearch, { getYTPlaylistByID, SearchType, urlToId } from 'features/youtube/api/youtubeSearch';
 import Spinner from 'shared/ui/Spinner';
-import { myYTPlaylistInfosState } from 'features/youtube/model/YTPlaylistState';
 import { usePlaylistManager } from 'features/playlists/model/playlistAtoms';
 import FormBox, { FormItem } from 'features/playlists/ui/formBox/FormBox';
 import FormBoxPlaylist from 'features/playlists/ui/formBox/FormBoxPlaylist';
@@ -33,10 +32,6 @@ function ModalForm({ setModalOpen }: { setModalOpen: (bool: boolean) => void }) 
                 return <PlaylistForm kind={modalState.kind} closePopup={closePopup} musicInfos={modalState.data} />;
             case ModalKind.UpdatePlaylist:
                 return <PlaylistForm kind={modalState.kind} closePopup={closePopup} playlistInfo={modalState.data} />;
-            case ModalKind.ImportMyYTPlaylist:
-                return <Suspense fallback={<Spinner />}>
-                    <ImportMyYTPlaylistForm closePopup={closePopup} />
-                </Suspense>;
             case ModalKind.ImportYTPlaylistLink:
                 return <ImportYTPlaylistLink closePopup={closePopup} ></ImportYTPlaylistLink>
             default:
@@ -46,32 +41,6 @@ function ModalForm({ setModalOpen }: { setModalOpen: (bool: boolean) => void }) 
     return children;
 }
 export default Modal;
-
-function ImportMyYTPlaylistForm({ closePopup }: { closePopup: () => void }) {
-    const playlistManager = usePlaylistManager();
-    const myYTPlaylistInfo = useAtomValue(myYTPlaylistInfosState);
-    const submit = async (tgtPlaylist: PlaylistInfo) => {
-        let info = myYTPlaylistInfo.find((element) => element.id === tgtPlaylist.id);
-        if (!info) throw "해당 재생목록이 존재하지 않음!";
-
-        const playlist: Playlist = {
-            info: info,
-            items: await youtubeSearch(tgtPlaylist.id, SearchType.List)
-        }
-        const createAction: PlaylistAction = {
-            type: PlaylistActionType.CREATE,
-            payload: playlist
-        }
-        playlistManager(createAction);
-        closePopup();
-    }
-    return <FormBoxPlaylist
-        name={"나의 재생목록"}
-        closePopup={closePopup}
-        playlistInfos={myYTPlaylistInfo}
-        submit={submit}
-    />
-}
 
 function ImportYTPlaylistLink({ closePopup }: { closePopup: () => void }) {
     const playlistManager = usePlaylistManager();
