@@ -1,0 +1,12 @@
+:root {
+  color-scheme: dark;
+  --canvas:#0b0b14; --surface:#1a1a26; --surface-raised:#242435;
+  --line:#353545; --control-line:#6b6b80; --text:#fff; --muted:#a1a1b3;
+  --purple:#a855ff; --pink:#ff4d8d; --sky:#4cc9ff; --on-brand:#0b0b14;
+  --selected:rgba(168,85,255,.12); --gradient:linear-gradient(120deg,#a855ff 0%,#ff4d8d 58%,#4cc9ff 100%);
+  --danger:#ff9db6; --success:#91e5c4;
+  --space-1:4px; --space-2:8px; --space-3:12px; --space-4:16px; --space-6:24px; --space-8:32px;
+  --radius-control:10px; --radius-card:12px; --radius-dialog:16px;
+  --rail:208px; --queue:320px; --dock:88px; --safe-bottom:env(safe-area-inset-bottom,0px);
+  --font:Inter,"Noto Sans KR","Noto Sans Korean",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+}

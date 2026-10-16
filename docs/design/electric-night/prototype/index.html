@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0B0B14"><meta name="description" content="SMP Electric Night 상호작용 디자인 프로토타입. 실제 YouTube 연결이나 오디오 재생은 없습니다.">
+<title>SMP · Electric Night prototype</title>
+<link rel="stylesheet" href="tokens.css"><link rel="stylesheet" href="prototype.css"><script defer src="prototype.js"></script>
+</head>
+<body>
+<a class="skip-link" href="#content-title">본문으로 바로가기</a>
+<div class="app-shell" id="app-shell">
+<aside class="sidebar" id="sidebar" aria-label="메인 탐색"></aside>
+<main class="main-panel" id="main-panel"></main>
+<aside class="queue-panel" id="queue-panel" aria-label="지금 재생 및 대기열" hidden></aside>
+</div>
+<button class="queue-scrim" id="queue-scrim" aria-label="플레이어 닫기" tabindex="-1" hidden></button>
+<footer class="dock" id="dock" aria-label="재생 컨트롤"></footer>
+<dialog id="modal" aria-labelledby="modal-title"></dialog>
+<div class="toast-region" id="toast-region" aria-live="polite" aria-atomic="true"></div>
+<div class="sr-only" id="announcer" role="status" aria-live="polite"></div>
+<noscript>이 상호작용 프로토타입은 JavaScript가 필요합니다. 실제 YouTube 연결은 하지 않습니다.</noscript>
+</body>
+</html>
