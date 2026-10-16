@@ -72,7 +72,6 @@ export default function PlayerDetail({
         <header className="now-heading">
           <div>
             <h2>지금 재생</h2>
-            <small>음악과 함께하는 나만의 시간</small>
           </div>
           <button
             className="icon-button"
@@ -170,8 +169,7 @@ export default function PlayerDetail({
             )}
             <div className="player-large-controls">
               <ProgressBar />
-              <Transport {...controls} />
-              <SoundController />
+              <Transport {...controls} leading={<SoundController overlay />} />
             </div>
           </section>
           <section
@@ -206,7 +204,6 @@ export default function PlayerDetail({
                   className="icon-button"
                   disabled={!musicList.length}
                   aria-label="대기열을 재생목록에 저장"
-                  title="대기열을 재생목록에 저장"
                   onClick={(event) => save(event.currentTarget, musicList)}
                 >
                   <Icon name="save" />
@@ -215,7 +212,6 @@ export default function PlayerDetail({
                   className="icon-button"
                   disabled={!musicList.length}
                   aria-label="대기열 비우기"
-                  title="대기열 비우기"
                   onClick={() => setClearOpen(true)}
                 >
                   <Icon name="trash" />
@@ -223,10 +219,7 @@ export default function PlayerDetail({
               </div>
             </div>
             {musicList.length ? (
-              <MusicList
-                items={musicList}
-                currentStatus={status}
-              />
+              <MusicList items={musicList} currentStatus={status} />
             ) : (
               <div className="queue-empty">
                 <Icon name="queue" />

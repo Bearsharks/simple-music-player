@@ -91,6 +91,9 @@
   padding: 11px 13px;
   font-size: 16px;
 }
+.loopy-control[data-slot="select-trigger"] {
+  height: auto;
+}
 .loopy-control[data-slot="textarea"] {
   field-sizing: fixed;
   resize: vertical;
@@ -99,13 +102,14 @@
   border-color: var(--danger);
 }
 .loopy-control[data-slot="select-content"],
-.loopy-control[data-slot="dropdown-menu-content"] {
+.loopy-control[data-slot="dropdown-menu-content"],
+.loopy-control[data-slot="popover-content"] {
   border: 1px solid var(--line);
   background: var(--surface);
   color: var(--text);
   border-radius: 12px;
   padding: 6px;
-  z-index: 140;
+  z-index: var(--z-popover);
   box-shadow: 0 12px 32px rgb(0 0 0 / 0.32);
 }
 .loopy-control[data-slot="select-item"],
@@ -133,4 +137,16 @@
 .loopy-control[data-slot="label"] {
   font-size: 13px;
   line-height: 1.5;
+}
+
+/* Product signature is intentionally limited to the whole-playlist action. */
+.loopy-control[data-slot][data-loopy-button].play-button {
+  background: var(--signature-gradient);
+  color: var(--on-brand);
+}
+.loopy-control[data-slot][data-loopy-button].play-button:hover:not(:disabled) {
+  background: var(--signature-gradient-hover);
+}
+.loopy-control[data-slot][data-loopy-button].play-button:active:not(:disabled) {
+  background: var(--signature-gradient-pressed);
 }

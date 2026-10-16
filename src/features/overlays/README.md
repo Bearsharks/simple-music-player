@@ -51,7 +51,7 @@ playlists/queue/youtube를 연결하는 기존 조정 코드다. search/player/p
 - persistent player panel은 낮은 priority, 폼/확인은 기본 priority다. 상위 작업 중 breakpoint가 바뀌어도 작업 modal을 top layer에 유지한다.
 - 열린 sheet의 메뉴는 트리거의 dialog 내부에 portal하여 inert/top-layer 아래로 떨어지지 않는다. 메뉴 Escape는 메뉴만 닫고, 바깥 dialog Escape와 충돌하지 않는다.
 - Notice는 shared OverlayPortal을 통해 현재 modal scope에 표시하므로 sheet에서 삭제한 곡의 Undo도 조작 가능하다. Undo는 시간 제한 없이 닫기/다른 알림까지 유지하므로 hover/focus 중 사라지지 않는다.
-- 원본 초기화/큐 비우기도 이름 있는 확인 dialog를 사용한다. 전체 저장 목록 삭제에는 Undo를 추가하지 않는다.
+- 최초 snapshot 복원/큐 비우기도 이름 있는 확인 dialog를 사용한다. 최신 가져오기는 미리보기와 명시 CTA 한 번으로 교체한다. 전체 저장 목록 삭제에는 Undo를 추가하지 않는다.
 
 ## 인수 검수 보완
 
@@ -92,3 +92,11 @@ focus to the invoking button so the new task's own return-focus target is valid.
 Deleted-row focus fallback remains in the feature. See shared/ui/shadcn/README.md
 for upstream source and the scoped CSS pipeline. Native Dialog and Notice remain
 existing implementations.
+
+목록 원본 action은 `RestoreInitialPlaylist`/`RefreshYTPlaylist` ModalKind로 연결한다.
+snapshot 배열 조회/복원은 playlists, 최신 URL preview는 youtube가 소유한다. snapshot 없는
+legacy의 복원 옵션은 숨기며 현재 이름/설명/큐는 바꾸지 않는다.
+
+OverlayPortal의 page-level host는 공유된 안정 grid stack이다. 동시에 발생한 Undo/ErrorToast가
+같은 fixed 좌표에 겹치지 않는다. 각 stateful layer만 현재 native modal의 정상 흐름으로 옮기고
+닫힐 때 원래 stack으로 복귀한다. 공통 레이어 토큰/host 규칙은 루트 `DESIGN_SYSTEM.md`다.

@@ -1,5 +1,6 @@
 import { Button } from "shared/ui/shadcn/button";
 import ErrorToast from "shared/ui/ErrorToast";
+import RestoreInitialPlaylist from "features/playlists/ui/RestoreInitialPlaylist";
 import PlaylistImport from "features/youtube/ui/PlaylistImport";
 import { useAtom, useAtomValue } from "jotai";
 import {
@@ -27,6 +28,8 @@ const labels = {
   [ModalKind.UpdatePlaylist]: "재생목록 수정",
   [ModalKind.ImportYTPlaylistLink]: "재생목록 URL 가져오기",
   [ModalKind.DeletePlaylist]: "재생목록 삭제",
+  [ModalKind.RestoreInitialPlaylist]: "처음 가져온 목록으로 복원",
+  [ModalKind.RefreshYTPlaylist]: "YouTube 최신 목록 가져오기",
 };
 export default function Modal({ onCreated }: { onCreated?: OnCreated }) {
   const [isOpen, setOpen] = useAtom(ModalOpenState);
@@ -39,6 +42,18 @@ export default function Modal({ onCreated }: { onCreated?: OnCreated }) {
         <PlaylistImport
           close={close}
           onCreated={(id) => onCreated?.(id, "import")}
+        />
+      ) : state.kind === ModalKind.RefreshYTPlaylist ? (
+        <PlaylistImport
+          key={state.data.id}
+          original={state.data}
+          close={close}
+        />
+      ) : state.kind === ModalKind.RestoreInitialPlaylist ? (
+        <RestoreInitialPlaylist
+          key={state.data.id}
+          playlistID={state.data.id}
+          close={close}
         />
       ) : state.kind === ModalKind.DeletePlaylist ? (
         <DeleteConfirmation
@@ -110,7 +125,8 @@ function PlaylistForm({
       submitLabel={create ? "만들기" : "변경 저장"}
     >
       {create && (
-        <Button variant="secondary"
+        <Button
+          variant="secondary"
           type="button"
           className={styles.importYTBtn}
           onClick={() => modal(ModalKind.ImportYTPlaylistLink)}
@@ -167,7 +183,8 @@ function DeleteConfirmation({
       </p>
       <ErrorToast message={error} />
       <div className={styles.confirmationActions}>
-        <Button variant="secondary"
+        <Button
+          variant="secondary"
           type="button"
           className="secondary-button"
           disabled={busy}
@@ -175,7 +192,8 @@ function DeleteConfirmation({
         >
           취소
         </Button>
-        <Button variant="destructive"
+        <Button
+          variant="destructive"
           type="button"
           className="button danger-button"
           disabled={busy}

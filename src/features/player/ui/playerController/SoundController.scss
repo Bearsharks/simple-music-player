@@ -1,0 +1,26 @@
+.loopy-control[data-slot="popover-content"].volume-popover {
+  width: min(224px, calc(100vw - 32px));
+  padding: 16px;
+}
+.volume-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+.volume-heading span {
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+.volume-popover input[type="range"] {
+  width: 100%;
+  padding: 0;
+  min-height: 44px;
+  height: 44px;
+  background: transparent;
+  border: 0;
+  accent-color: var(--purple);
+}
+.volume-popover > button {
+  width: 100%;
+}

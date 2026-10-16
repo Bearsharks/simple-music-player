@@ -2,7 +2,7 @@
   position: fixed;
   inset: 0;
   background: #0009;
-  z-index: 101;
+  z-index: var(--z-dialog);
 }
 .content {
   position: fixed;
@@ -13,7 +13,7 @@
   border: 1px solid var(--line);
   border-radius: 16px;
   box-shadow: 0 24px 90px #0008;
-  z-index: 102;
+  z-index: var(--z-dialog);
   width: min(500px, calc(100vw - 32px));
   max-width: calc(100vw - 24px);
   max-height: calc(100dvh - 32px);

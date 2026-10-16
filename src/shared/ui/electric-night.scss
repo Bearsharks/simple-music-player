@@ -1,5 +1,13 @@
 :root {
   color-scheme: dark;
+  --z-content: 0;
+  --z-sticky: 10;
+  --z-dock: 40;
+  --z-panel: 60;
+  --z-popover: 80;
+  --z-dialog: 100;
+  --z-notice: 120;
+  --z-accessibility: 140;
   --canvas: #0b0b14;
   --surface: #1a1a26;
   --surface-raised: #242435;
@@ -13,6 +21,24 @@
   --pink: #ff4d8d;
   --sky: #4cc9ff;
   --on-brand: #0b0b14;
+  --signature-gradient: linear-gradient(
+    110deg,
+    #a855ff 0%,
+    #6c70ef 55%,
+    #4cc9ff 100%
+  );
+  --signature-gradient-hover: linear-gradient(
+    110deg,
+    #b875ff 0%,
+    #8388f4 55%,
+    #6ad3ff 100%
+  );
+  --signature-gradient-pressed: linear-gradient(
+    110deg,
+    #a553fa 0%,
+    #6a6eeb 55%,
+    #43b8ef 100%
+  );
   --selected: rgba(168, 85, 255, 0.12);
   --gradient: linear-gradient(120deg, #a855ff 0%, #ff4d8d 58%, #4cc9ff 100%);
   --danger: #ff9db6;
@@ -176,14 +202,14 @@ h3 {
   background: var(--surface-raised);
 }
 .play-button {
-  background: var(--purple);
+  background: var(--signature-gradient);
   color: var(--on-brand);
 }
 .play-button:hover:not(:disabled) {
-  background: var(--brand-hover);
+  background: var(--signature-gradient-hover);
 }
 .play-button:active:not(:disabled) {
-  background: var(--brand-pressed);
+  background: var(--signature-gradient-pressed);
 }
 .danger-button {
   background: var(--danger);
@@ -237,4 +263,10 @@ h3 {
 // Headings receive route announcements, not an interactive focus ring.
 h1[tabindex="-1"]:focus {
   outline: none;
+}
+
+#root {
+  position: relative;
+  isolation: isolate;
+  z-index: var(--z-content);
 }

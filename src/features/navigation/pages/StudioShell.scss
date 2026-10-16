@@ -27,24 +27,33 @@
   align-items: center;
   gap: 3px;
   height: 28px;
+  width: 25px;
+  flex-shrink: 0;
 }
 .logo-bars i {
   width: 4px;
   height: 18px;
   border-radius: 8px;
-  background: var(--purple);
+  // Each bar shows its part of one shared 25×28 gradient, never a repeated fill.
+  background-image: var(--signature-gradient);
+  background-size: 25px 28px;
+  background-repeat: no-repeat;
+  background-position: 0 -5px;
 }
 .logo-bars i:nth-child(2) {
   height: 28px;
+  background-position: -7px 0;
 }
 .logo-bars i:nth-child(3) {
   height: 23px;
+  background-position: -14px -2.5px;
 }
 .logo-bars i:nth-child(4) {
   height: 12px;
+  background-position: -21px -8px;
 }
 .logo-dot {
-  color: var(--purple);
+  color: var(--sky);
   margin-left: -8px;
 }
 .sidebar-nav {
@@ -169,7 +178,7 @@
   backdrop-filter: blur(16px);
   position: sticky;
   top: 0;
-  z-index: 10;
+  z-index: var(--z-sticky);
 }
 .breadcrumb {
   display: flex;
@@ -210,7 +219,7 @@
   display: none;
 }
 .studio-content {
-  padding: 28px 32px 48px;
+  padding: 28px 32px calc(var(--dock) + var(--safe-bottom) + 16px);
   max-width: 1560px;
   margin: 0 auto;
   min-width: 0;
@@ -222,16 +231,12 @@
   background: var(--sky);
   color: var(--canvas);
   padding: 12px;
-  z-index: 200;
+  z-index: var(--z-accessibility);
 }
 .skip-link:focus {
   top: 12px;
 }
-@media (min-width: 1200px) {
-  .studio-shell.queue-open {
-    padding-right: var(--queue);
-  }
-}
+
 @media (max-width: 760px) {
   :root {
     --dock: 4.5rem;
@@ -258,10 +263,10 @@
     min-height: 44px;
   }
   .mobile-wordmark span {
-    color: var(--purple);
+    color: var(--sky);
   }
   .breadcrumb {
-    gap: 8px;
+    gap: 16px;
   }
 
   .crumb-current {
@@ -271,7 +276,7 @@
     font-size: 12px;
   }
   .studio-content {
-    padding: 22px 16px 36px;
+    padding: 22px 16px calc(var(--dock) + var(--safe-bottom) + 16px);
   }
   .local-badge {
     max-width: 45%;
@@ -289,9 +294,6 @@
   }
   .studio-topbar {
     padding: 0 12px;
-  }
-  .breadcrumb {
-    gap: 4px;
   }
   .local-badge {
     max-width: 45%;

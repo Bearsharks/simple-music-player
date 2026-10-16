@@ -108,7 +108,7 @@ export default function FormBoxPlaylist({
     setSelected(id);
     setError("");
     setSelectionStatus(
-      `${id === NEW_PLAYLIST ? "새 재생목록" : info?.name} 선택, 아래에서 이름과 설명을 편집할 수 있습니다.`,
+      `${id === NEW_PLAYLIST ? "새 재생목록" : info?.name} 선택`,
     );
     if (id === NEW_PLAYLIST) setFocusRequest((value) => value + 1);
   };

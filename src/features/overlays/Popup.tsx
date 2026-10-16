@@ -23,6 +23,7 @@ import {
 import { useMusicListManager } from "features/queue/model/queue";
 import {
   playlistInfosState,
+  playlistInfoStateFamily,
   playlistItemStateFamily,
   usePlaylistManager,
 } from "features/playlists/model/playlistAtoms";
@@ -53,11 +54,13 @@ function InnerPopup({
       case PopupKind.PlaylistOptions:
         if (typeof info.data === "string") {
           return (
-            <PlaylistOptions
-              evTarget={info.target}
-              setPopupOpen={setOpen}
-              playlistid={info.data}
-            ></PlaylistOptions>
+            <Suspense fallback={<Spinner />}>
+              <PlaylistOptions
+                evTarget={info.target}
+                setPopupOpen={setOpen}
+                playlistid={info.data}
+              />
+            </Suspense>
           );
         }
         throw "playlistID is not valid can't render PlaylistOptions";
@@ -422,6 +425,7 @@ const PlaylistOptions = memo(function ({
   setPopupOpen,
   playlistid,
 }: PlaylistOptionsProps) {
+  const info = useAtomValue(playlistInfoStateFamily(playlistid));
   const musicListManager = useMusicListManager();
   const modalManager = useModalManager();
   const store = useStore();
@@ -478,6 +482,30 @@ const PlaylistOptions = memo(function ({
       name: "재생목록 수정",
       onClickHandler: onClickHandlerWrapper(updatePlaylistInfo),
     },
+    ...(info.sourcePlaylistUrl
+      ? [
+          ...(info.hasInitialSnapshot
+            ? [
+                {
+                  icon: "history",
+                  name: "처음 가져온 목록으로 복원",
+                  onClickHandler: onClickHandlerWrapper((id) => {
+                    evTarget.focus();
+                    return modalManager(ModalKind.RestoreInitialPlaylist, id);
+                  }),
+                },
+              ]
+            : []),
+          {
+            icon: "sync",
+            name: "YouTube 최신 목록 가져오기",
+            onClickHandler: onClickHandlerWrapper((id) => {
+              evTarget.focus();
+              return modalManager(ModalKind.RefreshYTPlaylist, id);
+            }),
+          },
+        ]
+      : []),
     {
       icon: "delete_outline",
       name: "재생목록 삭제",

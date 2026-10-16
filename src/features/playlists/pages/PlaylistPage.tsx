@@ -1,7 +1,6 @@
-import { Input } from "shared/ui/shadcn/input";
 import { Button } from "shared/ui/shadcn/button";
+import AddVideo from "../ui/AddVideo";
 import RestoreTitles from "../ui/RestoreTitles";
-import { fetchVideoTitles } from "features/youtube/api/videoMetadata";
 import ErrorToast from "shared/ui/ErrorToast";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import { Suspense, useEffect, useLayoutEffect, useRef, useState } from "react";
@@ -22,8 +21,6 @@ import {
   useOpenPlaylistItemOptionsPopup,
   useOpenPlaylistOptionsPopup,
 } from "features/overlays/PopupStates";
-import PlaylistImport from "features/youtube/ui/PlaylistImport";
-import { urlToId, SearchType } from "features/youtube/api/youtubeSearch";
 import {
   MusicInfoActionType,
   MusicListActionType,
@@ -55,7 +52,11 @@ export default function PlaylistPage() {
           재생목록을 찾을 수 없습니다
         </h1>
         <p>삭제되었거나 이 브라우저에 저장되지 않은 목록입니다.</p>
-        <Button variant="secondary" className="secondary-button" onClick={() => navigate("/")}>
+        <Button
+          variant="secondary"
+          className="secondary-button"
+          onClick={() => navigate("/")}
+        >
           라이브러리로 돌아가기
         </Button>
       </section>
@@ -65,17 +66,27 @@ export default function PlaylistPage() {
 function PlaylistDetail({ playlistID }: { playlistID: string }) {
   const info = useAtomValue(playlistInfoStateFamily(playlistID));
   const location = useLocation();
-  const [addOpen, setAddOpen] = useState(
-    !info.itemCount || Boolean(location.state?.focusAdd),
-  );
-  const [resetOpen, setResetOpen] = useState(false);
+  const navigate = useNavigate();
+  const [addOpen, setAddOpen] = useState(Boolean(location.state?.focusAdd));
+  const addTrigger = useRef<HTMLButtonElement>(null);
+  const closeAdd = () => {
+    setAddOpen(false);
+    requestAnimationFrame(() => addTrigger.current?.focus());
+  };
+  useEffect(() => {
+    if (location.state?.focusAdd)
+      navigate(location.pathname, {
+        replace: true,
+        state: { ...location.state, focusAdd: false },
+      });
+  }, [location.state, location.pathname, navigate]);
   const [error, setError] = useState("");
   const heading = useRef<HTMLHeadingElement>(null);
   const playList = useMusicListManager();
   const reveal = useSetAtom(revealQueueOnFirstPlay);
   const options = useOpenPlaylistOptionsPopup();
   useEffect(() => {
-    if (!location.state?.focusAdd) heading.current?.focus();
+    if (!location.state?.focusAdd && !addOpen) heading.current?.focus();
   }, [location.state]);
   return (
     <div className={styles.container} data-track-scope>
@@ -105,7 +116,8 @@ function PlaylistDetail({ playlistID }: { playlistID: string }) {
       </div>
       <div className={styles.actions}>
         <div>
-          <Button variant="default"
+          <Button
+            variant="default"
             className="button play-button"
             disabled={!info.itemCount}
             onClick={async () => {
@@ -128,13 +140,15 @@ function PlaylistDetail({ playlistID }: { playlistID: string }) {
             <Icon name="play" />
             전체 재생
           </Button>
-          <Button variant="secondary"
+          <Button
+            variant="secondary"
             className="secondary-button"
             aria-expanded={addOpen}
-            aria-controls="add-video"
+            ref={addTrigger}
+            aria-haspopup="dialog"
             data-empty-track-focus
-            aria-label={addOpen ? "곡 추가 닫기" : "곡 추가 열기"}
-            onClick={() => setAddOpen(!addOpen)}
+            aria-label="곡 추가"
+            onClick={() => setAddOpen(true)}
           >
             <Icon name="plus" />
             <span>곡 추가</span>
@@ -146,31 +160,16 @@ function PlaylistDetail({ playlistID }: { playlistID: string }) {
       </div>
       <ErrorToast message={error} />
       {addOpen && (
-        <AddVideo
-          playlistID={playlistID}
-          focus={Boolean(location.state?.focusAdd)}
-        />
+        <Dialog label="곡 추가" onClose={closeAdd}>
+          <Suspense fallback={<Spinner />}>
+            <AddVideo playlistID={playlistID} close={closeAdd} />
+          </Suspense>
+        </Dialog>
       )}
       <Suspense fallback={<Spinner />}>
         <RestoreTitles playlistID={playlistID} />
         <PlaylistItems playlistID={playlistID} />
       </Suspense>
-      {info.sourcePlaylistUrl && (
-        <div className={styles.sourceNote}>
-          <Icon name="link" />
-          <Button variant="secondary"
-            className="secondary-button"
-            onClick={() => setResetOpen(true)}
-          >
-            원본으로 초기화
-          </Button>
-        </div>
-      )}
-      {resetOpen && (
-        <Dialog label="원본 초기화" onClose={() => setResetOpen(false)}>
-          <PlaylistImport original={info} close={() => setResetOpen(false)} />
-        </Dialog>
-      )}
     </div>
   );
 }
@@ -189,14 +188,17 @@ function PlaylistItems({ playlistID }: { playlistID: string }) {
     if (busy || !focusedHandle.current) return;
     const handle = focusedHandle.current;
     focusedHandle.current = null;
-    if (handle.isConnected && document.activeElement === document.body) handle.focus();
+    if (handle.isConnected && document.activeElement === document.body)
+      handle.focus();
   }, [busy]);
   const move = async (from: number, to: number) => {
     if (pending.current || from === to) return;
     pending.current = true;
-    focusedHandle.current = document.activeElement instanceof HTMLElement &&
+    focusedHandle.current =
+      document.activeElement instanceof HTMLElement &&
       document.activeElement.hasAttribute("data-rfd-drag-handle-draggable-id")
-      ? document.activeElement : null;
+        ? document.activeElement
+        : null;
     setBusy(true);
     const item = items[from];
     try {
@@ -228,7 +230,6 @@ function PlaylistItems({ playlistID }: { playlistID: string }) {
         <div className={styles.empty}>
           <Icon name="music" />
           <h2>첫 번째 곡을 추가해 보세요.</h2>
-          <p>영상 URL을 붙여넣으면 이 목록에 저장됩니다.</p>
         </div>
       )}
       <ErrorToast message={error} />
@@ -290,129 +291,5 @@ function PlaylistItems({ playlistID }: { playlistID: string }) {
         </Droppable>
       </DragDropContext>
     </section>
-  );
-}
-function AddVideo({
-  playlistID,
-  focus,
-}: {
-  playlistID: string;
-  focus: boolean;
-}) {
-  const [url, setUrl] = useState("");
-  const [name, setName] = useState("");
-  const [error, setError] = useState("");
-  const [duplicate, setDuplicate] = useState("");
-  const [status, setStatus] = useState("");
-  const [busy, setBusy] = useState(false);
-  const pending = useRef(false);
-  const input = useRef<HTMLInputElement>(null);
-  const manager = usePlaylistManager();
-  const items = useAtomValue(playlistItemStateFamily(playlistID));
-  useEffect(() => {
-    if (focus) input.current?.focus();
-  }, [focus]);
-  return (
-    <form
-      id="add-video"
-      className={styles.addVideo}
-      aria-busy={busy}
-      onSubmit={async (event) => {
-        event.preventDefault();
-        if (pending.current) return;
-        try {
-          const parsed = urlToId(url);
-          if (parsed.kind !== SearchType.Music)
-            throw new Error("재생목록이 아닌 개별 영상 URL을 넣어 주세요.");
-          if (
-            items.some((item) => item.videoID === parsed.id) &&
-            duplicate !== parsed.id
-          ) {
-            setDuplicate(parsed.id);
-            setError(
-              "이미 이 목록에 있는 영상입니다. 같은 곡을 한 번 더 추가할까요?",
-            );
-            return;
-          }
-          pending.current = true;
-          setBusy(true);
-          const metadata = name.trim()
-            ? {}
-            : await fetchVideoTitles([parsed.id]);
-          await manager({
-            type: PlaylistActionType.APPEND,
-            payload: {
-              info: { id: playlistID },
-              items: [
-                {
-                  videoID: parsed.id,
-                  name:
-                    name.trim() ||
-                    metadata[parsed.id]?.name ||
-                    `동영상 (${parsed.id})`,
-                  query: "",
-                  owner: metadata[parsed.id]?.owner ?? "",
-                  thumbnail: `https://i.ytimg.com/vi/${parsed.id}/default.jpg`,
-                },
-              ],
-            },
-          });
-          setUrl("");
-          setName("");
-          setError("");
-          setDuplicate("");
-          setStatus("곡을 저장 목록에 추가했습니다.");
-          input.current?.focus();
-        } catch (e) {
-          setError((e as Error).message);
-        } finally {
-          pending.current = false;
-          setBusy(false);
-        }
-      }}
-    >
-      <header>
-        <strong>곡 추가</strong>
-        <p>
-          개별 YouTube 영상 URL을 붙여넣으세요. 곡 이름은 직접 입력할 수
-          있습니다.
-        </p>
-      </header>
-      <div className={styles.addFields}>
-        <label>
-          추가할 영상 URL
-          <Input
-            ref={input}
-            type="url"
-            placeholder="https://www.youtube.com/watch?v=…"
-            disabled={busy}
-            required
-            value={url}
-            onChange={(e) => {
-              setUrl(e.target.value);
-              setDuplicate("");
-              setError("");
-            }}
-          />
-        </label>
-        <label>
-          곡 이름 (선택)
-          <Input
-            maxLength={120}
-            placeholder="나만의 곡 이름"
-            disabled={busy}
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-          />
-        </label>
-        <Button variant="default" className="primary-button" disabled={busy}>
-          {busy ? "추가 중…" : duplicate ? "중복해서 추가" : "곡 추가"}
-        </Button>
-      </div>
-      <ErrorToast message={error} />
-      <span className="sr-only" role="status">
-        {status}
-      </span>
-    </form>
   );
 }

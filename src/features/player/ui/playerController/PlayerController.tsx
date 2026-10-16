@@ -1,3 +1,5 @@
+import { createPortal } from "react-dom";
+import type { ReactNode } from "react";
 import ProgressBar from "../ConnectedProgressBar";
 import type { MusicInfo } from "shared/model/constants";
 import Cover from "shared/ui/Cover";
@@ -19,9 +21,10 @@ export interface PlayerControllerProps extends PlaybackControls {
   openNow?: () => void;
   status?: string;
 }
-export function Transport(props: PlaybackControls) {
+export function Transport(props: PlaybackControls & { leading?: ReactNode }) {
   return (
     <div className="transport">
+      {props.leading}
       <button
         className="icon-button previous-track"
         aria-label="이전 곡"
@@ -51,7 +54,7 @@ export function Transport(props: PlaybackControls) {
 }
 export default function PlayerController(props: PlayerControllerProps) {
   const hasTrack = Boolean(props.musicInfo.name);
-  return (
+  return createPortal(
     <footer className="listening-dock" aria-label="재생 컨트롤">
       <ProgressBar readOnly />
       <button
@@ -98,6 +101,7 @@ export default function PlayerController(props: PlayerControllerProps) {
           <Icon name="queue" />
         </button>
       </div>
-    </footer>
+    </footer>,
+    document.body,
   );
 }

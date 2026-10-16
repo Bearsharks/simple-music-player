@@ -12,8 +12,8 @@ dialog.now-panel {
   background: #11111c;
   padding: 0;
   overflow: hidden;
-  box-shadow: none;
-  z-index: 30;
+  box-shadow: -12px 0 32px #0003;
+  z-index: var(--z-panel);
 }
 dialog.now-panel[open] {
   display: flex;
@@ -29,12 +29,6 @@ dialog.now-panel[open] {
 .now-heading h2 {
   font-size: 16px;
   margin: 0;
-}
-.now-heading small {
-  font-size: 11px;
-  color: var(--muted);
-  display: block;
-  margin-top: 2px;
 }
 .queue-tabs {
   display: grid;
@@ -131,20 +125,15 @@ dialog.now-panel[open] {
   margin-top: 18px;
 }
 .player-large-controls .transport {
+  display: grid;
+  grid-template-columns: 44px 44px 56px 44px 44px;
+  justify-content: center;
   margin: 12px 0;
-  gap: 24px;
+  gap: 8px;
 }
 .player-large-controls .transport-play {
   width: 56px;
   height: 56px;
-}
-.player-large-controls .volume-control {
-  justify-content: center;
-}
-.player-large-controls .volume-control input {
-  width: 130px;
-  height: 44px;
-  min-height: 44px;
 }
 .player-large-controls .seek-control input {
   min-height: 44px;
@@ -262,7 +251,7 @@ dialog.now-panel[open] {
     width: 380px;
     height: 100dvh;
     inset: 0 0 0 auto;
-    z-index: 102;
+    z-index: var(--z-dialog);
   }
   .queue-body {
     padding-bottom: calc(24px + var(--safe-bottom));

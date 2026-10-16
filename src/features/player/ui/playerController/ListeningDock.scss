@@ -5,7 +5,7 @@
   background: #171723f5;
   backdrop-filter: blur(20px);
   border-top: 1px solid #ffffff10;
-  z-index: 40;
+  z-index: var(--z-dock);
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(280px, 1.25fr) minmax(0, 1fr);
   gap: 24px;

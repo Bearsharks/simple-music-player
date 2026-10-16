@@ -5,7 +5,7 @@
 ## 최소 읽기 경로
 
 - `api/youtubeSearch.ts` — URL 파싱·조회·페이지 처리
-- `ui/PlaylistImport.tsx` — 공개 URL 미리보기·로컬 저장·명시적 원본 초기화
+- `ui/PlaylistImport.tsx` — 공개 URL 미리보기·로컬 저장·명시적 최신 곡 교체
 
 ## 연결과 영향 범위
 
@@ -30,15 +30,15 @@ overlays가 검색·가져오기에 사용하고 player가 곡 정보를 조회�
 
 [전체 구조](../../../docs/ARCHITECTURE.md) · [작업 시작 지도](../../../docs/CHANGE-GUIDE.md)
 
-## 저장과 초기화
+## 저장과 최신 교체
 
-가져오기 저장은 완료까지 기다리고 입력/미리보기/취소를 잠그며 중복 제출을 막는다. 실패 시 현재 입력과 미리보기를 보존한다. 원본 초기화는 미리보기 후 교체 확인을 한 번 요청한다. 저장 목록 manager의 전체 교체 세대가 바뀌므로 초기화 이전 개별 곡 삭제의 Undo는 기존 편집본을 새 원본에 다시 섞지 않는다.
+가져오기 저장은 완료까지 기다리고 입력/미리보기/취소를 잠그며 중복 제출을 막는다. 실패 시 현재 입력과 미리보기를 보존한다. 최신 가져오기는 자동 미리보기 후 ‘최신 목록으로 교체’ CTA로 한 번 확인한다. 저장 목록 manager의 전체 교체 세대가 바뀌므로 전체 교체 이전 개별 곡 삭제의 Undo는 기존 편집본을 새 원본에 다시 섞지 않는다.
 
 회귀: `npm test -- src/__test__/playlistImport.test.tsx src/__test__/playlistState.test.tsx`.
 
 ## Electric Night 가져오기
 
-`PlaylistImport`는 URL blur/Enter에서 자동 미리보기를 시작한다. 단계 표시와 수동 미리보기 버튼은 없다. `usePlaylistPreview`가 요청 세대, 공식 preview player와 타이머를 소유한다. URL onChange는 즉시 이전 후보를 폐기하므로 원래 URL로 되돌아와도 다시 로드한다. 편집하지 않은 URL의 반복 blur/Enter는 중복 요청하지 않고 실패는 명시적 재시도로만 다시 요청한다. 미리보기 로딩 오류와 저장 오류를 분리하여 iframe polling이 실패한 저장 메시지를 지우지 않는다. 원본 교체는 미리보기 뒤 단일 native 확인 dialog에서만 실행한다. CREATE 성공은 선택적 `onCreated(id)`로 조립 계층에 알린다. 프로토타입 모의 데이터/시계/저장은 제품에 포함하지 않는다.
+`PlaylistImport`는 URL blur/Enter에서 자동 미리보기를 시작한다. 단계 표시와 수동 미리보기 버튼은 없다. `usePlaylistPreview`가 요청 세대, 공식 preview player와 타이머를 소유한다. URL onChange는 즉시 이전 후보를 폐기하므로 원래 URL로 되돌아와도 다시 로드한다. 편집하지 않은 URL의 반복 blur/Enter는 중복 요청하지 않고 실패는 명시적 재시도로만 다시 요청한다. 미리보기 로딩 오류와 저장 오류를 분리하여 iframe polling이 실패한 저장 메시지를 지우지 않는다. 최신 교체는 같은 작업 Dialog의 미리보기·교체 영향·명시적 CTA에서 실행하며 중첩 확인 모달은 없다. CREATE 성공은 선택적 `onCreated(id)`로 조립 계층에 알린다. 프로토타입 모의 데이터/시계/저장은 제품에 포함하지 않는다.
 
 ## 원래 곡 제목
 
@@ -49,5 +49,11 @@ videoMetadata.ts는 공식 https://www.youtube.com/oembed 에서 title/author_na
 URL Enter는 저장하지 않고 IME Enter를 무시한다. 유효한 영상 ID가 1개 이상인 현재
 요청만 ‘재생목록 추가’를 활성화한다. timeout/error 후 늦은 응답은 되살아나지 않는다.
 미리보기 로딩 중에는 닫을 수 있지만 실제 저장 중에는 닫기/입력/중복 제출을 잠근다.
-원본 URL이 readonly인 경우 최초 자동 로드하며 기존 교체 확인을 유지한다.
+최신 가져오기는 저장한 source URL로 최초 자동 로드하며 URL/이름을 편집하지 않는다.
+현재 이름/설명/큐와 최초 snapshot은 교체하지 않는다.
 추가 회귀: `playlist-preview.test.tsx` (StrictMode, stale 결과, 재시도, cleanup).
+
+신규 import의 CREATE는 최초로 성공 저장한 곡 배열을 `Playlist.initialSnapshot`에
+같은 transaction으로 기록한다. 최신 가져오기에는 이 필드를 전달하지 않으며 legacy에
+기록을 만들어내지 않는다. 최초 곡 복원은 playlists가 소유하고 이 모듈/YouTube를 호출하지
+않는다. 회귀: `playlist-snapshot.test.tsx`의 신규/legacy 정책과 명시 교체 전 무변경.

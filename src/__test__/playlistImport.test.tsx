@@ -54,17 +54,24 @@ it("imports player-provided IDs into editable local storage without login", asyn
   await waitFor(() => expect(close).toHaveBeenCalledOnce());
   const lists = await api.getPlaylistInfos();
   expect(lists[0].name).toBe("내 음악");
+  expect(lists[0].hasInitialSnapshot).toBe(true);
+  expect(lists[0]).not.toHaveProperty("initialSnapshot");
+  expect(await api.getInitialSnapshot(lists[0].id)).toMatchObject({
+    version: 1,
+    capturedAt: expect.any(Number),
+    items: [{ videoID: "abcdefghijk" }, { videoID: "lmnopqrstuv" }],
+  });
   expect(
     (await api.getPlaylistItems(lists[0].id)).map((i) => i.videoID),
   ).toEqual(["abcdefghijk", "lmnopqrstuv"]);
 });
-it("reset requires confirmation and replaces the local copy without changing its identity", async () => {
+it("latest preview waits for explicit replacement and preserves legacy identity and metadata", async () => {
   const source = "https://www.youtube.com/playlist?list=PLtest123";
   const id = await api.createPlaylist(
     {
       id: "",
       name: "편집본",
-      description: "",
+      description: "편집한 설명",
       thumbnails: [],
       itemCount: 1,
       sourcePlaylistUrl: source,
@@ -89,26 +96,22 @@ it("reset requires confirmation and replaces the local copy without changing its
 
   await waitFor(() =>
     expect(
-      screen.getByRole("button", { name: "원본으로 교체" }),
+      screen.getByRole("button", { name: "최신 목록으로 교체" }),
     ).not.toBeDisabled(),
   );
-  fireEvent.click(screen.getByRole("button", { name: "원본으로 교체" }));
   expect((await api.getPlaylistItems(id))[0].videoID).toBe("zzzzzzzzzzz");
   expect(close).not.toHaveBeenCalled();
-  expect(
-    screen.getByRole("dialog", { name: "원본 교체 확인" }),
-  ).toBeInTheDocument();
-  fireEvent.click(
-    within(screen.getByRole("dialog", { name: "원본 교체 확인" })).getByRole(
-      "button",
-      { name: "취소" },
-    ),
-  );
-  fireEvent.click(screen.getByRole("button", { name: "원본으로 교체" }));
-  fireEvent.click(screen.getByRole("button", { name: "교체" }));
+  expect(screen.queryByLabelText("공개 재생목록 URL")).not.toBeInTheDocument();
+  expect(screen.queryByLabelText("목록 이름")).not.toBeInTheDocument();
+  fireEvent.click(screen.getByRole("button", { name: "최신 목록으로 교체" }));
   await waitFor(() => expect(close).toHaveBeenCalledOnce());
   expect(await api.getPlaylistInfos()).toHaveLength(1);
-  expect((await api.getPlaylistInfo(id)).sourcePlaylistUrl).toBe(source);
+  expect(await api.getPlaylistInfo(id)).toMatchObject({
+    sourcePlaylistUrl: source,
+    name: "편집본",
+    description: "편집한 설명",
+  });
+  expect(await api.getInitialSnapshot(id)).toBeUndefined();
   expect((await api.getPlaylistItems(id)).map((i) => i.videoID)).toEqual([
     "abcdefghijk",
     "lmnopqrstuv",

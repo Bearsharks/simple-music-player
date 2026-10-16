@@ -100,6 +100,7 @@ export function usePlaylistManager() {
           const id = await api.createPlaylist(
             action.payload.info,
             action.payload.items ?? [],
+            action.payload.initialSnapshot,
           );
           const ids = await get(playlistIDsState);
           if (!ids.includes(id)) set(playlistIDsState, [...ids, id]);
@@ -128,6 +129,7 @@ export function usePlaylistManager() {
           ...info,
           ...action.payload.info,
           createdAt: info.createdAt,
+          hasInitialSnapshot: info.hasInitialSnapshot,
         };
         let items: MusicInfoItem[] = previous;
         let replaced = false;

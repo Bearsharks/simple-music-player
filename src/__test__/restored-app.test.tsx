@@ -92,8 +92,10 @@ it("navigates a successful UI creation to the new detail and focuses its first U
       screen.getByRole("heading", { name: "방금 만든 목록" }),
     ).toBeInTheDocument(),
   );
-  expect(screen.getByLabelText("추가할 영상 URL")).toHaveFocus();
-  expect(screen.getByRole("button", { name: "전체 재생" })).toBeDisabled();
+  expect(screen.getByLabelText("영상 URL")).toHaveFocus();
+  expect(
+    screen.getByRole("button", { name: "전체 재생", hidden: true }),
+  ).toBeDisabled();
   expect((await api.getPlaylistInfos())[0].itemCount).toBe(0);
 });
 
@@ -203,7 +205,7 @@ it.each([390, 1440])(
         screen.getByRole("heading", { name: "가져온 음악" }),
       ).toHaveFocus(),
     );
-    expect(screen.queryByLabelText("추가할 영상 URL")).not.toBeInTheDocument();
+    expect(screen.queryByLabelText("영상 URL")).not.toBeInTheDocument();
     expect(store.get(openState)).toBe(width >= 1200);
   },
 );

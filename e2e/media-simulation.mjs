@@ -83,7 +83,9 @@ export async function installMediaSimulation(page) {
           this.playVideo();
         }
         getPlaylist() {
-          return ["abcdefghijk", "lmnopqrstuv"];
+          return (
+            window.__simulatedPlaylistIDs ?? ["abcdefghijk", "lmnopqrstuv"]
+          );
         }
       },
     };

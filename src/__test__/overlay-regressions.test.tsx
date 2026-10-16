@@ -394,7 +394,7 @@ it("returns deletion focus to the next track, then to add when the list becomes 
   await user.click(screen.getByRole("button", { name: "남은 곡 더보기" }));
   await user.click(screen.getByRole("menuitem", { name: "재생목록에서 삭제" }));
   await waitFor(() =>
-    expect(screen.getByRole("button", { name: "곡 추가 열기" })).toHaveFocus(),
+    expect(screen.getByRole("button", { name: "곡 추가" })).toHaveFocus(),
   );
 });
 

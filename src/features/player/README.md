@@ -50,3 +50,17 @@ ListeningDock.scss와 PlayerController.tsx가 고정 재생바를 소유한다. 
 - 회귀: `electric-night.test.tsx`, `design-player.test.tsx`; `e2e/electric-night.mjs`는 플레이어 DOM/인스턴스 유지, 중첩 modal, 1199↔1200 전환과 제한 오류를 시뮬레이션한다. 실제 iframe/오디오/모바일 Safari/백그라운드 재생은 실환경 검수가 별도로 필요하다.
 
 재시도의 ready 상태는 boolean UI 신호와 실제 준비된 player instance identity를 구분한다. 빠른 onReady가 초기화의 false→true와 같은 React 배치에 들어가도 새 인스턴스를 기준으로 현재 곡을 정확히 다시 load한다. 해제된 인스턴스는 active instance 검사와 취소 플래그로 무시한다. 오류/준비 중 transport는 이전 PLAYING 값을 보여주지 않는다. `electric-night` 테스트는 React의 실제 자동 배치를 사용해 microtask ready와 지연 ready를 모두 확인하며, Chromium 시뮬레이션도 재생성/이전 인스턴스 해제/같은 곡 재로드를 확인한다.
+
+## Overlay panel과 음량
+
+레이어/표면의 단일 기준은 루트 `DESIGN_SYSTEM.md`다. desktop panel은 fixed overlay로
+main을 축소하지 않고 dock 위에서 끝난다. `PlayerController` footer는 안정 body portal에
+유지된다. native sheet 모드와 영구 iframe subtree/resize 유예 계약은 그대로다.
+
+`Transport.leading`은 상세에서만 음량 trigger를 첫 칸에 둔다. `SoundController overlay`
+모드는 공식 shadcn Radix Popover를 사용하고 열린 순간 trigger의 native dialog scope를
+캡처한다. range/음소거는 기존 window.player API를 사용하며 ready 전 잠근다. 첫 Escape는
+popover만 닫고 trigger focus, 다음 Escape는 panel이다. compact dock의 기존 volume UI는
+유지한다. 별도 감성 설명과 aria-label을 반복하는 title tooltip은 제거했다.
+회귀: `overlay-expansion.test.tsx`; Chromium의 한 행/키보드 range/mute/포커스/iframe 동일성.
+실제 외부 YouTube 소리/모바일 Safari의 음량 정책은 별도 검증이다.

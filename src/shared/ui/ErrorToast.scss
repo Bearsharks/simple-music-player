@@ -20,9 +20,7 @@
   flex-shrink: 0;
 }
 [data-overlay-scope="page"] .error-toast {
-  position: fixed;
-  bottom: 104px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 200;
+  position: static;
+  margin: 0;
+  width: 100%;
 }

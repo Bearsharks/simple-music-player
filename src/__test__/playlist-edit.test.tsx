@@ -1,5 +1,5 @@
 vi.mock("features/youtube/api/videoMetadata", async (original) => ({
-  ...await original<typeof import("features/youtube/api/videoMetadata")>(),
+  ...(await original<typeof import("features/youtube/api/videoMetadata")>()),
   fetchVideoTitles: async () => ({}),
 }));
 import { vi } from "vitest";
@@ -45,17 +45,23 @@ it("adds a video URL, persists its name and ordering, and hides reset for an ord
     ["abcdefghijk", "첫 곡"],
     ["lmnopqrstuv", "둘째 곡"],
   ]) {
-    fireEvent.change(screen.getByLabelText("추가할 영상 URL"), {
+    fireEvent.click(screen.getByRole("button", { name: "곡 추가" }));
+    await screen.findByLabelText("영상 URL");
+    fireEvent.change(screen.getByLabelText("영상 URL"), {
       target: { value: `https://youtu.be/${video}` },
     });
     fireEvent.change(screen.getByLabelText("곡 이름 (선택)"), {
       target: { value: name },
     });
-    fireEvent.click(screen.getByRole("button", { name: "곡 추가" }));
+    fireEvent.click(screen.getByRole("button", { name: "추가" }));
     await screen.findByText(name);
   }
-  expect(screen.getByRole("button", { name: "둘째 곡 순서 드래그" })).toBeEnabled();
-  expect(screen.queryByRole("button", { name: "순서 편집" })).not.toBeInTheDocument();
+  expect(
+    screen.getByRole("button", { name: "둘째 곡 순서 드래그" }),
+  ).toBeEnabled();
+  expect(
+    screen.queryByRole("button", { name: "순서 편집" }),
+  ).not.toBeInTheDocument();
   expect((await api.getPlaylistInfo(id)).itemCount).toBe(2);
 });
 
@@ -83,15 +89,19 @@ it("requires explicit duplicate confirmation and retains both independently keye
       </Provider>,
     ),
   );
-  await screen.findByLabelText("추가할 영상 URL");
+  await screen.findByRole("button", { name: "곡 추가" });
   for (let i = 0; i < 2; i++) {
-    fireEvent.change(screen.getByLabelText("추가할 영상 URL"), {
+    fireEvent.click(screen.getByRole("button", { name: "곡 추가" }));
+    await screen.findByLabelText("영상 URL");
+    fireEvent.change(screen.getByLabelText("영상 URL"), {
       target: { value: "https://youtu.be/abcdefghijk" },
     });
-    fireEvent.click(screen.getByRole("button", { name: "곡 추가" }));
+    fireEvent.click(screen.getByRole("button", { name: "추가" }));
     if (i === 0)
       await waitFor(() =>
-        expect(screen.getByLabelText("추가할 영상 URL")).toHaveValue(""),
+        expect(
+          screen.queryByRole("dialog", { name: "곡 추가" }),
+        ).not.toBeInTheDocument(),
       );
   }
   expect(screen.getByRole("alert")).toHaveTextContent(
@@ -103,4 +113,3 @@ it("requires explicit duplicate confirmation and retains both independently keye
     expect(await api.getPlaylistItems(id)).toHaveLength(2),
   );
 });
-

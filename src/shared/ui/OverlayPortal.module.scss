@@ -8,3 +8,22 @@
   max-height: 40dvh;
   overflow: auto;
 }
+
+.pageStack {
+  position: fixed;
+  bottom: calc(var(--dock) + var(--safe-bottom) + 16px);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: var(--z-notice);
+  display: grid;
+  gap: 8px;
+  width: max-content;
+  max-width: calc(100vw - 32px);
+  max-height: 40dvh;
+  overflow: auto;
+  pointer-events: none;
+}
+.pageStack > .layer {
+  min-width: 0;
+  pointer-events: auto;
+}

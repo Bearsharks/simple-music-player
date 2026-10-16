@@ -1,0 +1,33 @@
+.add-video-form {
+  padding: 28px;
+}
+.add-video-form h2 {
+  margin: 0 0 24px;
+  font-size: 22px;
+}
+.add-video-form fieldset {
+  padding: 0;
+  margin: 0;
+  border: 0;
+  min-width: 0;
+}
+.add-video-field {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+.add-video-actions {
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 24px;
+}
+@media (max-width: 760px) {
+  .add-video-form {
+    padding: 22px 20px;
+  }
+  .add-video-actions > button {
+    flex: 1;
+  }
+}

@@ -2,7 +2,7 @@
   position: fixed;
   top: 0;
   left: 0;
-  z-index: 140;
+  z-index: var(--z-popover);
   visibility: hidden;
   overflow-y: auto;
   max-width: calc(100vw - 16px);

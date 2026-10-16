@@ -39,7 +39,7 @@ try {
                     ? `${target.tagName} ${target.getAttribute("aria-label") || target.textContent?.trim().slice(0, 80) || ""}`
                     : "",
                 popupCount: document.querySelectorAll(
-                  '[role="group"][aria-label="선택 메뉴"]',
+                  '[role="menu"][aria-label="선택 메뉴"]',
                 ).length,
                 dialogs: document.querySelectorAll('[role="dialog"]').length,
               });
@@ -100,14 +100,33 @@ try {
             .getByRole("button", { name: "만들기", exact: true })
             .click();
         }
-        await expect(page.getByRole("dialog")).toHaveCount(0);
+        await expect(
+          page.getByRole("dialog", { name: "새 재생목록", exact: true }),
+        ).toHaveCount(0);
         await expect(
           page.getByRole("heading", { name, exact: true }),
         ).toBeVisible();
-        await expect(page.getByLabel("추가할 영상 URL")).toBeFocused();
-        await expect(page.locator(".studio-content")).toContainText("0곡");
+        await expect(page.getByLabel("영상 URL")).toBeFocused();
         await page
-          .getByRole("navigation", { name: "현재 위치", exact: true }).getByRole("link", { name: "라이브러리", exact: true })
+          .getByRole("dialog", { name: "곡 추가", exact: true })
+          .getByRole("button", { name: "취소", exact: true })
+          .click();
+        await expect(page.locator(".studio-content")).toContainText("0곡");
+        const emptyPlay = page.getByRole("button", {
+          name: "전체 재생",
+          exact: true,
+        });
+        await expect(emptyPlay).toBeDisabled();
+        expect(
+          await emptyPlay.evaluate((node) => getComputedStyle(node).opacity),
+        ).toBe("0.42");
+        await page.screenshot({
+          path: `test-results/signature-disabled-${viewport.width}.png`,
+          fullPage: true,
+        });
+        await page
+          .getByRole("navigation", { name: "현재 위치", exact: true })
+          .getByRole("link", { name: "라이브러리", exact: true })
           .click();
         await page
           .getByRole("button", { name: `${name} 열기`, exact: true })
@@ -135,11 +154,12 @@ try {
         ["lmnopqrstuv", "두 번째 곡"],
         ["zzzzzzzzzzz", "세 번째 곡"],
       ]) {
-        await page.getByLabel("추가할 영상 URL").fill(`https://youtu.be/${id}`);
-        await page.getByLabel("곡 이름 (선택)").fill(name);
         await page
           .getByRole("button", { name: "곡 추가", exact: true })
           .click();
+        await page.getByLabel("영상 URL").fill(`https://youtu.be/${id}`);
+        await page.getByLabel("곡 이름 (선택)").fill(name);
+        await page.getByRole("button", { name: "추가", exact: true }).click();
         await page
           .locator(".studio-content")
           .getByText(name, { exact: true })
@@ -167,7 +187,8 @@ try {
       });
       if (await closeQueue.isVisible()) await closeQueue.click();
       await page
-        .getByRole("navigation", { name: "현재 위치", exact: true }).getByRole("link", { name: "라이브러리", exact: true })
+        .getByRole("navigation", { name: "현재 위치", exact: true })
+        .getByRole("link", { name: "라이브러리", exact: true })
         .click();
       await expect(page.locator(".cover-open").first()).toHaveAttribute(
         "aria-label",
@@ -179,6 +200,11 @@ try {
       await page
         .getByRole("button", { name: "빈 목록 곡 추가", exact: true })
         .click();
+      await expect(page.getByLabel("영상 URL")).toBeFocused();
+      await page
+        .getByRole("dialog", { name: "곡 추가", exact: true })
+        .getByRole("button", { name: "취소", exact: true })
+        .click();
       await expect(
         page.getByRole("button", { name: "전체 재생", exact: false }),
       ).toBeDisabled();
@@ -189,7 +215,8 @@ try {
         { loads: ["abcdefghijk"], time: 42, state: 1 },
       );
       await page
-        .getByRole("navigation", { name: "현재 위치", exact: true }).getByRole("link", { name: "라이브러리", exact: true })
+        .getByRole("navigation", { name: "현재 위치", exact: true })
+        .getByRole("link", { name: "라이브러리", exact: true })
         .click();
       await page.screenshot({
         path: `test-results/library-${viewport.width}.png`,

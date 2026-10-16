@@ -92,6 +92,12 @@ try {
                 name,
                 description: "브라우저 검수용 저장 목록입니다.",
                 createdAt: 10000 - index,
+                ...(index === 0
+                  ? {
+                      sourcePlaylistUrl:
+                        "https://www.youtube.com/playlist?list=PLlegacy123",
+                    }
+                  : {}),
                 itemCount: items.length,
                 thumbnails: [],
               },
@@ -243,6 +249,26 @@ try {
         await expect(page.locator(".playlist-card")).toHaveCount(8);
       }
       await assertFits("library");
+      if (viewport.width === 320) {
+        const title = await page
+          .getByRole("heading", { name: "내 라이브러리", exact: true })
+          .boundingBox();
+        const actions = await page.locator(".heading-actions").boundingBox();
+        expect(title.height).toBeLessThan(40);
+        expect(actions.y).toBeGreaterThanOrEqual(title.y + title.height);
+      }
+      if (viewport.width <= 760) {
+        expect(
+          await page
+            .locator(".breadcrumb")
+            .evaluate((node) => getComputedStyle(node).gap),
+        ).toBe("16px");
+        const search = await page
+          .getByRole("textbox", { name: "라이브러리 검색" })
+          .boundingBox();
+        const sort = await sortTrigger.boundingBox();
+        expect(Math.abs(search.y - sort.y)).toBeLessThan(2);
+      }
       if (viewport.width === 390) {
         expect(
           (await page.locator(".cover-open").first().boundingBox()).y,
@@ -273,17 +299,91 @@ try {
       await expect(breadcrumb.locator('[aria-current="page"]')).toHaveText(
         "새벽의 파형",
       );
-      await expect(page.getByLabel("추가할 영상 URL")).toHaveCount(0);
+      await expect(page.getByLabel("영상 URL")).toHaveCount(0);
       await assertFits("detail");
+      const wholePlay = page.getByRole("button", {
+        name: "전체 재생",
+        exact: true,
+      });
+      const signature = await wholePlay.evaluate((node) => ({
+        image: getComputedStyle(node).backgroundImage,
+        color: getComputedStyle(node).color,
+      }));
+      expect(signature.image).toContain("110deg");
+      expect(signature.image).toContain("rgb(108, 112, 239)");
+      expect(signature.image).toContain("rgb(76, 201, 255)");
+      expect(signature.image).not.toContain("rgb(255, 77, 141)");
+      expect(signature.color).toBe("rgb(11, 11, 20)");
+      if (viewport.width >= 1200) {
+        const bars = await page.locator(".logo-bars i").evaluateAll((nodes) =>
+          nodes.map((node) => ({
+            image: getComputedStyle(node).backgroundImage,
+            size: getComputedStyle(node).backgroundSize,
+            x: getComputedStyle(node).backgroundPositionX,
+          })),
+        );
+        expect(
+          bars.every(
+            (bar) =>
+              bar.image.includes("rgb(108, 112, 239)") &&
+              bar.size === "25px 28px",
+          ),
+        ).toBe(true);
+        expect(bars.map((bar) => bar.x)).toEqual([
+          "0px",
+          "-7px",
+          "-14px",
+          "-21px",
+        ]);
+      }
       await page.screenshot({
         path: `test-results/app-detail-${viewport.width}.png`,
         fullPage: true,
       });
       if ([390, 1440].includes(viewport.width)) {
+        await wholePlay.hover();
+        expect(
+          await wholePlay.evaluate(
+            (node) => getComputedStyle(node).backgroundImage,
+          ),
+        ).toContain("rgb(131, 136, 244)");
+        await page.screenshot({
+          path: `test-results/app-signature-hover-${viewport.width}.png`,
+          fullPage: true,
+        });
+        await page.mouse.move(0, 0);
+        await page.keyboard.press("Tab");
+        await wholePlay.focus();
+        expect(
+          await wholePlay.evaluate(
+            (node) => getComputedStyle(node).outlineColor,
+          ),
+        ).toBe("rgb(76, 201, 255)");
+        await page.screenshot({
+          path: `test-results/app-signature-focus-${viewport.width}.png`,
+          fullPage: true,
+        });
+      }
+      if ([390, 1440].includes(viewport.width)) {
+        const mainBeforeQueue = await page
+          .locator(".studio-main")
+          .boundingBox();
         await page
           .locator("main")
           .getByRole("button", { name: "더보기", exact: true })
           .click();
+        await expect(
+          page.getByRole("menuitem", {
+            name: "처음 가져온 목록으로 복원",
+            exact: true,
+          }),
+        ).toHaveCount(0);
+        await expect(
+          page.getByRole("menuitem", {
+            name: "YouTube 최신 목록 가져오기",
+            exact: true,
+          }),
+        ).toBeVisible();
         await page
           .getByRole("menuitem", { name: "재생목록 수정", exact: true })
           .click();
@@ -314,6 +414,13 @@ try {
         await page
           .getByRole("tab", { name: "대기열 (20)", exact: true })
           .waitFor();
+        if (viewport.width >= 1200) {
+          expect(await page.locator(".studio-main").boundingBox()).toEqual(
+            mainBeforeQueue,
+          );
+          expect(await page.locator("#root").getAttribute("inert")).toBeNull();
+        }
+
         await page.evaluate(() => {
           window.__originalPlayer = window.player;
           window.__originalHost = document.querySelector(
@@ -480,6 +587,41 @@ try {
           await page
             .getByRole("button", { name: "대기열 닫기", exact: true })
             .click();
+        await page
+          .locator("main")
+          .getByRole("button", { name: "곡 추가", exact: true })
+          .click();
+        await expect(page.getByLabel("영상 URL")).toBeFocused();
+        await page
+          .getByLabel("영상 URL")
+          .fill("https://evil.example/watch?v=abcdefghijk");
+        await page.getByRole("button", { name: "추가", exact: true }).click();
+        await expect(page.getByRole("alert")).toBeVisible();
+        await page.screenshot({
+          path: `test-results/app-add-overlay-error-${viewport.width}.png`,
+          fullPage: true,
+        });
+        await page
+          .getByRole("dialog", { name: "곡 추가", exact: true })
+          .getByRole("button", { name: "취소", exact: true })
+          .click();
+        await expect(
+          page
+            .locator("main")
+            .getByRole("button", { name: "곡 추가", exact: true }),
+        ).toBeFocused();
+        expect(
+          await page.evaluate(
+            () =>
+              window.player === window.__originalPlayer &&
+              document.querySelector("[data-simulated-player]") ===
+                window.__originalHost,
+          ),
+        ).toBe(true);
+        if (viewport.width >= 1200)
+          await page
+            .getByRole("button", { name: "대기열 닫기", exact: true })
+            .click();
         // Saved editing while a desktop queue is open must not alter current playback.
         const savedTracks = page.getByRole("region", {
           name: "저장한 곡",
@@ -605,6 +747,36 @@ try {
             exact: true,
           }),
         ).toBeVisible();
+        // Escape belongs to an active drag, before the native player sheet.
+        const cancelHandle = queuePanel.getByRole("button", {
+          name: "검증용 곡 02 순서 드래그",
+          exact: true,
+        });
+        const beforeCancel = await queuePanel
+          .locator("[data-track-key]")
+          .evaluateAll((nodes) => nodes.map((node) => node.dataset.trackKey));
+        await cancelHandle.focus();
+        await page.keyboard.press("Space");
+        await page.keyboard.press("ArrowDown");
+        await page.keyboard.press("Escape");
+        await expect(
+          page.getByRole("button", { name: "대기열 닫기", exact: true }),
+        ).toBeVisible();
+        await expect(cancelHandle).toBeFocused();
+        await expect
+          .poll(() =>
+            cancelHandle.evaluate(
+              (node) =>
+                getComputedStyle(node.closest("[data-rfd-draggable-id]"))
+                  .position,
+            ),
+          )
+          .not.toBe("fixed");
+        expect(
+          await queuePanel
+            .locator("[data-track-key]")
+            .evaluateAll((nodes) => nodes.map((node) => node.dataset.trackKey)),
+        ).toEqual(beforeCancel);
         await keyboardMove(
           page
             .getByRole("button", {
@@ -626,6 +798,55 @@ try {
         await expect(
           page.getByRole("tab", { name: "현재 곡", exact: true }),
         ).toBeFocused();
+        const volumeTrigger = queuePanel.getByRole("button", {
+          name: "음량 조절",
+          exact: true,
+        });
+        await volumeTrigger.click();
+        const volume = queuePanel.getByRole("slider", {
+          name: "음량",
+          exact: true,
+        });
+        await expect(volume).toBeFocused();
+        await page.keyboard.press("Home");
+        await page.keyboard.press("ArrowRight");
+        await expect(volume).toHaveValue("1");
+        expect(await page.evaluate(() => window.__simulatedPlayer.volume)).toBe(
+          1,
+        );
+        await queuePanel
+          .getByRole("button", { name: "음소거", exact: true })
+          .click();
+        expect(await page.evaluate(() => window.__simulatedPlayer.muted)).toBe(
+          true,
+        );
+        await queuePanel
+          .getByRole("button", { name: "음소거 해제", exact: true })
+          .click();
+        await page.screenshot({
+          path: `test-results/app-volume-popover-${viewport.width}.png`,
+          fullPage: true,
+        });
+        const transportRows = await queuePanel
+          .locator(".transport > button")
+          .evaluateAll((nodes) =>
+            nodes.map((node) =>
+              Math.round(
+                node.getBoundingClientRect().top +
+                  node.getBoundingClientRect().height / 2,
+              ),
+            ),
+          );
+        expect(new Set(transportRows).size).toBe(1);
+        await page.keyboard.press("Escape");
+        await expect(volume).toHaveCount(0);
+        await expect(volumeTrigger).toBeFocused();
+        await expect(
+          page.getByRole("button", { name: "대기열 닫기", exact: true }),
+        ).toBeVisible();
+        expect(
+          await page.evaluate(() => window.player === window.__originalPlayer),
+        ).toBe(true);
         await page.evaluate(() => window.__simulateMediaError());
         await expect(page.getByRole("alert")).toContainText(
           "이 곡을 재생할 수 없어요",
@@ -811,7 +1032,7 @@ try {
         await expect(
           page.getByRole("heading", { name: "가져온 검수 목록", exact: true }),
         ).toBeFocused();
-        await expect(page.getByLabel("추가할 영상 URL")).toHaveCount(0);
+        await expect(page.getByLabel("영상 URL")).toHaveCount(0);
         expect(
           await page.evaluate(
             () => window.player === window.__beforeImportPlayer,
@@ -820,6 +1041,145 @@ try {
         await expect(
           page.getByRole("button", { name: "대기열 닫기", exact: true }),
         ).toHaveCount(0);
+        // The simulated preview supplies deterministic IDs; these assertions
+        // prove local persistence/confirmation, never live YouTube completeness.
+        const importedID = page.url().split("/playlist/")[1];
+        const readImported = () =>
+          page.evaluate(async (id) => {
+            const request = indexedDB.open("simple-music-player-local-v1", 1);
+            const db = await new Promise((resolve, reject) => {
+              request.onsuccess = () => resolve(request.result);
+              request.onerror = () => reject(request.error);
+            });
+            const row = await new Promise((resolve, reject) => {
+              const tx = db.transaction("playlists", "readonly");
+              const read = tx.objectStore("playlists").get(id);
+              read.onsuccess = () => resolve(read.result);
+              read.onerror = () => reject(read.error);
+            });
+            db.close();
+            return row;
+          }, importedID);
+        const savedSongData = (row) =>
+          row.items.map(({ key, ...item }) => item);
+        const initialRecord = await readImported();
+        expect(initialRecord.initialSnapshot.version).toBe(1);
+        expect(initialRecord.initialSnapshot.capturedAt).toBeGreaterThan(0);
+        expect(
+          initialRecord.initialSnapshot.items.map((item) => item.videoID),
+        ).toEqual(["abcdefghijk", "lmnopqrstuv"]);
+        expect(initialRecord.info.initialSnapshot).toBeUndefined();
+        const sourceMenu = async (name) => {
+          await page
+            .locator("main")
+            .getByRole("button", { name: "더보기", exact: true })
+            .click();
+          await page.getByRole("menuitem", { name, exact: true }).click();
+        };
+        await sourceMenu("재생목록 수정");
+        await page.getByLabel("제목", { exact: true }).fill("내가 수정한 이름");
+        await page
+          .getByLabel("설명", { exact: true })
+          .fill("원본 복원 후에도 보존할 설명");
+        await page
+          .getByRole("button", { name: "변경 저장", exact: true })
+          .click();
+        await expect(breadcrumb.locator('[aria-current="page"]')).toHaveText(
+          "내가 수정한 이름",
+        );
+        await page
+          .locator("main")
+          .getByRole("button", { name: "곡 추가", exact: true })
+          .click();
+        await page.getByLabel("영상 URL").fill("https://youtu.be/qwertyuiopa");
+        await page.getByLabel("곡 이름 (선택)").fill("로컬 추가");
+        await page.getByRole("button", { name: "추가", exact: true }).click();
+        await expect(
+          page.getByRole("dialog", { name: "곡 추가", exact: true }),
+        ).toHaveCount(0);
+        expect((await readImported()).items).toHaveLength(3);
+        const instancesBeforeRestore = await page.evaluate(
+          () => window.__simulatedPlayer.instances,
+        );
+        await sourceMenu("처음 가져온 목록으로 복원");
+        await expect(
+          page.getByRole("heading", {
+            name: "처음 가져온 2곡으로 복원할까요?",
+            exact: true,
+          }),
+        ).toBeVisible();
+        expect((await readImported()).items).toHaveLength(3);
+        await page.screenshot({
+          path: `test-results/app-source-restore-${viewport.width}.png`,
+          fullPage: true,
+        });
+        await page.getByRole("button", { name: "복원", exact: true }).click();
+        await expect(
+          page.getByRole("dialog", {
+            name: "처음 가져온 목록으로 복원",
+            exact: true,
+          }),
+        ).toHaveCount(0);
+        expect(
+          await page.evaluate(() => window.__simulatedPlayer.instances),
+        ).toBe(instancesBeforeRestore);
+        expect(savedSongData(await readImported())).toEqual(
+          initialRecord.initialSnapshot.items,
+        );
+        await page.evaluate(() => {
+          window.__simulatedPlaylistIDs = ["lmnopqrstuv", "zyxwvutsrqp"];
+        });
+        await sourceMenu("YouTube 최신 목록 가져오기");
+        const replaceLatest = page.getByRole("button", {
+          name: "최신 목록으로 교체",
+          exact: true,
+        });
+        await expect(replaceLatest).toBeEnabled();
+        expect(savedSongData(await readImported())).toEqual(
+          initialRecord.initialSnapshot.items,
+        );
+        await page.screenshot({
+          path: `test-results/app-source-latest-${viewport.width}.png`,
+          fullPage: true,
+        });
+        await replaceLatest.click();
+        await expect(
+          page.getByRole("dialog", {
+            name: "YouTube 최신 목록 가져오기",
+            exact: true,
+          }),
+        ).toHaveCount(0);
+        const refreshed = await readImported();
+        expect(refreshed.items.map((item) => item.videoID)).toEqual([
+          "lmnopqrstuv",
+          "zyxwvutsrqp",
+        ]);
+        expect(refreshed.initialSnapshot).toEqual(
+          initialRecord.initialSnapshot,
+        );
+        expect(refreshed.info).toMatchObject({
+          name: "내가 수정한 이름",
+          description: "원본 복원 후에도 보존할 설명",
+        });
+        await sourceMenu("처음 가져온 목록으로 복원");
+        await page.getByRole("button", { name: "복원", exact: true }).click();
+        await expect(
+          page.getByRole("dialog", {
+            name: "처음 가져온 목록으로 복원",
+            exact: true,
+          }),
+        ).toHaveCount(0);
+        expect(savedSongData(await readImported())).toEqual(
+          initialRecord.initialSnapshot.items,
+        );
+        expect(
+          await page.evaluate(
+            () => window.player === window.__beforeImportPlayer,
+          ),
+        ).toBe(true);
+        await expect(
+          page.locator('dialog.now-panel [role="tab"]').last(),
+        ).toHaveText("대기열 (40)");
       }
       if (viewport.width === 1440) {
         await page.evaluate(async () => {
@@ -865,13 +1225,26 @@ try {
             node.style.fontSize = `${size * 2}px`;
           });
         });
+        const assertSortReadable = async () => {
+          const value = page.locator(
+            '[data-slot="select-trigger"] [data-slot="select-value"]',
+          );
+          expect(
+            await value.evaluate(
+              (node) => node.scrollWidth <= node.clientWidth,
+            ),
+          ).toBe(true);
+          await expect(value).toHaveText("최근 추가순");
+        };
         await assertFits("200% text approximation");
+        await assertSortReadable();
         await page.screenshot({
           path: "test-results/app-text-200-1440.png",
           fullPage: true,
         });
         await page.setViewportSize({ width: 390, height: 844 });
         await assertFits("200% text narrow approximation");
+        await assertSortReadable();
         await page.screenshot({
           path: "test-results/app-text-200-390.png",
           fullPage: true,

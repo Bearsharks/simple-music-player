@@ -8,6 +8,7 @@
   font-size: 28px;
   line-height: 1.25;
   margin: 0;
+  word-break: keep-all;
 }
 .page-heading p {
   color: var(--muted);
@@ -21,6 +22,7 @@
 }
 .library-tools {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: 16px;
@@ -31,8 +33,8 @@
   display: flex;
   align-items: center;
   max-width: 360px;
-  flex: 1;
-  min-width: 0;
+  flex: 1 1 8rem;
+  min-width: min(100%, 8rem);
 }
 .library-search > .icon {
   position: absolute;
@@ -48,7 +50,9 @@
 }
 .library-tools [data-slot="select-trigger"] {
   font-size: 14px;
-  max-width: 160px;
+  flex: 0 0 auto;
+  width: max-content;
+  max-width: 100%;
 }
 .playlist-grid {
   display: grid;
@@ -251,5 +255,20 @@
   }
   .library-empty p br {
     display: none;
+  }
+}
+
+@media (max-width: 359px) {
+  .page-heading {
+    flex-wrap: wrap;
+  }
+  .page-heading > :first-child {
+    flex-basis: 100%;
+  }
+  .heading-actions {
+    margin-left: auto;
+  }
+  .library-tools {
+    margin-top: 16px;
   }
 }

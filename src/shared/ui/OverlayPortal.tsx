@@ -2,11 +2,31 @@ import { useLayoutEffect, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import styles from "./OverlayPortal.module.scss";
 
+let pageStack: HTMLDivElement | null = null;
+let users = 0;
+function acquirePageStack() {
+  if (!pageStack) {
+    pageStack = document.createElement("div");
+    pageStack.className = styles.pageStack;
+    pageStack.dataset.noticeStack = "";
+    document.body.append(pageStack);
+  }
+  users++;
+  return pageStack;
+}
+function releasePageStack() {
+  if (--users === 0) {
+    pageStack?.remove();
+    pageStack = null;
+  }
+}
+
 /** Keep notices in the active modal scope without remounting their state. */
 export default function OverlayPortal({ children }: { children: ReactNode }) {
   const [layer] = useState(() => document.createElement("div"));
   useLayoutEffect(() => {
     layer.className = styles.layer;
+    const pageHost = acquirePageStack();
     const update = () => {
       const dialogs = [
         ...document.querySelectorAll<HTMLDialogElement>(
@@ -16,7 +36,7 @@ export default function OverlayPortal({ children }: { children: ReactNode }) {
       const modal = dialogs
         .reverse()
         .find((dialog) => !dialog.closest("[inert]"));
-      const host = modal ?? document.body;
+      const host = modal ?? pageHost;
       const focused = layer.contains(document.activeElement)
         ? (document.activeElement as HTMLElement)
         : null;
@@ -41,6 +61,7 @@ export default function OverlayPortal({ children }: { children: ReactNode }) {
     return () => {
       observer.disconnect();
       layer.remove();
+      releasePageStack();
     };
   }, [layer]);
   // A stable portal container preserves dismissed, pending and failed Undo

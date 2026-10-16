@@ -17,7 +17,13 @@ export interface MusicInfo {
   owner: string;
   thumbnail: string;
 }
+export interface InitialPlaylistSnapshot {
+  version: 1;
+  capturedAt: number;
+  items: MusicInfo[];
+}
 export interface Playlist {
+  initialSnapshot?: InitialPlaylistSnapshot;
   info: PlaylistInfo;
   items: MusicInfo[];
 }
@@ -84,6 +90,8 @@ export interface PlaylistAction {
 }
 
 export interface PlaylistInfo {
+  /** Derived by storage; metadata never contains snapshot track arrays. */
+  hasInitialSnapshot?: boolean;
   createdAt?: number;
   sourcePlaylistUrl?: string;
   id: string;

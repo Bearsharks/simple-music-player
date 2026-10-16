@@ -1,17 +1,18 @@
 # loopy's adopted shadcn/ui primitives
 
-These six components are adapted from the official **Radix** `new-york-v4`
+These seven components are adapted from the official **Radix** `new-york-v4`
 registry, fetched 2026-10-16. They are actual shadcn source components, not a
 visual substitute for a native select. Original registry snapshots, SHA-256
 checksums and MIT license are in `docs/vendor/shadcn/`.
 
 Upstream registry: `https://ui.shadcn.com/r/styles/new-york-v4/{name}.json`
-for button, input, textarea, label, select and dropdown-menu.
+for button, input, textarea, label, select, dropdown-menu and popover.
 
 References:
 
 - https://ui.shadcn.com/docs/components/radix/select
 - https://ui.shadcn.com/docs/components/radix/dropdown-menu
+- https://ui.shadcn.com/docs/components/radix/popover
 - https://ui.shadcn.com/docs/installation/manual
 - https://tailwindcss.com/docs/preflight#disabling-preflight
 
@@ -28,9 +29,9 @@ References:
   boundary for product colors, 44px controls, native disabled state and sky
   focus rings. Existing `--muted` remains text, never a surface color.
 - Select uses popper placement and captures its actual trigger's native-dialog
-  scope on open. It and DropdownMenu Content expose `portalContainer` for a
+  scope on open. It, DropdownMenu and Popover Content expose `portalContainer` for a
   stable native top-layer target and collision boundary. No nonexistent Select
-  modal prop is added. Dropdown users inside this app use `modal={false}`.
+  modal prop is added. Dropdown and Popover users inside this app use `modal={false}`.
 - The overlays feature owns the adapter to the existing imperative popup API.
   `ExternalMenuTrigger` exposes the original invoking button ref to Radix,
   without reparenting, duplicating, or replacing that button. Feature actions,
@@ -44,3 +45,9 @@ References:
 Before delivery run `npm run check`, `npm run build-storybook` and the browser
 suite. jsdom tests do not verify top-layer hit testing, real media or Safari.
 Do not run an unreviewed CLI overwrite: local scope/focus adaptations are required.
+
+`data-dialog-popover` marks the inner Escape owner for Dialog fallback behavior.
+The native browser path leaves Escape to Radix/native close watchers. Volume's
+feature adapter focuses its existing range on open; no new range implementation
+or media player is introduced. Semantic layers live in `electric-night.scss` and
+the root `DESIGN_SYSTEM.md`, not independent feature-specific z-index numbers.
