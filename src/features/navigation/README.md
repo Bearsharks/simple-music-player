@@ -30,3 +30,9 @@ app/App.tsx가 진입점을 연결한다. Main이 player/search/overlays/queue�
 변경한 계약, 영향을 받는 소비자, 실행한 테스트와 결과, 미검증 항목을 적는다. 새 공개 함수나 의존 관계를 만들면 이 README도 갱신한다.
 
 [전체 구조](../../../docs/ARCHITECTURE.md) · [작업 시작 지도](../../../docs/CHANGE-GUIDE.md)
+
+## 디자인 개편 진입점
+
+Main.tsx와 StudioShell.scss가 새 앱 프레임/네이비·코랄 테마를 소유한다. 기존 햄버거/검색 모듈은 기본 프레임에 연결하지 않는다. SidebarLibrary는 실제 저장 목록을 읽는다.
+
+[디자인 기록](../../../docs/DESIGN-REFRESH.md)

@@ -31,3 +31,9 @@ StrictMode에서도 취소된 생성과 unmount player를 정리한다. duration
 변경한 계약, 영향을 받는 소비자, 실행한 테스트와 결과, 미검증 항목을 적는다. 새 공개 함수나 의존 관계를 만들면 이 README도 갱신한다.
 
 [전체 구조](../../../docs/ARCHITECTURE.md) · [작업 시작 지도](../../../docs/CHANGE-GUIDE.md)
+
+## 디자인 개편 진입점
+
+ListeningDock.scss와 PlayerController.tsx가 고정 재생바를 소유한다. ProgressBar는 실제 range 입력이며 문서 너비로 seek 좌표를 계산하지 않는다. PlayerDetail은 넓은 화면의 고정 패널과 좁은 화면의 접근성 처리된 드로어다.
+
+[디자인 기록](../../../docs/DESIGN-REFRESH.md)

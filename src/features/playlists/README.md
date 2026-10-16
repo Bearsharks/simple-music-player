@@ -36,3 +36,9 @@ shared/api/apiSelector.ts가 저장 어댑터. queue/model/queue.ts가 목록 �
 localAPI는 IndexedDB transaction 완료 후 성공을 반환한다. sourcePlaylistUrl이 있는 가져오기 목록만 원본 초기화를 표시한다. 초기화는 명시적 미리보기와 교체 확인 후 수행한다. 일반 목록은 영상 URL로 추가하고 위/아래 버튼으로 순서를 저장할 수 있다. 재생 대기열의 편집은 저장 목록과 독립적이다.
 
 회귀: `npm test -- src/__test__/localAPI.test.ts src/__test__/playlist-edit.test.tsx src/__test__/playlistImport.test.tsx`
+
+## 디자인 개편 진입점
+
+Playlists.tsx는 로컬 이름 필터·정렬·카드/빈 상태를 제공한다. 카드 재생과 목록 열기는 독립 버튼이다. PlaylistPage에서 곡 추가·원본 초기화·저장 순서 편집을 유지한다.
+
+[디자인 기록](../../../docs/DESIGN-REFRESH.md)
