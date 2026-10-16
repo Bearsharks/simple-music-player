@@ -354,11 +354,17 @@ try {
         await page.mouse.move(0, 0);
         await page.keyboard.press("Tab");
         await wholePlay.focus();
-        expect(
-          await wholePlay.evaluate(
-            (node) => getComputedStyle(node).outlineColor,
-          ),
-        ).toBe("rgb(76, 201, 255)");
+        await expect(wholePlay).toBeFocused();
+        await expect
+          .poll(() =>
+            wholePlay.evaluate((node) => node.matches(":focus-visible")),
+          )
+          .toBe(true);
+        // The upstream Button transitions outline color for 150ms. Assert the
+        // final specified focus treatment, not an intermediate sampled RGB.
+        await expect(wholePlay).toHaveCSS("outline-color", "rgb(76, 201, 255)");
+        await expect(wholePlay).toHaveCSS("outline-width", "2px");
+        await expect(wholePlay).toHaveCSS("outline-offset", "4px");
         await page.screenshot({
           path: `test-results/app-signature-focus-${viewport.width}.png`,
           fullPage: true,
