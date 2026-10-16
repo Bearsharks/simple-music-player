@@ -25,18 +25,19 @@
 | 핵심 조작 | `--purple: #A855FF` |
 | hover/pressed | `--brand-hover: #B875FF`, `--brand-pressed: #A553FA` |
 | 핵심 버튼 글자 | `--on-brand: #0B0B14` |
-| signature 방향/비율 | `90deg`, stop `0% / 68% / 82% / 100%` |
-| signature default 색 | `#A855FF / #955DF5 / #7469EF / #4CC9FF` |
-| signature hover 색 | `#B875FF / #AC7BFA / #8C86F4 / #6AD3FF` |
-| signature pressed 색 | `#A553FA / #955BF3 / #7469EF / #43B8EF` |
+| CTA signature 방향/비율 | `100deg`, stop `0% / 100%` |
+| signature default 색 | `#A855FF → #5B9EF6` |
+| signature hover 색 | `#B875FF → #7CB4FA` |
+| signature pressed 색 | `#A553FA → #5593E8` |
+| 로고 gradient | `110deg`, `#A855FF 0% / #6C70EF 55% / #4CC9FF 100%` |
 | focus | `--sky: #4CC9FF` |
 | 위험/오류 | `--danger: #FF9DB6` |
 
-- **최신 사용자 정정(2026-10-16 13:02 UTC): 보라에서 천천히 변하다가 끝에서 파랑으로 급격히 변하는 흐름을 원한다.** 로고 마크·‘전체 재생’·‘새 재생목록’ 주 진입 CTA에 위 동일한 signature 비율을 적용한다. 0–68%는 긴 보라 구간, 68–82%는 인디고로 연결, 마지막18%는 블루/시안으로 빠르게 전환한다. 이전 균일 전환·110deg·로고8/54.2/92% 보정안은 폐기한다. 핑크/빨강 stop은 넣지 않는다.
-- dark foreground `#0B0B14`를 유지한다. gradient 전체 구간의 최소 대비는 sRGB 샘플 계산 default4.67:1, hover6.37:1, pressed4.66:1이다. 흰 작은 글자로 바꾸지 않는다. glow/광택 줄무늬/움직이는 gradient는 추가하지 않는다.
-- 로고 4개 막대 전체에 하나의 좌→우 색 흐름을 적용한다. 막대마다 전체 gradient를 반복하지 않는다. 기존 막대 높이/간격/형태와 흰 loopy wordmark를 유지한다. 로고 끝 점은 종단 sky `#4CC9FF`로 맞춘다. 모바일은 기존 wordmark와 끝 점에 같은 규칙을 사용한다.
+- **최신 사용자 수정(2026-10-16): 로고는 8827785의 배색으로 복구하고, 브랜드 버튼의 끝부분 급전환은 완화한다.** CTA는 100deg 두 색을 전체 폭 0–100%에서 연속 보간한다. 0/68/82/100% 네 stop과 마지막 18%에 집중된 cyan 전환은 폐기한다. 로고는 별도 `--logo-gradient`로 기존 110deg·0/55/100%를 정확히 보존한다. 핑크/빨강 stop은 넣지 않는다.
+- dark foreground `#0B0B14`를 유지한다. gradient 전체 구간의 최소 대비는 sRGB 샘플 계산 default5.04:1, hover6.55:1, pressed4.87:1이다. 흰 작은 글자로 바꾸지 않는다. glow/광택 줄무늬/움직이는 gradient는 추가하지 않는다.
+- 로고 4개 막대 전체에 하나의 25×28px 공유 gradient 좌표를 적용한다. 막대마다 전체 gradient를 반복하지 않는다. 기존 막대 높이/간격/형태와 흰 loopy wordmark를 유지한다. 로고 끝 점은 종단 sky `#4CC9FF`로 맞춘다. 모바일은 기존 wordmark와 끝 점에 같은 규칙을 사용한다.
 - **BrandPrimaryButton**은 기존 shadcn Button을 감싸는 얇은 공용 의미 컴포넌트로 둔다. ‘전체 재생’과 라이브러리 헤더/빈 상태의 ‘새 재생목록’ 주 진입에 사용한다. 모바일의 같은 + 진입도 포함한다. disabled/focus/ref/asChild 의미를 보존한다. 기존 sidebar의 보조 +와 picker의 새 카드까지 주 CTA처럼 채우지 않는다.
-- signature의 방향, 각 stop 위치, default/hover/pressed 색을 공통 CSS 토큰으로 분리하고 `--signature-gradient[-hover/-pressed]`를 조합한다. 로고와 BrandPrimaryButton은 이 토큰을 소비하며 독립적인 색/stop 복사본을 갖지 않는다.
+- signature의 방향, 시작/끝 stop, default/hover/pressed 색을 공통 CSS 토큰으로 분리하고 `--signature-gradient[-hover/-pressed]`를 조합한다. BrandPrimaryButton은 CTA 토큰만 소비하고 로고는 `--logo-gradient`를 소비한다. 두 역할의 정의는 shared 토큰 파일 한 곳에 두며 공통 컴포넌트/feature SCSS에 색·stop을 복제하지 않는다.
 - **일반 저장·생성 submit, 카드의 원형 재생, dock/상세 플레이어 원형 재생은 단색 보라를 유지한다.** 커버의 다색 그래픽, 오류/재생 상태의 의미색도 유지한다. signature를 공용 `--purple`이나 모든 Button default에 확산하지 않는다. 단색 dark foreground 대비는 기본 5.04:1, hover 6.55:1, pressed 4.87:1.
 - 일반 컨트롤/터치 영역 최소 44px, 전체 재생 48px, 상세 플레이어 재생 56px. radius는 컨트롤 10px, popover 12px, dialog 16px. 필드 16px, 메뉴/버튼 14px 이상.
 - focus-visible sky 2px/offset 4px. 팝오버 항목은 clipping 없는 내부 ring. 비활성은 실제 disabled와 opacity .42, hover/pressed 미적용. reduced-motion에서는 이동/등장 효과 제거.

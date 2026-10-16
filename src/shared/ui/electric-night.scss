@@ -22,43 +22,36 @@
   --pink: #ff4d8d;
   --sky: #4cc9ff;
   --on-brand: #0b0b14;
-  --signature-angle: 90deg;
-  --signature-stop-1: 0%;
-  --signature-stop-2: 68%;
-  --signature-stop-3: 82%;
-  --signature-stop-4: 100%;
-  --signature-color-1: #a855ff;
-  --signature-color-2: #955df5;
-  --signature-color-3: #7469ef;
-  --signature-color-4: #4cc9ff;
-  --signature-color-1-hover: #b875ff;
-  --signature-color-2-hover: #ac7bfa;
-  --signature-color-3-hover: #8c86f4;
-  --signature-color-4-hover: #6ad3ff;
-  --signature-color-1-pressed: #a553fa;
-  --signature-color-2-pressed: #955bf3;
-  --signature-color-3-pressed: #7469ef;
-  --signature-color-4-pressed: #43b8ef;
+  // Keep the approved compact logo independent from the wider CTA gradient.
+  --logo-gradient: linear-gradient(
+    110deg,
+    var(--purple) 0%,
+    #6c70ef 55%,
+    var(--sky) 100%
+  );
+  --signature-angle: 100deg;
+  --signature-start: 0%;
+  --signature-end: 100%;
+  --signature-color-start: var(--purple);
+  --signature-color-end: #5b9ef6;
+  --signature-color-start-hover: var(--brand-hover);
+  --signature-color-end-hover: #7cb4fa;
+  --signature-color-start-pressed: var(--brand-pressed);
+  --signature-color-end-pressed: #5593e8;
   --signature-gradient: linear-gradient(
     var(--signature-angle),
-    var(--signature-color-1) var(--signature-stop-1),
-    var(--signature-color-2) var(--signature-stop-2),
-    var(--signature-color-3) var(--signature-stop-3),
-    var(--signature-color-4) var(--signature-stop-4)
+    var(--signature-color-start) var(--signature-start),
+    var(--signature-color-end) var(--signature-end)
   );
   --signature-gradient-hover: linear-gradient(
     var(--signature-angle),
-    var(--signature-color-1-hover) var(--signature-stop-1),
-    var(--signature-color-2-hover) var(--signature-stop-2),
-    var(--signature-color-3-hover) var(--signature-stop-3),
-    var(--signature-color-4-hover) var(--signature-stop-4)
+    var(--signature-color-start-hover) var(--signature-start),
+    var(--signature-color-end-hover) var(--signature-end)
   );
   --signature-gradient-pressed: linear-gradient(
     var(--signature-angle),
-    var(--signature-color-1-pressed) var(--signature-stop-1),
-    var(--signature-color-2-pressed) var(--signature-stop-2),
-    var(--signature-color-3-pressed) var(--signature-stop-3),
-    var(--signature-color-4-pressed) var(--signature-stop-4)
+    var(--signature-color-start-pressed) var(--signature-start),
+    var(--signature-color-end-pressed) var(--signature-end)
   );
   --selected: rgba(168, 85, 255, 0.12);
   --gradient: linear-gradient(120deg, #a855ff 0%, #ff4d8d 58%, #4cc9ff 100%);

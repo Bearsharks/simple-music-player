@@ -35,7 +35,7 @@
   height: 18px;
   border-radius: 8px;
   // Each bar shows its part of one shared 25×28 gradient, never a repeated fill.
-  background-image: var(--signature-gradient);
+  background-image: var(--logo-gradient);
   background-size: 25px 28px;
   background-repeat: no-repeat;
   background-position: 0 -5px;
@@ -53,7 +53,7 @@
   background-position: -21px -8px;
 }
 .logo-dot {
-  color: var(--signature-color-4);
+  color: var(--sky);
   margin-left: -8px;
 }
 .sidebar-nav {

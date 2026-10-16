@@ -56,4 +56,6 @@ the root `DESIGN_SYSTEM.md`, not independent feature-specific z-index numbers.
 library New Playlist entry and whole-playlist play only. It forwards native refs,
 asChild and disabled behavior, and consumes the shared signature state/color/stop
 tokens. Form submits, card/dock circular play and ordinary Button remain solid.
-The shared logo uses those same tokens and one continuous 25×28 background coordinate.
+The logo uses the separate shared `--logo-gradient` role token and one continuous
+25×28 background coordinate. Its approved compact palette is independent from
+CTA stop distribution; component styles never duplicate gradient colors.

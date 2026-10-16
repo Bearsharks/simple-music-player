@@ -117,6 +117,11 @@ try {
           exact: true,
         });
         await expect(emptyPlay).toBeDisabled();
+        await emptyPlay.hover();
+        await expect(emptyPlay).toHaveCSS(
+          "background-image",
+          "linear-gradient(100deg, rgb(168, 85, 255) 0%, rgb(91, 158, 246) 100%)",
+        );
         expect(
           await emptyPlay.evaluate((node) => getComputedStyle(node).opacity),
         ).toBe("0.42");

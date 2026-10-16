@@ -11,6 +11,14 @@ const base =
   process.env.TEST_URL || "http://127.0.0.1:4173/simple-music-player/";
 fs.mkdirSync("test-results", { recursive: true });
 const failures = [];
+const signatureImages = {
+  default:
+    "linear-gradient(100deg, rgb(168, 85, 255) 0%, rgb(91, 158, 246) 100%)",
+  hover:
+    "linear-gradient(100deg, rgb(184, 117, 255) 0%, rgb(124, 180, 250) 100%)",
+  pressed:
+    "linear-gradient(100deg, rgb(165, 83, 250) 0%, rgb(85, 147, 232) 100%)",
+};
 try {
   for (const viewport of [
     { width: 320, height: 844 },
@@ -158,9 +166,53 @@ try {
           image: getComputedStyle(node).backgroundImage,
         }));
       expect(primaryStyle.color).toBe("rgb(11, 11, 20)");
-      expect(primaryStyle.image).toContain("90deg");
-      expect(primaryStyle.image).toContain("rgb(149, 93, 245) 68%");
-      expect(primaryStyle.image).toContain("rgb(116, 105, 239) 82%");
+      expect(primaryStyle.image).toBe(signatureImages.default);
+      const captureBrandStates = async (control, name) => {
+        await page.mouse.move(0, 0);
+        await expect(control).toHaveCSS(
+          "background-image",
+          signatureImages.default,
+        );
+        await page.screenshot({
+          path: `test-results/app-brand-${name}-default-${viewport.width}.png`,
+          fullPage: true,
+        });
+        await control.hover();
+        await expect(control).toHaveCSS(
+          "background-image",
+          signatureImages.hover,
+        );
+        await page.screenshot({
+          path: `test-results/app-brand-${name}-hover-${viewport.width}.png`,
+          fullPage: true,
+        });
+        await page.mouse.down();
+        try {
+          await expect(control).toHaveCSS(
+            "background-image",
+            signatureImages.pressed,
+          );
+          await page.screenshot({
+            path: `test-results/app-brand-${name}-pressed-${viewport.width}.png`,
+            fullPage: true,
+          });
+        } finally {
+          // Release away from the CTA so a state capture never creates or plays.
+          await page.mouse.move(0, 0);
+          await page.mouse.up();
+        }
+        await expect(control).toHaveCSS(
+          "background-image",
+          signatureImages.default,
+        );
+      };
+      if ([390, 1440].includes(viewport.width)) {
+        await captureBrandStates(
+          page.getByRole("button", { name: "새 재생목록", exact: true }),
+          "new-playlist",
+        );
+        await expect(page.getByRole("dialog")).toHaveCount(0);
+      }
       const librarySeed = await page
         .locator(".playlist-card")
         .first()
@@ -315,9 +367,7 @@ try {
         image: getComputedStyle(node).backgroundImage,
         color: getComputedStyle(node).color,
       }));
-      expect(signature.image).toContain("90deg");
-      expect(signature.image).toContain("rgb(116, 105, 239)");
-      expect(signature.image).toContain("rgb(76, 201, 255)");
+      expect(signature.image).toBe(signatureImages.default);
       expect(signature.image).not.toContain("rgb(255, 77, 141)");
       expect(signature.color).toBe("rgb(11, 11, 20)");
       expect(signature.image).toBe(primaryStyle.image);
@@ -327,38 +377,40 @@ try {
             image: getComputedStyle(node).backgroundImage,
             size: getComputedStyle(node).backgroundSize,
             x: getComputedStyle(node).backgroundPositionX,
+            y: getComputedStyle(node).backgroundPositionY,
           })),
         );
         expect(
           bars.every(
             (bar) =>
-              bar.image.includes("rgb(116, 105, 239)") &&
+              bar.image ===
+                "linear-gradient(110deg, rgb(168, 85, 255) 0%, rgb(108, 112, 239) 55%, rgb(76, 201, 255) 100%)" &&
               bar.size === "25px 28px",
           ),
         ).toBe(true);
+        expect(bars[0].image).not.toBe(signature.image);
         expect(bars.map((bar) => bar.x)).toEqual([
           "0px",
           "-7px",
           "-14px",
           "-21px",
         ]);
+        expect(bars.map((bar) => bar.y)).toEqual([
+          "-5px",
+          "0px",
+          "-2.5px",
+          "-8px",
+        ]);
+        await page.locator(".studio-logo").screenshot({
+          path: `test-results/app-logo-restored-${viewport.width}.png`,
+        });
       }
       await page.screenshot({
         path: `test-results/app-detail-${viewport.width}.png`,
         fullPage: true,
       });
       if ([390, 1440].includes(viewport.width)) {
-        await wholePlay.hover();
-        expect(
-          await wholePlay.evaluate(
-            (node) => getComputedStyle(node).backgroundImage,
-          ),
-        ).toContain("rgb(140, 134, 244)");
-        await page.screenshot({
-          path: `test-results/app-signature-hover-${viewport.width}.png`,
-          fullPage: true,
-        });
-        await page.mouse.move(0, 0);
+        await captureBrandStates(wholePlay, "whole-playlist");
         await page.keyboard.press("Tab");
         await wholePlay.focus();
         await expect(wholePlay).toBeFocused();
