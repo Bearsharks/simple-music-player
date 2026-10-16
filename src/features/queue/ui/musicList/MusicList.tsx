@@ -37,7 +37,7 @@ function MusicList({
       move(result.source.index, result.destination.index);
   };
   return (
-    <div className={styles.list}>
+    <div className={styles.list} data-track-list>
       <span className="sr-only" role="status">
         {status}
       </span>

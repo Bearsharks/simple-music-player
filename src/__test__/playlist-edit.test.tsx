@@ -104,3 +104,77 @@ it("requires explicit duplicate confirmation and retains both independently keye
     expect(await api.getPlaylistItems(id)).toHaveLength(2),
   );
 });
+
+it("restores keyboard reorder focus after pending failure, retry and an end position", async () => {
+  const user = (await import("@testing-library/user-event")).default.setup();
+  const { vi } = await import("vitest");
+  const tracks = ["첫 곡", "둘째 곡", "셋째 곡"].map((name, i) => ({
+    name,
+    videoID: String(i).repeat(11),
+    owner: "",
+    thumbnail: "",
+    query: "",
+  }));
+  const id = await api.createPlaylist(
+    {
+      id: "",
+      name: "순서 키보드",
+      description: "",
+      itemCount: 3,
+      thumbnails: [],
+    },
+    tracks,
+  );
+  await act(async () =>
+    render(
+      <Provider>
+        <MemoryRouter initialEntries={[`/playlist/${id}`]}>
+          <Suspense fallback="loading">
+            <Routes>
+              <Route path="/playlist/:id" element={<PlaylistPage />} />
+            </Routes>
+          </Suspense>
+        </MemoryRouter>
+      </Provider>,
+    ),
+  );
+  await user.click(await screen.findByRole("button", { name: "순서 편집" }));
+  const up = screen.getByRole("button", { name: "셋째 곡 위로" });
+  let reject!: (error: Error) => void;
+  const update = vi.spyOn(api, "updatePlaylist").mockImplementationOnce(
+    () =>
+      new Promise((_resolve, no) => {
+        reject = no;
+      }),
+  );
+  try {
+    await user.click(up);
+    await waitFor(() => expect(up).toBeDisabled());
+    up.blur(); // Chromium removes focus from a newly disabled control.
+    await act(async () => reject(new Error("순서 저장 실패")));
+    expect(up).toHaveFocus();
+    expect(screen.getByRole("alert")).toHaveTextContent("순서 저장 실패");
+    expect((await api.getPlaylistItems(id))[2].name).toBe("셋째 곡");
+    await user.keyboard("{Enter}");
+    await waitFor(async () =>
+      expect((await api.getPlaylistItems(id))[1].name).toBe("셋째 곡"),
+    );
+    expect(up).toHaveFocus();
+    await user.keyboard("{Enter}");
+    await waitFor(() =>
+      expect(
+        screen.getByRole("button", { name: "셋째 곡 아래로" }),
+      ).toHaveFocus(),
+    );
+    expect(up).toBeDisabled();
+    await user.keyboard("{Enter}");
+    await waitFor(async () =>
+      expect((await api.getPlaylistItems(id))[1].name).toBe("셋째 곡"),
+    );
+    expect(
+      screen.getByRole("button", { name: "셋째 곡 아래로" }),
+    ).toHaveFocus();
+  } finally {
+    update.mockRestore();
+  }
+});

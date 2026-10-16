@@ -55,3 +55,7 @@
     flex: 1;
   }
 }
+
+.fields > :global(.form-error) {
+  margin-top: 16px;
+}

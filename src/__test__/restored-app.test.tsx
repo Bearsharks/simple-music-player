@@ -10,6 +10,12 @@ vi.mock("features/player/api/iframe", () => ({
       constructor(_h: HTMLElement, c: any) {
         queueMicrotask(() => c.events.onReady());
       }
+      getPlaylist() {
+        return ["abcdefghijk", "lmnopqrstuv"];
+      }
+      loadVideoById() {}
+      playVideo() {}
+      pauseVideo() {}
       destroy() {}
       stopVideo() {}
       getPlayerState() {
@@ -86,3 +92,118 @@ it("navigates a successful UI creation to the new detail and focuses its first U
   expect(screen.getByRole("button", { name: "전체 재생" })).toBeDisabled();
   expect((await api.getPlaylistInfos())[0].itemCount).toBe(0);
 });
+
+it.each([390, 1440])(
+  "keeps the route, open queue and playback when saving its selection at %ipx",
+  async (width) => {
+    const user = (await import("@testing-library/user-event")).default.setup();
+    const { within, waitFor } = await import("@testing-library/react");
+    const api = (await import("shared/api/localAPI")).default;
+    const { queueState } = await import("features/queue/model/queue");
+    const openState = (await import("features/queue/model/musiclistOpenState"))
+      .default;
+    vi.stubGlobal("innerWidth", width);
+    const track = {
+      key: "queue-song",
+      videoID: "abcdefghijk",
+      name: "듣던 곡",
+      owner: "",
+      query: "",
+      thumbnail: "",
+    };
+    const id = await api.createPlaylist(
+      {
+        id: "",
+        name: "보던 목록",
+        description: "",
+        itemCount: 0,
+        thumbnails: [],
+      },
+      [],
+    );
+    window.history.replaceState({}, "", `/simple-music-player/playlist/${id}`);
+    const store = createStore();
+    await store.get(playlistInfosState);
+    store.set(queueState, { items: [track], index: 0 });
+    store.set(openState, true);
+    await act(async () =>
+      render(
+        <Provider store={store}>
+          <App />
+        </Provider>,
+      ),
+    );
+    const save = await screen.findByRole("button", {
+      name: "대기열을 재생목록에 저장",
+    });
+    await user.click(save);
+    await user.click(
+      await screen.findByRole("button", { name: "새 재생목록 선택" }),
+    );
+    await user.click(screen.getByRole("button", { name: "추가" }));
+    await user.type(screen.getByLabelText("제목"), "듣던 대기열 저장");
+    await user.click(
+      within(screen.getByRole("dialog", { name: "새 재생목록" })).getByRole(
+        "button",
+        { name: "만들기" },
+      ),
+    );
+    await waitFor(() =>
+      expect(
+        screen.queryByRole("dialog", { name: "새 재생목록" }),
+      ).not.toBeInTheDocument(),
+    );
+    expect(window.location.pathname).toBe(
+      `/simple-music-player/playlist/${id}`,
+    );
+    expect(store.get(openState)).toBe(true);
+    expect(store.get(queueState)).toEqual({ items: [track], index: 0 });
+    expect(
+      (await api.getPlaylistInfos()).find((p) => p.name === "듣던 대기열 저장")
+        ?.itemCount,
+    ).toBe(1);
+    expect(save).toHaveFocus();
+  },
+);
+
+it.each([390, 1440])(
+  "opens imported detail at its heading with the URL form collapsed at %ipx",
+  async (width) => {
+    const user = (await import("@testing-library/user-event")).default.setup();
+    const { waitFor } = await import("@testing-library/react");
+    const openState = (await import("features/queue/model/musiclistOpenState"))
+      .default;
+    vi.stubGlobal("innerWidth", width);
+    const store = createStore();
+    await store.get(playlistInfosState);
+    store.set(openState, true);
+    await act(async () =>
+      render(
+        <Provider store={store}>
+          <App />
+        </Provider>,
+      ),
+    );
+    await user.click(screen.getByRole("button", { name: "새 재생목록" }));
+    await user.click(
+      screen.getByRole("button", { name: "유튜브에서 가져오기" }),
+    );
+    await user.type(
+      screen.getByLabelText("공개 재생목록 URL"),
+      "https://youtube.com/playlist?list=PLtest123",
+    );
+    await user.type(screen.getByLabelText("목록 이름"), "가져온 음악");
+    await user.click(screen.getByRole("button", { name: "미리보기" }));
+    await waitFor(() =>
+      expect(screen.getByRole("button", { name: "로컬에 저장" })).toBeEnabled(),
+    );
+    await user.click(screen.getByRole("button", { name: "로컬에 저장" }));
+    await waitFor(() =>
+      expect(
+        screen.getByRole("heading", { name: "가져온 음악" }),
+      ).toHaveFocus(),
+    );
+    expect(screen.queryByLabelText("추가할 영상 URL")).not.toBeInTheDocument();
+    expect(store.get(openState)).toBe(width >= 1200);
+  },
+);

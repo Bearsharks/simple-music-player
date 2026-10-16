@@ -52,3 +52,10 @@ playlists/queue/youtube를 연결하는 기존 조정 코드다. search/player/p
 - 열린 sheet의 메뉴는 트리거의 dialog 내부에 portal하여 inert/top-layer 아래로 떨어지지 않는다. 메뉴 Escape는 메뉴만 닫고, 바깥 dialog Escape와 충돌하지 않는다.
 - Notice는 shared OverlayPortal을 통해 현재 modal scope에 표시하므로 sheet에서 삭제한 곡의 Undo도 조작 가능하다. Undo는 시간 제한 없이 닫기/다른 알림까지 유지하므로 hover/focus 중 사라지지 않는다.
 - 원본 초기화/큐 비우기도 이름 있는 확인 dialog를 사용한다. 전체 저장 목록 삭제에는 Undo를 추가하지 않는다.
+
+## 인수 검수 보완
+
+- Modal의 생성 완료 콜백은 `empty`/`import`/`selection` 출처를 함께 전달한다. 가져오기 모듈 자체는 라우터나 큐 UI에 의존하지 않는다.
+- native dialog의 Escape는 `cancel` 한 곳에서 처리한다. document keydown으로 먼저 닫으면 동일 Escape가 아래 dialog의 close watcher까지 닫을 수 있으므로 수동 Escape는 jsdom/미지원 환경 fallback에만 사용한다. cancel은 전파를 막고 최상위 modal만 닫으며 busy 쓰기는 계속 보호한다.
+- 곡 메뉴는 열린 순간의 dialog/list/행 위치를 보존한다. 삭제로 트리거가 사라지면 같은 위치의 다음 곡(마지막이면 이전 곡)에 포커스를 주고, 빈 목록은 추가 버튼/큐 닫기로 복귀한다. `MusicItem`의 `data-track-key`/`data-track-focus`, 목록의 `data-track-list`는 이 기존 연결의 DOM 계약이다.
+- 큐 조작은 ‘대기열 끝에 추가’/‘대기열에서 삭제’로 표시한다. 전체 재생목록 메뉴의 끝 추가도 기존 `APPEND_PLAYLIST` manager를 사용하며 현재 곡을 바꾸지 않는다.

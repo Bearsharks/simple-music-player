@@ -30,6 +30,26 @@ try {
     try {
       page.on("pageerror", (error) => errors.push(error.message));
       await installMediaSimulation(page);
+      await page.addInitScript(() => {
+        window.__dialogAudit = [];
+        for (const type of ["keydown", "cancel", "close"])
+          document.addEventListener(
+            type,
+            (event) => {
+              if (type === "keydown" && event.key !== "Escape") return;
+              window.__dialogAudit.push({
+                type,
+                target:
+                  event.target.getAttribute?.("aria-label") ||
+                  event.target.tagName,
+                open: [...document.querySelectorAll("dialog[open]")].map(
+                  (node) => node.getAttribute("aria-label"),
+                ),
+              });
+            },
+            true,
+          );
+      });
       await page.goto(base);
       await page
         .getByRole("button", { name: "새 재생목록", exact: true })
@@ -219,6 +239,16 @@ try {
         await expect(
           page.getByRole("dialog", { name: "재생목록 URL 가져오기" }),
         ).toHaveCount(0);
+        await expect(
+          page.getByRole("button", { name: "대기열 닫기", exact: true }),
+        ).toBeVisible();
+        expect(
+          await page.evaluate(() => ({
+            open: document.querySelectorAll("dialog[open]").length,
+            inert: document.querySelector("#root").hasAttribute("inert"),
+            overflow: document.body.style.overflow,
+          })),
+        ).toEqual({ open: 1, inert: true, overflow: "hidden" });
         await page.setViewportSize(viewport);
         // Closing and reopening changes no simulated official-player instance or DOM.
         await page
@@ -237,17 +267,85 @@ try {
             overflow: document.body.style.overflow,
           })),
         ).toEqual({ same: true, node: true, inert: false, overflow: "" });
-        // Saved editing while a desktop queue is open must not alter current playback.
-        if (viewport.width >= 1200)
+        // Saving the queue is a side task, not navigation to a new URL form.
+        await page
+          .getByRole("button", { name: "재생 대기열", exact: true })
+          .click();
+        const routeBeforeSave = page.url();
+        const saveQueue = page.getByRole("button", {
+          name: "대기열을 재생목록에 저장",
+          exact: true,
+        });
+        await saveQueue.click();
+        await page
+          .getByRole("button", { name: "새 재생목록 선택", exact: true })
+          .click();
+        await page.getByRole("button", { name: "추가", exact: true }).click();
+        await page.getByLabel("제목", { exact: true }).fill("보존한 대기열");
+        await page.getByRole("button", { name: "만들기", exact: true }).click();
+        await expect(
+          page.getByRole("dialog", { name: "새 재생목록", exact: true }),
+        ).toHaveCount(0);
+        expect(page.url()).toBe(routeBeforeSave);
+        await expect(saveQueue).toBeFocused();
+        await expect(
+          page.getByRole("tab", { name: "대기열 (20)", exact: true }),
+        ).toBeVisible();
+        if (viewport.width < 1200)
           await page
-            .getByRole("button", { name: "재생 대기열", exact: true })
+            .getByRole("button", { name: "대기열 닫기", exact: true })
             .click();
+        // Saved editing while a desktop queue is open must not alter current playback.
         await page
           .getByRole("button", { name: "순서 편집", exact: true })
           .click();
-        await page
-          .getByRole("button", { name: "검증용 곡 02 위로", exact: true })
+        const savedTracks = page.getByRole("region", {
+          name: "저장한 곡",
+          exact: true,
+        });
+        const moveUp = savedTracks.getByRole("button", {
+          name: "검증용 곡 02 위로",
+          exact: true,
+        });
+        await page.evaluate(() => {
+          window.__failNextWrite = true;
+        });
+        await moveUp.click();
+        await expect(savedTracks.getByRole("alert")).toContainText(
+          "검증용 저장 실패",
+        );
+        await expect(moveUp).toBeFocused();
+        await page.keyboard.press("Enter");
+        const moveDown = savedTracks.getByRole("button", {
+          name: "검증용 곡 02 아래로",
+          exact: true,
+        });
+        await expect(moveDown).toBeFocused();
+        await expect(moveUp).toBeDisabled();
+        await page.keyboard.press("Enter");
+        await expect(moveDown).toBeFocused();
+        await expect(moveUp).toBeEnabled();
+        await expect(savedTracks.getByRole("alert")).toHaveCount(0);
+        await savedTracks
+          .getByRole("button", { name: "검증용 곡 02 더보기", exact: true })
           .click();
+        await page
+          .getByRole("button", { name: "재생목록에서 삭제", exact: true })
+          .click();
+        await expect(
+          savedTracks.locator(
+            '[data-track-focus][aria-label="검증용 곡 03 재생"]',
+          ),
+        ).toBeFocused();
+        await page
+          .getByRole("button", { name: "실행 취소", exact: true })
+          .click();
+        await expect(
+          savedTracks.getByRole("button", {
+            name: "검증용 곡 02 더보기",
+            exact: true,
+          }),
+        ).toBeVisible();
         expect(
           await page.evaluate(() => window.__simulatedPlayer.loads),
         ).toEqual(["v0000000000"]);
@@ -259,6 +357,27 @@ try {
           await page
             .getByRole("button", { name: "재생 대기열", exact: true })
             .click();
+        const queuePanel = page.locator("dialog.now-panel");
+        await queuePanel
+          .getByRole("button", { name: "검증용 곡 02 더보기", exact: true })
+          .click();
+        await page
+          .getByRole("button", { name: "대기열에서 삭제", exact: true })
+          .click();
+        await expect(
+          queuePanel.locator(
+            '[data-track-focus][aria-label="검증용 곡 03 재생"]',
+          ),
+        ).toBeFocused();
+        await page
+          .getByRole("button", { name: "실행 취소", exact: true })
+          .click();
+        await expect(
+          queuePanel.getByRole("button", {
+            name: "검증용 곡 02 더보기",
+            exact: true,
+          }),
+        ).toBeVisible();
         await page
           .getByRole("button", { name: "대기열 순서 편집", exact: true })
           .click();
@@ -298,6 +417,72 @@ try {
         await page
           .getByRole("button", { name: "대기열 닫기", exact: true })
           .click();
+        // Whole-list append keeps the current song and extends only the queue.
+        await page
+          .locator("main")
+          .getByRole("button", { name: "더보기", exact: true })
+          .click();
+        await page
+          .getByRole("button", { name: "대기열 끝에 추가", exact: true })
+          .click();
+        await page
+          .getByRole("button", { name: "재생 대기열", exact: true })
+          .click();
+        await expect(
+          page.getByRole("tab", { name: "대기열 (40)", exact: true }),
+        ).toBeVisible();
+        expect(
+          await page.evaluate(() => window.__simulatedPlayer.loads),
+        ).toEqual(["v0000000000", "v0000000000"]);
+        // Switching the new-selection dialog to import deliberately navigates
+        // on success, but only a narrow modal queue must close for the detail.
+        await page.evaluate(() => {
+          window.__beforeImportPlayer = window.player;
+        });
+        await page
+          .getByRole("button", {
+            name: "대기열을 재생목록에 저장",
+            exact: true,
+          })
+          .click();
+        await page
+          .getByRole("button", { name: "새 재생목록 선택", exact: true })
+          .click();
+        await page.getByRole("button", { name: "추가", exact: true }).click();
+        await page
+          .getByRole("button", { name: "유튜브에서 가져오기", exact: true })
+          .click();
+        await page
+          .getByLabel("공개 재생목록 URL")
+          .fill("https://youtube.com/playlist?list=PLtest123");
+        await page.getByLabel("목록 이름").fill("가져온 검수 목록");
+        await page
+          .getByRole("button", { name: "미리보기", exact: true })
+          .click();
+        await page
+          .getByRole("button", { name: "로컬에 저장", exact: true })
+          .click();
+        await expect(
+          page.getByRole("heading", { name: "가져온 검수 목록", exact: true }),
+        ).toBeFocused();
+        await expect(page.getByLabel("추가할 영상 URL")).toHaveCount(0);
+        expect(
+          await page.evaluate(
+            () => window.player === window.__beforeImportPlayer,
+          ),
+        ).toBe(true);
+        if (viewport.width >= 1200) {
+          await expect(
+            page.getByRole("button", { name: "대기열 닫기", exact: true }),
+          ).toBeVisible();
+          await page
+            .getByRole("button", { name: "대기열 닫기", exact: true })
+            .click();
+        } else {
+          await expect(
+            page.getByRole("button", { name: "대기열 닫기", exact: true }),
+          ).toHaveCount(0);
+        }
       }
       if (viewport.width === 1440) {
         await page.evaluate(async () => {
@@ -325,9 +510,9 @@ try {
           db.close();
         });
         await page.goto(base);
-        await expect(page.locator(".playlist-card")).toHaveCount(30);
+        await expect(page.locator(".playlist-card")).toHaveCount(32);
         await page.locator(".card-title").last().scrollIntoViewIfNeeded();
-        await assertFits("30 lists");
+        await assertFits("30+ lists");
         await page
           .getByRole("heading", { name: "내 라이브러리", exact: true })
           .scrollIntoViewIfNeeded();
@@ -374,6 +559,17 @@ try {
         page
           .content()
           .then((value) => fs.writeFileSync(`${prefix}.html`, value)),
+        page
+          .evaluate(() => ({
+            dialogEvents: window.__dialogAudit,
+            activeElement: document.activeElement.outerHTML,
+          }))
+          .then((value) =>
+            fs.writeFileSync(
+              `${prefix}-state.json`,
+              JSON.stringify(value, null, 2),
+            ),
+          ),
         page
           .locator("body")
           .ariaSnapshot()

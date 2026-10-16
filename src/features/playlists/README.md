@@ -61,3 +61,5 @@ Playlists.tsx는 로컬 이름 필터·정렬·카드/빈 상태를 제공한다
 - 채워진 상세는 추가 폼을 접고, 순서 편집 버튼으로 위/아래 조작을 연다. 빈 상세/새 생성/빈 카드의 추가는 URL 입력을 바로 연다. 같은 video ID를 추가할 때는 명시적인 ‘중복해서 추가’ 확인 뒤 별개 key로 저장한다.
 - `useReloadPlaylists`/`playlistReadRevision`은 실패한 읽기의 재시도만 담당한다. 저장 어댑터, IndexedDB schema와 큐 독립성은 동일하다.
 - 회귀: `design-library`, `playlist-edit`, `restored-app`, `electric-night` 테스트. ID 커버는 `shared/ui/Cover`이며 이름/정렬/경로마다 별도 시드를 만들지 않는다.
+
+순서 이동은 저장 중 중복 조작을 막는다. 비활성화로 브라우저가 포커스를 잃으면 완료/실패 후 같은 이동 버튼에 복귀하고, 끝 위치에서 그 버튼이 비활성화되면 반대 방향 버튼으로 이동한다. 대기 중 사용자가 다른 요소로 포커스를 옮겼다면 이를 가로채지 않는다. `playlist-edit`의 실패·연속 키보드 이동 회귀와 실제 Chromium 시나리오를 함께 확인한다.

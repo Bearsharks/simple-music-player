@@ -128,12 +128,15 @@ export default function Dialog({
     observer.observe(root, { childList: true, subtree: true });
     const isTop = () => openDialogs.at(-1)?.root === root;
     const keydown = (event: KeyboardEvent) => {
-      if (!isTop()) return;
+      if (event.defaultPrevented || !isTop()) return;
       if (event.key === "Escape") {
+        // Native close watchers own Escape. Closing here can expose the lower
+        // dialog to the same native Escape gesture after a responsive change.
+        if (native) return;
         if ((event.target as HTMLElement)?.closest("[data-dialog-popover]"))
           return;
         event.preventDefault();
-        event.stopPropagation();
+        event.stopImmediatePropagation();
         dismiss.current();
       } else if (event.key === "Tab") {
         const elements = focusableElements(root);
@@ -199,7 +202,8 @@ export default function Dialog({
         tabIndex={-1}
         onCancel={(event) => {
           event.preventDefault();
-          requestClose();
+          event.stopPropagation();
+          if (openDialogs.at(-1)?.root === event.currentTarget) requestClose();
         }}
         onClick={(event) => {
           if (event.target !== event.currentTarget || !modal) return;

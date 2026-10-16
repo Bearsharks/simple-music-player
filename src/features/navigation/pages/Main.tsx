@@ -165,9 +165,13 @@ export default function Main() {
       </div>
       <Notice />
       <Modal
-        onCreated={(id) => {
-          setQueueOpen(false);
-          navigate(`/playlist/${id}`, { state: { focusAdd: true } });
+        onCreated={(id, context) => {
+          // Saving the current selection is a side task: keep its queue and route.
+          if (context === "selection") return;
+          if (window.innerWidth < 1200) setQueueOpen(false);
+          navigate(`/playlist/${id}`, {
+            state: { focusAdd: context === "empty" },
+          });
         }}
       />
       <Popup />

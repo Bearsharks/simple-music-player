@@ -41,6 +41,6 @@ Main.tsx와 StudioShell.scss가 Electric Night 앱 프레임을 소유한다. �
 
 - 중앙 라이브러리/상세는 기존 Routes에 유지한다. SidebarLibrary는 같은 playlist ID의 공통 Cover를 사용한다.
 - 큐 open atom에 따라 1200px 이상에서 중앙 폭을 회복/축소한다. player가 소유하는 761–1199px modal drawer와 760px 이하 sheet는 navigation에 상태 로직을 복제하지 않는다.
-- Modal/가져오기의 `onCreated(id)` 콜백을 받아 새 상세로 이동하고 영상 URL 필드에 포커스를 보낸다. 이때 sheet만 닫고 실제 재생/큐는 유지한다.
+- Modal의 `onCreated(id, context)`는 빈 목록(`empty`), 가져오기(`import`), 선택곡 저장(`selection`)을 구분한다. 빈 목록은 새 상세의 URL 입력, 가져오기는 제목에 포커스를 두며 채워진 목록의 추가 폼은 접는다. 새 상세로 이동할 때 좁은 modal sheet만 닫고 데스크톱 큐는 유지한다. 선택곡/큐 저장은 현재 경로·열림·포커스를 유지한다. 모든 생성은 실제 재생/큐를 바꾸지 않는다.
 - 목록 읽기 오류는 ReadBoundary에서 실패 상태로 표시한다. `useReloadPlaylists`는 atom 조회를 다시 요청하고 `playlistReadRevision`으로 양쪽 boundary를 함께 재생성한다. 데이터 삭제/초기화는 하지 않는다.
 - 브라우저 검수: `npm run test:browser`. 실제 생성 smoke와 별도 fixture 레이아웃 캡처를 모두 실행한다. 후자는 320/390/768/1024/1280/1440px를 검사한다.

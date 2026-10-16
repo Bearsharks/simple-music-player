@@ -78,6 +78,7 @@ export default function PlayerDetail({
           <button
             className="icon-button"
             aria-label="대기열 닫기"
+            data-empty-track-focus
             onClick={closePanel}
           >
             <Icon name="close" />
@@ -206,6 +207,7 @@ export default function PlayerDetail({
                   className="icon-button"
                   disabled={!musicList.length}
                   aria-label="대기열 순서 편집"
+                  title="대기열 순서 편집"
                   aria-pressed={editing}
                   onClick={() => setEditing(!editing)}
                 >
@@ -215,6 +217,7 @@ export default function PlayerDetail({
                   className="icon-button"
                   disabled={!musicList.length}
                   aria-label="대기열을 재생목록에 저장"
+                  title="대기열을 재생목록에 저장"
                   onClick={(event) => save(event.currentTarget, musicList)}
                 >
                   <Icon name="save" />
@@ -223,6 +226,7 @@ export default function PlayerDetail({
                   className="icon-button"
                   disabled={!musicList.length}
                   aria-label="대기열 비우기"
+                  title="대기열 비우기"
                   onClick={() => setClearOpen(true)}
                 >
                   <Icon name="trash" />

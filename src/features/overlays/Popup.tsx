@@ -113,6 +113,19 @@ function InnerPopup({
 
 function Popup({ popupInfo }: { popupInfo: PopupInfo }) {
   const curRef = useRef<HTMLDivElement>(null);
+  // Capture the invoking row before deletion can detach it. Keep the menu in
+  // its original native-dialog scope until its own cleanup has completed.
+  const list = popupInfo.target.closest<HTMLElement>("[data-track-list]");
+  const origin = useRef({
+    dialog: popupInfo.target.closest("dialog[open]"),
+    list,
+    index: list
+      ? [...list.querySelectorAll("[data-track-key]")].indexOf(
+          popupInfo.target.closest("[data-track-key]")!,
+        )
+      : -1,
+    scope: popupInfo.target.closest("dialog, [data-track-scope], main"),
+  });
   const closePopup = useClosePopup();
   const close = () => {
     closePopup(popupInfo.key);
@@ -165,12 +178,22 @@ function Popup({ popupInfo }: { popupInfo: PopupInfo }) {
       window.removeEventListener("resize", resize);
       const target = popupInfo.target;
       if (
-        (root.contains(document.activeElement) ||
-          document.activeElement === document.body) &&
-        target.isConnected &&
-        !target.closest("[inert]")
+        !root.contains(document.activeElement) &&
+        document.activeElement !== document.body
       )
+        return;
+      if (target.isConnected && !target.closest("[inert]")) {
         target.focus();
+        return;
+      }
+      const { list, index, scope } = origin.current;
+      const rows = list?.querySelectorAll<HTMLElement>("[data-track-key]");
+      const neighbor = rows?.[Math.min(Math.max(index, 0), rows.length - 1)];
+      const fallback =
+        neighbor?.querySelector<HTMLElement>("[data-track-focus]") ??
+        scope?.querySelector<HTMLElement>("[data-empty-track-focus]");
+      if (fallback?.isConnected && !fallback.closest("[inert], [hidden]"))
+        fallback.focus();
     };
   }, [popupInfo.key, popupInfo.target, handleResize, closePopup]);
 
@@ -194,7 +217,7 @@ function Popup({ popupInfo }: { popupInfo: PopupInfo }) {
     </div>
   );
   // Menus invoked inside a native player sheet belong to its focus/top-layer scope.
-  const scope = popupInfo.target.closest("dialog[open]");
+  const scope = origin.current.dialog;
   return scope ? createPortal(node, scope) : node;
 }
 export default PopupWrapper;
@@ -320,7 +343,7 @@ const useGetMusicOptions = (
     },
     {
       icon: "queue_music",
-      name: "목록에 추가",
+      name: "대기열 끝에 추가",
       onClickHandler: () => appendMusic(musicInfos),
     },
     {
@@ -355,7 +378,7 @@ const MusicOptions = memo(function ({
     ...musicOptions,
     {
       icon: "remove_circle_outline",
-      name: "목록에서 삭제",
+      name: "대기열에서 삭제",
       onClickHandler: () => deleteMusic(musicInfos),
     },
   ];
@@ -425,6 +448,12 @@ const PlaylistOptions = memo(function ({
     };
     await musicListManager(action);
   };
+  const appendPlaylist = async (playlistid: string) => {
+    await musicListManager({
+      type: MusicListActionType.APPEND_PLAYLIST,
+      payload: playlistid,
+    });
+  };
   const updatePlaylistInfo = (playlistid: string) =>
     modalManager(ModalKind.UpdatePlaylist, playlistid);
   const deletePlaylist = (playlistid: string) =>
@@ -444,6 +473,11 @@ const PlaylistOptions = memo(function ({
       icon: "playlist_play",
       name: "다음 음악으로 추가",
       onClickHandler: onClickHandlerWrapper(addToNextMusic),
+    },
+    {
+      icon: "queue_music",
+      name: "대기열 끝에 추가",
+      onClickHandler: onClickHandlerWrapper(appendPlaylist),
     },
     {
       icon: "edit",
@@ -498,7 +532,7 @@ const SearchBarOptions = memo(function ({
     },
     {
       icon: "playlist_add",
-      name: "목록에 추가",
+      name: "대기열 끝에 추가",
       onClickHandler: () =>
         addMusics(textarea, MusicListActionType.APPEND_ITEMS),
     },

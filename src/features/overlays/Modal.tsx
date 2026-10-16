@@ -17,17 +17,16 @@ import Dialog from "shared/ui/Dialog";
 import { usePlaylistManager } from "features/playlists/model/playlistAtoms";
 import FormBox, { FormItem } from "features/playlists/ui/formBox/FormBox";
 
+export type PlaylistCreationContext = "empty" | "import" | "selection";
+type OnCreated = (id: string, context: PlaylistCreationContext) => void;
+
 const labels = {
   [ModalKind.CreatePlaylist]: "새 재생목록",
   [ModalKind.UpdatePlaylist]: "재생목록 수정",
   [ModalKind.ImportYTPlaylistLink]: "재생목록 URL 가져오기",
   [ModalKind.DeletePlaylist]: "재생목록 삭제",
 };
-export default function Modal({
-  onCreated,
-}: {
-  onCreated?: (id: string) => void;
-}) {
+export default function Modal({ onCreated }: { onCreated?: OnCreated }) {
   const [isOpen, setOpen] = useAtom(ModalOpenState);
   const state = useAtomValue(ModalInfoState);
   if (!isOpen) return null;
@@ -35,7 +34,10 @@ export default function Modal({
   return (
     <Dialog label={labels[state.kind]} onClose={close}>
       {state.kind === ModalKind.ImportYTPlaylistLink ? (
-        <PlaylistImport close={close} onCreated={onCreated} />
+        <PlaylistImport
+          close={close}
+          onCreated={(id) => onCreated?.(id, "import")}
+        />
       ) : state.kind === ModalKind.DeletePlaylist ? (
         <DeleteConfirmation
           key={state.data.id}
@@ -67,7 +69,7 @@ function PlaylistForm({
   musicInfos,
   onCreated,
 }: {
-  onCreated?: (id: string) => void;
+  onCreated?: OnCreated;
   closePopup: () => void;
   kind: ModalKind;
   playlistInfo?: PlaylistInfo;
@@ -94,7 +96,8 @@ function PlaylistForm({
       },
     });
     closePopup();
-    if (result?.createdId) onCreated?.(result.createdId);
+    if (result?.createdId)
+      onCreated?.(result.createdId, musicInfos?.length ? "selection" : "empty");
   };
   return (
     <FormBox

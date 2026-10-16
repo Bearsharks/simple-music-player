@@ -177,3 +177,49 @@ it('ignores CSS-hidden elements when moving initial focus or wrapping Tab', asyn
  expect(screen.getByRole('button',{name:'마지막 버튼'})).toHaveFocus();
  await user.keyboard('{Escape}');expect(screen.getByRole('button',{name:'열기'})).toHaveFocus();
 });
+
+it("returns deletion focus to the next track, then to add when the list becomes empty", async () => {
+  const second = {
+    ...song,
+    key: "second",
+    videoID: "lmnopqrstuv",
+    name: "남은 곡",
+  };
+  const id = await api.createPlaylist(info, [song, second]);
+  await detail(id);
+  const user = userEvent.setup();
+  await user.click(
+    await screen.findByRole("button", { name: "저장한 곡 더보기" }),
+  );
+  await user.click(screen.getByRole("button", { name: "재생목록에서 삭제" }));
+  await waitFor(() =>
+    expect(document.querySelector("[data-track-focus]")).toHaveFocus(),
+  );
+  expect(document.activeElement).toHaveAttribute("aria-label", "남은 곡 재생");
+  await user.click(screen.getByRole("button", { name: "남은 곡 더보기" }));
+  await user.click(screen.getByRole("button", { name: "재생목록에서 삭제" }));
+  await waitFor(() =>
+    expect(screen.getByRole("button", { name: "곡 추가 열기" })).toHaveFocus(),
+  );
+});
+
+it("appends a whole saved playlist at the queue end without replacing its current track", async () => {
+  const second = {
+    ...song,
+    key: "second",
+    videoID: "lmnopqrstuv",
+    name: "추가할 곡",
+  };
+  const id = await api.createPlaylist(info, [second]);
+  const store = await detail(id);
+  const user = userEvent.setup();
+  await user.click(await screen.findByRole("button", { name: "더보기" }));
+  await user.click(screen.getByRole("button", { name: "대기열 끝에 추가" }));
+  await waitFor(() => expect(store.get(queueState).items).toHaveLength(2));
+  expect(store.get(queueState).items.map((item) => item.name)).toEqual([
+    "저장한 곡",
+    "추가할 곡",
+  ]);
+  expect(store.get(queueState).index).toBe(0);
+  expect(store.get(queueState).items[0].key).toBe(song.key);
+});

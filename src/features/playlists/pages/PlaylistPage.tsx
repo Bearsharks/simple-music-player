@@ -1,4 +1,4 @@
-import { Suspense, useEffect, useRef, useState } from "react";
+import { Suspense, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useAtomValue, useSetAtom } from "jotai";
 import { revealQueueOnFirstPlay } from "features/queue/model/musiclistOpenState";
@@ -73,7 +73,7 @@ function PlaylistDetail({ playlistID }: { playlistID: string }) {
     if (!location.state?.focusAdd) heading.current?.focus();
   }, [location.state]);
   return (
-    <div className={styles.container}>
+    <div className={styles.container} data-track-scope>
       <div className={styles.hero}>
         <Cover
           id={playlistID}
@@ -127,6 +127,7 @@ function PlaylistDetail({ playlistID }: { playlistID: string }) {
             className="secondary-button"
             aria-expanded={addOpen}
             aria-controls="add-video"
+            data-empty-track-focus
             aria-label={addOpen ? "곡 추가 닫기" : "곡 추가 열기"}
             onClick={() => setAddOpen(!addOpen)}
           >
@@ -202,9 +203,31 @@ function PlaylistItems({
   const [status, setStatus] = useState("");
   const [busy, setBusy] = useState(false);
   const pending = useRef(false);
-  const move = async (from: number, to: number) => {
+  const pendingFocus = useRef<HTMLButtonElement | null>(null);
+  useLayoutEffect(() => {
+    if (busy || !pendingFocus.current) return;
+    const button = pendingFocus.current;
+    pendingFocus.current = null;
+    if (
+      !button.isConnected ||
+      (document.activeElement !== document.body &&
+        document.activeElement !== button)
+    )
+      return;
+    // Native disabled controls may lose focus while IndexedDB is pending.
+    // At an end position, keep keyboard editing on the opposite move control.
+    const row = button.closest("[data-saved-row]");
+    const target = button.disabled
+      ? (row?.querySelector<HTMLButtonElement>(
+          "[data-order-control]:not(:disabled)",
+        ) ?? row?.querySelector<HTMLButtonElement>("[data-track-focus]"))
+      : button;
+    target?.focus();
+  }, [busy]);
+  const move = async (from: number, to: number, button: HTMLButtonElement) => {
     if (pending.current) return;
     pending.current = true;
+    pendingFocus.current = document.activeElement === button ? button : null;
     setBusy(true);
     const ordered = [...items];
     const [item] = ordered.splice(from, 1);
@@ -224,7 +247,7 @@ function PlaylistItems({
     }
   };
   return (
-    <section aria-label="저장한 곡">
+    <section aria-label="저장한 곡" data-track-list>
       <div className={styles.tableHeading}>
         <span>#</span>
         <span>곡 / 아티스트</span>
@@ -248,6 +271,7 @@ function PlaylistItems({
       {items.map((item, idx) => (
         <div
           key={item.key}
+          data-saved-row
           className={`${styles.item} ${editing ? styles.editing : ""}`}
         >
           <span className={styles.number}>{idx + 1}</span>
@@ -269,17 +293,19 @@ function PlaylistItems({
             <div className={styles.order}>
               <button
                 className="icon-button"
+                data-order-control
                 aria-label={`${item.name} 위로`}
                 disabled={busy || idx === 0}
-                onClick={() => move(idx, idx - 1)}
+                onClick={(event) => move(idx, idx - 1, event.currentTarget)}
               >
                 <Icon name="up" />
               </button>
               <button
                 className="icon-button"
+                data-order-control
                 aria-label={`${item.name} 아래로`}
                 disabled={busy || idx === items.length - 1}
-                onClick={() => move(idx, idx + 1)}
+                onClick={(event) => move(idx, idx + 1, event.currentTarget)}
               >
                 <Icon name="down" />
               </button>

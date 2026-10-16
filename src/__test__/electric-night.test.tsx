@@ -260,7 +260,11 @@ it("keeps media DOM stable while modal nesting and responsive mode changes resto
   expect(screen.getByRole("dialog", { name: "저장 확인" })).toContainElement(
     document.activeElement as HTMLElement,
   );
-  await user.click(screen.getByRole("button", { name: "작업 닫기" }));
+  await user.keyboard("{Escape}");
+  expect(
+    screen.queryByRole("dialog", { name: "저장 확인" }),
+  ).not.toBeInTheDocument();
+  expect(screen.getByRole("dialog", { name: "플레이어" })).toBeInTheDocument();
   expect(container).toHaveAttribute("inert");
   await user.keyboard("{Escape}");
   expect(container).not.toHaveAttribute("inert");
@@ -336,7 +340,11 @@ it("keeps the simulated official player instance through tabs, close/reopen, res
     screen.getByRole("dialog", { name: "지금 재생 및 대기열" }),
   ).toBeInTheDocument();
   await user.click(screen.getByRole("button", { name: "곡 a 더보기" }));
-  await user.click(screen.getByRole("button", { name: "목록에서 삭제" }));
+  await user.click(screen.getByRole("button", { name: "대기열에서 삭제" }));
+  await waitFor(() =>
+    expect(document.querySelector("[data-track-focus]")).toHaveFocus(),
+  );
+  expect(document.activeElement).toHaveAttribute("aria-label", "곡 b 재생");
   await user.click(await screen.findByRole("button", { name: "실행 취소" }));
   await user.click(screen.getByRole("button", { name: "대기열 순서 편집" }));
   await user.click(screen.getByRole("button", { name: "곡 b 위로" }));
@@ -353,4 +361,70 @@ it("keeps the simulated official player instance through tabs, close/reopen, res
   expect(media.constructed).toBe(1);
   expect(media.destroyed).toBe(0);
   vi.unstubAllGlobals();
+});
+
+it("lets one native cancel close only the top dialog after responsive re-registration", async () => {
+  // jsdom has no close watcher. Simulate only show/close plus the native cancel
+  // event so the test catches duplicate custom Escape and React portal bubbling.
+  const prototype = HTMLDialogElement.prototype;
+  const methods = ["show", "showModal", "close"] as const;
+  for (const method of methods)
+    Object.defineProperty(prototype, method, {
+      configurable: true,
+      value: function (this: HTMLDialogElement) {
+        this.open = method !== "close";
+      },
+    });
+  function Example() {
+    const [child, setChild] = useState(true);
+    const [narrow, setNarrow] = useState(true);
+    const [parent, setParent] = useState(true);
+    return (
+      <Dialog
+        label="부모 큐"
+        priority={0}
+        open={parent}
+        modal={narrow}
+        onClose={() => setParent(false)}
+      >
+        <button>큐 조작</button>
+        {child && (
+          <Dialog label="자식 작업" onClose={() => setChild(false)}>
+            <button onClick={() => setNarrow((value) => !value)}>
+              폭 전환
+            </button>
+          </Dialog>
+        )}
+      </Dialog>
+    );
+  }
+  let cleanup: (() => void) | undefined;
+  try {
+    const user = userEvent.setup();
+    const rendered = render(<Example />);
+    cleanup = rendered.unmount;
+    await user.click(screen.getByRole("button", { name: "폭 전환" }));
+    await user.click(screen.getByRole("button", { name: "폭 전환" }));
+    const child = screen.getByRole("dialog", { name: "자식 작업" });
+    await user.keyboard("{Escape}");
+    expect(child).toHaveAttribute("open");
+    const cancel = new Event("cancel", { cancelable: true });
+    fireEvent(child, cancel);
+    expect(cancel.defaultPrevented).toBe(true);
+    expect(
+      screen.queryByRole("dialog", { name: "자식 작업" }),
+    ).not.toBeInTheDocument();
+    expect(screen.getByRole("dialog", { name: "부모 큐" })).toHaveAttribute(
+      "open",
+    );
+    expect(document.body.style.overflow).toBe("hidden");
+    fireEvent(
+      screen.getByRole("dialog", { name: "부모 큐" }),
+      new Event("cancel", { cancelable: true }),
+    );
+    expect(document.body.style.overflow).toBe("");
+  } finally {
+    cleanup?.();
+    for (const method of methods) delete (prototype as any)[method];
+  }
 });

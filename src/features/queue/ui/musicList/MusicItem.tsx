@@ -23,7 +23,7 @@ export function MusicItem({
     openOptionsPopup(event.currentTarget as HTMLElement, [item]);
   };
   return (
-    <div className={styles["wrapper"]}>
+    <div className={styles["wrapper"]} data-track-key={item.key}>
       <div className={styles[`grid-container`]}>
         <button
           type="button"
@@ -45,6 +45,7 @@ export function MusicItem({
         <button
           type="button"
           className={styles[`grid-item`]}
+          data-track-focus
           aria-label={`${item.name} 재생`}
           onClick={() => playMusic(idx)}
         >

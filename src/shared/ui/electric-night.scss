@@ -222,3 +222,8 @@ h3 {
     animation: none !important;
   }
 }
+
+// Headings receive route announcements, not an interactive focus ring.
+h1[tabindex="-1"]:focus {
+  outline: none;
+}
