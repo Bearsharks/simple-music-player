@@ -38,6 +38,7 @@ export default function PlaylistImport({
   }));
   const preview = usePlaylistPreview(original?.sourcePlaylistUrl, !original);
   const [error, setError] = useState("");
+  const [saveFailure, setSaveFailure] = useState(0);
   const [nameError, setNameError] = useState("");
   const [busy, setBusy] = useState(false);
   const pending = useRef(false);
@@ -85,6 +86,29 @@ export default function PlaylistImport({
   useEffect(() => {
     if (draft.name.value.trim()) setNameError("");
   }, [draft.name.value]);
+
+  const failureToReveal = nameError ? "" : error || preview.error;
+  useEffect(() => {
+    if (!failureToReveal) return;
+    // This form can be taller than a phone viewport. Keep the toast in the
+    // modal's normal flow, but reveal a new failure without stealing focus
+    // or removing an existing notice/Undo. Wait for the stable portal to attach.
+    const frame = requestAnimationFrame(() => {
+      const toast = document
+        .getElementById(errorID)
+        ?.closest<HTMLElement>('[data-overlay-notice="error"]');
+      if (
+        toast?.closest('dialog[open][aria-modal="true"]') &&
+        !toast.closest("[inert]")
+      )
+        toast.scrollIntoView?.({
+          block: "nearest",
+          inline: "nearest",
+          behavior: "instant",
+        });
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [failureToReveal, errorID, saveFailure]);
 
   const editField = (field: keyof Draft, value: string) => {
     setDraft((previous) => ({
@@ -168,6 +192,7 @@ export default function PlaylistImport({
           candidate ? "import" : initialItems.length ? "selection" : "empty",
         );
     } catch (e) {
+      setSaveFailure((previous) => previous + 1);
       setError(
         e instanceof Error
           ? e.message
@@ -293,6 +318,7 @@ export default function PlaylistImport({
           </span>
         )}
         <ErrorToast
+          key={saveFailure}
           message={
             error || [nameError, preview.error].filter(Boolean).join(" ")
           }

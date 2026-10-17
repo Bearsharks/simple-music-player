@@ -7,6 +7,7 @@ import {
 } from "@testing-library/react";
 import { Provider } from "jotai";
 import PlaylistImport from "features/youtube/ui/PlaylistImport";
+import Dialog from "shared/ui/Dialog";
 import api from "shared/api/localAPI";
 import { resetDatabase } from "test/resetDatabase";
 const mocks = vi.hoisted(() => ({ metadata: vi.fn(), instances: [] as any[] }));
@@ -281,4 +282,110 @@ it("allows manual metadata when optional metadata is unavailable and URL Enter n
   fireEvent.keyDown(urlInput(), { key: "Enter" });
   expect(nameInput()).toHaveFocus();
   expect(await api.getPlaylistInfos()).toEqual([]);
+});
+
+it("reveals a modal save error without moving field focus and permits another attempt", async () => {
+  const previous = Object.getOwnPropertyDescriptor(
+    HTMLElement.prototype,
+    "scrollIntoView",
+  );
+  const scroll = vi.fn();
+  Object.defineProperty(HTMLElement.prototype, "scrollIntoView", {
+    configurable: true,
+    value: scroll,
+  });
+  try {
+    const close = vi.fn();
+    vi.spyOn(api, "createPlaylist")
+      .mockRejectedValueOnce(new Error("저장 공간 부족"))
+      .mockRejectedValueOnce(new Error("저장 공간 부족"));
+    render(
+      <Provider>
+        <Dialog label="새 재생목록" onClose={() => {}}>
+          <PlaylistImport close={close} />
+        </Dialog>
+      </Provider>,
+    );
+    change(nameInput(), "보존할 이름");
+    change(descriptionInput(), "보존할 설명");
+    descriptionInput().focus();
+    fireEvent.submit(submit().closest("form")!);
+    await screen.findByRole("alert");
+    await waitFor(() => expect(scroll).toHaveBeenCalledOnce());
+    expect(scroll.mock.contexts[0]).toHaveAttribute(
+      "data-overlay-notice",
+      "error",
+    );
+    expect(scroll).toHaveBeenCalledWith({
+      block: "nearest",
+      inline: "nearest",
+      behavior: "instant",
+    });
+    expect(descriptionInput()).toHaveFocus();
+    expect(nameInput()).toHaveValue("보존할 이름");
+    expect(descriptionInput()).toHaveValue("보존할 설명");
+    expect(submit()).toBeEnabled();
+    fireEvent.click(screen.getByRole("button", { name: "오류 알림 닫기" }));
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+    fireEvent.click(submit());
+    await waitFor(() => expect(scroll).toHaveBeenCalledTimes(2));
+    expect(close).not.toHaveBeenCalled();
+    expect(screen.getByRole("alert")).toHaveTextContent("저장 공간 부족");
+    change(descriptionInput(), "계속 편집 가능");
+    expect(scroll).toHaveBeenCalledTimes(2);
+    fireEvent.click(submit());
+    await waitFor(() => expect(close).toHaveBeenCalledOnce());
+  } finally {
+    if (previous)
+      Object.defineProperty(HTMLElement.prototype, "scrollIntoView", previous);
+    else delete (HTMLElement.prototype as any).scrollIntoView;
+  }
+});
+
+it("focuses the required name on an invalid submit without creating a record", async () => {
+  mount();
+  fireEvent.submit(submit().closest("form")!);
+  expect(nameInput()).toHaveFocus();
+  expect(nameInput()).toHaveAttribute("aria-invalid", "true");
+  expect(await api.getPlaylistInfos()).toEqual([]);
+});
+
+it("reveals each preview failure once, preserves focus, and keeps its explicit retry", async () => {
+  const previous = Object.getOwnPropertyDescriptor(
+    HTMLElement.prototype,
+    "scrollIntoView",
+  );
+  const scroll = vi.fn();
+  Object.defineProperty(HTMLElement.prototype, "scrollIntoView", {
+    configurable: true,
+    value: scroll,
+  });
+  try {
+    render(
+      <Provider>
+        <Dialog label="새 재생목록" onClose={() => {}}>
+          <PlaylistImport close={() => {}} />
+        </Dialog>
+      </Provider>,
+    );
+    change(nameInput(), "수동 이름");
+    await load();
+    descriptionInput().focus();
+    act(() => mocks.instances[0].config.events.onError());
+    await waitFor(() => expect(scroll).toHaveBeenCalledOnce());
+    expect(descriptionInput()).toHaveFocus();
+    expect(submit()).toBeDisabled();
+    act(() => mocks.instances[0].config.events.onError());
+    expect(scroll).toHaveBeenCalledOnce();
+    fireEvent.click(screen.getByRole("button", { name: "다시 시도" }));
+    await screen.findByText("2곡");
+    act(() => mocks.instances[1].config.events.onError());
+    await waitFor(() => expect(scroll).toHaveBeenCalledTimes(2));
+    expect(nameInput()).toHaveValue("수동 이름");
+    expect(screen.getByRole("button", { name: "다시 시도" })).toBeEnabled();
+  } finally {
+    if (previous)
+      Object.defineProperty(HTMLElement.prototype, "scrollIntoView", previous);
+    else delete (HTMLElement.prototype as any).scrollIntoView;
+  }
 });

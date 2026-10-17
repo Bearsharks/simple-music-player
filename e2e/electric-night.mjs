@@ -1107,6 +1107,41 @@ try {
         });
         await page.getByRole("button", { name: "만들기", exact: true }).click();
         await expect(page.getByRole("alert")).toContainText("검증용 저장 실패");
+        // Visible text alone is insufficient: an older Notice must not leave
+        // the new error below the modal scrollport on a small screen.
+        const creationDialog = page.getByRole("dialog", {
+          name: "새 재생목록",
+          exact: true,
+        });
+        const retryCreate = creationDialog.getByRole("button", {
+          name: "만들기",
+          exact: true,
+        });
+        const creationError = creationDialog.locator(
+          '[data-overlay-notice="error"]',
+        );
+        await expect
+          .poll(async () => {
+            const [error, retry, dialog] = await Promise.all([
+              creationError.boundingBox(),
+              retryCreate.boundingBox(),
+              creationDialog.boundingBox(),
+            ]);
+            if (!error || !retry || !dialog) return false;
+            const top = Math.max(0, dialog.y);
+            const bottom = Math.min(
+              page.viewportSize().height,
+              dialog.y + dialog.height,
+            );
+            return [error, retry].every(
+              (box) => box.y >= top && box.y + box.height <= bottom + 1,
+            );
+          })
+          .toBe(true);
+        await expect(
+          creationError.getByRole("button", { name: "오류 알림 닫기" }),
+        ).not.toBeFocused();
+        await expect(retryCreate).toBeEnabled();
         await expect(importedName).toHaveValue("가져온 검수 목록");
         await expect(page.getByLabel("설명", { exact: true })).toHaveValue(
           "사용자가 입력한 설명",

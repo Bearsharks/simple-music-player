@@ -33,6 +33,9 @@ export async function installMediaSimulation(page) {
           if (!config.playerVars?.list)
             window.__simulateMediaError = () =>
               config.events.onError?.({ data: 150 });
+          if (config.playerVars?.list)
+            window.__simulatePreviewError = () =>
+              config.events.onError?.({ data: 150 });
           queueMicrotask(() => config.events.onReady());
         }
         destroy() {

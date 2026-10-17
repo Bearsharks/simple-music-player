@@ -134,6 +134,49 @@ try {
         path: `test-results/unified-create-ready-${width}.png`,
         fullPage: true,
       });
+      await page.evaluate(() => window.__simulatePreviewError());
+      await expect(page.getByRole("alert")).toContainText(
+        "YouTube에서 목록을 불러올 수 없습니다.",
+      );
+      const importDialog = page.getByRole("dialog", {
+        name: "새 재생목록",
+        exact: true,
+      });
+      const previewRetry = importDialog.getByRole("button", {
+        name: "다시 시도",
+        exact: true,
+      });
+      const previewError = importDialog.locator(
+        '[data-overlay-notice="error"]',
+      );
+      await expect
+        .poll(async () => {
+          const [error, retry, dialog] = await Promise.all([
+            previewError.boundingBox(),
+            previewRetry.boundingBox(),
+            importDialog.boundingBox(),
+          ]);
+          if (!error || !retry || !dialog) return false;
+          const top = Math.max(0, dialog.y);
+          const bottom = Math.min(
+            page.viewportSize().height,
+            dialog.y + dialog.height,
+          );
+          return [error, retry].every(
+            (box) => box.y >= top && box.y + box.height <= bottom + 1,
+          );
+        })
+        .toBe(true);
+      await expect(make).toBeDisabled();
+      await expect(createDescription).toBeFocused();
+      await page.screenshot({
+        path: `test-results/unified-create-preview-error-${width}.png`,
+        fullPage: true,
+      });
+      await previewRetry.click();
+      await expect(
+        page.locator(".playlist-import").getByRole("status"),
+      ).toHaveText("2곡");
       // A URL edit retires only automatic fields. Manual text survives deletion.
       await createURL.fill("https://youtube.com/playlist?list=PLchanged");
       await expect(createName).toHaveValue("");
