@@ -1,3 +1,6 @@
+vi.mock("features/youtube/api/playlistMetadata", () => ({
+  fetchPlaylistMetadata: async () => ({}),
+}));
 vi.mock("features/youtube/api/videoMetadata", async (original) => ({
   ...(await original<typeof import("features/youtube/api/videoMetadata")>()),
   fetchVideoTitles: async () => ({}),
@@ -94,7 +97,7 @@ it("navigates a successful UI creation to the new detail and focuses its first U
     ),
   );
   fireEvent.click(await screen.findByRole("button", { name: "새 재생목록" }));
-  fireEvent.change(screen.getByLabelText("제목"), {
+  fireEvent.change(screen.getByLabelText(/^이름/), {
     target: { value: "방금 만든 목록" },
   });
   fireEvent.click(screen.getByRole("button", { name: "만들기" }));
@@ -197,20 +200,15 @@ it.each([390, 1440])(
       ),
     );
     await user.click(screen.getByRole("button", { name: "새 재생목록" }));
-    await user.click(
-      screen.getByRole("button", { name: "유튜브에서 가져오기" }),
-    );
     await user.type(
-      screen.getByLabelText("공개 재생목록 URL"),
+      screen.getByLabelText("YouTube 재생목록 URL (선택)"),
       "https://youtube.com/playlist?list=PLtest123",
     );
-    await user.type(screen.getByLabelText("목록 이름"), "가져온 음악");
+    await user.type(screen.getByLabelText(/^이름/), "가져온 음악");
     await waitFor(() =>
-      expect(
-        screen.getByRole("button", { name: "재생목록 추가" }),
-      ).toBeEnabled(),
+      expect(screen.getByRole("button", { name: "만들기" })).toBeEnabled(),
     );
-    await user.click(screen.getByRole("button", { name: "재생목록 추가" }));
+    await user.click(screen.getByRole("button", { name: "만들기" }));
     await waitFor(() =>
       expect(
         screen.getByRole("heading", { name: "가져온 음악" }),

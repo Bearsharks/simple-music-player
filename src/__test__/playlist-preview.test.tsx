@@ -1,3 +1,6 @@
+vi.mock("features/youtube/api/playlistMetadata", () => ({
+  fetchPlaylistMetadata: async () => ({}),
+}));
 import {
   act,
   fireEvent,
@@ -45,9 +48,12 @@ vi.mock("features/player/api/iframe", () => {
   };
 });
 const url = (id = "PLtest123") => `https://youtube.com/playlist?list=${id}`;
-const input = () => screen.getByLabelText("공개 재생목록 URL");
-const submit = () => screen.getByRole("button", { name: "재생목록 추가" });
+const input = () => screen.getByLabelText("YouTube 재생목록 URL (선택)");
+const submit = () => screen.getByRole("button", { name: "만들기" });
 async function load(id = "PLtest123") {
+  fireEvent.change(screen.getByLabelText(/^이름/), {
+    target: { value: "검수 목록" },
+  });
   fireEvent.change(input(), { target: { value: url(id) } });
   fireEvent.blur(input());
   await waitFor(() => expect(preview.instances.length).toBeGreaterThan(0));
@@ -79,6 +85,9 @@ it("loads only on blur/URL Enter, reuses an untouched request, and never submits
       </StrictMode>
     </Provider>,
   );
+  fireEvent.change(screen.getByLabelText(/^이름/), {
+    target: { value: "검수 목록" },
+  });
   fireEvent.change(input(), { target: { value: url() } });
   expect(preview.instances).toHaveLength(0);
   expect(submit()).toBeDisabled();
@@ -193,6 +202,6 @@ it("keeps blank blur quiet and links invalid URL errors without requesting a pla
   expect(input()).toHaveAttribute("aria-invalid", "true");
   expect(
     document.getElementById(input().getAttribute("aria-errormessage")!),
-  ).toHaveAttribute("role", "alert");
+  ).toHaveTextContent(screen.getByRole("alert").textContent!);
   expect(preview.instances).toHaveLength(0);
 });

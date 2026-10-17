@@ -575,7 +575,7 @@ const YTOptions = memo(function ({
     {
       icon: "add_link",
       name: "링크에서 가져오기",
-      onClickHandler: () => openModal(ModalKind.ImportYTPlaylistLink),
+      onClickHandler: () => openModal(ModalKind.CreatePlaylist),
     },
   ];
   return <OptionSelector options={options} />;

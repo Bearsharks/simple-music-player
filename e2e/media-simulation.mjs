@@ -91,3 +91,23 @@ export async function installMediaSimulation(page) {
     };
   });
 }
+
+// Explicit fixture for official playlist oEmbed shape. Never a live metadata check.
+export async function installPlaylistMetadataSimulation(page) {
+  await page.route("https://www.youtube.com/oembed?*", async (route) => {
+    const endpoint = new URL(route.request().url());
+    const source = new URL(endpoint.searchParams.get("url"));
+    if (source.pathname !== "/playlist") return route.fallback();
+    const id = source.searchParams.get("list");
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      headers: { "access-control-allow-origin": "*" },
+      body: JSON.stringify({
+        provider_name: "YouTube",
+        title: "실제 응답 형태의 모의 목록",
+        html: `<iframe src="https://www.youtube.com/embed/videoseries?list=${id}"></iframe>`,
+      }),
+    });
+  });
+}

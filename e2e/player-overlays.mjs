@@ -1,6 +1,9 @@
 import fs from "node:fs";
 import { chromium, expect } from "@playwright/test";
-import { installMediaSimulation } from "./media-simulation.mjs";
+import {
+  installMediaSimulation,
+  installPlaylistMetadataSimulation,
+} from "./media-simulation.mjs";
 
 // UI/lifecycle simulation only. This does not verify real YouTube audio or iOS volume policy.
 const browser = await chromium.launch({
@@ -67,6 +70,7 @@ try {
     try {
       page.on("pageerror", (error) => errors.push(error.message));
       await installMediaSimulation(page);
+      await installPlaylistMetadataSimulation(page);
       await page.goto(base);
       const create = page.getByRole("button", {
         name: "새 재생목록",
@@ -77,10 +81,78 @@ try {
         page.getByRole("button", { name: "YouTube 가져오기", exact: true }),
       ).toHaveCount(0);
       await create.click();
-      await page
-        .getByRole("button", { name: "유튜브에서 가져오기", exact: true })
-        .click();
-      await expect(page.getByLabel("공개 재생목록 URL")).toBeVisible();
+      await expect(
+        page.getByLabel("YouTube 재생목록 URL (선택)"),
+      ).toBeFocused();
+      await expect(
+        page.getByRole("button", { name: "유튜브에서 가져오기", exact: true }),
+      ).toHaveCount(0);
+      await expect(
+        page.getByRole("textbox", { name: "이름", exact: true }),
+      ).toHaveAttribute("required", "");
+      await expect(
+        page.getByRole("button", { name: "만들기", exact: true }),
+      ).toBeDisabled();
+      await expect(page.locator("dialog[open]")).toHaveCount(1);
+      await page.screenshot({
+        path: `test-results/unified-create-${width}.png`,
+        fullPage: true,
+      });
+      const createURL = page.getByLabel("YouTube 재생목록 URL (선택)");
+      const createName = page.getByRole("textbox", {
+        name: "이름",
+        exact: true,
+      });
+      const createDescription = page.getByLabel("설명", { exact: true });
+      const make = page.getByRole("button", { name: "만들기", exact: true });
+      await page.evaluate(() => {
+        window.__simulatedPlaylistIDs = [];
+      });
+      await createURL.fill("https://youtube.com/playlist?list=PLunified");
+      await createURL.press("Enter");
+      await expect(
+        page.locator(".playlist-import").getByRole("status"),
+      ).toHaveText("불러오는 중…");
+      await expect(make).toBeDisabled();
+      await expect(createName).toBeEnabled();
+      await expect(createDescription).toHaveValue("");
+      await createDescription.fill("직접 쓴 설명");
+      await page.screenshot({
+        path: `test-results/unified-create-loading-${width}.png`,
+        fullPage: true,
+      });
+      await page.evaluate(() => {
+        window.__simulatedPlaylistIDs = ["abcdefghijk", "lmnopqrstuv"];
+      });
+      await expect(createName).toHaveValue("실제 응답 형태의 모의 목록");
+      await expect(createDescription).toHaveValue("직접 쓴 설명");
+      await expect(
+        page.locator(".playlist-import").getByRole("status"),
+      ).toHaveText("2곡");
+      await expect(make).toBeEnabled();
+      await page.screenshot({
+        path: `test-results/unified-create-ready-${width}.png`,
+        fullPage: true,
+      });
+      // A URL edit retires only automatic fields. Manual text survives deletion.
+      await createURL.fill("https://youtube.com/playlist?list=PLchanged");
+      await expect(createName).toHaveValue("");
+      await expect(make).toBeDisabled();
+      await createName.fill("직접 정한 이름");
+      await createURL.fill("https://invalid.example/?list=PLchanged");
+      await createURL.press("Enter");
+      await expect(createURL).toHaveAttribute("aria-invalid", "true");
+      await expect(make).toBeDisabled();
+      await page.getByRole("button", { name: "오류 알림 닫기" }).click();
+      const errorID = await createURL.getAttribute("aria-errormessage");
+      expect(await page.locator(`[id="${errorID}"]`).textContent()).not.toBe(
+        "",
+      );
+      await createURL.fill("");
+      await expect(createName).toHaveValue("직접 정한 이름");
+      await expect(createDescription).toHaveValue("직접 쓴 설명");
+      await expect(make).toBeEnabled();
+      await expect(page.locator(".import-preview")).toBeHidden();
       await page.keyboard.press("Escape");
       await expect(page.locator("dialog[open]")).toHaveCount(0);
       await page.evaluate(async () => {

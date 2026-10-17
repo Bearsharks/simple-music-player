@@ -5,7 +5,8 @@
 ## 최소 읽기 경로
 
 - `api/youtubeSearch.ts` — URL 파싱·조회·페이지 처리
-- `ui/PlaylistImport.tsx` — 공개 URL 미리보기·로컬 저장·명시적 최신 곡 교체
+- `ui/PlaylistImport.tsx` — URL 선택형 통합 생성 폼·로컬 저장·명시적 최신 곡 교체
+- `api/playlistMetadata.ts` — 공개 playlist oEmbed 제목 조회와 응답 대상 검증
 
 ## 연결과 영향 범위
 
@@ -38,7 +39,7 @@ overlays가 검색·가져오기에 사용하고 player가 곡 정보를 조회�
 
 ## Electric Night 가져오기
 
-`PlaylistImport`는 URL blur/Enter에서 자동 미리보기를 시작한다. 단계 표시와 수동 미리보기 버튼은 없다. `usePlaylistPreview`가 요청 세대, 공식 preview player와 타이머를 소유한다. URL onChange는 즉시 이전 후보를 폐기하므로 원래 URL로 되돌아와도 다시 로드한다. 편집하지 않은 URL의 반복 blur/Enter는 중복 요청하지 않고 실패는 명시적 재시도로만 다시 요청한다. 미리보기 로딩 오류와 저장 오류를 분리하여 iframe polling이 실패한 저장 메시지를 지우지 않는다. 최신 교체는 같은 작업 Dialog의 미리보기·교체 영향·명시적 CTA에서 실행하며 중첩 확인 모달은 없다. CREATE 성공은 선택적 `onCreated(id)`로 조립 계층에 알린다. 프로토타입 모의 데이터/시계/저장은 제품에 포함하지 않는다.
+`PlaylistImport`는 URL blur/Enter에서 자동 미리보기를 시작한다. 단계 표시와 수동 미리보기 버튼은 없다. `usePlaylistPreview`가 요청 세대, 공식 preview player와 타이머를 소유한다. URL onChange는 즉시 이전 후보를 폐기하므로 원래 URL로 되돌아와도 다시 로드한다. 편집하지 않은 URL의 반복 blur/Enter는 중복 요청하지 않고 실패는 명시적 재시도로만 다시 요청한다. 미리보기 로딩 오류와 저장 오류를 분리하여 iframe polling이 실패한 저장 메시지를 지우지 않는다. 최신 교체는 같은 작업 Dialog의 미리보기·교체 영향·명시적 CTA에서 실행하며 중첩 확인 모달은 없다. CREATE 성공은 선택적 `onCreated(id, context)`로 조립 계층에 알린다. context는 empty/import/selection이고, 폼은 라우팅/현재 큐에 의존하지 않는다. 프로토타입 모의 데이터/시계/저장은 제품에 포함하지 않는다.
 
 ## 원래 곡 제목
 
@@ -47,7 +48,7 @@ videoMetadata.ts는 공식 https://www.youtube.com/oembed 에서 title/author_na
 2026-10-16 실제 FloP_f-VK_k 응답에서 ‘심규선 ‘Sister’ (Live) | Official Lyric Video’ 제목과 GitHub Pages Origin에 대한 CORS 허용을 확인했다. 모든 영상/목록의 가용성이나 실제 재생을 보장하지 않는다.
 
 URL Enter는 저장하지 않고 IME Enter를 무시한다. 유효한 영상 ID가 1개 이상인 현재
-요청만 ‘재생목록 추가’를 활성화한다. timeout/error 후 늦은 응답은 되살아나지 않는다.
+요청과 필수 이름이 있을 때만 ‘만들기’를 활성화한다. URL이 없으면 이름만으로 로컬 목록을 만든다. timeout/error 후 늦은 응답은 되살아나지 않는다.
 미리보기 로딩 중에는 닫을 수 있지만 실제 저장 중에는 닫기/입력/중복 제출을 잠근다.
 최신 가져오기는 저장한 source URL로 최초 자동 로드하며 URL/이름을 편집하지 않는다.
 현재 이름/설명/큐와 최초 snapshot은 교체하지 않는다.
@@ -57,3 +58,32 @@ URL Enter는 저장하지 않고 IME Enter를 무시한다. 유효한 영상 ID�
 같은 transaction으로 기록한다. 최신 가져오기에는 이 필드를 전달하지 않으며 legacy에
 기록을 만들어내지 않는다. 최초 곡 복원은 playlists가 소유하고 이 모듈/YouTube를 호출하지
 않는다. 회귀: `playlist-snapshot.test.tsx`의 신규/legacy 정책과 명시 교체 전 무변경.
+
+## 통합 생성과 목록 메타데이터
+
+`ModalKind.CreatePlaylist`가 이 기능의 단일 생성 폼을 연다. 선택 URL, 필수 이름,
+설명 순서이며 초기 포커스는 URL이다. URL이 비어 있으면 로컬 생성, 남아 있으면 현재
+URL의 유효한 preview가 있어야 저장한다. URL Enter는 미리보기만 시작하고 IME Enter는
+무시한다. 이름은 trim 필수, required/aria-required와 표시용 빨간 별을 사용한다.
+미리보기 로딩 중 이름/설명을 편집할 수 있고, 실제 저장 중에만 전체 입력을 잠근다.
+이름과 URL 오류의 접근성 설명은 토스트를 닫아도 폼 안에서 유지한다.
+
+이름/설명은 각각 empty/auto/user 소유권을 가진다. 사용자가 한 번 편집한 필드는 의도적으로
+빈칸으로 지워도 늦은 결과가 채우지 않는다. URL 변경은 곡 후보·요청·자동 입력만 버리고
+사용자 입력은 보존한다. URL 삭제 후 로컬 생성에 이전 source/snapshot/items를 남기지 않는다.
+선택곡을 전달한 기존 생성 경로는 URL 없는 경우 해당 items를 보존한다.
+
+`playlistMetadata.ts`는 공식 YouTube playlist oEmbed만 호출한다. 응답의 provider와
+`/embed/videoseries?list=현재ID`를 문자열로 검증한 후 title만 사용한다. 반환 HTML은 렌더하거나
+실행하지 않는다. 첫 영상의 title/author나 추정 문구를 목록 이름/설명으로 쓰지 않는다.
+공식 공개 응답에 description이 없으므로 설명은 사용자 입력만 사용한다. 이름 조회가
+실패해도 유효 preview와 수동 이름으로 생성할 수 있다. 8초 중단, credentials omit,
+no-referrer, 오류 자동 재시도 없음이며 URL 변경/닫기 시 abort와 세대 검사로 늦은 응답을 버린다.
+최신 곡 교체는 기존 메타데이터를 보존하므로 목록 제목 조회를 하지 않는다.
+
+2026-10-17 공개 목록 PLBCF2DAC6FFB574DE의 oEmbed title ‘Google Search Stories’와
+해당 videoseries/list를 확인했다. 첫 영상 title과 다르며 production Origin에 대한
+Access-Control-Allow-Origin을 확인했다. 모든 목록의 가용성/실제 재생 보장은 아니다.
+회귀: `playlistMetadata.test.ts`, `unified-playlist-form.test.tsx`, 기존 `playlist-preview`
+및 `playlistImport`; Chromium의 단일 폼/로딩/자동 채움/입력 보존/실패 재시도/초기 snapshot은
+명시적 메타데이터·iframe 시뮬레이션으로 검사한다.

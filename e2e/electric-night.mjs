@@ -1,6 +1,9 @@
 import fs from "node:fs";
 import { chromium, expect } from "@playwright/test";
-import { installMediaSimulation } from "./media-simulation.mjs";
+import {
+  installMediaSimulation,
+  installPlaylistMetadataSimulation,
+} from "./media-simulation.mjs";
 // These fixtures exist only for dense layout and interaction checks. UI creation
 // and persistence are covered separately by smoke.mjs, not by this seeded suite.
 const browser = await chromium.launch({
@@ -39,6 +42,7 @@ try {
     try {
       page.on("pageerror", (error) => errors.push(error.message));
       await installMediaSimulation(page);
+      await installPlaylistMetadataSimulation(page);
       await page.addInitScript(() => {
         window.__dialogAudit = [];
         for (const type of ["keydown", "cancel", "close"])
@@ -1077,19 +1081,44 @@ try {
           path: `test-results/app-create-form-${viewport.width}.png`,
           fullPage: true,
         });
-        await page
-          .getByRole("button", { name: "유튜브에서 가져오기", exact: true })
-          .click();
         await expect(
           page.getByRole("button", { name: "실행 취소", exact: true }),
         ).toHaveCount(0);
         await page
-          .getByLabel("공개 재생목록 URL")
+          .getByLabel("YouTube 재생목록 URL (선택)")
           .fill("https://youtube.com/playlist?list=PLtest123");
-        await page.getByLabel("목록 이름").fill("가져온 검수 목록");
+        await page.getByLabel("YouTube 재생목록 URL (선택)").press("Enter");
+        const importedName = page.getByRole("textbox", {
+          name: "이름",
+          exact: true,
+        });
+        await expect(importedName).toHaveValue("실제 응답 형태의 모의 목록");
+        await expect(page.getByLabel("설명", { exact: true })).toHaveValue("");
+        await importedName.fill("가져온 검수 목록");
         await page
-          .getByRole("button", { name: "재생목록 추가", exact: true })
-          .click();
+          .getByLabel("설명", { exact: true })
+          .fill("사용자가 입력한 설명");
+        await page.screenshot({
+          path: `test-results/app-unified-create-ready-${viewport.width}.png`,
+          fullPage: true,
+        });
+        await page.evaluate(() => {
+          window.__failNextWrite = true;
+        });
+        await page.getByRole("button", { name: "만들기", exact: true }).click();
+        await expect(page.getByRole("alert")).toContainText("검증용 저장 실패");
+        await expect(importedName).toHaveValue("가져온 검수 목록");
+        await expect(page.getByLabel("설명", { exact: true })).toHaveValue(
+          "사용자가 입력한 설명",
+        );
+        await expect(
+          page.locator(".playlist-import").getByRole("status"),
+        ).toContainText("2곡");
+        await page.screenshot({
+          path: `test-results/app-unified-create-error-${viewport.width}.png`,
+          fullPage: true,
+        });
+        await page.getByRole("button", { name: "만들기", exact: true }).click();
         await expect(
           page.getByRole("heading", { name: "가져온 검수 목록", exact: true }),
         ).toBeFocused();
@@ -1124,6 +1153,11 @@ try {
         const savedSongData = (row) =>
           row.items.map(({ key, ...item }) => item);
         const initialRecord = await readImported();
+        expect(initialRecord.info.name).toBe("가져온 검수 목록");
+        expect(initialRecord.info.description).toBe("사용자가 입력한 설명");
+        expect(initialRecord.info.sourcePlaylistUrl).toBe(
+          "https://www.youtube.com/playlist?list=PLtest123",
+        );
         expect(initialRecord.initialSnapshot.version).toBe(1);
         expect(initialRecord.initialSnapshot.capturedAt).toBeGreaterThan(0);
         expect(

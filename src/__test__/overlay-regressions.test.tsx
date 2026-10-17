@@ -81,8 +81,8 @@ it("creates canonical empty metadata through the actual form and restores focus 
   const opener = screen.getByRole("button", { name: "새 목록 열기" });
   await user.click(opener);
   const dialog = screen.getByRole("dialog", { name: "새 재생목록" });
-  expect(screen.getByLabelText("제목")).toHaveFocus();
-  await user.type(screen.getByLabelText("제목"), "  새로 만든 목록  ");
+  expect(screen.getByLabelText("YouTube 재생목록 URL (선택)")).toHaveFocus();
+  await user.type(screen.getByLabelText(/^이름/), "  새로 만든 목록  ");
   await user.click(within(dialog).getByRole("button", { name: "만들기" }));
   await waitFor(() =>
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument(),
@@ -104,11 +104,12 @@ it("traps Tab, closes on Escape and restores the invoking button without changin
   await setup();
   const opener = screen.getByRole("button", { name: "새 목록 열기" });
   await user.click(opener);
-  const title = screen.getByLabelText("제목");
+  const url = screen.getByLabelText("YouTube 재생목록 URL (선택)");
+  expect(screen.getByRole("button", { name: "만들기" })).toBeDisabled();
   await user.tab({ shift: true });
-  expect(screen.getByRole("button", { name: "만들기" })).toHaveFocus();
+  expect(screen.getByRole("button", { name: "취소" })).toHaveFocus();
   await user.tab();
-  expect(title).toHaveFocus();
+  expect(url).toHaveFocus();
   expect(opener.closest("[inert]")).not.toBeNull();
   await user.keyboard("{Escape}");
   expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
@@ -121,7 +122,7 @@ it("keeps failed save input, rejects repeated submit and allows a successful ret
   const user = userEvent.setup();
   await setup();
   await user.click(screen.getByRole("button", { name: "새 목록 열기" }));
-  await user.type(screen.getByLabelText("제목"), "보존할 제목");
+  await user.type(screen.getByLabelText(/^이름/), "보존할 제목");
   let reject!: (error: Error) => void;
   const create = vi.spyOn(api, "createPlaylist").mockImplementationOnce(
     () =>
@@ -133,12 +134,12 @@ it("keeps failed save input, rejects repeated submit and allows a successful ret
   fireEvent.submit(form);
   fireEvent.submit(form);
   await waitFor(() => expect(create).toHaveBeenCalledOnce());
-  expect(screen.getByRole("button", { name: "저장 중…" })).toBeDisabled();
+  expect(screen.getByRole("button", { name: "만드는 중…" })).toBeDisabled();
   await user.keyboard("{Escape}");
   expect(screen.getByRole("dialog")).toBeInTheDocument();
   await act(async () => reject(new Error("저장 공간 부족")));
   expect(screen.getByRole("alert")).toHaveTextContent("저장 공간 부족");
-  expect(screen.getByLabelText("제목")).toHaveValue("보존할 제목");
+  expect(screen.getByLabelText(/^이름/)).toHaveValue("보존할 제목");
   await user.click(screen.getByRole("button", { name: "만들기" }));
   await waitFor(() =>
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument(),
@@ -309,7 +310,7 @@ it("shows an actionable missing-playlist state when opening a deleted URL", asyn
   ).toBeInTheDocument();
 });
 
-it("keeps picker edits in one dialog and standalone creation/import transitions release locks", async () => {
+it("keeps picker edits and unified creation in one dialog and releases locks", async () => {
   const user = userEvent.setup();
   await setup();
   const opener = screen.getByRole("button", { name: "곡 메뉴 열기" });
@@ -330,12 +331,14 @@ it("keeps picker edits in one dialog and standalone creation/import transitions 
   expect(opener).toHaveFocus();
   const create = screen.getByRole("button", { name: "새 목록 열기" });
   await user.click(create);
-  await user.click(screen.getByRole("button", { name: "유튜브에서 가져오기" }));
   expect(
-    screen.getByRole("dialog", { name: "재생목록 URL 가져오기" }),
+    screen.queryByRole("button", { name: "유튜브에서 가져오기" }),
+  ).not.toBeInTheDocument();
+  expect(
+    screen.getByRole("dialog", { name: "새 재생목록" }),
   ).toBeInTheDocument();
   expect(screen.getAllByRole("dialog")).toHaveLength(1);
-  expect(screen.getByLabelText("공개 재생목록 URL")).toHaveFocus();
+  expect(screen.getByLabelText("YouTube 재생목록 URL (선택)")).toHaveFocus();
   await user.keyboard("{Escape}");
   expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
   expect(document.querySelector("[data-dialog-layer]")).toBeNull();

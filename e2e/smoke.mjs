@@ -67,31 +67,44 @@ try {
       // Real creation UI, including focus trap/Escape, not direct seeded metadata.
       await createButton.focus();
       await page.keyboard.press("Enter");
-      await expect(page.getByLabel("제목", { exact: true })).toBeFocused();
+      await expect(
+        page.getByLabel("YouTube 재생목록 URL (선택)"),
+      ).toBeFocused();
       await page.keyboard.press("Shift+Tab");
       await expect(
-        page.getByRole("button", { name: "만들기", exact: true }),
+        page.getByRole("button", { name: "취소", exact: true }),
       ).toBeFocused();
       await page.keyboard.press("Tab");
-      await expect(page.getByLabel("제목", { exact: true })).toBeFocused();
+      await expect(
+        page.getByLabel("YouTube 재생목록 URL (선택)"),
+      ).toBeFocused();
       await page.keyboard.press("Escape");
       await expect(page.getByRole("dialog")).toHaveCount(0);
       await expect(createButton).toBeFocused();
       const create = async (name, failOnce = false) => {
         await createButton.click();
-        await page.getByLabel("제목", { exact: true }).fill(name);
+        await page
+          .getByRole("textbox", { name: "이름", exact: true })
+          .fill(name);
         if (failOnce)
           await page.evaluate(() => {
             window.__failNextWrite = true;
           });
-        await page.getByRole("button", { name: "만들기", exact: true }).click();
+        if (failOnce)
+          await page
+            .getByRole("button", { name: "만들기", exact: true })
+            .click();
+        else
+          await page
+            .getByRole("textbox", { name: "이름", exact: true })
+            .press("Enter");
         if (failOnce) {
           await expect(page.getByRole("alert")).toContainText(
             "검증용 저장 실패",
           );
-          await expect(page.getByLabel("제목", { exact: true })).toHaveValue(
-            name,
-          );
+          await expect(
+            page.getByRole("textbox", { name: "이름", exact: true }),
+          ).toHaveValue(name);
           await page.screenshot({
             path: `test-results/save-error-${viewport.width}.png`,
             fullPage: true,

@@ -84,3 +84,10 @@
     animation: none;
   }
 }
+
+.import-required {
+  color: var(--danger);
+}
+.import-field .import-status {
+  margin: 0;
+}

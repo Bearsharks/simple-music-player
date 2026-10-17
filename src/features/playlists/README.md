@@ -114,5 +114,5 @@ LibraryBackup은 라이브러리 헤더의 ‘라이브러리 더보기’ 메�
 
 라이브러리 헤더와 빈 상태의 ‘새 재생목록’, 상세의 ‘전체 재생’은 공용
 `BrandPrimaryButton`을 사용한다. 생성·저장 submit은 일반 Button이다. 별도 YouTube
-가져오기 CTA/연결 prop은 제거하고 생성 modal 안의 통합 진입을 유지한다.
+가져오기 CTA/연결 prop은 제거하고 생성 modal의 선택 URL·필수 이름·설명 단일 폼을 사용한다. URL 없는 로컬 생성과 URL 준비 후 가져오기는 같은 만들기 CTA를 사용한다.
 검증: `brand-primary-button`, `restored-app` 및 브라우저의 빈/채워진 라이브러리 흐름.

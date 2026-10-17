@@ -35,7 +35,7 @@
 ## 첫 재생목록 만들기
 
 1. **[loopy 열기](https://loopy.bearsharks.dev/)** → **새 재생목록**을 선택합니다.
-2. 이름을 붙여 빈 목록을 만들거나, **유튜브에서 가져오기**에 공개 재생목록 URL을 붙여 넣습니다. URL 입력을 마치면 목록을 불러옵니다.
+2. YouTube 재생목록 URL을 넣거나 이름만 입력한 뒤 **만들기**를 누릅니다.
 3. **곡 추가**로 원하는 영상을 더하고 **전체 재생**으로 듣기를 시작하세요.
 
 <details>
@@ -50,15 +50,15 @@
 
 ## 개발하기
 
-현재 서비스의 소스는 **[`main`](https://github.com/Bearsharks/simple-music-player/tree/main)** 브랜치에 있습니다.
+현재 서비스의 소스는 **[`main`](https://github.com/Bearsharks/loop-yt-player/tree/main)** 브랜치에 있습니다.
 
 **React 19 · TypeScript · Vite 8 · Jotai · IndexedDB · shadcn/ui + Radix**
 
 Node.js 24에서 시작합니다. 기본 사용에는 별도 백엔드, 로그인, API 키 설정이 필요하지 않습니다.
 
 ```bash
-git clone --branch main https://github.com/Bearsharks/simple-music-player.git
-cd simple-music-player
+git clone --branch main https://github.com/Bearsharks/loop-yt-player.git
+cd loop-yt-player
 nvm use
 npm ci
 npm run dev
@@ -72,6 +72,6 @@ npm run storybook         # 공통 UI와 상태별 컴포넌트
 VITE_BASE_PATH=/ npm run build  # 루트 도메인용 빌드
 ```
 
-[아키텍처](https://github.com/Bearsharks/simple-music-player/blob/main/docs/ARCHITECTURE.md) · [기능별 작업 지도](https://github.com/Bearsharks/simple-music-player/blob/main/docs/CHANGE-GUIDE.md) · [디자인 시스템](https://github.com/Bearsharks/simple-music-player/blob/main/DESIGN_SYSTEM.md)
+[아키텍처](https://github.com/Bearsharks/loop-yt-player/blob/main/docs/ARCHITECTURE.md) · [기능별 작업 지도](https://github.com/Bearsharks/loop-yt-player/blob/main/docs/CHANGE-GUIDE.md) · [디자인 시스템](https://github.com/Bearsharks/loop-yt-player/blob/main/DESIGN_SYSTEM.md)
 
 <br>

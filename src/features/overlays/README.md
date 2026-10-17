@@ -38,7 +38,7 @@ playlists/queue/youtube를 연결하는 기존 조정 코드다. search/player/p
 - `aria-busy="true"`인 폼 쓰기가 진행되는 동안 Escape/배경 클릭으로 닫지 않는다. 이미 시작한 IndexedDB 쓰기를 취소한 것처럼 보이지 않게 하고 결과나 오류를 보여준다. 폼 버튼도 중복 쓰기를 차단한다.
 - 메뉴 항목은 기본 button이며 열 때 첫 조작으로 이동하고 Escape 시 원래 더보기로 돌아간다. Tab으로 메뉴 밖을 이동하면 닫힌다. 팝업 위치 기준은 실제 조작 button(currentTarget)이다. 비동기 메뉴 작업의 실패는 열린 메뉴 안에서 재시도할 수 있다.
 - 전체 목록 삭제는 이름/곡 수/현재 큐·YouTube 원본은 유지된다는 확인 1회다. 개별 저장 곡 삭제에는 확인을 중첩하지 않고 `Notice`의 실행 취소를 제공한다. 복원 작업/정합성은 playlists manager가 소유한다. 알림에서 복원 실패를 표시하고 재시도를 허용한다.
-- 새 목록에서 유튜브 가져오기를 선택하면 같은 modal의 URL 가져오기 화면으로 바로 전환한다. 중간 클릭 전용 메뉴를 열지 않는다.
+- 새 재생목록은 `PlaylistImport`의 단일 폼이다. 선택 URL → 필수 이름 → 설명을 같은 화면에서 편집한다. 별도 가져오기 modal 종류/전환 버튼은 없다. URL 없는 로컬 생성과 URL 있는 최초 import는 같은 제출·저장 실패 경로를 공유한다.
 
 빠른 회귀: `npm test -- src/__test__/overlay-regressions.test.tsx src/__test__/playlistImport.test.tsx`.
 모바일 queue sheet도 같은 Dialog를 사용하며 자세한 반응형 소유권은 player README를 따른다.

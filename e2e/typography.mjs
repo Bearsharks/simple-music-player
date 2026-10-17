@@ -279,8 +279,10 @@ try {
     await expect(create).toBeVisible();
     await fits(page, "blocked-font fallback");
     await create.click();
-    await expect(page.getByLabel("제목")).toBeFocused();
-    await page.getByLabel("제목").fill("Fallback 상태의 새 목록");
+    await expect(page.getByLabel("YouTube 재생목록 URL (선택)")).toBeFocused();
+    await page
+      .getByRole("textbox", { name: "이름", exact: true })
+      .fill("Fallback 상태의 새 목록");
     await expect(
       page.getByRole("button", { name: "만들기", exact: true }),
     ).toBeEnabled();

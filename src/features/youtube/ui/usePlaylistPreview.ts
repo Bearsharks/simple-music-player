@@ -1,6 +1,10 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { loadIframeApi } from "features/player/api/iframe";
 import { parsePlaylistUrl } from "features/library/model/library";
+import {
+  fetchPlaylistMetadata,
+  type PlaylistMetadata,
+} from "../api/playlistMetadata";
 
 type Preview = {
   status: "idle" | "loading" | "ready" | "error";
@@ -8,6 +12,7 @@ type Preview = {
   ids: string[];
   error: string;
   invalid: boolean;
+  metadata: PlaylistMetadata | null;
 };
 const empty = (): Preview => ({
   status: "idle",
@@ -15,10 +20,14 @@ const empty = (): Preview => ({
   ids: [],
   error: "",
   invalid: false,
+  metadata: null,
 });
 
 /** Owns only the import preview, never the currently playing media instance. */
-export function usePlaylistPreview(initialUrl?: string) {
+export function usePlaylistPreview(
+  initialUrl?: string,
+  includeMetadata = true,
+) {
   const host = useRef<HTMLDivElement>(null);
   const [state, setState] = useState<Preview>(empty);
   const active = useRef(state);
@@ -78,6 +87,7 @@ export function usePlaylistPreview(initialUrl?: string) {
   useEffect(() => {
     if (!request) return;
     let stopped = false;
+    const metadataRequest = new AbortController();
     let player: any;
     let poll: ReturnType<typeof setInterval> | undefined;
     let timeout: ReturnType<typeof setTimeout> | undefined;
@@ -90,6 +100,7 @@ export function usePlaylistPreview(initialUrl?: string) {
     const dispose = () => {
       if (stopped) return;
       stopped = true;
+      metadataRequest.abort();
       stopTimers();
       player?.destroy();
       host.current?.replaceChildren();
@@ -99,6 +110,7 @@ export function usePlaylistPreview(initialUrl?: string) {
     const fail = (message: string) => {
       if (!readable()) return;
       stopTimers();
+      metadataRequest.abort();
       publish({ ...empty(), id: request.id, status: "error", error: message });
     };
     const read = () => {
@@ -121,7 +133,7 @@ export function usePlaylistPreview(initialUrl?: string) {
           active.current.ids.join(",") !== values.join(",")
         )
           publish({
-            ...empty(),
+            ...active.current,
             id: request.id,
             ids: [...values],
             status: "ready",
@@ -137,6 +149,12 @@ export function usePlaylistPreview(initialUrl?: string) {
         ),
       15000,
     );
+    if (includeMetadata)
+      void fetchPlaylistMetadata(request.id, metadataRequest.signal).then(
+        (metadata) => {
+          if (readable()) publish({ ...active.current, metadata });
+        },
+      );
     loadIframeApi()
       .then((YT) => {
         if (!readable() || !host.current) return;
@@ -176,7 +194,7 @@ export function usePlaylistPreview(initialUrl?: string) {
         ),
       );
     return dispose;
-  }, [request, publish]);
+  }, [request, publish, includeMetadata]);
   return {
     ...state,
     host,

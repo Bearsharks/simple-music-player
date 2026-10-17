@@ -2,50 +2,135 @@ import { useNotice } from "features/overlays/Notice";
 import Icon from "shared/ui/Icon";
 import ErrorToast from "shared/ui/ErrorToast";
 import { fetchVideoTitles } from "../api/videoMetadata";
-import { useId, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { usePlaylistManager } from "features/playlists/model/playlistAtoms";
-import { PlaylistActionType, type PlaylistInfo } from "shared/model/constants";
+import {
+  PlaylistActionType,
+  type MusicInfo,
+  type PlaylistInfo,
+} from "shared/model/constants";
 import { Button } from "shared/ui/shadcn/button";
 import { Input } from "shared/ui/shadcn/input";
+import { Textarea } from "shared/ui/shadcn/textarea";
 import { Label } from "shared/ui/shadcn/label";
 import { usePlaylistPreview } from "./usePlaylistPreview";
 import "./PlaylistImport.scss";
+
+type DraftField = { value: string; owner: "empty" | "auto" | "user" };
+type Draft = { name: DraftField; description: DraftField };
+const emptyField = (): DraftField => ({ value: "", owner: "empty" });
 export default function PlaylistImport({
   close,
   original,
+  initialItems = [],
   onCreated,
 }: {
   close: () => void;
   original?: PlaylistInfo;
-  onCreated?: (id: string) => void;
+  initialItems?: MusicInfo[];
+  onCreated?: (id: string, context: "empty" | "import" | "selection") => void;
 }) {
   const [url, setUrl] = useState(original?.sourcePlaylistUrl ?? "");
-  const [name, setName] = useState(original?.name ?? "");
-  const preview = usePlaylistPreview(original?.sourcePlaylistUrl);
+  const currentUrl = useRef(url);
+  const [draft, setDraft] = useState<Draft>(() => ({
+    name: emptyField(),
+    description: emptyField(),
+  }));
+  const preview = usePlaylistPreview(original?.sourcePlaylistUrl, !original);
   const [error, setError] = useState("");
+  const [nameError, setNameError] = useState("");
   const [busy, setBusy] = useState(false);
   const pending = useRef(false);
   const pointerReady = useRef(false);
+  const nameInput = useRef<HTMLInputElement>(null);
   const fieldID = useId();
   const errorID = `${fieldID}-error`;
+  const nameErrorID = `${fieldID}-name-error`;
+  const urlErrorID = `${fieldID}-url-error`;
   const manager = usePlaylistManager();
   const notice = useNotice();
-  const save = async () => {
+  const hasUrl = Boolean(url.trim());
+  const canSave =
+    !busy &&
+    (original
+      ? preview.status === "ready"
+      : Boolean(draft.name.value.trim()) &&
+        (!hasUrl || preview.status === "ready"));
+
+  useEffect(() => {
     const candidate = preview.getReady();
-    if (pending.current || !candidate) return;
-    const { id, ids } = candidate;
+    // A previously queued effect must not apply metadata after URL invalidation.
+    if (
+      !candidate?.metadata ||
+      candidate.metadata !== preview.metadata ||
+      original
+    )
+      return;
+    const metadata = candidate.metadata;
+    setDraft((previous) => {
+      const next = { ...previous };
+      for (const field of ["name", "description"] as const) {
+        const value = metadata[field];
+        if (
+          value &&
+          previous[field].owner === "empty" &&
+          !previous[field].value.trim()
+        )
+          next[field] = { value, owner: "auto" };
+      }
+      return next;
+    });
+  }, [preview.metadata, preview.status, original]);
+
+  useEffect(() => {
+    if (draft.name.value.trim()) setNameError("");
+  }, [draft.name.value]);
+
+  const editField = (field: keyof Draft, value: string) => {
+    setDraft((previous) => ({
+      ...previous,
+      [field]: { value, owner: "user" },
+    }));
+    if (field === "name") setNameError("");
+  };
+  const changeUrl = (value: string) => {
+    currentUrl.current = value;
+    setUrl(value);
+    preview.invalidate();
+    pointerReady.current = false;
+    setError("");
+    setDraft((previous) => ({
+      name: previous.name.owner === "auto" ? emptyField() : previous.name,
+      description:
+        previous.description.owner === "auto"
+          ? emptyField()
+          : previous.description,
+    }));
+  };
+  const save = async () => {
+    if (pending.current) return;
+    if (!original && !draft.name.value.trim()) {
+      setNameError("이름을 입력해 주세요.");
+      nameInput.current?.focus();
+      return;
+    }
+    const importing = original || Boolean(currentUrl.current.trim());
+    const candidate = importing ? preview.getReady() : null;
+    if (importing && !candidate) return;
     pending.current = true;
     setBusy(true);
     setError("");
     try {
-      const titles = await fetchVideoTitles(ids);
-      const items = ids.map((videoID, index) => ({
-        videoID,
-        name: titles[videoID]?.name ?? `동영상 ${index + 1} (${videoID})`,
-        query: "",
-        owner: titles[videoID]?.owner ?? "",
-        thumbnail: `https://i.ytimg.com/vi/${videoID}/default.jpg`,
-      }));
+      const titles = candidate ? await fetchVideoTitles(candidate.ids) : {};
+      const items = candidate
+        ? candidate.ids.map((videoID, index) => ({
+            videoID,
+            name: titles[videoID]?.name ?? `동영상 ${index + 1} (${videoID})`,
+            query: "",
+            owner: titles[videoID]?.owner ?? "",
+            thumbnail: `https://i.ytimg.com/vi/${videoID}/default.jpg`,
+          }))
+        : initialItems;
       const result = await manager({
         type: original ? PlaylistActionType.UPDATE : PlaylistActionType.CREATE,
         payload: {
@@ -53,44 +138,70 @@ export default function PlaylistImport({
             ? { id: original.id }
             : {
                 id: "",
-                sourcePlaylistUrl: `https://www.youtube.com/playlist?list=${id}`,
-                name: name.trim() || "YouTube 재생목록",
-                description: `원본: https://www.youtube.com/playlist?list=${id}`,
+                name: draft.name.value.trim(),
+                description: draft.description.value.trim(),
+                ...(candidate
+                  ? {
+                      sourcePlaylistUrl: `https://www.youtube.com/playlist?list=${candidate.id}`,
+                    }
+                  : {}),
               },
           items,
-          ...(!original
-            ? { initialSnapshot: { version: 1, capturedAt: Date.now(), items } }
+          ...(!original && candidate
+            ? {
+                initialSnapshot: { version: 1, capturedAt: Date.now(), items },
+              }
             : {}),
         },
       });
       close();
-      const missing = ids.filter((videoID) => !titles[videoID]).length;
+      const missing =
+        candidate?.ids.filter((videoID) => !titles[videoID]).length ?? 0;
       if (missing)
         notice(
           `${missing}곡의 제목을 가져오지 못했습니다. 목록에서 ‘원래 곡 제목 가져오기’로 다시 시도할 수 있습니다.`,
         );
       else if (original) notice("미리보기의 최신 곡으로 교체했습니다.");
-      if (result?.createdId) onCreated?.(result.createdId);
+      if (result?.createdId)
+        onCreated?.(
+          result.createdId,
+          candidate ? "import" : initialItems.length ? "selection" : "empty",
+        );
     } catch (e) {
-      setError((e as Error).message);
+      setError(
+        e instanceof Error
+          ? e.message
+          : "저장하지 못했습니다. 다시 시도해 주세요.",
+      );
     } finally {
       pending.current = false;
       setBusy(false);
     }
   };
+  const previewStatus = (
+    <p role="status" className="import-status">
+      {preview.status === "loading" && !busy && (
+        <span className="import-loading" aria-hidden="true">
+          <Icon name="reset" />
+        </span>
+      )}
+      {busy
+        ? original
+          ? "저장 중…"
+          : "만드는 중…"
+        : preview.status === "ready"
+          ? `${preview.ids.length}곡`
+          : preview.status === "loading"
+            ? "불러오는 중…"
+            : ""}
+    </p>
+  );
   return (
-    <section
-      className="playlist-import"
-      aria-label="재생목록 URL 가져오기"
-      aria-busy={busy}
-    >
-      <h2>
-        {original ? "YouTube 최신 목록 가져오기" : "YouTube 재생목록 가져오기"}
-      </h2>
+    <section className="playlist-import" aria-busy={busy}>
+      <h2>{original ? "YouTube 최신 목록 가져오기" : "새 재생목록"}</h2>
       <form
         onSubmit={(event) => {
           event.preventDefault();
-          if (!preview.getReady()) return;
           void save();
         }}
         onKeyDown={(event) => {
@@ -101,37 +212,66 @@ export default function PlaylistImport({
         {!original && (
           <fieldset disabled={busy}>
             <div className="import-field">
-              <Label htmlFor={`${fieldID}-url`}>공개 재생목록 URL</Label>
+              <Label htmlFor={`${fieldID}-url`}>
+                YouTube 재생목록 URL (선택)
+              </Label>
               <Input
                 id={`${fieldID}-url`}
                 type="url"
                 placeholder="https://www.youtube.com/playlist?list=…"
-                required
                 value={url}
                 aria-invalid={preview.invalid || undefined}
-                aria-errormessage={preview.invalid ? errorID : undefined}
-                onChange={(event) => {
-                  setUrl(event.target.value);
-                  preview.invalidate();
-                  pointerReady.current = false;
-                  setError("");
-                }}
-                onBlur={() => preview.load(url)}
+                aria-errormessage={preview.invalid ? urlErrorID : undefined}
+                onChange={(event) => changeUrl(event.target.value)}
+                onBlur={() => preview.load(currentUrl.current)}
                 onKeyDown={(event) => {
                   if (event.key !== "Enter") return;
                   event.preventDefault();
-                  if (!event.nativeEvent.isComposing) preview.load(url);
+                  if (event.nativeEvent.isComposing) return;
+                  preview.load(currentUrl.current);
+                  if (!currentUrl.current.trim()) nameInput.current?.focus();
+                }}
+              />
+              {previewStatus}
+            </div>
+            <div className="import-field">
+              <Label htmlFor={`${fieldID}-name`}>
+                이름{" "}
+                <span className="import-required" aria-hidden="true">
+                  *
+                </span>
+              </Label>
+              <Input
+                ref={nameInput}
+                id={`${fieldID}-name`}
+                maxLength={Math.max(120, draft.name.value.length)}
+                required
+                aria-required="true"
+                aria-invalid={Boolean(nameError) || undefined}
+                aria-errormessage={nameError ? nameErrorID : undefined}
+                value={draft.name.value}
+                onChange={(event) => editField("name", event.target.value)}
+                onBlur={() => {
+                  if (!draft.name.value.trim())
+                    setNameError("이름을 입력해 주세요.");
+                }}
+                onInvalid={(event) => {
+                  event.preventDefault();
+                  setNameError("이름을 입력해 주세요.");
+                  nameInput.current?.focus();
                 }}
               />
             </div>
             <div className="import-field">
-              <Label htmlFor={`${fieldID}-name`}>목록 이름</Label>
-              <Input
-                id={`${fieldID}-name`}
-                maxLength={120}
-                placeholder="나만의 재생목록"
-                value={name}
-                onChange={(event) => setName(event.target.value)}
+              <Label htmlFor={`${fieldID}-description`}>설명</Label>
+              <Textarea
+                id={`${fieldID}-description`}
+                rows={3}
+                maxLength={Math.max(1000, draft.description.value.length)}
+                value={draft.description.value}
+                onChange={(event) =>
+                  editField("description", event.target.value)
+                }
               />
             </div>
           </fieldset>
@@ -141,21 +281,23 @@ export default function PlaylistImport({
           className="import-preview"
           hidden={!preview.id}
         />
-        <p role="status" className="import-status">
-          {preview.status === "loading" && !busy && (
-            <span className="import-loading" aria-hidden="true">
-              <Icon name="reset" />
-            </span>
-          )}
-          {busy
-            ? "제목을 불러와 저장 중…"
-            : preview.status === "ready"
-              ? `${preview.ids.length}곡`
-              : preview.status === "loading"
-                ? "재생목록을 불러오는 중…"
-                : ""}
-        </p>
-        <ErrorToast message={error || preview.error} alertId={errorID} />
+        {original && previewStatus}
+        {preview.invalid && (
+          <span id={urlErrorID} className="sr-only">
+            {preview.error}
+          </span>
+        )}
+        {nameError && (
+          <span id={nameErrorID} className="sr-only">
+            {nameError}
+          </span>
+        )}
+        <ErrorToast
+          message={
+            error || [nameError, preview.error].filter(Boolean).join(" ")
+          }
+          alertId={errorID}
+        />
         {original && preview.status === "ready" && (
           <p className="replacement-warning">
             추가·삭제·정렬한 곡 구성을 미리보기의 {preview.ids.length}곡으로
@@ -167,7 +309,7 @@ export default function PlaylistImport({
             type="button"
             variant="secondary"
             disabled={busy}
-            onClick={() => preview.load(url, true)}
+            onClick={() => preview.load(currentUrl.current, true)}
           >
             다시 시도
           </Button>
@@ -184,22 +326,23 @@ export default function PlaylistImport({
           <Button
             type="submit"
             variant={original ? "destructive" : "default"}
-            disabled={preview.status !== "ready" || busy}
+            disabled={!canSave}
             onPointerDown={() => {
-              pointerReady.current = Boolean(preview.getReady());
+              pointerReady.current = canSave;
             }}
             onClick={(event) => {
-              // A blur which starts a load must never turn the same pointer
-              // gesture into an implicit save, even for an immediate onReady.
+              // The blur that starts a preview never doubles as an implicit save.
               if (event.detail > 0 && !pointerReady.current)
                 event.preventDefault();
             }}
           >
             {busy
-              ? "저장 중…"
+              ? original
+                ? "저장 중…"
+                : "만드는 중…"
               : original
                 ? "최신 목록으로 교체"
-                : "재생목록 추가"}
+                : "만들기"}
           </Button>
         </div>
       </form>

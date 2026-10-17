@@ -3,19 +3,10 @@ import ErrorToast from "shared/ui/ErrorToast";
 import RestoreInitialPlaylist from "features/playlists/ui/RestoreInitialPlaylist";
 import PlaylistImport from "features/youtube/ui/PlaylistImport";
 import { useAtom, useAtomValue } from "jotai";
-import {
-  ModalInfoState,
-  ModalKind,
-  ModalOpenState,
-  useModalManager,
-} from "./PopupStates";
+import { ModalInfoState, ModalKind, ModalOpenState } from "./PopupStates";
 import styles from "./Modal.module.scss";
 import { useRef, useState } from "react";
-import {
-  MusicInfo,
-  PlaylistActionType,
-  PlaylistInfo,
-} from "shared/model/constants";
+import { PlaylistActionType, PlaylistInfo } from "shared/model/constants";
 import Dialog from "shared/ui/Dialog";
 import { usePlaylistManager } from "features/playlists/model/playlistAtoms";
 import FormBox, { FormItem } from "features/playlists/ui/formBox/FormBox";
@@ -26,7 +17,6 @@ type OnCreated = (id: string, context: PlaylistCreationContext) => void;
 const labels = {
   [ModalKind.CreatePlaylist]: "새 재생목록",
   [ModalKind.UpdatePlaylist]: "재생목록 수정",
-  [ModalKind.ImportYTPlaylistLink]: "재생목록 URL 가져오기",
   [ModalKind.DeletePlaylist]: "재생목록 삭제",
   [ModalKind.RestoreInitialPlaylist]: "처음 가져온 목록으로 복원",
   [ModalKind.RefreshYTPlaylist]: "YouTube 최신 목록 가져오기",
@@ -38,10 +28,11 @@ export default function Modal({ onCreated }: { onCreated?: OnCreated }) {
   const close = () => setOpen(false);
   return (
     <Dialog label={labels[state.kind]} onClose={close}>
-      {state.kind === ModalKind.ImportYTPlaylistLink ? (
+      {state.kind === ModalKind.CreatePlaylist ? (
         <PlaylistImport
           close={close}
-          onCreated={(id) => onCreated?.(id, "import")}
+          initialItems={state.data}
+          onCreated={onCreated}
         />
       ) : state.kind === ModalKind.RefreshYTPlaylist ? (
         <PlaylistImport
@@ -63,16 +54,9 @@ export default function Modal({ onCreated }: { onCreated?: OnCreated }) {
         />
       ) : (
         <PlaylistForm
-          key={`${state.kind}-${state.data?.id ?? ""}`}
-          kind={state.kind}
+          key={state.data.id}
           closePopup={close}
-          onCreated={onCreated}
-          playlistInfo={
-            state.kind === ModalKind.UpdatePlaylist ? state.data : undefined
-          }
-          musicInfos={
-            state.kind === ModalKind.CreatePlaylist ? state.data : undefined
-          }
+          playlistInfo={state.data}
         />
       )}
     </Dialog>
@@ -81,63 +65,31 @@ export default function Modal({ onCreated }: { onCreated?: OnCreated }) {
 
 function PlaylistForm({
   closePopup,
-  kind,
   playlistInfo,
-  musicInfos,
-  onCreated,
 }: {
-  onCreated?: OnCreated;
   closePopup: () => void;
-  kind: ModalKind;
-  playlistInfo?: PlaylistInfo;
-  musicInfos?: MusicInfo[];
+  playlistInfo: PlaylistInfo;
 }) {
   const formItems: FormItem[] = [
-    {
-      id: "name",
-      name: "제목",
-      value: playlistInfo?.name ?? "",
-      require: true,
-    },
-    { id: "description", name: "설명", value: playlistInfo?.description ?? "" },
+    { id: "name", name: "제목", value: playlistInfo.name, require: true },
+    { id: "description", name: "설명", value: playlistInfo.description },
   ];
   const manager = usePlaylistManager();
-  const modal = useModalManager();
-  const create = kind === ModalKind.CreatePlaylist;
   const submit = async (data: Record<string, string>) => {
-    const result = await manager({
-      type: create ? PlaylistActionType.CREATE : PlaylistActionType.UPDATE,
-      payload: {
-        info: { ...playlistInfo, ...data },
-        ...(musicInfos ? { items: musicInfos } : {}),
-      },
+    await manager({
+      type: PlaylistActionType.UPDATE,
+      payload: { info: { ...playlistInfo, ...data } },
     });
     closePopup();
-    if (result?.createdId)
-      onCreated?.(result.createdId, musicInfos?.length ? "selection" : "empty");
   };
   return (
     <FormBox
-      name={create ? "새 재생목록" : "재생목록 수정"}
+      name="재생목록 수정"
       formItems={formItems}
       closePopup={closePopup}
       submit={submit}
-      submitLabel={create ? "만들기" : "변경 저장"}
-    >
-      {create && (
-        <Button
-          variant="secondary"
-          type="button"
-          className={styles.importYTBtn}
-          onClick={() => modal(ModalKind.ImportYTPlaylistLink)}
-        >
-          <span className="material-icons" aria-hidden="true">
-            add
-          </span>
-          유튜브에서 가져오기
-        </Button>
-      )}
-    </FormBox>
+      submitLabel="변경 저장"
+    />
   );
 }
 
