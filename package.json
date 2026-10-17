@@ -22,6 +22,9 @@
   "scripts": {
     "package:extension": "node tools/package-extension.mjs",
     "package:extension:release": "node tools/package-extension.mjs --release",
+    "release:seal": "node tools/release.mjs seal",
+    "release:verify": "node tools/release.mjs verify",
+    "release:publish": "node tools/release.mjs publish",
     "predev": "npm run package:extension",
     "dev": "vite",
     "prestart": "npm run package:extension",
@@ -33,7 +36,7 @@
     "test:watch": "vitest",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
-    "check": "npm run check:boundaries && node --test tools/package-extension.check.mjs extension/background.check.mjs extension/updates.check.mjs && npm run typecheck && npm test && npm run build",
+    "check": "npm run check:boundaries && node --test tools/*.check.mjs extension/*.check.mjs && npm run typecheck && npm test && npm run build",
     "check:boundaries": "node tools/check-boundaries.mjs",
     "test:browser": "node e2e/smoke.mjs && node e2e/player-overlays.mjs && node e2e/electric-night.mjs && node e2e/typography.mjs && node e2e/cover-images.mjs && node e2e/cold-menu.mjs",
     "impact": "node tools/feature-impact.mjs"

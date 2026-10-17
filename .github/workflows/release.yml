@@ -1,0 +1,72 @@
+name: Release
+on:
+  workflow_dispatch:
+    inputs:
+      source_sha:
+        description: Full SHA of the current main commit
+        required: true
+        type: string
+      publish:
+        description: Publish verified bytes to production
+        required: true
+        default: false
+        type: boolean
+permissions:
+  contents: write
+  pages: write
+concurrency:
+  group: loopy-production-release
+  cancel-in-progress: false
+jobs:
+  release:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      GH_TOKEN: ${{ github.token }}
+      SOURCE_SHA: ${{ inputs.source_sha }}
+      TZ: UTC
+      VITE_BASE_PATH: /
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ inputs.source_sha }}
+          fetch-depth: 0
+      - name: Verify source
+        run: |
+          [[ "$SOURCE_SHA" =~ ^[a-f0-9]{40}$ ]]
+          test "$(git rev-parse HEAD)" = "$SOURCE_SHA"
+          test "$(git rev-parse origin/main)" = "$SOURCE_SHA"
+          echo "SOURCE_DATE_EPOCH=$(git log -1 --format=%ct)" >> "$GITHUB_ENV"
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
+        with:
+          node-version-file: .node-version
+          cache: npm
+      - run: npm ci
+      - run: npm run check
+      - name: Verify reproducible bytes
+        run: |
+          npm run release:seal
+          cp dist/release.json "$RUNNER_TEMP/first-release.json"
+          npm run build
+          npm run release:seal
+          cmp "$RUNNER_TEMP/first-release.json" dist/release.json
+      - run: npx playwright install --with-deps chromium
+      - name: Browser acceptance
+        run: |
+          npx vite preview --host 127.0.0.1 --port 4173 --strictPort > "$RUNNER_TEMP/loopy-preview.log" 2>&1 &
+          for i in $(seq 1 30); do curl -fsS http://127.0.0.1:4173/ >/dev/null && break; sleep 1; done
+          TEST_URL=http://127.0.0.1:4173/ npm run test:browser
+          unzip -q artifacts/loopy-extension.zip -d "$RUNNER_TEMP/loopy-extension-release"
+          TEST_URL=https://loopy.bearsharks.dev/ APP_PROXY_URL=http://127.0.0.1:4173 EXTENSION_DIR="$RUNNER_TEMP/loopy-extension-release/loopy-extension" node e2e/extension-import.mjs
+      - name: Verify accepted bytes
+        run: npm run release:verify
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: release-${{ inputs.source_sha }}
+          path: dist/
+          include-hidden-files: true
+          retention-days: 30
+      - name: Publish and verify
+        if: inputs.publish
+        run: npm run release:publish
