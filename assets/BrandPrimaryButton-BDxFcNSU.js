@@ -1,1 +1,0 @@
-import{Z as e,et as t}from"./dnd.esm-DJDuk9z4.js";import{m as n}from"./index-BXf3_UZp.js";var r=n();function i({className:n,...i}){return(0,r.jsx)(e,{...i,variant:`default`,className:t(`brand-primary-button`,n)})}export{i as t};
