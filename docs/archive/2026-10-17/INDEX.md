@@ -9,3 +9,4 @@
 - [UX 인수](docs/LOOPY-UX-ACCEPTANCE.md) · [UI 인수](docs/LOOPY-SHADCN-ACCEPTANCE.md) · [폰트 인수](docs/LOOPY-FONT-ACCEPTANCE.md)
 - [기능 문서](src/features/) · [확장 문서](extension/README.md)
 - [README와 시각 자료](README.md) · [v0.3.0 배포](release-v0.3.0.md)
+- [확장 컨텍스트 무효화 검증](extension-context-invalidation.md)
