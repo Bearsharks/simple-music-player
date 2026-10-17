@@ -1,1 +1,0 @@
-import{g as e,p as t}from"./Cover-grhrcI2r.js";import{m as n}from"./index-BxRdp1vS.js";var r=n();function i({className:n,...i}){return(0,r.jsx)(t,{...i,variant:`default`,className:e(`brand-primary-button`,n)})}export{i as t};
