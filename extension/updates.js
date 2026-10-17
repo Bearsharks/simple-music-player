@@ -1,4 +1,4 @@
-const LATEST_RELEASE = "https://api.github.com/repos/Bearsharks/simple-music-player/releases/latest";
+const LATEST_RELEASE = "https://api.github.com/repos/Bearsharks/loop-yt-player/releases/latest";
 
 export function releaseUpdate(release, currentVersion) {
   const latest = typeof release?.tag_name === "string" ? release.tag_name.replace(/^v/, "") : "";
@@ -12,7 +12,7 @@ export function releaseUpdate(release, currentVersion) {
     if (difference < 0) return null;
     if (difference > 0) return {
       version: latest,
-      url: `https://github.com/Bearsharks/simple-music-player/releases/download/${encodeURIComponent(release.tag_name)}/loopy-extension.zip`,
+      url: `https://github.com/Bearsharks/loop-yt-player/releases/download/${encodeURIComponent(release.tag_name)}/loopy-extension.zip`,
     };
   }
   return null;

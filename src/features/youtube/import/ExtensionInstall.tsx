@@ -4,7 +4,7 @@ import { Button } from "shared/ui/shadcn/button";
 import { Input } from "shared/ui/shadcn/input";
 import { Label } from "shared/ui/shadcn/label";
 
-export const EXTENSION_RELEASE_URL = "https://github.com/Bearsharks/simple-music-player/releases/latest/download/loopy-extension.zip";
+export const EXTENSION_RELEASE_URL = "https://github.com/Bearsharks/loop-yt-player/releases/latest/download/loopy-extension.zip";
 export const EXTENSION_ZIP_URL = import.meta.env.DEV
   ? `${import.meta.env.BASE_URL}downloads/loopy-extension.zip`
   : EXTENSION_RELEASE_URL;

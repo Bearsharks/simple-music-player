@@ -12,7 +12,7 @@ Loopy 검색창 옆 **확장 프로그램 다운로드**에서 확장 전용 ZIP
 
 - 개발 서버의 다운로드는 `<BASE_URL>downloads/loopy-extension.zip`으로 현재 생성한 파일을 제공한다. 서버 실행 중 확장 파일을 수정했다면 `npm run package:extension`으로 갱신한다.
 - 개발 ZIP은 config.js와 manifest에 로컬 주소·권한을 추가한다. 기본 주소는 `http://127.0.0.1:4187/simple-music-player/`다. `npm run package:extension:release` 및 npm build는 운영 전용 ZIP을 `artifacts/loopy-extension.zip`과 `public/downloads/loopy-extension.zip`에 생성한다. 따라서 빌드 결과의 ZIP도 운영 전용이다. 빌드 후 개발 ZIP이 필요하면 개발 패키징을 다시 실행한다.
-- 제품 빌드의 다운로드는 `https://github.com/Bearsharks/simple-music-player/releases/latest/download/loopy-extension.zip`을 사용한다. 게시된 GitHub Release에 정확히 이 이름의 asset이 있어야 한다.
+- 제품 빌드의 다운로드는 `https://github.com/Bearsharks/loop-yt-player/releases/latest/download/loopy-extension.zip`을 사용한다. 게시된 GitHub Release에 정확히 이 이름의 asset이 있어야 한다.
 - 배포는 검증된 main 커밋에서 `npm run check` 후 생성된 ZIP을 사용하고 해당 SHA를 Release에 기록한다. ZIP 생성은 업로드나 Release 게시를 수행하지 않는다. GitHub 게시 전에는 제품 다운로드 경로가 준비되지 않은 상태다.
 - 검증: `node --test tools/package-extension.check.mjs`. 브라우저 전달 테스트는 `EXTENSION_DIR`에 압축해제한 폴더를 지정해 패키지 자체로 실행할 수 있다.
 
@@ -50,7 +50,7 @@ Loopy 검색창 옆 **확장 프로그램 다운로드**에서 확장 전용 ZIP
 
 툴바 팝업은 400px 고정 너비를 사용한다. YouTube 내부 패널에서는 `.embedded` 모드로 부모 너비를 따른다.
 
-패널을 열 때 `updates.js`가 GitHub `/repos/Bearsharks/simple-music-player/releases/latest`를 익명 조회한다. manifest.version보다 높은 숫자 버전의 공개 릴리스(`v0.3.0` 또는 `0.3.0` 형식)와 `loopy-extension.zip` asset이 있을 때만 해당 태그의 고정 GitHub 다운로드 링크를 표시한다. 자격 증명은 보내지 않으며 반환된 임의 다운로드 URL은 사용하지 않는다. 8초 제한, 성공 결과는 브라우저 세션에서 1시간 재사용한다. 조회 실패 시 담기·전달은 계속 가능하며 최신 버전이라고 표시하지 않는다. 미게시·초안·사전 릴리스는 업데이트 대상으로 안내하지 않는다. 앱은 연결 여부만 검사한다.
+패널을 열 때 `updates.js`가 GitHub `/repos/Bearsharks/loop-yt-player/releases/latest`를 익명 조회한다. manifest.version보다 높은 숫자 버전의 공개 릴리스(`v0.3.0` 또는 `0.3.0` 형식)와 `loopy-extension.zip` asset이 있을 때만 해당 태그의 고정 GitHub 다운로드 링크를 표시한다. 자격 증명은 보내지 않으며 반환된 임의 다운로드 URL은 사용하지 않는다. 8초 제한, 성공 결과는 브라우저 세션에서 1시간 재사용한다. 조회 실패 시 담기·전달은 계속 가능하며 최신 버전이라고 표시하지 않는다. 미게시·초안·사전 릴리스는 업데이트 대상으로 안내하지 않는다. 앱은 연결 여부만 검사한다.
 
 ## 검증
 

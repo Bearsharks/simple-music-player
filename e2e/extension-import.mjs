@@ -53,7 +53,7 @@ try {
   const worker=context.serviceWorkers()[0]||await context.waitForEvent("serviceworker");
   await worker.evaluate(()=>{
     globalThis.fetch=async url=>{
-      if(url!=="https://api.github.com/repos/Bearsharks/simple-music-player/releases/latest")throw Error("unexpected extension network request");
+      if(url!=="https://api.github.com/repos/Bearsharks/loop-yt-player/releases/latest")throw Error("unexpected extension network request");
       return new Response(JSON.stringify({tag_name:"v99.0.0",draft:false,prerelease:false,assets:[{name:"loopy-extension.zip"}]}),{status:200});
     };
   });
@@ -64,7 +64,7 @@ try {
   const popup=youtube.frameLocator("#loopy-import-overlay iframe");
   await expect(popup.locator("#count")).toHaveText("2");
   await expect(popup.locator(".basket-copy strong")).toHaveText(["첫 영상 제목","재생목록 제목"]);
-  await expect(popup.getByRole("link",{name:"업데이트",exact:true})).toHaveAttribute("href","https://github.com/Bearsharks/simple-music-player/releases/download/v99.0.0/loopy-extension.zip");
+  await expect(popup.getByRole("link",{name:"업데이트",exact:true})).toHaveAttribute("href","https://github.com/Bearsharks/loop-yt-player/releases/download/v99.0.0/loopy-extension.zip");
   await popup.getByRole("button",{name:"저장",exact:true}).focus();await youtube.keyboard.press("Escape");
   await expect(panel).not.toBeVisible();await expect(youtube.getByRole("button",{name:"연동하기",exact:true})).toBeFocused();
   await youtube.getByRole("button",{name:"연동하기",exact:true}).click();
