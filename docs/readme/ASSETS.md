@@ -26,7 +26,7 @@
 
 ## 재현
 
-재현은 현재 제품 브랜치 `design/shadcn-ui`에서 한다. 기본 브랜치의 과거 코드로 새 캡처를 만들지 않는다.
+재현은 현재 제품 브랜치 `main`에서 한다. 현재 main의 빌드를 사용한다. 위 소스 커밋은 최초 캡처 시점의 기록이다.
 
 1. Node 24에서 `npm ci && npm run build`를 실행한다. 기본 `/simple-music-player/` base를 사용한다.
 2. 저장소 루트에서 `python3 docs/readme/serve.py --port 8768`을 실행한다.

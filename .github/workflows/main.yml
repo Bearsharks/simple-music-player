@@ -1,9 +1,9 @@
 name: Validate
 on:
   push:
-    branches: [master, 'refactor/**', 'design/**']
+    branches: [main, master, 'refactor/**', 'design/**']
   pull_request:
-    branches: [master]
+    branches: [main, master]
 permissions:
   contents: read
 jobs:

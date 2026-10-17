@@ -6,5 +6,5 @@
 - Never log or commit credentials, OAuth tokens or private environment values. Do not run production API mutations during verification.
 - Current product restores the original playlist workspace and right-side queue, without sign-in. Preserve URL validation, local persistence, duplicate handling, selection and embedded playback. Playlist modules are mounted and use localAPI; do not re-enable authentication or server storage. Add regression tests for changed behavior.
 - Run the documented checks before delivery. Unit tests and fixture previews do not prove live Google login or YouTube playback.
-- Use a separate branch. No deployment, account permission changes, backend replacement or force push without explicit approval.
+- Keep the latest accepted application code on `main`. Temporary branches are for work in progress only: after verification, integrate changes into `main`; do not leave the deployed product exclusively on a feature or design branch. Build releases from a verified `main` commit and record that SHA. No deployment, account permission changes, backend replacement or force push without explicit approval.
 - Keep dependency upgrades separate from structural commits. Record migration decisions and known limitations in docs.
