@@ -58,7 +58,19 @@ try {
   await expect.poll(()=>app.evaluate(()=>window.__testPlayers.at(-1)?.getPlayerState?.()),{timeout:25000}).toBe(1);
   await expect(app.locator('section[aria-label="미리듣기"] .yi-preview-controls')).toHaveCount(0);
   await app.screenshot({path:path.join(output,"live-preview.png")});
-  const result={realExtension:true,realYouTube:true,floatingIconMouseClick:true,overlay:true,reusedTab:true,clearedOnAck:true,count,firstTitles:titles.slice(0,5),resolutionIframeHidden:true,previewIframeLoaded:true,playerStatePlaying:true,audiblePlaybackVerified:false};
+  await yt.getByRole("button",{name:"담은 목록 닫기",exact:true}).click();
+  await yt.getByRole("button",{name:"YouTube 담기 UI 숨기기"}).click();
+  await expect(yt.locator("#loopy-bridge-tools")).not.toBeVisible();
+  await app.getByRole("button",{name:"목록 편집 닫기"}).click();
+  await app.getByRole("textbox",{name:"YouTube 검색어"}).fill("loopy music");
+  const searchedPromise=context.waitForEvent("page");await app.getByRole("button",{name:"YouTube에서 검색"}).click();
+  const searched=await searchedPromise;
+  await expect(searched.locator("#loopy-bridge-tools")).toBeVisible({timeout:30000});
+  expect(new URL(searched.url()).searchParams.get("search_query")).toBe("loopy music");
+  expect(new URL(searched.url()).searchParams.has("loopy")).toBe(false);
+  await expect(yt.locator("#loopy-bridge-tools")).toBeVisible();
+  await searched.screenshot({path:path.join(output,"search-reactivated.png")});
+  const result={realExtension:true,realYouTube:true,floatingIconMouseClick:true,overlay:true,reusedTab:true,clearedOnAck:true,count,firstTitles:titles.slice(0,5),resolutionIframeHidden:true,previewIframeLoaded:true,playerStatePlaying:true,searchReactivatesUI:true,audiblePlaybackVerified:false};
   fs.writeFileSync(path.join(output,"report.json"),JSON.stringify(result,null,2));
   console.log(JSON.stringify(result));
 }finally{await context.close();fs.rmSync(profile,{recursive:true,force:true});}

@@ -9,3 +9,4 @@ button {min-height:44px;border:0;border-radius:10px;background:#a855ff;color:#0b
 .embedded {width:100%;min-width:0;}.embedded body {width:100%;height:100dvh;display:flex;flex-direction:column;overflow:hidden;}
 .embedded ol {flex:1;min-height:0;max-height:none;}
 .embedded header,.embedded footer,.embedded #status {flex-shrink:0;}
+.ui-visibility {display:flex;align-items:center;gap:8px;margin-right:auto;min-height:44px;font-size:13px;cursor:pointer;}.ui-visibility input {width:18px;height:18px;accent-color:#a855ff;}.embedded .ui-visibility {display:none;}

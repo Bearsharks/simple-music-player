@@ -7,6 +7,7 @@
 ## 확장 프로그램 가져오기
 
 - 실제 진입: 앱 상단 YouTube 검색 및 미연결일 때 표시하는 확장 다운로드 버튼. 목록 편집은 확장 프로그램 전달로 열린다. `/preview/youtube-import`도 동일한 실제 앱을 표시한다. App이 `import/ExtensionImport.tsx`를 Main의 tools 슬롯에 조립한다.
+- YouTube 검색 URL의 `loopy=1`은 확장 담기 UI를 다시 켜는 표시다. 확장은 이 표시를 소비하고 검색어를 보존하며 URL에서 표시만 지운다. 자동 담기·가져오기·저장은 수행하지 않는다.
 - `import/ExtensionInstall.tsx`는 확장 전용 ZIP 다운로드, loopy-extension 폴더 로드 절차, 브라우저별 관리 주소 복사, 연결 재확인을 제공한다. 연결되면 설치 안내와 버튼을 숨긴다. 초기 확인 중에는 버튼을 표시하지 않는다. 개발 모드는 로컬 생성 ZIP, 제품 빌드는 GitHub Release asset을 사용하며 게시가 필요하다. 버전 확인·업데이트 안내는 확장이 담당한다. 패키징은 루트 `extension/README.md`를 따른다.
 - 공통 계약: `extension/protocol.js` 및 선언 파일. 고정 확장 ID와 허용된 최상위 앱 출처의 Chrome 외부 메시지만 사용한다. DOM 이벤트를 신뢰하지 않는다. 설치는 루트 `extension/README.md`를 따른다.
 - 앱은 1.5초 간격으로 최신 요청 하나를 가져오고 검증·수용 후 requestId로 확인한다. 연결 실패 시 5초 간격 재시도. 반복 전달은 현재 연결 세션에서 중복 억제하며 수신 확인은 저장 완료를 뜻하지 않는다.

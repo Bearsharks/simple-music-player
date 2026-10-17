@@ -76,7 +76,7 @@ export default function ExtensionImport() {
   }
   return <>
     <div className="li-toolbar">
-      <form onSubmit={event=>{event.preventDefault();const q=query.trim();if(q)window.open(`https://www.youtube.com/results?search_query=${encodeURIComponent(q)}`,"_blank","noopener,noreferrer");}}>
+      <form onSubmit={event=>{event.preventDefault();const q=query.trim();if(q)window.open(`https://www.youtube.com/results?search_query=${encodeURIComponent(q)}&loopy=1`,"_blank","noopener,noreferrer");}}>
         <Input aria-label="YouTube 검색어" placeholder="YouTube 검색" maxLength={200} value={query} onChange={e=>setQuery(e.target.value)}/>
         <Button type="submit" variant="ghost" size="icon" aria-label="YouTube에서 검색"><Icon name="search"/></Button>
       </form>

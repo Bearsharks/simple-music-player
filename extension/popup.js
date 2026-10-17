@@ -10,6 +10,18 @@ chrome.runtime.sendMessage({ type: "extension.update" }).then(result => {
   update.hidden = false;
 }).catch(() => {});
 if (window.parent !== window) document.documentElement.classList.add("embedded");
+const visibility = document.querySelector("#youtube-ui");
+let visibilityRevision = 0;
+chrome.storage.local.get("youtubeUiVisible").then(value => {
+  if (!visibilityRevision) visibility.checked = value.youtubeUiVisible !== false;
+  visibility.disabled = false;
+}).catch(() => { status.textContent = "표시 설정을 읽지 못했습니다."; });
+visibility.onchange = async () => {
+  visibilityRevision++; visibility.disabled = true;
+  try { await chrome.storage.local.set({ youtubeUiVisible: visibility.checked }); }
+  catch { visibility.checked = !visibility.checked; actionError = "표시 설정을 저장하지 못했습니다."; status.textContent = actionError; }
+  finally { visibility.disabled = false; }
+};
 let submitting = false, generation = 0;
 let basketSignature = "";
 let actionError = "";
@@ -62,6 +74,7 @@ save.onclick = async () => {
   catch (error) { submitting = false; save.disabled = false; actionError = error.message; status.textContent = actionError; }
 };
 chrome.storage.onChanged.addListener((changes, area) => {
+  if (area === "local" && changes.youtubeUiVisible) { visibilityRevision++; visibility.checked = changes.youtubeUiVisible.newValue !== false; }
   if ((area === "local" && changes.basket) || (area === "session" && (changes.delivery || changes.outcome))) void render();
 });
 const refresh = setInterval(() => { if (!submitting) void render(); }, 5000);

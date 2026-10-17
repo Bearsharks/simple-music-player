@@ -8,7 +8,7 @@
       if (video && /^[\w-]{11}$/.test(video)) return { kind: "video", id: video };
     } catch {} return null;
   }
-  const bar = document.createElement("div"); bar.id = "loopy-bridge-tools";
+  const bar = document.createElement("div"); bar.id = "loopy-bridge-tools"; bar.hidden = true;
   const status = document.createElement("span"); status.setAttribute("role", "status");
   async function send(message) { try { const r = await chrome.runtime.sendMessage(message); if (!r?.ok) throw Error(r?.error || "연결 실패"); return r; } catch(e) { status.textContent = e.message; return null; } }
   function previewFrom(item, row = document) {
@@ -92,16 +92,42 @@
     closeButton.focus();
   };
   videoButton.onclick = () => add(itemFrom(location.href)); playlistButton.onclick = () => add(itemFrom(location.href, true)); connect.onclick = openPanel;
-  bar.append(videoButton, playlistButton, connect, status); document.body.append(bar);
+  const hideUI = document.createElement("button"); hideUI.type = "button"; hideUI.textContent = "×";
+  hideUI.className = "loopy-hide-ui"; hideUI.setAttribute("aria-label", "YouTube 담기 UI 숨기기");
+  hideUI.onclick = () => { void setVisibility(false); };
+  bar.append(videoButton, playlistButton, connect, status, hideUI); document.body.append(bar);
   chrome.storage.onChanged.addListener((changes, area) => {
+    if (area === "local" && changes.youtubeUiVisible) {
+      visibilityRevision++; applyVisibility(changes.youtubeUiVisible.newValue !== false);
+    }
     if (area === "local" && changes.basket) {
       const count = Array.isArray(changes.basket.newValue) ? changes.basket.newValue.length : 0;
       status.textContent = count ? `${count}개 담음` : "담은 항목 없음";
     }
   });
   const floating = document.createElement("div");
-  floating.id = "loopy-thumbnail-actions";
+  floating.id = "loopy-thumbnail-actions"; floating.hidden = true;
   document.body.append(floating);
+  let uiVisible = false, visibilityRevision = 0;
+  function applyVisibility(visible) {
+    uiVisible = visible;
+    if (!visible) { closePanel(); hideUI.blur(); }
+    bar.hidden = !visible; floating.hidden = !visible;
+    if (visible) schedulePosition();
+  }
+  async function setVisibility(visible) {
+    visibilityRevision++; applyVisibility(visible);
+    try { await chrome.storage.local.set({ youtubeUiVisible: visible }); }
+    catch { applyVisibility(true); status.textContent = "표시 설정을 저장하지 못했습니다."; }
+  }
+  function activateFromSearch() {
+    const url = new URL(location.href);
+    if (url.pathname !== "/results" || url.searchParams.get("loopy") !== "1") return false;
+    url.searchParams.delete("loopy");
+    history.replaceState(history.state, "", url.href);
+    void setVisibility(true);
+    return true;
+  }
   const targets = new Map();
   const resizeObserver = new ResizeObserver(() => schedulePosition());
   let layoutFrame = 0;
@@ -112,12 +138,11 @@
         resizeObserver.unobserve(thumbnail); entry.button.remove(); targets.delete(thumbnail); continue;
       }
       const rect = thumbnail.getBoundingClientRect();
-      const center = rect.top + rect.height / 2;
-      const visible = rect.width > 0 && rect.height > 0 && center >= 13 && center <= innerHeight - 13 && rect.right > 0 && rect.left < innerWidth;
+      const visible = uiVisible && rect.width > 0 && rect.height > 0 && rect.top >= 0 && rect.top <= innerHeight - 26 && rect.right > 0 && rect.left < innerWidth;
       entry.button.hidden = !visible;
       if (visible) {
         entry.button.style.left = `${Math.max(4, rect.left - 30)}px`;
-        entry.button.style.top = `${center - 13}px`;
+        entry.button.style.top = `${rect.top}px`;
       }
     }
   }
@@ -126,6 +151,7 @@
   window.addEventListener("resize", schedulePosition, { passive: true });
   let previewSignature = "";
   function scan() {
+    activateFromSearch();
     const entries = [];
     for (const item of [itemFrom(location.href), itemFrom(location.href, true)]) {
       if (item) entries.push({ item, preview: previewFrom(item) });
@@ -159,4 +185,8 @@
   }
   let timer; new MutationObserver(() => { clearTimeout(timer); timer = setTimeout(scan, 250); }).observe(document.body,{childList:true,subtree:true,attributes:true,attributeFilter:["href"]});
   document.addEventListener("yt-navigate-finish", scan); scan();
+  const revision = visibilityRevision;
+  if (!revision) chrome.storage.local.get("youtubeUiVisible").then(value => {
+    if (visibilityRevision === revision) applyVisibility(value.youtubeUiVisible !== false);
+  }).catch(() => { if (visibilityRevision === revision) applyVisibility(true); });
 })();

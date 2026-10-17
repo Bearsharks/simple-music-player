@@ -46,7 +46,7 @@ try {
   await playlistCollect.click();
   expect(youtube.url()).toBe("https://www.youtube.com/results?search_query=loopy");
   const icon=await videoCollect.boundingBox();const thumbnail=await youtube.locator("ytd-video-renderer ytd-thumbnail").boundingBox();
-  expect(icon.width).toBe(26);expect(icon.height).toBe(26);expect(icon.x+icon.width).toBeLessThan(thumbnail.x);expect(icon.y+icon.height/2).toBe(thumbnail.y+thumbnail.height/2);
+  expect(icon.width).toBe(26);expect(icon.height).toBe(26);expect(icon.x+icon.width).toBeLessThan(thumbnail.x);expect(icon.y).toBe(thumbnail.y);
   await youtube.evaluate(()=>scrollTo(0,140));await expect(videoCollect).not.toBeVisible();await expect(playlistCollect).toBeVisible();
   await youtube.evaluate(()=>scrollTo(0,0));await expect(videoCollect).toBeVisible();
   await expect(youtube.getByRole("status")).toHaveText("2개 담음");
@@ -57,6 +57,22 @@ try {
       return new Response(JSON.stringify({tag_name:"v99.0.0",draft:false,prerelease:false,assets:[{name:"loopy-extension.zip"}]}),{status:200});
     };
   });
+  await youtube.getByRole("button",{name:"YouTube 담기 UI 숨기기"}).click();
+  await expect(youtube.locator("#loopy-bridge-tools")).not.toBeVisible();await expect(videoCollect).not.toBeVisible();
+  await youtube.reload();await expect(youtube.locator("#loopy-bridge-tools")).not.toBeVisible();
+  const settings=await context.newPage();await settings.goto(`chrome-extension://${EXTENSION_ID}/popup.html`);
+  const visibility=settings.getByRole("checkbox",{name:"YouTube 담기 UI"});
+  await expect(visibility).toBeEnabled();await expect(visibility).not.toBeChecked();await expect(settings.locator("#count")).toHaveText("2");
+  await visibility.check();await expect(videoCollect).toBeVisible();
+  await visibility.uncheck();await expect(videoCollect).not.toBeVisible();
+  await app.getByRole("textbox",{name:"YouTube 검색어"}).fill("검색으로 다시 켜기");
+  const searchPagePromise=context.waitForEvent("page");await app.getByRole("button",{name:"YouTube에서 검색"}).click();
+  const searchPage=await searchPagePromise;
+  await expect(searchPage.locator("#loopy-bridge-tools")).toBeVisible();
+  expect(new URL(searchPage.url()).searchParams.get("search_query")).toBe("검색으로 다시 켜기");
+  expect(new URL(searchPage.url()).searchParams.has("loopy")).toBe(false);
+  await expect(videoCollect).toBeVisible();await expect(visibility).toBeChecked();
+  await searchPage.close();await settings.close();
   const pageCount=context.pages().length;
   await youtube.getByRole("button",{name:"연동하기",exact:true}).click();
   const panel=youtube.getByRole("dialog",{name:"loopy 담은 목록"});
@@ -163,9 +179,12 @@ try {
   await expect(opened.getByRole("dialog",{name:"목록 편집"})).toBeVisible({timeout:20000});
   await expect(popup.locator("#count")).toHaveText("0");
   // Unsent local basket survives an actual browser context restart.
-  await collectVideo();await context.close();context=await chromium.launchPersistentContext(profile,launchOptions);
+  await collectVideo();await worker.evaluate(()=>chrome.storage.local.set({youtubeUiVisible:false}));
+  await expect(youtube.locator("#loopy-bridge-tools")).not.toBeVisible();
+  await context.close();context=await chromium.launchPersistentContext(profile,launchOptions);
   const restored=await context.newPage();await restored.goto(`chrome-extension://${EXTENSION_ID}/popup.html`);
   await expect(restored.locator("#count")).toHaveText("1");
+  await expect(restored.getByRole("checkbox",{name:"YouTube 담기 UI"})).not.toBeChecked();
   expect(await restored.locator("body").evaluate(el=>el.getBoundingClientRect().width)).toBe(400);
   expect(await restored.locator("body").evaluate(el=>el.scrollWidth<=el.clientWidth)).toBe(true);
   const popupWorker=context.serviceWorkers()[0]||await context.waitForEvent("serviceworker");
@@ -181,8 +200,8 @@ try {
   expect(await measured).toEqual({width:400,overflow:false});
   await cdp.detach();
   expect(errors).toEqual([]);
-  fs.writeFileSync(path.join(output,"report.json"),JSON.stringify({extensionId:EXTENSION_ID,realExtensionTransport:true,realIndexedDB:true,overlay:true,thumbnailIconSize:26,singleTarget:true,createdTabWhenAbsent:true,clearedOnAck:true,basketSurvivedBrowserRestart:true,extensionUpdateLinkVerified:true,externalMetadataAndPlayer:"mocked",githubRelease:"mocked",textarea,errors},null,2));
-  console.log("PASS: YouTube overlay/Escape, targeted delivery/reuse/new tab, ACK clearing, browser-restart basket persistence, modal edits/queue/storage; desktop + 390/320.");
+  fs.writeFileSync(path.join(output,"report.json"),JSON.stringify({extensionId:EXTENSION_ID,realExtensionTransport:true,realIndexedDB:true,overlay:true,thumbnailIconSize:26,thumbnailTopAligned:true,hideUI:true,searchReactivatesUI:true,visibilitySurvivedBrowserRestart:true,singleTarget:true,createdTabWhenAbsent:true,clearedOnAck:true,basketSurvivedBrowserRestart:true,extensionUpdateLinkVerified:true,externalMetadataAndPlayer:"mocked",githubRelease:"mocked",textarea,errors},null,2));
+  console.log("PASS: top-aligned icons, hide/persist/search-reactivate UI, YouTube overlay/Escape, targeted delivery/reuse/new tab, ACK clearing, browser-restart basket persistence, modal edits/queue/storage; desktop + 390/320.");
 }catch(error){
   console.log("App failure diagnostic",await Promise.all(context.pages().filter(p=>p.url().startsWith(base)).map(p=>p.evaluate(()=>({url:location.href,scripts:[...document.scripts].map(s=>s.src),text:document.body.innerText.slice(0,400)})).catch(()=>null))),errors);
   for(const page of context.pages()){

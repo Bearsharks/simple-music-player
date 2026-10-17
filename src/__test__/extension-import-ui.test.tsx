@@ -34,7 +34,7 @@ it("shows loading until resolution completes",async()=>{
 it("opens YouTube in a new tab without requiring extension",()=>{
   const open=vi.spyOn(window,"open").mockReturnValue(null);render(<ExtensionImport/>);
   fireEvent.change(screen.getByLabelText("YouTube 검색어"),{target:{value:"재즈 & 피아노"}});fireEvent.click(screen.getByRole("button",{name:"YouTube에서 검색"}));
-  expect(open).toHaveBeenCalledWith("https://www.youtube.com/results?search_query=%EC%9E%AC%EC%A6%88%20%26%20%ED%94%BC%EC%95%84%EB%85%B8","_blank","noopener,noreferrer");
+  expect(open).toHaveBeenCalledWith("https://www.youtube.com/results?search_query=%EC%9E%AC%EC%A6%88%20%26%20%ED%94%BC%EC%95%84%EB%85%B8&loopy=1","_blank","noopener,noreferrer");
 });
 it("shows GitHub installation only while disconnected and auto-closes when connected",async()=>{
   render(<ExtensionImport/>);
