@@ -1,4 +1,7 @@
 const paths: Record<string, string> = {
+  "playlist-add": '<path d="M3 5h12M3 10h12M3 15h7m8-4v10m-5-5h10"/>',
+  "queue-next": '<path d="M3 5h12M3 10h12M3 15h7m5-3 6 4-6 4Z"/>',
+  remove: '<circle cx="12" cy="12" r="9"/><path d="M7 12h10"/>',
   grid: '<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>',
   plus: '<path d="M12 5v14M5 12h14"/>',
   search: '<circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 4 4"/>',
@@ -48,6 +51,8 @@ export default function Icon({
   return (
     <svg
       className={`icon ${className}`}
+      width="20"
+      height="20"
       viewBox="0 0 24 24"
       aria-hidden="true"
       focusable="false"

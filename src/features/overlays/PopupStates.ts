@@ -10,13 +10,6 @@ import keyGenerator from "shared/lib/keyGenerator";
 export const ModalOpenState = atom<boolean>(false);
 export const ModalInfoState = atom<ModalInfoData>({} as ModalInfoData);
 
-export enum OptionSelectorKind {
-  Playlist,
-  SearchBar,
-}
-
-export const OptionSelectorOpenState = atom<boolean>(false);
-
 export enum PopupKind {
   PlaylistOptions,
   MusicOptions,

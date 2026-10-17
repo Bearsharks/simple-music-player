@@ -1,5 +1,6 @@
 import { useRef, useState } from "react";
 import { DropdownMenuItem } from "./shadcn/dropdown-menu";
+import Icon from "./Icon";
 import ErrorToast from "./ErrorToast";
 import styles from "./OptionSelector.module.scss";
 export interface OptionInfo {
@@ -42,9 +43,7 @@ export default function OptionSelector({ options }: { options: OptionInfo[] }) {
             void choose(option);
           }}
         >
-          <span className="material-icons" aria-hidden="true">
-            {option.icon}
-          </span>
+          <Icon name={option.icon} />
           <span>{option.name}</span>
         </DropdownMenuItem>
       ))}

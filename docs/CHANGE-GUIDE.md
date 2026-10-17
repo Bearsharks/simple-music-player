@@ -55,3 +55,7 @@ App → navigation/Main이 현재 진입 경로다. URL 가져오기는 youtube/
 ## 커버 썸네일
 
 `src/shared/ui/Cover.tsx`는 카드·곡 행·재생바·상세 화면의 공통 커버다. `CoverImage.tsx`는 저장된 YouTube 썸네일 URL을 표시 시점에 해석해 렌더 크기와 최대 2배 픽셀 밀도에 맞춰 320/480/640px 중 선택한다. 최대 해상도 원본은 요청하지 않는다. 없는 크기나 작은 대체 이미지 응답은 낮은 크기로 전환하고 모두 실패하면 기존 파형을 표시한다. 저장 데이터와 최초 스냅샷은 변경하지 않는다. 회귀: `src/__test__/cover-image.test.tsx`.
+
+## 아이콘 및 첫 메뉴 표시
+
+공통 아이콘은 shared/ui/Icon의 고정 크기 inline SVG, shadcn 내부 아이콘은 기존 lucide SVG를 사용한다. material-icons 의존·폰트·CSS는 제거했다. 새 아이콘에 별도 폰트 다운로드를 도입하지 않는다. 옵션 데이터 대기는 overlays/Popup의 popup 전체 Suspense 경계가 소유하며 대기 중 Escape/외부 클릭 취소를 보존한다.

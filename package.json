@@ -14,7 +14,6 @@
     "clsx": "2.1.1",
     "jotai": "3.0.1",
     "lucide-react": "1.58.0",
-    "material-icons": "1.13.14",
     "react": "19.3.1",
     "react-dom": "19.3.1",
     "react-router-dom": "7.18.4",
@@ -36,7 +35,7 @@
     "build-storybook": "storybook build",
     "check": "npm run check:boundaries && node --test tools/package-extension.check.mjs extension/background.check.mjs extension/updates.check.mjs && npm run typecheck && npm test && npm run build",
     "check:boundaries": "node tools/check-boundaries.mjs",
-    "test:browser": "node e2e/smoke.mjs && node e2e/player-overlays.mjs && node e2e/electric-night.mjs && node e2e/typography.mjs && node e2e/cover-images.mjs",
+    "test:browser": "node e2e/smoke.mjs && node e2e/player-overlays.mjs && node e2e/electric-night.mjs && node e2e/typography.mjs && node e2e/cover-images.mjs && node e2e/cold-menu.mjs",
     "impact": "node tools/feature-impact.mjs"
   },
   "devDependencies": {
