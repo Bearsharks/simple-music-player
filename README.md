@@ -1,45 +1,105 @@
-> 최신 상태: 저장 재생목록은 IndexedDB를 사용한다. 영상 URL 추가·로컬 순서 변경·삭제를 지원하며 sourcePlaylistUrl이 있는 목록만 명시적인 원본 초기화를 제공한다. 옛 서버 데이터는 자동 회수하지 않는다. [저장소 이전 근거](docs/STORAGE-MIGRATION.md)
+<p align="center">
+  <a href="https://loopy.bearsharks.dev/">
+    <img src="docs/readme/hero.jpg" width="100%" alt="loopy — 좋아하는 음악을, 나만의 흐름으로. 데스크톱과 모바일의 실제 라이브러리 화면.">
+  </a>
+</p>
 
-# 현재 화면: 기존 편집 UI 복원
+<p align="center"><sub>예시 데이터로 구성한 실제 앱 화면 · 실제 음원 재생 시연은 포함하지 않습니다.</sub></p>
 
-로그인 없이 기존 재생목록 화면과 오른쪽 재생 대기열 편집을 사용합니다. URL은 새 재생목록 → 유튜브에서 가져오기 → 링크에서 가져오기에서 미리보기 후 저장합니다. 곡 ID/썸네일 기반이며 제목 자동 조회는 지원하지 않습니다. 저장 목록은 로컬에 유지됩니다. [배포/도메인 안내](docs/DEPLOYMENT.md).
+<p align="center">
+  좋아하는 YouTube 음악을 모으고, 내 순서로 정리하고, 오늘의 대기열로 이어 듣는 공간.<br>
+  <strong>loopy는 로그인 없이 시작하는 나만의 음악 라이브러리입니다.</strong>
+</p>
 
-# Simple Music Player — 로컬 URL 재생목록
+<p align="center">
+  <a href="https://loopy.bearsharks.dev/"><strong>loopy 시작하기 ↗</strong></a>
+  &nbsp; · &nbsp;
+  <a href="#3단계로-첫-재생목록-만들기">사용 방법</a>
+  &nbsp; · &nbsp;
+  <a href="#개발하기">개발 안내</a>
+</p>
 
-현재 앱은 로그인 없이 공개 YouTube 재생목록 URL과 이름을 브라우저에 저장하고 공식 임베드로 재생합니다. 자체 서버/API 키 설정 없이 `npm ci && npm run dev`로 시작합니다. `npm run check`로 검사합니다.
+<br>
 
-저장되는 것은 링크이며 곡 파일이나 전체 메타데이터 복사본이 아닙니다. 사이트 데이터 삭제·주소 변경·다른 기기에는 자동 이전되지 않습니다. [현재 구조](docs/ARCHITECTURE.md), [작업 지도](docs/CHANGE-GUIDE.md), [변경 보고](docs/LOCAL-PLAYLISTS.md).
+## 취향은 모으고, 순서는 내 마음대로.
 
-## 이전 버전 기록 (현재 동작 설명 아님)
+한 곡의 URL로 시작해도, 이미 아끼는 재생목록을 가져와도 좋습니다.<br>
+이름과 설명을 붙이고 곡을 더하거나 빼고 옮기며, 나만의 목록으로 다듬어 보세요.
 
-# 개발 안내 — 기능 단위 구조 / 2026-10-16
+| 모으기 | 정리하기 | 이어 듣기 |
+| :--- | :--- | :--- |
+| 공개 재생목록과 영상 URL에서 시작하세요. 가능한 곡은 원래 제목도 불러옵니다. | 이름·설명·곡 순서까지. 드래그한 순서는 바로 저장됩니다. | 저장한 목록과 오늘의 대기열을 따로 편집하며 듣습니다. |
 
-- Node.js 24 (`nvm use`), `npm ci`
-- `.env.example`을 `.env.local`로 복사한 뒤 `VITE_API_URL`을 설정합니다. 기존 `REACT_APP_*` 변수는 새 Vite 앱에서 자동 사용하지 않습니다.
-- 백엔드 없는 **검증용 화면**: `VITE_API_MODE=fixture npm run dev`. fixture는 메모리 데이터이며 실제 YouTube 인증/저장/동기화를 제공하지 않습니다.
-- 개발: `npm run dev`, 기본 경로 `/simple-music-player/`
-- 검증: `npm run check` (경계·타입·테스트·production build)
-- UI 카탈로그: `npm run storybook`, 정적 빌드: `npm run build-storybook`
-- 산출물: `dist/`. 빌드·테스트 CI는 배포하지 않습니다. 실제 게시 작업은 별도로 승인·설정합니다.
+<br>
 
-문서: [아키텍처](docs/ARCHITECTURE.md) · [디자인/아키텍처/기능별 개선 우선순위와 검증 결과](docs/IMPROVEMENT-PLAN.md) · [에이전트 작업 지침](AGENTS.md)
+<a href="https://loopy.bearsharks.dev/">
+  <img src="docs/readme/workspace.jpg" width="100%" alt="Blue hour 예시 재생목록의 실제 상세 화면. 전체 재생, 곡 추가, 드래그 순서 변경, 곡별 더보기를 제공합니다.">
+</a>
 
-## 기존 프로젝트 소개
+<sub>화면의 재생목록·곡·아티스트는 소개를 위해 만든 예시입니다. 앱 UI는 실제 렌더이며, 히어로의 파형과 프레임은 별도로 제작한 소개용 그래픽입니다.</sub>
 
-# [간단 노래 재생기](https://bearsharks.github.io/simple-music-player)
-유튜브 뮤직 클론 프로젝트로 검색, 재생목록URL, 동영상URL로 재생목록을 만들 수 있는 간단한 뮤직플레이어 입니다. \
-**[링크](https://bearsharks.github.io/simple-music-player)**  \
-\
-<img src="https://user-images.githubusercontent.com/47706141/157233119-8e2f398f-7b3b-4cf6-9df0-7e9884595936.PNG"  width="310"/>
-<img src="https://user-images.githubusercontent.com/47706141/157233121-e6e9a433-879a-4c5e-8e67-61cd8f0c65b9.PNG"  width="310" />
-<img src="https://user-images.githubusercontent.com/47706141/157233110-afd3260b-6773-4225-8585-635ebf073bda.PNG"  width="310"/>                                                                                                                                         
+<br><br>
 
-# 간단 사용법
-1. 검색창을 열고 마음에 드는 노래를 입력합니다. 유튜브 재생목록이나 동영상 URL로도 추가 할 수 있습니다.
+### 크게 펼쳐도, 손안에 담아도.
 
+데스크톱에서는 라이브러리와 오른쪽 플레이어를 함께 보고, 모바일에서는 필요한 화면에 집중합니다. 하단 재생바에서 현재 곡과 대기열로 돌아갈 수 있습니다.
 
-<img src="https://user-images.githubusercontent.com/47706141/157238072-5a641a91-afea-4d95-96cb-e360fbd32be3.PNG"  width="400"/>      
-2. 입력 후 검색버튼을 눌러 노래를 추가합니다.
+### 처음의 목록도, 지금의 취향도.
 
-![추가된것을 확인할수](https://user-images.githubusercontent.com/47706141/157238075-6b2498a2-1ba1-49ae-9cce-6742cdecd26c.PNG)
+YouTube에서 가져온 목록은 로컬에서 자유롭게 편집할 수 있습니다. 필요할 때만 **YouTube 최신 목록 가져오기**로 갱신하거나, 최초 기록이 있는 목록을 **처음 가져온 목록으로 복원**할 수 있습니다. 자동으로 편집 내용을 덮어쓰지 않습니다.
 
+### 내 브라우저에 저장하고, 파일로 챙겨 두세요.
+
+목록과 곡 정보는 이 브라우저의 IndexedDB에 저장됩니다. 라이브러리 더보기에서 **목록 내보내기 / 백업 가져오기**로 보관하거나 다른 브라우저로 옮길 수 있습니다.
+
+<br>
+
+## 3단계로 첫 재생목록 만들기
+
+1. **[loopy 열기](https://loopy.bearsharks.dev/)** → **새 재생목록**을 선택합니다.
+2. 이름을 붙여 빈 목록을 만들거나, **유튜브에서 가져오기**에 공개 재생목록 URL을 붙여 넣습니다. URL 입력을 마치면 목록을 불러옵니다.
+3. **곡 추가**로 원하는 영상을 더하고 **전체 재생**으로 듣기를 시작하세요.
+
+<details>
+<summary><strong>저장과 재생에 대해 알아두기</strong></summary>
+
+- 계정이나 기기 간 자동 동기화는 없습니다. 사이트 데이터를 지우거나 브라우저·접속 주소를 바꾸면 기존 목록에 접근할 수 없으므로, 중요한 목록은 먼저 백업하세요.
+- 음악 파일을 저장하거나 다운로드하지 않습니다. 재생은 YouTube 공식 임베드를 사용하며 인터넷 연결이 필요합니다.
+- 비공개·삭제된 영상, 임베드 제한, 브라우저의 자동 재생 정책 등에 따라 가져오기나 재생이 제한될 수 있습니다.
+- 제목을 가져오지 못한 곡은 임시 제목으로 저장됩니다. 목록의 **원래 곡 제목 가져오기**로 다시 시도할 수 있습니다.
+
+</details>
+
+<br>
+
+## 개발하기
+
+현재 서비스의 소스는 **[`design/shadcn-ui`](https://github.com/Bearsharks/simple-music-player/tree/design/shadcn-ui)** 브랜치에 있습니다. 기본 브랜치의 이전 앱 코드와 구분해 주세요.
+
+**React 19 · TypeScript · Vite 8 · Jotai · IndexedDB · shadcn/ui + Radix**
+
+Node.js 24에서 시작합니다. 기본 사용에는 별도 백엔드, 로그인, API 키 설정이 필요하지 않습니다.
+
+```bash
+git clone --branch design/shadcn-ui https://github.com/Bearsharks/simple-music-player.git
+cd simple-music-player
+nvm use
+npm ci
+npm run dev
+```
+
+개발 주소: `http://localhost:5173/simple-music-player/`
+
+```bash
+npm run check             # 기능 경계 · 타입 · 단위 테스트 · 프로덕션 빌드
+npm run storybook         # 공통 UI와 상태별 컴포넌트
+VITE_BASE_PATH=/ npm run build  # 루트 도메인용 빌드
+```
+
+[아키텍처](https://github.com/Bearsharks/simple-music-player/blob/design/shadcn-ui/docs/ARCHITECTURE.md) · [기능별 작업 지도](https://github.com/Bearsharks/simple-music-player/blob/design/shadcn-ui/docs/CHANGE-GUIDE.md) · [디자인 시스템](https://github.com/Bearsharks/simple-music-player/blob/design/shadcn-ui/DESIGN_SYSTEM.md)
+
+<sub>이 저장소는 Simple Music Player에서 출발한 loopy의 소스입니다. 브라우저 모의 테스트의 성공이 모든 YouTube 영상의 실제 재생을 보장하지는 않습니다.</sub>
+
+<br>
+
+<p align="center"><a href="https://loopy.bearsharks.dev/"><strong>오늘의 첫 곡을 만나러 가기 ↗</strong></a></p>
