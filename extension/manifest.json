@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "loopy 담기",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "YouTube 영상과 재생목록을 loopy에 전달합니다.",
   "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAp6Nk6BjO7r5+NOGeImxzE7S3t8Kd0jSKjFEnpR7iW0v8yqtRWuFZpMMej31T3f5NGpp4QZIZGAEse8pgo0bocCmhw5ZNWilPJCy/h/gL2CSzveAgM6g8IizuXO6O0mmglInQWPDKG6JNWt8XszqqbqEGlJLAs1HSS2nkXzIdR9i1VOihejPviSswEft21ZGwCiwFIVNb42cMtlIVX/fnwoPUvcDP76pjYyu8fEzNqSYJDLCVE/CTRV8WN9RuF0saGE97EI+D09fYULvHVDY3SmO0I+0gPSowGYAh5u0kucNP5M1mcLcKMavNQeYuTzv89aRTYeqxkW9ymdLmCSkr+wIDAQAB",
   "permissions": ["storage"],

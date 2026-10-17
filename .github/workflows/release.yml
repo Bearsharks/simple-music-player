@@ -59,6 +59,7 @@ jobs:
           TEST_URL=http://127.0.0.1:4173/ npm run test:browser
           unzip -q artifacts/loopy-extension.zip -d "$RUNNER_TEMP/loopy-extension-release"
           TEST_URL=https://loopy.bearsharks.dev/ APP_PROXY_URL=http://127.0.0.1:4173 EXTENSION_DIR="$RUNNER_TEMP/loopy-extension-release/loopy-extension" node e2e/extension-import.mjs
+          EXTENSION_DIR="$RUNNER_TEMP/loopy-extension-release/loopy-extension" node e2e/extension-reload.mjs
       - name: Verify accepted bytes
         run: npm run release:verify
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9

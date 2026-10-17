@@ -1,4 +1,23 @@
 (() => {
+  let stopped = false, timer, observer, layoutFrame = 0;
+  const listeners = new AbortController();
+  const contextAvailable = () => { try { return !!chrome.runtime?.id; } catch { return false; } };
+  if (!contextAvailable()) return;
+  function ensureContext() {
+    if (stopped) return false;
+    if (contextAvailable()) return true;
+    stopInvalidContext(); return false;
+  }
+  async function withExtension(operation) {
+    if (!ensureContext()) return null;
+    try { return await operation(); }
+    catch (error) {
+      if (!contextAvailable() || /extension context invalidated/i.test(error?.message || "")) {
+        stopInvalidContext(); return null;
+      }
+      throw error;
+    }
+  }
   function itemFrom(raw, preferPlaylist = false) {
     try {
       const url = new URL(raw, location.origin);
@@ -10,7 +29,7 @@
   }
   const bar = document.createElement("div"); bar.id = "loopy-bridge-tools"; bar.hidden = true;
   const status = document.createElement("span"); status.setAttribute("role", "status");
-  async function send(message) { try { const r = await chrome.runtime.sendMessage(message); if (!r?.ok) throw Error(r?.error || "연결 실패"); return r; } catch(e) { status.textContent = e.message; return null; } }
+  async function send(message, quiet = false) { try { const r = await withExtension(() => chrome.runtime.sendMessage(message)); if (stopped) return null; if (!r?.ok) throw Error(r?.error || "연결 실패"); return r; } catch(e) { if (!quiet && !stopped) status.textContent = e.message; return null; } }
   function previewFrom(item, row = document) {
     let scope = row, title = "";
     if (row === document) {
@@ -65,8 +84,8 @@
   closeButton.type = "button"; closeButton.textContent = "×"; closeButton.setAttribute("aria-label", "담은 목록 닫기");
   const frame = document.createElement("iframe");
   frame.title = "loopy 담은 목록";
-  const popupURL = chrome.runtime.getURL("popup.html");
   const extensionOrigin = `chrome-extension://${chrome.runtime.id}`;
+  const popupURL = `${extensionOrigin}/popup.html`;
   const closePanel = () => {
     if (!panel.open) return;
     frame.removeAttribute("src");
@@ -83,10 +102,10 @@
   window.addEventListener("message", event => {
     if (event.origin === extensionOrigin && event.source === frame.contentWindow &&
       event.data?.type === "loopy.panel.close" && Object.keys(event.data).length === 1) closePanel();
-  });
+  }, { signal: listeners.signal });
   panelHeader.append(closeButton); panel.append(panelHeader, frame); shadow.append(style, panel); document.body.append(overlayHost);
   const openPanel = () => {
-    if (panel.open) return;
+    if (!ensureContext() || panel.open) return;
     frame.src = popupURL;
     panel.showModal();
     closeButton.focus();
@@ -96,7 +115,8 @@
   hideUI.className = "loopy-hide-ui"; hideUI.setAttribute("aria-label", "YouTube 담기 UI 숨기기");
   hideUI.onclick = () => { void setVisibility(false); };
   bar.append(videoButton, playlistButton, connect, status, hideUI); document.body.append(bar);
-  chrome.storage.onChanged.addListener((changes, area) => {
+  function onStorageChanged(changes, area) {
+    if (!ensureContext()) return;
     if (area === "local" && changes.youtubeUiVisible) {
       visibilityRevision++; applyVisibility(changes.youtubeUiVisible.newValue !== false);
     }
@@ -104,7 +124,7 @@
       const count = Array.isArray(changes.basket.newValue) ? changes.basket.newValue.length : 0;
       status.textContent = count ? `${count}개 담음` : "담은 항목 없음";
     }
-  });
+  }
   const floating = document.createElement("div");
   floating.id = "loopy-thumbnail-actions"; floating.hidden = true;
   document.body.append(floating);
@@ -116,9 +136,10 @@
     if (visible) schedulePosition();
   }
   async function setVisibility(visible) {
+    if (!ensureContext()) return;
     visibilityRevision++; applyVisibility(visible);
-    try { await chrome.storage.local.set({ youtubeUiVisible: visible }); }
-    catch { applyVisibility(true); status.textContent = "표시 설정을 저장하지 못했습니다."; }
+    try { await withExtension(() => chrome.storage.local.set({ youtubeUiVisible: visible })); }
+    catch { if (!stopped) { applyVisibility(true); status.textContent = "표시 설정을 저장하지 못했습니다."; } }
   }
   function activateFromSearch() {
     const url = new URL(location.href);
@@ -130,9 +151,9 @@
   }
   const targets = new Map();
   const resizeObserver = new ResizeObserver(() => schedulePosition());
-  let layoutFrame = 0;
   function positionButtons() {
     layoutFrame = 0;
+    if (!ensureContext()) return;
     for (const [thumbnail, entry] of targets) {
       if (!thumbnail.isConnected || !entry.row.isConnected) {
         resizeObserver.unobserve(thumbnail); entry.button.remove(); targets.delete(thumbnail); continue;
@@ -146,11 +167,12 @@
       }
     }
   }
-  const schedulePosition = () => { if (!layoutFrame) layoutFrame = requestAnimationFrame(positionButtons); };
-  document.addEventListener("scroll", schedulePosition, { passive: true, capture: true });
-  window.addEventListener("resize", schedulePosition, { passive: true });
+  const schedulePosition = () => { if (!stopped && !layoutFrame) layoutFrame = requestAnimationFrame(positionButtons); };
+  document.addEventListener("scroll", schedulePosition, { passive: true, capture: true, signal: listeners.signal });
+  window.addEventListener("resize", schedulePosition, { passive: true, signal: listeners.signal });
   let previewSignature = "";
   function scan() {
+    if (!ensureContext()) return;
     activateFromSearch();
     const entries = [];
     for (const item of [itemFrom(location.href), itemFrom(location.href, true)]) {
@@ -180,13 +202,30 @@
     const signature = JSON.stringify(entries);
     if (signature !== previewSignature) {
       previewSignature = signature;
-      if (entries.length) chrome.runtime.sendMessage({ type: "basket.preview", entries }).catch(() => {});
+      if (entries.length) void send({ type: "basket.preview", entries }, true);
     }
   }
-  let timer; new MutationObserver(() => { clearTimeout(timer); timer = setTimeout(scan, 250); }).observe(document.body,{childList:true,subtree:true,attributes:true,attributeFilter:["href"]});
-  document.addEventListener("yt-navigate-finish", scan); scan();
+  function stopInvalidContext() {
+    if (stopped) return;
+    stopped = true;
+    listeners.abort(); clearTimeout(timer); cancelAnimationFrame(layoutFrame);
+    observer?.disconnect(); resizeObserver.disconnect(); targets.clear();
+    try { chrome.storage.onChanged.removeListener(onStorageChanged); } catch {}
+    const wasVisible = !bar.hidden || panel.open;
+    frame.removeAttribute("src"); if (panel.open) panel.close();
+    overlayHost.remove(); floating.replaceChildren(); floating.remove();
+    if (!wasVisible) { bar.remove(); return; }
+    status.textContent = "확장 연결이 끊겼습니다. YouTube를 새로고침하세요.";
+    const reload = document.createElement("button"); reload.type = "button"; reload.textContent = "새로고침";
+    reload.onclick = () => location.reload(); hideUI.onclick = () => bar.remove();
+    bar.replaceChildren(status, reload, hideUI); bar.hidden = false;
+  }
+  observer = new MutationObserver(() => { if (!stopped) { clearTimeout(timer); timer = setTimeout(scan, 250); } });
+  observer.observe(document.body,{childList:true,subtree:true,attributes:true,attributeFilter:["href"]});
+  try { chrome.storage.onChanged.addListener(onStorageChanged); } catch { stopInvalidContext(); return; }
+  document.addEventListener("yt-navigate-finish", scan, { signal: listeners.signal }); scan();
   const revision = visibilityRevision;
-  if (!revision) chrome.storage.local.get("youtubeUiVisible").then(value => {
-    if (visibilityRevision === revision) applyVisibility(value.youtubeUiVisible !== false);
-  }).catch(() => { if (visibilityRevision === revision) applyVisibility(true); });
+  if (!revision) void withExtension(() => chrome.storage.local.get("youtubeUiVisible")).then(value => {
+    if (!stopped && value && visibilityRevision === revision) applyVisibility(value.youtubeUiVisible !== false);
+  }).catch(() => { if (!stopped && visibilityRevision === revision) applyVisibility(true); });
 })();
