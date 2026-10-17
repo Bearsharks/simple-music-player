@@ -16,6 +16,8 @@
 4. `gh-pages`의 최신 상태를 가져온 뒤 `CNAME`을 보존하여 빌드 산출물을 게시한다. `release.json`에 빌드의 소스 SHA를 기록한다.
 5. Pages 실행 결과, 실제 도메인의 `release.json`, 정적 리소스와 변경 화면을 확인한다. 완료되지 않은 배포를 완료로 보고하지 않는다.
 
+확장 배포는 manifest 버전과 같은 `vX.Y.Z` GitHub Release에 `artifacts/loopy-extension.zip`을 게시한다. 운영 ZIP은 앱 탐색·메시지 출처·권한 모두 운영 도메인으로 제한한다. `npm run build`는 웹 다운로드 경로에도 운영 ZIP을 포함한다. ZIP 내부 텍스트의 로컬 주소 부재와 개발/운영 설정 분리는 패키징 회귀 검사에서 검증한다. `e2e/extension-import.mjs`의 `TEST_URL=https://loopy.bearsharks.dev/`, `APP_PROXY_URL=http://127.0.0.1:<preview-port>` 조합으로 운영 출처에 로컬 빌드를 제공하여 운영 ZIP 전달과 로컬 미선택을 게시 전에 검증할 수 있다.
+
 `gh-pages`는 게시 산출물용이다. 앱 원본을 작업 브랜치에만 남겨두는 용도로 사용하지 않는다. 브랜치 통합만으로 기존 배포를 다시 게시할 필요는 없다.
 
 ## 도메인과 저장 데이터

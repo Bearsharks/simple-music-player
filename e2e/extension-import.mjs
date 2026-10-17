@@ -11,6 +11,10 @@ const profile=fs.mkdtempSync(path.join(os.tmpdir(),"loopy-extension-"));
 const extension=path.resolve(process.env.EXTENSION_DIR || "extension");
 const launchOptions={headless:true,channel:"chromium",executablePath:process.env.CHROMIUM_PATH||undefined,args:[`--disable-extensions-except=${extension}`,`--load-extension=${extension}`],viewport:{width:1440,height:1000}};
 let context=await chromium.launchPersistentContext(profile,launchOptions);
+if(process.env.APP_PROXY_URL)await context.route(`${new URL(base).origin}/**`,async route=>{
+  const url=new URL(route.request().url());
+  await route.fulfill({response:await route.fetch({url:new URL(url.pathname+url.search,process.env.APP_PROXY_URL).href})});
+});
 const ids=["azNG-AU0eGg","hWhgrA2dhrk","yDv6qdiw_WE"];
 const playlist="PLVKdYxm17gBYbyZYbHWZDr7NU3ZwtFiB5";
 const errors=[];
@@ -31,6 +35,10 @@ try {
   await context.route("https://i.ytimg.com/**",r=>r.abort());
   await context.route("https://www.youtube.com/results?**",r=>r.fulfill({contentType:"text/html; charset=utf-8",body:`<!doctype html><html><head><style>body{background:#181818;color:white;font:16px sans-serif;min-height:1600px}ytd-video-renderer,ytd-playlist-renderer{display:block;margin:48px}ytd-thumbnail{display:block;width:240px;height:135px;background:#444;border-radius:12px;overflow:hidden}a{display:block;width:100%;height:100%;color:white;text-align:center}</style></head><body><ytd-video-renderer><ytd-thumbnail><a href="/watch?v=${ids[0]}">영상</a></ytd-thumbnail><h3>첫 영상 제목</h3></ytd-video-renderer><ytd-playlist-renderer><ytd-thumbnail><a href="/playlist?list=${playlist}"><img src="https://i.ytimg.com/vi/${ids[1]}/mqdefault.jpg" alt=""></a></ytd-thumbnail><h3>재생목록 제목</h3></ytd-playlist-renderer></body></html>`}));
   const app=await context.newPage();await app.goto(base);await app.getByRole("textbox",{name:"YouTube 검색어"}).waitFor();
+  if(process.env.APP_PROXY_URL){
+    await context.route("http://127.0.0.1:4187/simple-music-player/**",r=>r.fulfill({contentType:"text/html",body:"<title>Local decoy</title>Local app must not receive release delivery"}));
+    const decoy=await context.newPage();await decoy.goto("http://127.0.0.1:4187/simple-music-player/");
+  }
   const youtube=await context.newPage();await youtube.goto("https://www.youtube.com/results?search_query=loopy");
   const videoCollect=youtube.locator(`.loopy-collect[data-loopy-id="${ids[0]}"]`);
   const playlistCollect=youtube.locator(`.loopy-collect[data-loopy-id="${playlist}"]`);
