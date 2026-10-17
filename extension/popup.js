@@ -1,6 +1,14 @@
 const list = document.querySelector("#basket");
 const status = document.querySelector("#status");
 const save = document.querySelector("#save");
+const openApp = document.querySelector("#open-app");
+openApp.onclick = async () => {
+  if (openApp.disabled) return;
+  openApp.disabled = true;
+  try { await call({ type: "app.open" }); actionError = ""; await render(); }
+  catch (error) { actionError = error.message; status.textContent = actionError; }
+  finally { openApp.disabled = false; }
+};
 document.querySelector("#version").textContent = `v${chrome.runtime.getManifest().version}`;
 chrome.runtime.sendMessage({ type: "extension.update" }).then(result => {
   if (!result?.ok || !result.update) return;

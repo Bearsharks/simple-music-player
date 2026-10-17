@@ -39,6 +39,23 @@ test("validates sender and ID-only payload; ACK alone clears delivered entries",
   await ack("wrong");assert.equal(local.basket.length,1);
   await ack(request.requestId);assert.equal(local.basket.length,0);assert.equal(session.delivery,null);
 });
+test("opens an existing Loopy tab without navigation, delivery or basket changes",async()=>{
+  await add();await send();const before=structuredClone({local,session});updates.length=0;focused.length=0;
+  assert.equal((await call("internal",{type:"app.open"})).ok,true);
+  assert.deepEqual(updates,[{id:10,options:{active:true}}]);assert.deepEqual(focused,[{id:1,options:{focused:true}}]);
+  assert.equal(created.length,0);assert.deepEqual({local,session},before);
+});
+test("opens only the production URL when no allowed tab exists, even with an empty basket",async()=>{
+  tabs=[{id:67,url:"http://127.0.0.1:4187/simple-music-player/",windowId:1}];
+  assert.equal((await call("internal",{type:"app.open"})).ok,true);
+  assert.deepEqual(created,[{url:APP_URL,active:true}]);assert.deepEqual(local,{});assert.deepEqual(session,{});
+});
+test("rejects non-popup or malformed open requests and preserves state on focus failure",async()=>{
+  assert.equal((await call("internal",{type:"app.open"},{id:EXTENSION_ID,url:"https://www.youtube.com/"})).ok,false);
+  assert.equal((await call("internal",{type:"app.open",url:"https://evil.test/"})).ok,false);
+  await add();const before=structuredClone({local,session});failOpen=true;
+  assert.equal((await call("internal",{type:"app.open"})).ok,false);assert.deepEqual({local,session},before);
+});
 test("keeps sanitized preview metadata locally and sends only kind/id",async()=>{
   await call("internal",{type:"basket.add",item:{kind:"video",id:"azNG-AU0eGg"},preview:{title:"  My\n song  ",thumbnailVideoId:"javascript:bad",thumbnailUrl:"https://evil.test/track"}});
   assert.equal(local.basket[0].title,"My song");assert.equal(local.basket[0].thumbnailVideoId,"azNG-AU0eGg");assert.equal(local.basket[0].thumbnailUrl,undefined);

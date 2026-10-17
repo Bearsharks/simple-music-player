@@ -63,6 +63,12 @@ try {
   const settings=await context.newPage();await settings.goto(`chrome-extension://${EXTENSION_ID}/popup.html`);
   const visibility=settings.getByRole("checkbox",{name:"YouTube 담기 UI"});
   await expect(visibility).toBeEnabled();await expect(visibility).not.toBeChecked();await expect(settings.locator("#count")).toHaveText("2");
+  const pagesBeforeOpen=context.pages().length;
+  await app.evaluate(()=>window.__openAppKept="kept");
+  await settings.getByRole("button",{name:"Loopy로 이동"}).click();
+  await expect(settings.getByRole("button",{name:"Loopy로 이동"})).toBeEnabled();
+  expect(context.pages().length).toBe(pagesBeforeOpen);expect(await app.evaluate(()=>window.__openAppKept)).toBe("kept");
+  await expect(settings.locator("#count")).toHaveText("2");await expect(app.getByRole("dialog",{name:"목록 편집"})).toHaveCount(0);
   await visibility.check();await expect(videoCollect).toBeVisible();
   await visibility.uncheck();await expect(videoCollect).not.toBeVisible();
   await app.getByRole("textbox",{name:"YouTube 검색어"}).fill("검색으로 다시 켜기");
@@ -170,6 +176,12 @@ try {
   expect(app.url()).toBe(beforeUrl);expect(await app.evaluate(()=>window.__keptDraft)).toBe("untouched");
   expect(context.pages().length).toBe(multipleCount);await expect(popup.locator("#count")).toHaveText("0");
   await secondApp.close();await app.close();
+  const openedOnlyPromise=context.waitForEvent("page");await popup.getByRole("button",{name:"Loopy로 이동"}).click();
+  const openedOnly=await openedOnlyPromise;await expect(openedOnly).toHaveURL(base);
+  if(process.env.APP_PROXY_URL)await openedOnly.goto(base);
+  await expect(openedOnly.getByRole("textbox",{name:"YouTube 검색어"})).toBeVisible();
+  await expect(openedOnly.getByRole("dialog",{name:"목록 편집"})).toHaveCount(0);await expect(popup.locator("#count")).toHaveText("0");
+  await openedOnly.close();
   await collectVideo();const newTab=context.waitForEvent("page").catch(()=>null);await popup.getByRole("button",{name:"저장",exact:true}).click();const opened=await newTab;
   if(!opened){console.log("Delivery diagnostic",await popup.locator("body").evaluate(async()=>({status:document.querySelector("#status").textContent,tabs:await chrome.tabs.query({url:["http://127.0.0.1/*","http://localhost/*","https://loopy.bearsharks.dev/*"]}),state:await chrome.storage.session.get(["delivery","lastSent","outcome"])})));throw Error("No new Loopy tab");}
   await expect(opened).toHaveURL(base);

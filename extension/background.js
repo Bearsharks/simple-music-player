@@ -56,6 +56,16 @@ chrome.runtime.onMessage.addListener((message, sender, reply) => {
     return true;
   }
   serial(async () => {
+    if (message?.type === "app.open") {
+      if (!popupSender(sender) || Object.keys(message).length !== 1) throw Error("허용되지 않은 요청입니다.");
+      try {
+        const target = await chooseAppTab();
+        if (!Number.isInteger(target.id)) throw Error("missing tab");
+        await chrome.tabs.update(target.id, { active: true });
+        await chrome.windows.update(target.windowId, { focused: true });
+      } catch { throw Error("Loopy 탭을 열지 못했습니다. 다시 시도하세요."); }
+      return { ok: true };
+    }
     const basket = await readBasket();
     switch (message?.type) {
       case "basket.add":
