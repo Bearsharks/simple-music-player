@@ -66,6 +66,10 @@ it("opens on mouse hover without stealing focus and bridges the gap to the slide
   const slider = await screen.findByRole("slider", { name: "음량" });
   const content = slider.closest("[data-slot=popover-content]")!;
   expect(outside).toHaveFocus();
+  expect(slider).toHaveAttribute("aria-orientation", "vertical");
+  expect(slider).toHaveAttribute("min", "0");
+  expect(slider).toHaveAttribute("max", "100");
+  expect(content).toHaveAttribute("data-side", "top");
   expect(content).toHaveTextContent("");
   expect(content.querySelectorAll("input")).toHaveLength(1);
   expect(content.querySelectorAll("button")).toHaveLength(0);

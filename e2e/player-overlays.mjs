@@ -12,11 +12,49 @@ const base =
 fs.mkdirSync("test-results", { recursive: true });
 const failures = [];
 const pausePastLeave = (page) => page.waitForTimeout(220);
+async function assertVerticalVolume(slider, trigger) {
+  const popup = slider.locator("..");
+  await expect(slider).toHaveAttribute("aria-orientation", "vertical");
+  await expect(slider).toHaveCSS("writing-mode", "vertical-lr");
+  await expect(slider).toHaveCSS("direction", "rtl");
+  await expect(slider).toHaveCSS("width", "44px");
+  await expect(slider).toHaveCSS("height", "150px");
+  await expect(popup).toHaveCSS("width", "58px");
+  await expect(popup).toHaveCSS("height", "176px");
+  await expect(popup).toHaveAttribute("data-side", "top");
+  const [surface, button] = await Promise.all([
+    popup.boundingBox(),
+    trigger.boundingBox(),
+  ]);
+  expect(surface.y).toBeGreaterThanOrEqual(0);
+  expect(surface.y + surface.height).toBeLessThanOrEqual(button.y);
+  expect(surface.x).toBeGreaterThanOrEqual(0);
+  expect(surface.x + surface.width).toBeLessThanOrEqual(
+    slider.page().viewportSize().width,
+  );
+}
+async function checkVolumeEndpoints(slider, touch) {
+  const bounds = await slider.boundingBox();
+  const activate = async (y) => {
+    const options = { position: { x: bounds.width / 2, y } };
+    if (touch) await slider.tap(options);
+    else await slider.click(options);
+  };
+  await activate(1);
+  await expect(slider).toHaveValue("100");
+  await expect(slider).toHaveCSS("--volume", "100%");
+  await activate(bounds.height - 1);
+  await expect(slider).toHaveValue("0");
+  await expect(slider).toHaveCSS("--volume", "0%");
+  await activate(bounds.height / 2);
+  await expect(slider).toHaveValue("50");
+  await expect(slider).toHaveCSS("--volume", "50%");
+}
 try {
   for (const width of [320, 390, 768, 1024, 1199, 1200, 1440]) {
     const touch = width <= 390;
     const context = await browser.newContext({
-      viewport: { width, height: 960 },
+      viewport: { width, height: touch ? 844 : 960 },
       hasTouch: touch,
     });
     const page = await context.newPage();
@@ -217,9 +255,15 @@ try {
           bounds.y + bounds.height / 2,
         );
         await page.mouse.down();
-        await page.mouse.move(bounds.x - 20, bounds.y - 30);
+        await page.mouse.move(bounds.x + bounds.width / 2, bounds.y - 20);
         await pausePastLeave(page);
         await expect(slider).toBeVisible();
+        await expect(slider).toHaveValue("100");
+        await page.mouse.move(
+          bounds.x + bounds.width / 2,
+          bounds.y + bounds.height + 20,
+        );
+        await expect(slider).toHaveValue("0");
         await page.mouse.up();
         // Internal keyboard focus also keeps it open after an outside release.
         await expect(slider).toBeVisible();
@@ -232,15 +276,19 @@ try {
       await expect(slider).toBeFocused();
       await expect(popup).toHaveText("");
       await expect(popup.locator("button")).toHaveCount(0);
-      await expect(popup).toHaveCSS("width", "176px");
-      await expect(slider).toHaveCSS("height", "44px");
+      await assertVerticalVolume(slider, trigger);
+      await checkVolumeEndpoints(slider, touch);
       await page.keyboard.press("End");
       await expect(slider).toHaveValue("100");
       await expect(slider).toHaveCSS("--volume", "100%");
       await page.keyboard.press("Home");
       await expect(slider).toHaveValue("0");
       await expect(slider).toHaveCSS("--volume", "0%");
-      await page.keyboard.press("ArrowRight");
+      await page.keyboard.press("ArrowUp");
+      await expect(slider).toHaveValue("1");
+      await page.keyboard.press("ArrowDown");
+      await expect(slider).toHaveValue("0");
+      await page.keyboard.press("ArrowUp");
       await expect(slider).toHaveValue("1");
       await expect(slider).toHaveCSS("--volume", "1%");
       expect(
@@ -249,6 +297,7 @@ try {
           muted: window.__simulatedPlayer.muted,
         })),
       ).toEqual({ volume: 1, muted: false });
+      await checkVolumeEndpoints(slider, touch);
       await page.screenshot({
         path: `test-results/followup-volume-${width}.png`,
         fullPage: true,
@@ -299,6 +348,7 @@ try {
           exact: true,
         });
         await expect(footerSlider).toBeVisible();
+        await assertVerticalVolume(footerSlider, footerTrigger);
         expect(
           await footerSlider.evaluate((node) => node.closest("dialog")),
         ).toBeNull();

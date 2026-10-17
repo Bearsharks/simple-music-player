@@ -875,7 +875,7 @@ try {
         });
         await expect(volume).toBeFocused();
         await page.keyboard.press("Home");
-        await page.keyboard.press("ArrowRight");
+        await page.keyboard.press("ArrowUp");
         await expect(volume).toHaveValue("1");
         expect(await page.evaluate(() => window.__simulatedPlayer.volume)).toBe(
           1,

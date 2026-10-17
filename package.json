@@ -31,7 +31,7 @@
     "build-storybook": "storybook build",
     "check": "npm run check:boundaries && npm run typecheck && npm test && npm run build",
     "check:boundaries": "node tools/check-boundaries.mjs",
-    "test:browser": "node e2e/smoke.mjs && node e2e/player-overlays.mjs && node e2e/electric-night.mjs && node e2e/typography.mjs",
+    "test:browser": "node e2e/smoke.mjs && node e2e/player-overlays.mjs && node e2e/electric-night.mjs && node e2e/typography.mjs && node e2e/cover-images.mjs",
     "impact": "node tools/feature-impact.mjs"
   },
   "devDependencies": {

@@ -51,3 +51,7 @@ App → navigation/Main이 현재 진입 경로다. URL 가져오기는 youtube/
 - 수정 동작을 검증하는 회귀 테스트를 추가/수정한다.
 - 기능 README와 연결 지도가 실제 파일을 가리킨다.
 - typecheck/test/build의 결과와 UI·실서비스 미검증을 구분한다.
+
+## 커버 썸네일
+
+`src/shared/ui/Cover.tsx`는 카드·곡 행·재생바·상세 화면의 공통 커버다. `CoverImage.tsx`는 저장된 YouTube 썸네일 URL을 표시 시점에 해석해 렌더 크기와 최대 2배 픽셀 밀도에 맞춰 320/480/640px 중 선택한다. 최대 해상도 원본은 요청하지 않는다. 없는 크기나 작은 대체 이미지 응답은 낮은 크기로 전환하고 모두 실패하면 기존 파형을 표시한다. 저장 데이터와 최초 스냅샷은 변경하지 않는다. 회귀: `src/__test__/cover-image.test.tsx`.

@@ -112,7 +112,7 @@ z-index는 **같은 stacking context 안의 순서**다. native top layer, inert
 - 음량 trigger는 `aria-label='음량 조절'`, expanded 상태를 갖는다. `isMuted || volume === 0`이면 muted 아이콘. 클릭/모바일 탭은 popup 열기·닫기이며 즉시 음소거하는 별도 의미를 겹치지 않는다. ready 전 disabled.
 - hover 가능한 마우스는 trigger 진입 즉시 열린다. trigger→popup을 건너갈 수 있도록 pointer leave 후 약150ms 지연 닫기. 어느 쪽에든 pointer가 있거나 내부에 keyboard focus가 있거나 slider drag 중이면 유지한다. touch에 hover 상태가 남지 않게 실제 pointer 종류를 구분한다.
 - keyboard trigger focus에서도 popup을 열되 초점을 빼앗지 않는다. Tab 또는 ArrowUp/ArrowDown으로 slider에 진입할 수 있다. slider의 방향키/Home/End는 native 동작 유지. Escape는 popup만 닫고 trigger에 복귀한다. Escape·명시적 닫기 뒤 focus/hover가 같은 위치에 남아 있다고 곧바로 다시 열지 않는다. blur/leave 이후 새 진입이나 명시 activation에서 다시 열 수 있다.
-- Popover는 width176px/max viewport-32px, padding6px 12px, native range hit area 높이44px로 약56px 높이. 위쪽/중앙 정렬, 부족하면 flip. 공통 surface/radius12px/border1px. slider track4px, thumb12px, 보라 fill과 중립 rail. native sheet 안에 portal하며 잘리지 않는다.
+- **2026-10-17 사용자 수정: 음량은 버튼 위로 올라오는 좁은 세로 overlay로 표시한다.** Popover는 width58px, padding12px 6px, native range44×150px로 전체 높이176px. 위쪽/중앙 정렬, 부족하면 기존 collision flip을 유지한다. 위100/아래0이며 `writing-mode: vertical-lr`, `direction: rtl`, `aria-orientation="vertical"`로 시각·키보드·접근성 방향을 일치시킨다. 공통 surface/radius12px/border1px, track4px/thumb12px, 아래부터 채우는 보라 fill과 중립 rail. native sheet 안에 portal하며 잘리지 않는다.
 - 보이는 내용은 slider 하나뿐이다. range accessible label ‘음량’, min0/max100 및 현재 value semantics는 유지한다. 0은 무음, 0보다 큰 값 변경은 unmute하며 실제 player API와 동기화한다. player가 준비되지 않은 상태를 조절 성공처럼 표현하지 않는다.
 - 바깥 클릭/Escape로 popup만 닫힌다. 음량 변경/열기/닫기로 음악이 멈추거나 queue sheet가 닫히지 않는다. mouse hover로 여는 것만으로 keyboard focus를 이동시키지 않는다.
 

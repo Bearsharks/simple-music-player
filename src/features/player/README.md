@@ -59,7 +59,11 @@ main을 축소하지 않고 dock 위에서 끝난다. `PlayerController` footer�
 
 `Transport.leading`은 상세에서 음량 trigger를 첫 칸에 둔다. 상세와 footer 모두
 320px 모바일 footer를 포함해 동일한 `SoundController`의 shadcn Radix Popover를 사용한다. 아이콘 hover/키보드
-focus/tap으로 slider만 표시하고, 클릭은 즉시 mute하지 않는다. range0은 무음,
+focus/tap으로 버튼 위의 좁은 세로 slider만 표시하고, 클릭은 즉시 mute하지 않는다.
+Popover는 58×176px, native range는 44×150px이다. `writing-mode: vertical-lr`와
+`direction: rtl`로 위100/아래0을 유지하며 aria-orientation도 vertical이다.
+위·아래 방향키와 Home/End는 native 동작, 세로 drag 중 touch scroll은 range 안에서만
+억제한다. range0은 무음,
 양수 변경은 unMute이며 ready 전 잠근다. hover 이동은 150ms 지연을 두고 내부
 focus/drag 동안 유지한다. Tab/위·아래 화살표로 range 진입, Escape는 popup만
 닫고 trigger로 복귀하며 같은 focus/hover 때문에 다시 열리지 않는다.
@@ -71,4 +75,5 @@ focus/drag 동안 유지한다. Tab/위·아래 화살표로 range 진입, Escap
 
 회귀: `compact-volume.test.tsx`, `overlay-expansion.test.tsx` 및
 `e2e/player-overlays.mjs`(RNB 단독/작업 중첩·breakpoint·hover/touch/키보드·iframe 동일성).
+세로 native 방향은 [MDN Vertical controls](https://developer.mozilla.org/en-US/docs/Web/CSS/Guides/Writing_modes/Vertical_controls)를 따른다.
 실제 외부 YouTube 소리/모바일 Safari의 음량 정책은 별도 검증이다.

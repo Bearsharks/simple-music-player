@@ -1,4 +1,5 @@
-import { useId, useState } from "react";
+import { useId } from "react";
+import CoverImage from "./CoverImage";
 import "./Cover.scss";
 export const coverSeed = (id: string) =>
   [...id].reduce((seed, char) => (seed * 31 + char.charCodeAt(0)) >>> 0, 7);
@@ -20,7 +21,6 @@ export default function Cover({
     ["#35202f", "#ff4d8d", "#d899fd", "#7065eb"],
     ["#222044", "#7469ff", "#bd7bff", "#f69dca"],
   ][variant];
-  const [failed, setFailed] = useState("");
   return (
     <span
       className={`wave-cover ${className}`}
@@ -90,14 +90,7 @@ export default function Cover({
           loopy
         </text>
       </svg>
-      {thumbnail && failed !== thumbnail && (
-        <img
-          key={thumbnail}
-          src={thumbnail}
-          alt=""
-          onError={() => setFailed(thumbnail)}
-        />
-      )}
+      {thumbnail && <CoverImage key={thumbnail} source={thumbnail} />}
     </span>
   );
 }

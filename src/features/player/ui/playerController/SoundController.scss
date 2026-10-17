@@ -1,24 +1,28 @@
 .loopy-control[data-slot="popover-content"].volume-popover {
-  width: min(176px, calc(100vw - 32px));
-  padding: 6px 12px;
+  width: 58px;
+  padding: 12px 6px;
 }
 .volume-popover input[type="range"] {
   display: block;
   appearance: none;
-  width: 100%;
+  // Native vertical range: low values at the bottom, high values at the top.
+  writing-mode: vertical-lr;
+  direction: rtl;
+  touch-action: none;
+  width: 44px;
   margin: 0;
   padding: 0;
-  min-height: 44px;
-  height: 44px;
+  min-height: 150px;
+  height: 150px;
   background: transparent;
   border: 0;
   accent-color: var(--purple);
 }
 .volume-popover input[type="range"]::-webkit-slider-runnable-track {
-  height: 4px;
+  width: 4px;
   border-radius: 4px;
   background: linear-gradient(
-    to right,
+    to top,
     var(--purple) var(--volume),
     var(--control-line) var(--volume)
   );
@@ -27,12 +31,12 @@
   appearance: none;
   width: 12px;
   height: 12px;
-  margin-top: -4px;
+  margin-left: -4px;
   border-radius: 50%;
   background: var(--purple);
 }
 .volume-popover input[type="range"]::-moz-range-track {
-  height: 4px;
+  width: 4px;
   border-radius: 4px;
   background: var(--control-line);
 }
@@ -45,7 +49,7 @@
 }
 
 .volume-popover input[type="range"]::-moz-range-progress {
-  height: 4px;
+  width: 4px;
   border-radius: 4px;
   background: var(--purple);
 }

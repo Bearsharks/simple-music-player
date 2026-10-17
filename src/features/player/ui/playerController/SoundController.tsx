@@ -200,6 +200,7 @@ export default function SoundController() {
           ref={range}
           disabled={!ready}
           aria-label="음량"
+          aria-orientation="vertical"
           type="range"
           min={0}
           max={100}
