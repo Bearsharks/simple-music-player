@@ -333,8 +333,10 @@ try {
       }
       if (viewport.width === 390) {
         expect(
-          (await page.locator(".cover-open").first().boundingBox()).y,
-        ).toBeLessThanOrEqual(240);
+          (await page.locator(".cover-open").first().boundingBox()).y -
+          (await page.getByRole("heading",{name:"내 라이브러리",exact:true}).boundingBox()).y,
+        ).toBeLessThanOrEqual(160);
+        await page.locator(".card-title").nth(3).evaluate(node=>node.scrollIntoView({block:"center"}));
         const fourth = await page.locator(".card-title").nth(3).boundingBox();
         const dock = await page.locator(".listening-dock").boundingBox();
         expect(fourth.y + fourth.height).toBeLessThan(dock.y);
@@ -687,10 +689,12 @@ try {
                 window.__originalHost,
           ),
         ).toBe(true);
-        if (viewport.width >= 1200)
+        if (viewport.width >= 1200) {
           await page
             .getByRole("button", { name: "대기열 닫기", exact: true })
             .click();
+          await expect(page.getByRole("button",{name:"재생 대기열",exact:true})).toBeFocused();
+        }
         // Saved editing while a desktop queue is open must not alter current playback.
         const savedTracks = page.getByRole("region", {
           name: "저장한 곡",

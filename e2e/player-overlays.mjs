@@ -219,8 +219,9 @@ try {
       await createURL.press("Enter");
       await expect(createURL).toHaveAttribute("aria-invalid", "true");
       await expect(make).toBeDisabled();
-      await page.getByRole("button", { name: "오류 알림 닫기" }).click();
       const errorID = await createURL.getAttribute("aria-errormessage");
+      await expect(page.locator(`[id="${errorID}"]`)).toBeVisible();
+      expect(await createURL.evaluate((input)=>input.nextElementSibling?.id)).toBe(errorID);
       expect(await page.locator(`[id="${errorID}"]`).textContent()).not.toBe(
         "",
       );
