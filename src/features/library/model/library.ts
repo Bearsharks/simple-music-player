@@ -1,3 +1,5 @@
+import { validPlaylistId } from '../../../../extension/protocol.js';
+
 export const LIBRARY_KEY = 'simple-music-player:youtube-library:v1';
 export interface SavedPlaylist { id: string; title: string; url: string; addedAt: string }
 export interface Library { version: 1; playlists: SavedPlaylist[]; selectedId: string | null }
@@ -7,8 +9,7 @@ export function parsePlaylistUrl(input: string): { id: string; url: string } {
   try { url = new URL(input.trim()); } catch { throw new Error('YouTube 재생목록 URL을 입력해 주세요.'); }
   if (!['https:', 'http:'].includes(url.protocol) || url.username || url.password || url.port || !['youtube.com', 'www.youtube.com', 'm.youtube.com', 'music.youtube.com', 'youtu.be', 'www.youtu.be'].includes(url.hostname)) throw new Error('YouTube 재생목록 URL만 등록할 수 있습니다.');
   const id = url.searchParams.get('list');
-  if (!id || !/^[A-Za-z0-9_-]{2,150}$/.test(id)) throw new Error('list= 값이 있는 재생목록 URL을 입력해 주세요.');
-  if (/^(WL|LL|HL)$/.test(id) || id.startsWith('RD')) throw new Error('나중에 볼 동영상·좋아요·기록·자동 믹스 대신 공개 재생목록을 사용해 주세요.');
+  if (!validPlaylistId(id)) throw new Error('list= 값이 있는 재생목록 URL을 입력해 주세요.');
   return { id, url: `https://www.youtube.com/playlist?list=${encodeURIComponent(id)}` };
 }
 export function readLibrary(storage: Pick<Storage, 'getItem'> = localStorage): Library {

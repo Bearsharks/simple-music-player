@@ -1,5 +1,75 @@
 # youtube: YouTube 메타데이터 조회
 
+## 재생목록 iframe 확인
+
+`/preview/playlist-frame`은 `prototype/PlaylistFramePreview.tsx`에서 공개 재생목록 `PLVKdYxm17gBYbyZYbHWZDr7NU3ZwtFiB5`를 공식 iframe으로 표시한다. 자동 재생·목록 추출·로컬 저장은 수행하지 않는다. 재생은 사용자가 플레이어에서 시작하며 실제 재생 가능 여부는 YouTube 및 브라우저 제한에 따른다. 회귀 검증: `npm test -- src/__test__/playlist-frame-preview.test.tsx`.
+
+## 확장 프로그램 가져오기
+
+- 실제 진입: 앱 상단 YouTube 검색 및 미연결일 때 표시하는 확장 다운로드 버튼. 목록 편집은 확장 프로그램 전달로 열린다. `/preview/youtube-import`도 동일한 실제 앱을 표시한다. App이 `import/ExtensionImport.tsx`를 Main의 tools 슬롯에 조립한다.
+- `import/ExtensionInstall.tsx`는 확장 전용 ZIP 다운로드, loopy-extension 폴더 로드 절차, 브라우저별 관리 주소 복사, 연결 재확인을 제공한다. 연결되면 설치 안내와 버튼을 숨긴다. 초기 확인 중에는 버튼을 표시하지 않는다. 개발 모드는 로컬 생성 ZIP, 제품 빌드는 GitHub Release asset을 사용하며 게시가 필요하다. 버전 확인·업데이트 안내는 확장이 담당한다. 패키징은 루트 `extension/README.md`를 따른다.
+- 공통 계약: `extension/protocol.js` 및 선언 파일. 고정 확장 ID와 허용된 최상위 앱 출처의 Chrome 외부 메시지만 사용한다. DOM 이벤트를 신뢰하지 않는다. 설치는 루트 `extension/README.md`를 따른다.
+- 앱은 1.5초 간격으로 최신 요청 하나를 가져오고 검증·수용 후 requestId로 확인한다. 연결 실패 시 5초 간격 재시도. 반복 전달은 현재 연결 세션에서 중복 억제하며 수신 확인은 저장 완료를 뜻하지 않는다.
+- 확장은 저장 순간 현재 탭을 조회해 한 탭만 대상으로 지정한다. 해당 탭의 ACK 이후 보낸 항목만 확장 목록에서 비운다. 미수신 항목은 브라우저 재시작 후에도 유지하고, 전송 중 새로 담은 항목은 별도 key로 보존한다. ACK 후 편집 취소·탭 종료는 저장하지 않은 편집본을 버리는 사용자 동작이다.
+- 수동 연결 재확인에서도 수신 ID 기록을 유지한다. 매 요청마다 현재 Chrome runtime을 읽어 설치 후 연결을 재검사한다. 브라우저가 runtime을 아직 제공하지 않으면 페이지 새로고침이 필요할 수 있다.
+- `{kind,id}` 항목 최대 100개, 펼친 곡 최대 2,000개, 목록별 20초·전체 120초 제한. 입력 순서·목록 내부 순서·중복 항목을 보존한다. `getPlaylist()` 결과는 원본 전체를 보장하지 않으며 화면에 이 제한을 표시한다. 200곡으로 하드코딩하지 않는다.
+- Loopy의 `import/resolve.ts`가 iframe 및 키 없는 oEmbed로 조회한다. 제목 실패 시 ID 기반 이름을 유지하며 썸네일은 검증된 ID로 생성한다.
+- 모달이 열려 있으면 최신 대기 요청 하나만 유지한다. 교체 승인 후 조회하고 성공해야 기존 편집을 교체한다. 실패·닫기·취소는 늦은 응답을 무효화한다.
+- `@hello-pangea/dnd` 정렬, 제거, 제목·설명 편집, 고정 높이 설명 스크롤을 제공한다. 실제 preview iframe은 곡 선택 때 재생하며 기존 재생 중인 window.player만 일시정지한다. 자동 재개는 하지 않는다. 음량은 YouTube iframe 기본 컨트롤을 사용한다.
+- 다음 재생/끝 추가는 queue manager, 저장은 local playlist manager에 연결한다. 쓰기 중 중복 제출·닫기 차단, 실패 시 편집 유지.
+- 목록 상단과 각 곡의 대기열 작업 메뉴에서 다음 재생/대기열 추가를 실행한다. 성공 시 공통 Notice 토스트를 표시하고 편집본·선택·대기 요청을 유지한다. footer는 저장을 제공하며 저장 성공 또는 명시적 닫기 버튼으로 닫는다. backdrop/Escape는 편집을 종료하지 않는다.
+- 가져오는 동안 로딩 상태를 표시하며 곡 편집 영역은 조회 완료 후 표시한다. 조회용 iframe host는 400×220 크기를 유지하되 visibility:hidden 및 inert/aria-hidden으로 표시·초점·접근성 탐색에서 제외한다. 교체 실패 시 기존 편집본을 다시 표시한다.
+- 확장 편집과 URL 생성 폼의 입력 오류는 shared/ui/FieldError를 입력 아래에 표시한다. 이름은 blur 시 검증하며 공백뿐이면 저장 불가다. 조회·저장 실패는 작업 오류로 구분한다.
+- 검증: `npm test -- src/__test__/extension-import.test.tsx src/__test__/extension-import-ui.test.tsx`; `node --test extension/background.check.mjs`; `npm run check`.
+- 브라우저: `node e2e/extension-import.mjs`는 실제 확장과 IndexedDB, YouTube fixture를 사용한다. `node e2e/extension-import-live.mjs`는 실제 공개 목록을 조회하며 저장하지 않는다. `CHROMIUM_PATH`, `TEST_URL`, `IMPORT_REPORT_DIR`로 환경을 지정한다.
+- 설치 UI: `node e2e/extension-install.mjs`는 미연결 상태, 확장 ZIP 실제 다운로드, 1440/390/320px 레이아웃 및 연결 응답 후 자동 숨김을 검증한다. 연결 응답은 이 테스트에서만 모의 처리하며 실제 확장 연결은 위 통합 테스트가 검증한다.
+- 결합: window.player, queue/playlists manager, shared Dialog, Chrome 메시지. 원본 전체 목록·모든 영상의 재생·실기기·스크린리더 지원을 자동 테스트가 보장하지 않는다.
+
+## Isolated component fixtures
+
+- Entry: component tests in `src/__test__/youtube-import-prototype.test.tsx`.
+- Owned files: `prototype/YouTubeImportPrototype.tsx`, `prototype/PrototypeVolume.tsx`, scoped SCSS, and `prototype/model.ts`.
+  The component fixture is mounted directly by tests, independently of `Main`/player/storage.
+  Existing URL import, authentication-free local storage, queue and player contracts are unchanged.
+- **Design/demo only:** no extension installation/transport/trust validation, window-message listener,
+  YouTube network lookup, iframe, audio, queue mutation or persistence. All three actions explicitly report
+  simulated results. The silent preview is sample artwork and a manually toggled playback-state illustration.
+- Sample input is only `{kind: "video" | "playlist", id: string}`. A local sample resolver expands
+  `video A + playlist B + video C` to `A, B1, B2, B3, C`, preserving item order and repeated occurrences.
+  Sample catalog IDs are illustrative, not production YouTube IDs. This is a fixture limitation, not a new
+  product import restriction. Titles/artists/durations are invented local metadata.
+- The concise task name is **목록 편집**; no promotional subtitle, source/order explanation, or visible
+  arrow-reorder buttons. One footer status discloses sample/silent/demo-only behavior and action results.
+- Edit title/description and remove B2. The description is fixed-height (88px desktop / 72px narrow),
+  `resize: none`, with internal vertical scrolling; long text does not enlarge the modal.
+- Drag the dedicated grip to reorder, using the same existing `@hello-pangea/dnd` pattern as queue and
+  saved playlists (`DragDropContext` / `Droppable` / stable-key `Draggable`). No new dependency or native
+  HTML-drag implementation. Focus a labeled grip, Space to lift, arrows to move, Space to drop; Escape
+  cancels the active pointer or keyboard drag before the native modal can close. Drag/drop inserts rather
+  than swaps tracks, preserving key-based preview selection, title/description, and pending requests.
+  Browser acceptance: drag B3 above A → B3,A,B1,B2,C; edited title and selected B2 remain unchanged.
+  The modal
+  reuses shared native `Dialog` for naming, focus trap, Escape/backdrop close and trigger-focus restoration;
+  the DnD library retains grip focus, while removal focuses a remaining track (last removal to title).
+- Preview volume uses the existing shared Radix Popover and native vertical 0–100 range pattern, portaled
+  inside the native dialog. State is strictly local: it never imports playback atoms or calls `window.player`.
+  The mute button/zero volume preserve the last nonzero level for unmute; both level and muted state survive
+  preview-track selection within the modal. Keyboard Home/End/arrows adjust the range; Escape closes only
+  the popover and returns focus to its trigger. This is a silent simulation, not real iframe audio control.
+- Expand **시뮬레이션**: send `D + playlist E`, then `F` to test latest-only pending replacement.
+  Incoming requests preserve the current draft and do not resolve before **새 요청으로 교체**.
+  **현재 편집 유지** dismisses the pending request. Confirmed replacement resolves off-draft and commits
+  atomically; failure leaves title/description/tracks untouched and allows retry/keep. New requests and close
+  invalidate late results. The next-failure checkbox exercises the same failure path without network access.
+- Quick regression: `npm test -- src/__test__/youtube-import-prototype.test.tsx`.
+  Preserved flow regression: `npm test -- src/__test__/playlistImport.test.tsx src/__test__/playlist-preview.test.tsx src/__test__/unified-playlist-form.test.tsx src/__test__/overlay-regressions.test.tsx`.
+  Full gate: `npm run check`. Visual review should use desktop and 320/390px preview widths, including
+  pointer/keyboard dragging and Escape, volume/mute/popover scope, fixed-height long descriptions,
+  the replacement banner, mobile scroll to row controls, footer actions and focus return.
+  Product browser verification uses `e2e/extension-import.mjs` in an isolated profile.
+- Remaining coupling: only application route wiring and shared Dialog/primitive/style tokens. No production
+  resolver, extension security protocol, large/partial/private playlist policy or real playback is demonstrated.
+
 로그인 제거 후 기존 편집 화면에 다시 연결되어 있다. 저장 목록은 shared/api/localAPI.ts, URL 가져오기는 youtube/ui/PlaylistImport.tsx를 사용한다.
 
 ## 최소 읽기 경로
@@ -17,6 +87,8 @@ overlays가 검색·가져오기에 사용하고 player가 곡 정보를 조회�
 ## 보존할 계약
 
 401/403 자동 재시도 금지. OAuth 발급·갱신은 하지 않는다. 페이지 토큰 순환/과다 페이지 차단. 허용 호스트와 video ID 검증. 현재 공개 URL 가져오기는 공식 iframe이 제공한 곡 ID를 사용하며 API 키를 사용하지 않는다.
+
+새 재생목록 URL과 확장 전달은 `extension/protocol.js`의 `validPlaylistId` 문법을 공유한다. 목록 종류로 사전 차단하지 않고 iframe이 조회 가능 여부를 결정한다. 믹스도 플레이어가 제공한 항목을 로컬 스냅샷으로 저장할 수 있으며 고정 구성·원본 전체를 보장하지 않는다. 이름은 로컬 저장의 필수 입력이다.
 
 ## 검증
 

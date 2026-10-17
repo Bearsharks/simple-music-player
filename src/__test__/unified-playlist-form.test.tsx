@@ -220,12 +220,12 @@ it("keeps the existing initial-selection create contract when no URL is provided
   expect(created).toHaveBeenCalledWith(info.id, "selection");
 });
 
-it("keeps invalid field descriptions after the visible error toast is dismissed", async () => {
+it("shows accessible field errors directly below their inputs until corrected", async () => {
   mount();
   fireEvent.blur(nameInput());
   const nameErrorID = nameInput().getAttribute("aria-errormessage")!;
-  fireEvent.click(screen.getByRole("button", { name: "오류 알림 닫기" }));
-  expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+  expect(nameInput().nextElementSibling).toBe(screen.getByRole("alert"));
+  expect(nameInput()).toHaveAttribute("aria-describedby",nameErrorID);
   expect(document.getElementById(nameErrorID)).toHaveTextContent(
     "이름을 입력해 주세요.",
   );
@@ -236,7 +236,8 @@ it("keeps invalid field descriptions after the visible error toast is dismissed"
   fireEvent.blur(urlInput());
   const urlErrorID = urlInput().getAttribute("aria-errormessage")!;
   expect(urlErrorID).not.toBe(nameErrorID);
-  fireEvent.click(screen.getByRole("button", { name: "오류 알림 닫기" }));
+  expect(urlInput().nextElementSibling).toBe(screen.getByRole("alert"));
+  expect(urlInput()).toHaveAttribute("aria-describedby",urlErrorID);
   expect(document.getElementById(urlErrorID)?.textContent).not.toBe("");
   expect(urlInput()).toHaveAttribute("aria-invalid", "true");
   change(urlInput(), "");

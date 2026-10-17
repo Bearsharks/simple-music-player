@@ -1,4 +1,4 @@
-import { lazy, Suspense } from "react";
+import { lazy, Suspense, type ReactNode } from "react";
 import { Route, Routes, useLocation, useNavigate } from "react-router-dom";
 import { useAtomValue, useSetAtom } from "jotai";
 import {
@@ -46,7 +46,7 @@ function SidebarLibrary() {
     </div>
   );
 }
-export default function Main() {
+export default function Main({ tools }: { tools?: ReactNode }) {
   const navigate = useNavigate();
   const location = useLocation();
   const modal = useModalManager();
@@ -111,6 +111,7 @@ export default function Main() {
             </button>
             <Breadcrumb />
           </div>
+          {tools}
         </header>
         <main id="workspace" tabIndex={-1} className="studio-content">
           <ReadBoundary

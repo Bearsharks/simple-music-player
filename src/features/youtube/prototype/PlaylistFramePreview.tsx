@@ -1,0 +1,30 @@
+export default function PlaylistFramePreview() {
+  return (
+    <main
+      style={{
+        minHeight: "100dvh",
+        display: "grid",
+        placeItems: "center",
+        padding: 16,
+        boxSizing: "border-box",
+        background: "var(--canvas, #0B0B14)",
+      }}
+    >
+      <iframe
+        title="YouTube 재생목록"
+        src="https://www.youtube.com/embed/videoseries?list=PLVKdYxm17gBYbyZYbHWZDr7NU3ZwtFiB5&autoplay=0&playsinline=1"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+        allowFullScreen
+        referrerPolicy="strict-origin-when-cross-origin"
+        style={{
+          display: "block",
+          width: "min(100%, 1200px)",
+          aspectRatio: "16 / 9",
+          minHeight: 220,
+          border: 0,
+          borderRadius: 12,
+        }}
+      />
+    </main>
+  );
+}

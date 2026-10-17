@@ -1,0 +1,8 @@
+#loopy-bridge-tools {position:fixed;right:24px;bottom:24px;z-index:2100;display:flex;gap:8px;align-items:center;padding:8px;background:#1a1a26;border:1px solid #353545;border-radius:12px;box-shadow:0 6px 24px #0006;font:14px system-ui;color:white;}
+#loopy-bridge-tools button {background:#a855ff;color:#0b0b14;border:0;border-radius:10px;min-height:44px;padding:8px 14px;font:600 14px system-ui;cursor:pointer;}
+#loopy-bridge-tools button:focus-visible,.loopy-collect:focus-visible {outline:2px solid #4cc9ff;outline-offset:3px;}
+#loopy-thumbnail-actions {position:fixed;inset:0;pointer-events:none;z-index:2090;}
+.loopy-collect {position:fixed!important;pointer-events:auto;display:grid;place-items:center;width:26px;height:26px;min-height:0;padding:0;margin:0;border:1px solid #ffffff40;border-radius:7px;background:#0b0b14dd;color:#fff;font:400 22px/1 system-ui;cursor:pointer;box-shadow:0 1px 5px #0005;}
+.loopy-collect[hidden] {display:none!important;}
+.loopy-collect:hover {background:#a855ff;color:#0b0b14;}
+#loopy-bridge-tools [role=status] {max-width:180px;} @media(max-width:600px){#loopy-bridge-tools{right:8px;bottom:8px;flex-wrap:wrap;max-width:calc(100vw - 32px);}}

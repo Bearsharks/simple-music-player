@@ -21,15 +21,20 @@
     "tailwind-merge": "3.7.0"
   },
   "scripts": {
+    "package:extension": "node tools/package-extension.mjs",
+    "package:extension:release": "node tools/package-extension.mjs --release",
+    "predev": "npm run package:extension",
     "dev": "vite",
+    "prestart": "npm run package:extension",
     "start": "vite",
+    "prebuild": "npm run package:extension:release",
     "build": "tsc --noEmit && vite build",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
-    "check": "npm run check:boundaries && npm run typecheck && npm test && npm run build",
+    "check": "npm run check:boundaries && node --test tools/package-extension.check.mjs extension/background.check.mjs extension/updates.check.mjs && npm run typecheck && npm test && npm run build",
     "check:boundaries": "node tools/check-boundaries.mjs",
     "test:browser": "node e2e/smoke.mjs && node e2e/player-overlays.mjs && node e2e/electric-night.mjs && node e2e/typography.mjs && node e2e/cover-images.mjs",
     "impact": "node tools/feature-impact.mjs"

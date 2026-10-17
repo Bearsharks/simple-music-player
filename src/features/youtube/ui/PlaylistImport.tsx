@@ -1,6 +1,7 @@
 import { useNotice } from "features/overlays/Notice";
 import Icon from "shared/ui/Icon";
 import ErrorToast from "shared/ui/ErrorToast";
+import FieldError from "shared/ui/FieldError";
 import { fetchVideoTitles } from "../api/videoMetadata";
 import { useEffect, useId, useLayoutEffect, useRef, useState } from "react";
 import { usePlaylistManager } from "features/playlists/model/playlistAtoms";
@@ -277,6 +278,7 @@ export default function PlaylistImport({
                 value={url}
                 aria-invalid={preview.invalid || undefined}
                 aria-errormessage={preview.invalid ? urlErrorID : undefined}
+                aria-describedby={preview.invalid ? urlErrorID : undefined}
                 onChange={(event) => changeUrl(event.target.value)}
                 onBlur={() => preview.load(currentUrl.current)}
                 onKeyDown={(event) => {
@@ -287,6 +289,7 @@ export default function PlaylistImport({
                   if (!currentUrl.current.trim()) nameInput.current?.focus();
                 }}
               />
+              <FieldError id={urlErrorID} message={preview.invalid ? preview.error : ""}/>
               {previewStatus}
             </div>
             <div className="import-field">
@@ -304,6 +307,7 @@ export default function PlaylistImport({
                 aria-required="true"
                 aria-invalid={Boolean(nameError) || undefined}
                 aria-errormessage={nameError ? nameErrorID : undefined}
+                aria-describedby={nameError ? nameErrorID : undefined}
                 value={draft.name.value}
                 onBeforeInput={() => claimField("name")}
                 onCompositionStart={() => claimField("name")}
@@ -319,6 +323,7 @@ export default function PlaylistImport({
                   nameInput.current?.focus();
                 }}
               />
+              <FieldError id={nameErrorID} message={nameError}/>
             </div>
             <div className="import-field">
               <Label htmlFor={`${fieldID}-description`}>설명</Label>
@@ -344,20 +349,10 @@ export default function PlaylistImport({
           hidden={!preview.id}
         />
         {original && previewStatus}
-        {preview.invalid && (
-          <span id={urlErrorID} className="sr-only">
-            {preview.error}
-          </span>
-        )}
-        {nameError && (
-          <span id={nameErrorID} className="sr-only">
-            {nameError}
-          </span>
-        )}
         <ErrorToast
           key={saveFailure}
           message={
-            error || [nameError, preview.error].filter(Boolean).join(" ")
+            error || (original || !preview.invalid ? preview.error : "")
           }
           alertId={errorID}
         />

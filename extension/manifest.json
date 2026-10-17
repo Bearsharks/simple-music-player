@@ -1,0 +1,15 @@
+{
+  "manifest_version": 3,
+  "name": "loopy 담기",
+  "version": "0.2.3",
+  "description": "YouTube 영상과 재생목록을 loopy에 전달합니다.",
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAp6Nk6BjO7r5+NOGeImxzE7S3t8Kd0jSKjFEnpR7iW0v8yqtRWuFZpMMej31T3f5NGpp4QZIZGAEse8pgo0bocCmhw5ZNWilPJCy/h/gL2CSzveAgM6g8IizuXO6O0mmglInQWPDKG6JNWt8XszqqbqEGlJLAs1HSS2nkXzIdR9i1VOihejPviSswEft21ZGwCiwFIVNb42cMtlIVX/fnwoPUvcDP76pjYyu8fEzNqSYJDLCVE/CTRV8WN9RuF0saGE97EI+D09fYULvHVDY3SmO0I+0gPSowGYAh5u0kucNP5M1mcLcKMavNQeYuTzv89aRTYeqxkW9ymdLmCSkr+wIDAQAB",
+  "permissions": ["storage"],
+  "host_permissions": ["https://loopy.bearsharks.dev/*", "https://api.github.com/*"],
+  "background": { "service_worker": "background.js", "type": "module" },
+  "action": { "default_popup": "popup.html", "default_title": "loopy 담은 목록" },
+  "web_accessible_resources": [{ "resources": ["popup.html"], "matches": ["https://www.youtube.com/*"] }],
+  "content_scripts": [{ "matches": ["https://www.youtube.com/*"], "js": ["content.js"], "css": ["content.css"], "run_at": "document_idle" }],
+  "externally_connectable": { "matches": ["https://loopy.bearsharks.dev/*"] },
+  "content_security_policy": { "extension_pages": "script-src 'self'; object-src 'none'; connect-src https://api.github.com; img-src https://i.ytimg.com" }
+}

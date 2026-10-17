@@ -1,0 +1,64 @@
+import fs from "node:fs";
+import os from "node:os";
+import path from "node:path";
+import { chromium, expect } from "@playwright/test";
+import { EXTENSION_ID } from "../extension/protocol.js";
+const output=process.env.IMPORT_REPORT_DIR||"test-results/extension-import-live";
+fs.mkdirSync(output,{recursive:true});
+const profile=fs.mkdtempSync(path.join(os.tmpdir(),"loopy-import-live-"));
+const extension=path.resolve(process.env.EXTENSION_DIR || "extension");
+const context=await chromium.launchPersistentContext(profile,{headless:true,channel:"chromium",executablePath:process.env.CHROMIUM_PATH||undefined,args:[`--disable-extensions-except=${extension}`,`--load-extension=${extension}`,"--mute-audio"],viewport:{width:1440,height:1000}});
+try {
+  const app=await context.newPage();
+  await app.addInitScript(()=>{
+    window.__testPlayers=[];
+    let ready;
+    Object.defineProperty(window,"onYouTubeIframeAPIReady",{configurable:true,get:()=>ready,set:fn=>{ready=()=>{
+      window.YT.Player=new Proxy(window.YT.Player,{construct(target,args){const instance=Reflect.construct(target,args);window.__testPlayers.push(instance);return instance;}});
+      fn();
+    };}});
+  });
+  await app.goto(process.env.TEST_URL||"http://127.0.0.1:4187/simple-music-player/");
+  await app.getByRole("textbox",{name:"YouTube 검색어"}).waitFor();
+  const yt=await context.newPage();await yt.goto("https://www.youtube.com/playlist?list=PLVKdYxm17gBYbyZYbHWZDr7NU3ZwtFiB5",{waitUntil:"domcontentloaded",timeout:45000});
+  const collect=yt.locator('.loopy-collect[data-loopy-id="azNG-AU0eGg"]').first();
+  await expect(collect).toBeVisible();
+  const icon=await collect.boundingBox();
+  expect(await collect.evaluate(el=>el.parentElement.id)).toBe("loopy-thumbnail-actions");
+  const sourceUrl=yt.url();await yt.mouse.click(icon.x+icon.width/2,icon.y+icon.height/2);
+  await expect(yt.locator("#loopy-bridge-tools [role=status]")).toHaveText("1개 담음");expect(yt.url()).toBe(sourceUrl);
+  await yt.locator("#loopy-bridge-tools").getByRole("button",{name:"목록 담기",exact:true}).click();
+  await expect(yt.locator("#loopy-bridge-tools [role=status]")).toHaveText("2개 담음");
+  await yt.screenshot({path:path.join(output,"youtube-capture.png")});
+  const tabsBefore=context.pages().length;
+  await yt.getByRole("button",{name:"연동하기",exact:true}).click();
+  const popup=yt.frameLocator("#loopy-import-overlay iframe");
+  await expect(popup.locator("#count")).toHaveText("2");
+  await expect(popup.locator(".basket-copy strong").first()).toContainText("Wake Up");
+  await expect(popup.locator(".basket-cover img").first()).toHaveAttribute("src","https://i.ytimg.com/vi/azNG-AU0eGg/mqdefault.jpg");
+  await yt.screenshot({path:path.join(output,"basket-title-thumbnail.png")});
+  await yt.getByRole("dialog",{name:"loopy 담은 목록"}).evaluate(el=>Promise.all(el.getAnimations().map(animation=>animation.finished)));
+  await popup.getByRole("button",{name:"1번째 항목 삭제"}).click();await expect(popup.locator("#count")).toHaveText("1");
+  await yt.getByRole("dialog",{name:"loopy 담은 목록"}).evaluate(el=>Promise.all(el.getAnimations().map(animation=>animation.finished)));
+  await yt.screenshot({path:path.join(output,"youtube-overlay.png")});
+  await popup.getByRole("button",{name:"저장",exact:true}).click();
+  await expect(app.getByText("가져오는 중…")).toBeVisible();
+  await expect(app.locator(".li-resolve-host iframe")).toBeAttached({timeout:15000});
+  await expect(app.locator(".li-resolve-host iframe")).not.toBeVisible();
+  await expect(app.locator(".li-track").first()).toBeVisible({timeout:45000});
+  const count=await app.locator(".li-track").count();
+  expect(context.pages().length).toBe(tabsBefore);
+  await expect(popup.locator("#count")).toHaveText("0");
+  const titles=await app.locator(".li-track strong").allTextContents();
+  await expect(app.getByText("플레이어가 제공한 곡만 포함됩니다. 원본 전체가 아닐 수 있습니다.")).toBeVisible();
+  await app.screenshot({path:path.join(output,"live-import.png")});
+  // Real iframe preview is loaded without autoplay; explicit user-equivalent click.
+  await app.locator(".yi-track-select").first().click();
+  await expect(app.locator('section[aria-label="미리듣기"] iframe')).toBeVisible();
+  await expect.poll(()=>app.evaluate(()=>window.__testPlayers.at(-1)?.getPlayerState?.()),{timeout:25000}).toBe(1);
+  await expect(app.locator('section[aria-label="미리듣기"] .yi-preview-controls')).toHaveCount(0);
+  await app.screenshot({path:path.join(output,"live-preview.png")});
+  const result={realExtension:true,realYouTube:true,floatingIconMouseClick:true,overlay:true,reusedTab:true,clearedOnAck:true,count,firstTitles:titles.slice(0,5),resolutionIframeHidden:true,previewIframeLoaded:true,playerStatePlaying:true,audiblePlaybackVerified:false};
+  fs.writeFileSync(path.join(output,"report.json"),JSON.stringify(result,null,2));
+  console.log(JSON.stringify(result));
+}finally{await context.close();fs.rmSync(profile,{recursive:true,force:true});}

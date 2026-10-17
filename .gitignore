@@ -32,3 +32,5 @@ Test.js
 /storybook-static
 /playwright-report
 /test-results
+/public/downloads/loopy-extension.zip
+/artifacts/loopy-extension.zip

@@ -106,6 +106,17 @@ it("loads only on blur/URL Enter, reuses an untouched request, and never submits
   expect(close).not.toHaveBeenCalled();
 });
 
+it("loads and saves a mix through the same iframe preview without a type blacklist",async()=>{
+  render(<Provider><PlaylistImport close={()=>{}}/></Provider>);
+  const player=await load("RDazNG-AU0eGg");
+  expect(player.config.playerVars.list).toBe("RDazNG-AU0eGg");
+  await ready(player,["azNG-AU0eGg","hWhgrA2dhrk"]);
+  fireEvent.click(submit());
+  await waitFor(async()=>expect(await api.getPlaylistInfos()).toHaveLength(1));
+  const [info]=await api.getPlaylistInfos();
+  expect((await api.getPlaylistItems(info.id)).map(item=>item.videoID)).toEqual(["azNG-AU0eGg","hWhgrA2dhrk"]);
+});
+
 it("invalidates immediately on change and ignores old results, including returning to the original URL", async () => {
   render(
     <Provider>

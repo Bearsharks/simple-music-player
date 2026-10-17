@@ -12,6 +12,8 @@
 
 app/App.tsx가 진입점을 연결한다. Main이 player/search/overlays/queue를 조립하므로 레이아웃 변경 시 해당 화면의 모바일 동작도 확인한다.
 
+Main의 선택적 `tools: ReactNode` 슬롯은 상단 작업 영역이다. App이 YouTube 검색·확장 가져오기 컴포넌트를 전달한다. Main은 확장 메시지·조회·저장 로직을 소유하지 않는다. 기존 소비자는 tools 없이 동일하게 렌더링할 수 있다. 브라우저 회귀: `node e2e/extension-import.mjs`.
+
 `npm run impact -- navigation`으로 현재 코드의 직접 소비자와 외부 의존 파일을 확인한다. 내부 구현만 바꾸면 위 진입 파일부터 읽고, export/상태/타입/콜백 계약을 바꿀 때에만 소비자로 읽기 범위를 넓힌다.
 
 ## 보존할 계약

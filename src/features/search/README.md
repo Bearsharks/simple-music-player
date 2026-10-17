@@ -4,6 +4,8 @@
 
 ## 최소 읽기 경로
 
+현재 제품의 YouTube 검색은 `features/youtube/import/ExtensionImport.tsx`가 제공하며 App에서 Main의 tools 슬롯으로 연결한다. 검색어를 인코딩해 YouTube 결과를 `noopener,noreferrer` 새 탭으로 연다. 확장 설치·API 키와 무관하다. 회귀: `src/__test__/extension-import-ui.test.tsx`.
+
 - `ui/SearchBar.tsx` — 입력·옵션·키 이벤트
 - `ui/ConnectedSearchBar.tsx` — 검색 팝업 연결
 
