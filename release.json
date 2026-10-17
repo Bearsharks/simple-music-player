@@ -1,7 +1,7 @@
 {
   "format": 1,
-  "sourceCommit": "58a6f6981b00ee2880587eafe45ce9e83af0e80f",
-  "extensionVersion": "0.3.1",
+  "sourceCommit": "f338325d364a9354d8448ff0a3f74df78a96d6c7",
+  "extensionVersion": "0.3.2",
   "nodeVersion": "24.22.0",
   "lockHash": "7f8067edcc342dd84d4ee55d559f6c9e9b794e22cc5c1aaa4dd8a434a6ce38b9",
   "domain": "loopy.bearsharks.dev",
@@ -118,7 +118,7 @@
     "assets/dnd.esm-CsspHvdU.js": "fd5f79fc5a28e94f9e279d9a477b34a3fd82fc791fc99f054bd93e38b84b80d9",
     "assets/index-ChoErayv.js": "34949e3eb1f53b82adefbd52d4908a2afc9164186d360bd5e76aca4fff3f5b35",
     "assets/index-F3xeJ2L2.css": "6b0b5bf23befc2e172e17990beaf8155727f33e4aee2678884fcd44f49001444",
-    "downloads/loopy-extension.zip": "837d9ac11f75c6b12dff04082448357e04383ca1ac6faf9eac5d88b50a79d47a",
+    "downloads/loopy-extension.zip": "c6340cd32f71a7aa398c4ac436386ae15f3fedfb328048908a74cb3e6cebf738",
     "favicon.ico": "3d10f7da6c603178340081668c4ac5b3ae9743ca9a262ab0fcd312fbb9f48bdd",
     "favicon.svg": "7a7fbde972c933fc9500b32daeab5e24351b007b590314b7eb47bb0b19bb3d5c",
     "index.html": "da103ba77cfe3d6cc241a2f7f18044d3c3c187b73e473edf8f259a06643c8882",
