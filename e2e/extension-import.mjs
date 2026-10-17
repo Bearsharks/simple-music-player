@@ -156,7 +156,11 @@ try {
   await secondApp.close();await app.close();
   await collectVideo();const newTab=context.waitForEvent("page").catch(()=>null);await popup.getByRole("button",{name:"저장",exact:true}).click();const opened=await newTab;
   if(!opened){console.log("Delivery diagnostic",await popup.locator("body").evaluate(async()=>({status:document.querySelector("#status").textContent,tabs:await chrome.tabs.query({url:["http://127.0.0.1/*","http://localhost/*","https://loopy.bearsharks.dev/*"]}),state:await chrome.storage.session.get(["delivery","lastSent","outcome"])})));throw Error("No new Loopy tab");}
-  await expect(opened).toHaveURL(base);await expect(opened.getByRole("dialog",{name:"목록 편집"})).toBeVisible();
+  await expect(opened).toHaveURL(base);
+  // Chrome's tabs.create initial document can precede Playwright interception.
+  // Load the candidate build explicitly in proxy mode; deployed mode needs no reload.
+  if(process.env.APP_PROXY_URL)await opened.goto(base);
+  await expect(opened.getByRole("dialog",{name:"목록 편집"})).toBeVisible({timeout:20000});
   await expect(popup.locator("#count")).toHaveText("0");
   // Unsent local basket survives an actual browser context restart.
   await collectVideo();await context.close();context=await chromium.launchPersistentContext(profile,launchOptions);
@@ -180,6 +184,7 @@ try {
   fs.writeFileSync(path.join(output,"report.json"),JSON.stringify({extensionId:EXTENSION_ID,realExtensionTransport:true,realIndexedDB:true,overlay:true,thumbnailIconSize:26,singleTarget:true,createdTabWhenAbsent:true,clearedOnAck:true,basketSurvivedBrowserRestart:true,extensionUpdateLinkVerified:true,externalMetadataAndPlayer:"mocked",githubRelease:"mocked",textarea,errors},null,2));
   console.log("PASS: YouTube overlay/Escape, targeted delivery/reuse/new tab, ACK clearing, browser-restart basket persistence, modal edits/queue/storage; desktop + 390/320.");
 }catch(error){
+  console.log("App failure diagnostic",await Promise.all(context.pages().filter(p=>p.url().startsWith(base)).map(p=>p.evaluate(()=>({url:location.href,scripts:[...document.scripts].map(s=>s.src),text:document.body.innerText.slice(0,400)})).catch(()=>null))),errors);
   for(const page of context.pages()){
     if(page.url().startsWith("https://www.youtube.com/")){
       const frame=page.frames().find(f=>f.url().startsWith(`chrome-extension://${EXTENSION_ID}/popup.html`));
