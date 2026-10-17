@@ -52,7 +52,8 @@ chrome.runtime.onMessage.addListener((message, sender, reply) => {
   if (!youtubeSender(sender) && !popupSender(sender)) return;
   if (message?.type === "extension.update") {
     if (!popupSender(sender)) return;
-    checkUpdate(chrome.runtime.getManifest().version).then(reply, () => reply({ ok: false }));
+    if (Object.keys(message).some(key => !["type", "force"].includes(key)) || (message.force !== undefined && typeof message.force !== "boolean")) { reply({ ok: false }); return; }
+    checkUpdate(chrome.runtime.getManifest().version, message.force === true).then(reply, () => reply({ ok: false }));
     return true;
   }
   serial(async () => {

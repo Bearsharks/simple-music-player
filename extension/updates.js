@@ -19,14 +19,14 @@ export function releaseUpdate(release, currentVersion) {
 }
 
 let inFlight;
-export async function checkUpdate(currentVersion) {
+export async function checkUpdate(currentVersion, force = false) {
   const { updateCheck } = await chrome.storage.session.get("updateCheck");
-  if (updateCheck?.currentVersion === currentVersion && updateCheck.expiresAt > Date.now()) return updateCheck.result;
+  if (!force && updateCheck?.currentVersion === currentVersion && updateCheck.expiresAt > Date.now()) return updateCheck.result;
   if (inFlight) return inFlight;
   inFlight = (async () => {
     let result;
     try {
-      const response = await fetch(LATEST_RELEASE, { credentials: "omit", redirect: "error", signal: AbortSignal.timeout(8000) });
+      const response = await fetch(LATEST_RELEASE, { credentials: "omit", redirect: "error", cache: "no-store", signal: AbortSignal.timeout(8000) });
       if (response.status === 404) result = { ok: true, update: null };
       else {
         if (!response.ok) throw Error("release lookup failed");

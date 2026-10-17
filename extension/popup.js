@@ -10,13 +10,23 @@ openApp.onclick = async () => {
   finally { openApp.disabled = false; }
 };
 document.querySelector("#version").textContent = `v${chrome.runtime.getManifest().version}`;
-chrome.runtime.sendMessage({ type: "extension.update" }).then(result => {
-  if (!result?.ok || !result.update) return;
-  const update = document.querySelector("#update");
-  update.href = result.update.url;
-  update.title = `v${result.update.version} 다운로드`;
-  update.hidden = false;
-}).catch(() => {});
+const checkUpdate = document.querySelector("#check-update"), updateStatus = document.querySelector("#update-status");
+async function refreshUpdate(force = false) {
+  if (checkUpdate.disabled) return;
+  checkUpdate.disabled = true; updateStatus.textContent = "확인 중…";
+  try {
+    const result = await chrome.runtime.sendMessage(force ? { type: "extension.update", force: true } : { type: "extension.update" });
+    if (!result?.ok) throw Error("업데이트를 확인하지 못했습니다.");
+    const update = document.querySelector("#update");
+    update.hidden = !result.update;
+    if (result.update) { update.href = result.update.url; update.title = `v${result.update.version} 다운로드`; }
+    else update.removeAttribute("href");
+    updateStatus.textContent = result.update ? `v${result.update.version}` : force ? "새 업데이트 없음" : "";
+  } catch { updateStatus.textContent = "업데이트를 확인하지 못했습니다."; }
+  finally { checkUpdate.disabled = false; }
+}
+checkUpdate.onclick = () => void refreshUpdate(true);
+void refreshUpdate();
 if (window.parent !== window) document.documentElement.classList.add("embedded");
 const visibility = document.querySelector("#youtube-ui");
 let visibilityRevision = 0;

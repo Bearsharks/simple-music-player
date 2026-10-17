@@ -52,7 +52,9 @@ try {
   await expect(youtube.getByRole("status")).toHaveText("2개 담음");
   const worker=context.serviceWorkers()[0]||await context.waitForEvent("serviceworker");
   await worker.evaluate(()=>{
+    globalThis.__updateFailure=false;globalThis.__updateCalls=0;
     globalThis.fetch=async url=>{
+      globalThis.__updateCalls++;if(globalThis.__updateFailure)throw Error("offline");
       if(url!=="https://api.github.com/repos/Bearsharks/loop-yt-player/releases/latest")throw Error("unexpected extension network request");
       return new Response(JSON.stringify({tag_name:"v99.0.0",draft:false,prerelease:false,assets:[{name:"loopy-extension.zip"}]}),{status:200});
     };
@@ -61,15 +63,29 @@ try {
   await expect(youtube.locator("#loopy-bridge-tools")).not.toBeVisible();await expect(videoCollect).not.toBeVisible();
   await youtube.reload();await expect(youtube.locator("#loopy-bridge-tools")).not.toBeVisible();
   const settings=await context.newPage();await settings.goto(`chrome-extension://${EXTENSION_ID}/popup.html`);
-  const visibility=settings.getByRole("checkbox",{name:"YouTube 담기 UI"});
+  const visibility=settings.getByRole("switch",{name:"YouTube 담기 UI"});
   await expect(visibility).toBeEnabled();await expect(visibility).not.toBeChecked();await expect(settings.locator("#count")).toHaveText("2");
+  await expect(settings.getByRole("link",{name:"업데이트",exact:true})).toBeVisible();
+  const updateCalls=await worker.evaluate(()=>globalThis.__updateCalls);
+  await worker.evaluate(()=>globalThis.__updateFailure=true);
+  await settings.getByRole("button",{name:"업데이트 확인",exact:true}).click();
+  await expect(settings.locator("#update-status")).toHaveText("업데이트를 확인하지 못했습니다.");
+  await worker.evaluate(()=>globalThis.__updateFailure=false);
+  await settings.getByRole("button",{name:"업데이트 확인",exact:true}).click();
+  await expect(settings.locator("#update-status")).toHaveText("v99.0.0");
+  expect(await worker.evaluate(()=>globalThis.__updateCalls)).toBe(updateCalls+2);
+  await context.route("https://www.youtube.com/",r=>r.fulfill({contentType:"text/html",body:"<title>YouTube</title>"}));
+  const youtubeHomePromise=context.waitForEvent("page");await settings.getByRole("link",{name:"YouTube로 이동",exact:true}).click();
+  const youtubeHome=await youtubeHomePromise;await expect(youtubeHome).toHaveURL("https://www.youtube.com/");await youtubeHome.close();
+  await expect(settings.locator("#count")).toHaveText("2");
+  await settings.screenshot({path:path.join(output,"extension-settings.png"),clip:await settings.locator("body").boundingBox()});
   const pagesBeforeOpen=context.pages().length;
   await app.evaluate(()=>window.__openAppKept="kept");
   await settings.getByRole("button",{name:"Loopy로 이동"}).click();
   await expect(settings.getByRole("button",{name:"Loopy로 이동"})).toBeEnabled();
   expect(context.pages().length).toBe(pagesBeforeOpen);expect(await app.evaluate(()=>window.__openAppKept)).toBe("kept");
   await expect(settings.locator("#count")).toHaveText("2");await expect(app.getByRole("dialog",{name:"목록 편집"})).toHaveCount(0);
-  await visibility.check();await expect(videoCollect).toBeVisible();
+  await visibility.focus();await settings.keyboard.press("Space");await expect(visibility).toBeChecked();await expect(videoCollect).toBeVisible();
   await visibility.uncheck();await expect(videoCollect).not.toBeVisible();
   await app.getByRole("textbox",{name:"YouTube 검색어"}).fill("검색으로 다시 켜기");
   const searchPagePromise=context.waitForEvent("page");await app.getByRole("button",{name:"YouTube에서 검색"}).click();
@@ -96,7 +112,7 @@ try {
   await popup.getByRole("button",{name:"저장",exact:true}).click();
   const dialog=app.getByRole("dialog",{name:"목록 편집"});await expect(dialog).toBeVisible();
   await expect(app.locator(".li-track")).toHaveCount(4);
-  await expect(popup.getByRole("status")).toHaveText("Loopy에서 수신했습니다.");
+  await expect(popup.locator("#status")).toHaveText("Loopy에서 수신했습니다.");
   await expect(popup.locator("#count")).toHaveText("0");expect(context.pages().length).toBe(pageCount);
   await expect(app.getByText("플레이어가 제공한 곡만 포함됩니다. 원본 전체가 아닐 수 있습니다.")).toBeVisible();
   const nameInput=app.getByLabel("재생목록 이름",{exact:true});
@@ -197,7 +213,7 @@ try {
   await context.close();context=await chromium.launchPersistentContext(profile,launchOptions);
   const restored=await context.newPage();await restored.goto(`chrome-extension://${EXTENSION_ID}/popup.html`);
   await expect(restored.locator("#count")).toHaveText("1");
-  await expect(restored.getByRole("checkbox",{name:"YouTube 담기 UI"})).not.toBeChecked();
+  await expect(restored.getByRole("switch",{name:"YouTube 담기 UI"})).not.toBeChecked();
   expect(await restored.locator("body").evaluate(el=>el.getBoundingClientRect().width)).toBe(400);
   expect(await restored.locator("body").evaluate(el=>el.scrollWidth<=el.clientWidth)).toBe(true);
   const popupWorker=context.serviceWorkers()[0]||await context.waitForEvent("serviceworker");

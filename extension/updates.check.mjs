@@ -12,9 +12,13 @@ test("checks only GitHub without credentials, caches the result, and tolerates f
   globalThis.chrome={storage:{session:{get:async()=>data,set:async value=>Object.assign(data,value)}}};
   const originalFetch=globalThis.fetch;
   try{
-    globalThis.fetch=async(url,options)=>{calls++;assert.equal(url,"https://api.github.com/repos/Bearsharks/loop-yt-player/releases/latest");assert.equal(options.credentials,"omit");assert.equal(options.redirect,"error");return new Response(JSON.stringify(release("v0.3.0")),{status:200});};
+    globalThis.fetch=async(url,options)=>{calls++;assert.equal(url,"https://api.github.com/repos/Bearsharks/loop-yt-player/releases/latest");assert.equal(options.credentials,"omit");assert.equal(options.redirect,"error");assert.equal(options.cache,"no-store");return new Response(JSON.stringify(release("v0.3.0")),{status:200});};
     assert.equal((await checkUpdate("0.2.1")).update.version,"0.3.0");
     await checkUpdate("0.2.1");assert.equal(calls,1);
-    data={};globalThis.fetch=async()=>{throw Error("offline");};assert.deepEqual(await checkUpdate("0.2.1"),{ok:false});
+    await checkUpdate("0.2.1",true);assert.equal(calls,2);
+    globalThis.fetch=async()=>{calls++;throw Error("offline");};assert.deepEqual(await checkUpdate("0.2.1",true),{ok:false});
+    await checkUpdate("0.2.1");assert.equal(calls,3);
+    globalThis.fetch=async()=>{calls++;return new Response(JSON.stringify(release("v0.3.1")),{status:200});};
+    assert.equal((await checkUpdate("0.2.1",true)).update.version,"0.3.1");assert.equal(calls,4);
   }finally{globalThis.fetch=originalFetch;}
 });
