@@ -121,16 +121,21 @@ it("offers add instead of playback for an empty card and preserves navigation", 
 });
 
 it("shows the welcoming actions only for an actually empty library", () => {
+  const create = vi.fn();
   render(
     <Playlists
       playlistInfos={[]}
       goToPlaylistPage={vi.fn()}
       playPlaylist={vi.fn()}
-      openCreatePlaylistPopup={vi.fn()}
+      openCreatePlaylistPopup={create}
       openOptionsSelector={vi.fn()}
     />,
   );
-  expect(screen.getByText("Feel Every Beat ↗")).toBeInTheDocument();
+  expect(screen.getByRole("heading", { level: 2, name: "첫 재생목록을 만들어보세요." })).toBeInTheDocument();
+  expect(screen.queryByText("Feel Every Beat ↗")).not.toBeInTheDocument();
+  expect(screen.queryByText(/나만의 공간/)).not.toBeInTheDocument();
+  fireEvent.click(screen.getByRole("button", { name: "새 재생목록" }));
+  expect(create).toHaveBeenCalledTimes(1);
   expect(
     screen.queryByRole("textbox", { name: "라이브러리 검색" }),
   ).not.toBeInTheDocument();

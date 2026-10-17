@@ -185,17 +185,7 @@ export default function Playlists(props: PlaylistsProps) {
           <div className="empty-wave">
             <Cover id="smp-empty-wave" />
           </div>
-          <span className="empty-tag">Feel Every Beat ↗</span>
-          <h2>
-            좋아하는 음악으로
-            <br />
-            나만의 공간을 채워보세요.
-          </h2>
-          <p>
-            YouTube 재생목록을 가져오거나 빈 목록을 만들어
-            <br />
-            듣고 싶은 곡을 하나씩 담아보세요.
-          </p>
+          <h2>첫 재생목록을 만들어보세요.</h2>
           <div className="actions">
             <BrandPrimaryButton
               className="primary-button"

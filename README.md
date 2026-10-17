@@ -1,6 +1,6 @@
 <p align="center">
   <a href="https://loopy.bearsharks.dev/">
-    <img src="docs/readme/hero.jpg" width="100%" alt="loopy — 좋아하는 음악을, 나만의 흐름으로. 데스크톱과 모바일의 실제 라이브러리 화면.">
+    <img src="docs/readme/hero.jpg" width="100%" alt="loopy — YouTube 재생목록을 가져오고, 편집하고, 재생하세요. 데스크톱과 모바일 라이브러리 화면.">
   </a>
 </p>
 

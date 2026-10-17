@@ -169,21 +169,10 @@
 .empty-wave .wave-cover {
   transform: translateY(-36px);
 }
-.empty-tag {
-  display: block;
-  color: #c8a3ed;
-  font-size: 13px;
-  margin-bottom: 12px;
-}
 .library-empty h2 {
   font-size: 26px;
   line-height: 1.35;
   margin-bottom: 16px;
-}
-.library-empty p {
-  color: var(--muted);
-  font-size: 14px;
-  margin: 0 auto 24px;
 }
 .library-empty .actions {
   display: flex;
