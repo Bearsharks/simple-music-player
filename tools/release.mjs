@@ -106,7 +106,7 @@ async function publish(directory) {
       verifyRelease(worktree);
       run("git",["add","-A"],{cwd:worktree});
       if(run("git",["status","--porcelain"],{cwd:worktree})){
-        run("git",["-c","user.name=Loopy release","-c","user.email=release@users.noreply.github.com","commit","-m",`deploy: ${manifest.sourceCommit}`],{cwd:worktree});
+        run("git",["-c","user.name=github-actions[bot]","-c","user.email=41898282+github-actions[bot]@users.noreply.github.com","commit","-m",`deploy: ${manifest.sourceCommit}`],{cwd:worktree});
         run("git",["push","origin","HEAD:gh-pages"],{cwd:worktree});
       }
       const deploymentSHA=run("git",["rev-parse","HEAD"],{cwd:worktree});
