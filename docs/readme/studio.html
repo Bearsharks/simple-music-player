@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="ko"><meta charset="utf-8"><title>loopy · README capture studio</title>
+<link rel="stylesheet" href="../../src/shared/ui/fonts.css">
+<style>
+*{box-sizing:border-box}html,body{margin:0;background:#0b0b14;color:#fff;font-family:'Geist Sans','Pretendard Variable',sans-serif}body.setup{padding:64px;max-width:960px}h1{font-size:40px;letter-spacing:-1.2px}p{line-height:1.7;color:#a1a1b3}button,a{font:inherit}button{border:0;border-radius:10px;padding:14px 20px;background:linear-gradient(100deg,#a855ff,#5b9ef6);color:#0b0b14;cursor:pointer;font-weight:650}nav{display:flex;gap:24px;margin:32px 0}a{color:#b875ff}iframe{display:block;border:0;flex:none}#status{white-space:pre-wrap}body.capture{overflow:hidden}body.capture #setup{display:none}
+</style>
+<div id="setup"><h1>loopy README studio</h1><p>현재 제품의 배포 빌드를 그대로 렌더합니다. 이 로컬 주소만 쓰는 예시 데이터이며, 공개 서비스의 저장 목록이나 실제 재생 상태를 수정하지 않습니다.</p><button id="seed">예시 라이브러리 준비</button><p id="status" role="status"></p><nav><a href="?view=desktop">데스크톱 라이브러리</a><a href="?view=mobile">모바일 라이브러리</a><a href="?view=detail">상세 편집 화면</a></nav><p>캡처 중 전체 재생/곡 재생을 실행하지 않습니다. 재생 결과나 다운로드를 시연하지 않습니다.</p></div>
+<script>
+const view = new URLSearchParams(location.search).get('view');
+if(view){document.body.className='capture';const frame=document.createElement('iframe');const size=view==='mobile'?[390,844]:view==='detail'?[1280,800]:[1440,900];frame.width=size[0];frame.height=size[1];frame.title='loopy 실제 앱 · 예시 데이터';frame.src=view==='detail'?'/simple-music-player/playlist/readme-blue-hour-3':'/simple-music-player/';const scale=view==='mobile'?.85:view==='detail'?.9:.8;frame.style.transform=`scale(${scale})`;frame.style.transformOrigin='top left';document.body.style.width=(size[0]*scale)+'px';document.body.style.height=(size[1]*scale)+'px';document.body.append(frame);}else document.body.className='setup';
+const examples=[
+ ['readme-blue-hour-3','Blue hour','하루의 끝, 조금 더 느린 박자로.',8],
+ ['readme-deep-focus','오후의 집중','창을 열고, 생각은 가볍게.',12],
+ ['readme-sunday-3','Sunday morning','조금 늦게 시작해도 좋은 아침.',10],
+ ['readme-city-3','도시 산책','익숙한 거리에서 만나는 새로운 리듬.',7],
+ ['readme-rain','비 오는 창가','빗소리와 함께 머무는 시간.',9],
+ ['readme-drive-2','한낮의 드라이브','멀리 돌아가도 괜찮은 날.',11],
+ ['readme-night-2','느리게 흐르는 밤','작은 불빛 하나, 오래 듣고 싶은 음악.',6],
+ ['readme-start','기분 좋은 출발','오늘의 첫 곡은 가볍게.',8]
+];
+const tracks=[['Blue hour','blue room'],['느린 파도','soft focus'],['Midnight walk','night letters'],['창가의 온도','warm light'],['Small orbit','blue room'],['Afterglow','night letters'],['오래된 여름','soft focus'],['A quiet room','warm light'],['어느 오후','blue room'],['Soft landing','warm light'],['첫 번째 빛','soft focus'],['Long way home','night letters']];
+document.querySelector('#seed').onclick=async()=>{try{
+if(!['127.0.0.1','localhost'].includes(location.hostname))throw Error('소개용 예시 데이터는 localhost에서만 준비할 수 있습니다.');
+const req=indexedDB.open('simple-music-player-local-v1',1);
+req.onupgradeneeded=()=>req.result.createObjectStore('playlists',{keyPath:'info.id'});
+const db=await new Promise((resolve,reject)=>{req.onsuccess=()=>resolve(req.result);req.onerror=()=>reject(req.error)});
+const before=await new Promise((resolve,reject)=>{const r=db.transaction('playlists').objectStore('playlists').getAllKeys();r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error)});
+if(before.some(id=>!String(id).startsWith('readme-')))throw Error('이 origin에 예시가 아닌 목록이 있습니다. 별도의 로컬 포트를 사용하세요.');
+await new Promise((resolve,reject)=>{const tx=db.transaction('playlists','readwrite');tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error);tx.objectStore('playlists').clear();examples.forEach(([id,name,description,n],i)=>{const items=Array.from({length:n},(_,j)=>({key:`${id}-${j}`,videoID:`demo${String(i*100+j).padStart(7,'0')}`,name:tracks[j%tracks.length][0],owner:tracks[j%tracks.length][1],query:'',thumbnail:''}));tx.objectStore('playlists').put({info:{id,name,description,createdAt:1800000000000-i,itemCount:n,thumbnails:[]},items});});});db.close();document.querySelector('#status').textContent='8개의 예시 목록이 준비됐습니다. 아래에서 실제 앱을 엽니다.';
+}catch(e){document.querySelector('#status').textContent=e.message}};
+</script></html>
