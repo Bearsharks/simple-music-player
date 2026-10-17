@@ -12,7 +12,7 @@
 
 ## 현재 제품 진입점
 
-App → navigation/Main이 현재 진입 경로다. URL 가져오기는 youtube/ui/PlaylistImport.tsx, 저장 목록은 playlists, 현재 대기열은 queue, 재생은 player가 담당한다. 저장 어댑터는 shared/api/localAPI.ts다. library 링크 화면은 과거 중간 구현이며 기본 경로가 아니다.
+App → navigation/Main이 진입 경로다. URL 가져오기는 youtube/ui/PlaylistImport.tsx, URL 검증은 youtube/api/playlistUrl.ts, 확장 전달·편집은 youtube/import가 소유한다. 저장 목록은 playlists, 현재 대기열은 queue, 재생은 player가 담당한다. 저장 어댑터는 shared/api/localAPI.ts다.
 
 ## 현재 기능 → 진입점
 
@@ -40,7 +40,7 @@ App → navigation/Main이 현재 진입 경로다. URL 가져오기는 youtube/
 
 ## 도구의 보장 범위
 
-`check:boundaries`는 폐기 라이브러리 참조, shared의 feature/app 의존, alias 경로 유효성을 검사한다. 순환 의존이나 모든 업무 계약을 보장하지 않는다.
+`check:boundaries`는 폐기 라이브러리 참조, alias/상대 경로를 정규화한 shared→feature/app 및 feature→app 의존, 로컬 import 경로 유효성을 검사한다. 정적 문자열 검사이며 동적 경로·순환 의존·모든 업무 계약을 보장하지 않는다.
 
 `impact`는 현재 TypeScript 정적 import의 직접 연결을 출력한다. 동적 문자열 로딩, 이벤트·콜백 의미, 서버 응답, CSS/전역 객체 영향은 README와 해당 계약을 추가 확인한다. 테스트가 없는 화면은 테스트가 없다고 명시한다.
 

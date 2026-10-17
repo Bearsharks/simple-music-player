@@ -5,7 +5,7 @@ import { reducer, initial } from "features/youtube/import/model";
 import { resolveImport } from "features/youtube/import/resolve";
 import type { ImportEnvelope } from "features/youtube/import/contract";
 import { connectImportBridge } from "features/youtube/import/bridge";
-import { parsePlaylistUrl } from "features/library/model/library";
+import { parsePlaylistUrl } from "features/youtube/api/playlistUrl";
 
 const video="azNG-AU0eGg", second="hWhgrA2dhrk", playlist="PLVKdYxm17gBYbyZYbHWZDr7NU3ZwtFiB5";
 const request=(n=1):ImportEnvelope=>({type:"loopy.import",version:1,requestId:`00000000-0000-4000-8000-${String(n).padStart(12,"0")}`,items:[{kind:"video",id:video}]});
@@ -55,14 +55,25 @@ describe("extension import contract",()=>{
     await expect(resolveImport([{kind:"playlist",id:playlist}],document.createElement("div"),new AbortController().signal,async()=>Array(2001).fill(video),async()=>({}))).rejects.toThrow("2000");
     const c=new AbortController();c.abort();await expect(resolveImport(request().items,document.createElement("div"),c.signal)).rejects.toThrow();
   });
-  it("acknowledges valid deliveries once, ignores invalid payloads and stops polling",async()=>{
+  it("checks once, receives notifications through a verified pull, and never polls",async()=>{
     vi.useFakeTimers();let response:unknown={ok:true,request:request()};
     const sendMessage=vi.fn((_id:string,msg:any,cb:(r:unknown)=>void)=>cb(msg.type==="loopy.pull"?response:{ok:true}));
     vi.stubGlobal("chrome",{runtime:{sendMessage}});
     const receive=vi.fn(),status=vi.fn();const stop=connectImportBridge(receive,status);
-    await vi.advanceTimersByTimeAsync(3100);expect(receive).toHaveBeenCalledTimes(1);
+    await vi.advanceTimersByTimeAsync(60000);expect(receive).toHaveBeenCalledTimes(1);expect(sendMessage).toHaveBeenCalledTimes(2);
+    const wake=(data:unknown={type:"loopy.delivery.available"},origin=location.origin)=>window.dispatchEvent(new MessageEvent("message",{source:window,origin,data}));
+    wake(request(2));wake({type:"loopy.delivery.available"},"https://evil.test");
+    await vi.advanceTimersByTimeAsync(60000);expect(sendMessage).toHaveBeenCalledTimes(2);
     response={ok:true,request:{...request(2),items:[{kind:"video",id:video,html:"bad"}]}};
-    await vi.advanceTimersByTimeAsync(1600);expect(receive).toHaveBeenCalledTimes(1);
-    stop();const calls=sendMessage.mock.calls.length;await vi.advanceTimersByTimeAsync(10000);expect(sendMessage).toHaveBeenCalledTimes(calls);vi.unstubAllGlobals();
+    wake();await vi.advanceTimersByTimeAsync(1);expect(receive).toHaveBeenCalledTimes(1);
+    response={ok:true,request:request(2)};wake();await vi.advanceTimersByTimeAsync(1);expect(receive).toHaveBeenCalledTimes(2);
+    wake();await vi.advanceTimersByTimeAsync(1);expect(receive).toHaveBeenCalledTimes(2);
+    stop();const calls=sendMessage.mock.calls.length;wake();await vi.advanceTimersByTimeAsync(60000);expect(sendMessage).toHaveBeenCalledTimes(calls);vi.unstubAllGlobals();
+  });
+  it("does not retry an unavailable extension until the caller reconnects",async()=>{
+    vi.useFakeTimers();const sendMessage=vi.fn((_id:string,_message:unknown,cb:(r:unknown)=>void)=>cb({ok:false}));
+    vi.stubGlobal("chrome",{runtime:{sendMessage}});const status=vi.fn();let stop=connectImportBridge(vi.fn(),status);
+    await vi.advanceTimersByTimeAsync(60000);expect(sendMessage).toHaveBeenCalledOnce();expect(status).toHaveBeenLastCalledWith(false);
+    stop();stop=connectImportBridge(vi.fn(),status);await vi.advanceTimersByTimeAsync(1);expect(sendMessage).toHaveBeenCalledTimes(2);stop();vi.unstubAllGlobals();
   });
 });

@@ -168,7 +168,7 @@ export default function Dialog({
         // Native close watchers own Escape. Closing here can expose the lower
         // dialog to the same native Escape gesture after a responsive change.
         if (native) return;
-        if ((event.target as HTMLElement)?.closest("[data-dialog-popover]"))
+        if (event.target instanceof Element && event.target.closest("[data-dialog-popover]"))
           return;
         event.preventDefault();
         event.stopImmediatePropagation();

@@ -1,12 +1,12 @@
 # Simple Music Player 아키텍처
 
-검토 기준: 2026-10-16, `design/modern-listening`. 디자인 시안과 기능 검증, 운영 배포 여부는 별개다.
+제품 소스는 `main`이며 배포 단위는 검증된 전체 커밋 SHA와 파일별 SHA-256 manifest다.
 
 ## 실제 실행 경로
 
 `src/main.tsx` → `src/app/App.tsx` → `features/navigation/pages/Main.tsx`
 
-App은 `/simple-music-player`를 기준 경로로 사용하는 BrowserRouter와 Suspense를 조립한다. navigation/Main은 라이브러리·목록 상세 라우트, 사이드바, 플레이어, 팝업을 연결한다. `features/library/ui/LocalLibrary.tsx`는 과거 중간 구현으로, 현재 기본 화면이 아니다.
+App은 BASE_URL의 BrowserRouter와 Suspense, Main과 YouTube 도구를 조립한다. 운영은 `/`, 개발은 `/simple-music-player/`다. navigation/Main이 라이브러리·목록 상세 라우트, 사이드바, 플레이어, 팝업을 연결한다. URL 검증·공개 메타데이터·확장 가져오기 스타일은 youtube 기능이 소유한다.
 
 ## 기능 소유권
 
@@ -16,7 +16,7 @@ App은 `/simple-music-player`를 기준 경로로 사용하는 BrowserRouter와 
 | playlists | 저장 목록 조회·생성·수정·삭제·곡 편집 | shared API, queue, overlays |
 | queue | 현재 대기열, 선택, 순서, 추가·삭제 | playlists의 곡 조회, player |
 | player | YouTube 임베드, 재생 제어, 진행률·음량 | queue, youtube |
-| youtube | URL 검증·가져오기·원본 초기화 미리보기 | playlists, shared API |
+| youtube | URL 검증·가져오기·메타데이터·확장 목록 편집 | playlists, queue, player, extension |
 | overlays | 모달·메뉴·알림과 기능 간 조정 | 실제 데이터 변경은 각 소유 기능 |
 | shared | 공통 타입, 저장 어댑터, 재사용 UI | feature/app으로 역의존하지 않음 |
 
@@ -25,6 +25,7 @@ App은 `/simple-music-player`를 기준 경로로 사용하는 BrowserRouter와 
 ## 저장과 외부 서비스 계약
 
 - React/Vite 정적 클라이언트 앱이다. 로그인·OAuth·자체 백엔드는 현재 제품에 없다.
+- 확장 연결 확인은 앱 시작·수동 확인에서 한 번 실행한다. 저장 알림은 대상 탭의 content script가 전달하며, 앱은 payload 없는 알림을 받은 뒤 검증된 확장 ID에 pull한다. 항목·ACK는 실제 sender 출처/frame/tab을 검증하는 Chrome 외부 메시지로만 처리한다. 수신 실패는 확장 basket을 보존한다.
 - `shared/api/apiSelector.ts`는 기본적으로 localAPI를 사용하며, 명시적인 fixture 설정만 테스트 API를 선택한다.
 - localAPI는 IndexedDB `simple-music-player-local-v1`의 playlists 저장소를 사용한다. 트랜잭션 완료 전에는 저장 성공으로 알리지 않는다.
 - 저장 재생목록과 현재 재생 대기열은 별개다. 대기열은 접속 중 상태이며 목록으로 저장한 내용만 영속된다. 저장 목록 삭제가 현재 재생 대기열 삭제를 뜻하지 않는다.

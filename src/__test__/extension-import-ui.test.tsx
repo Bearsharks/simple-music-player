@@ -43,7 +43,7 @@ it("shows GitHub installation only while disconnected and auto-closes when conne
     expect(screen.getByRole("link",{name:"확장 프로그램 다운로드"})).toHaveAttribute("href",`${import.meta.env.BASE_URL}downloads/loopy-extension.zip`);
   expect(screen.getByLabelText("확장 관리 주소")).toHaveValue("chrome://extensions");
   expect(screen.queryByRole("dialog",{name:"목록 편집"})).not.toBeInTheDocument();
-  fireEvent.click(screen.getByRole("button",{name:"연결 확인"}));
+  fireEvent.click(screen.getAllByRole("button",{name:"연결 확인"}).at(-1)!);
   act(()=>mocks.status!(true));
   await waitFor(()=>expect(screen.queryByRole("dialog",{name:"확장 프로그램 설치"})).not.toBeInTheDocument());
   expect(screen.queryByRole("button",{name:"확장 프로그램 다운로드"})).not.toBeInTheDocument();

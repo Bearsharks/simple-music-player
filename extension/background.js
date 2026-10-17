@@ -120,6 +120,9 @@ chrome.runtime.onMessage.addListener((message, sender, reply) => {
           await chrome.storage.session.set({ delivery: null, outcome: "Loopy 탭을 열지 못했습니다. 다시 저장하세요." });
           throw Error("Loopy 탭을 열지 못했습니다. 다시 저장하세요.");
         }
+        // A new document can receive the request through its initial pull instead.
+        // Missing content scripts never acknowledge or clear the stored basket.
+        await chrome.tabs.sendMessage(target.id, { type: "loopy.delivery.available" }, { frameId: 0 }).catch(() => {});
         return { ok: true };
       }
       default: throw Error("허용되지 않은 요청입니다.");

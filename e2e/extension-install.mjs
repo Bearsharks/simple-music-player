@@ -29,12 +29,20 @@ try {
     // Connection simulation only; real extension transport is exercised separately.
     await page.evaluate(() => {
       window.chrome = window.chrome || {};
-      window.chrome.runtime = { sendMessage(_id, message, callback) { callback({ ok: true, request: null }); } };
+      window.__connectionOK=true;window.__connectionCalls=0;
+      window.chrome.runtime = { sendMessage(_id, message, callback) { window.__connectionCalls++;callback({ ok: window.__connectionOK, request: null }); } };
     });
     await dialog.getByRole("button", { name: "연결 확인", exact: true }).click();
     await expect(dialog).toHaveCount(0);
     await expect(install).toHaveCount(0);
     await expect(page.getByRole("dialog", { name: "목록 편집" })).toHaveCount(0);
+    if(width===1440){
+      await page.evaluate(()=>{window.__connectionOK=false;window.dispatchEvent(new Event("focus"));document.dispatchEvent(new Event("visibilitychange"));});
+      await page.waitForTimeout(6000);
+      expect(await page.evaluate(()=>window.__connectionCalls)).toBe(1);await expect(install).toHaveCount(0);
+      await page.getByRole("button",{name:"연결 확인",exact:true}).click();await expect(install).toBeVisible();
+      expect(await page.evaluate(()=>window.__connectionCalls)).toBe(2);
+    }
     expect(errors).toEqual([]);
     await page.close();
   }

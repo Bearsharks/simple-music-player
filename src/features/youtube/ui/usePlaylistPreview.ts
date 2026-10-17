@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { loadIframeApi } from "features/player/api/iframe";
-import { parsePlaylistUrl } from "features/library/model/library";
+import { parsePlaylistUrl } from "../api/playlistUrl";
 import {
   fetchPlaylistMetadata,
   type PlaylistMetadata,

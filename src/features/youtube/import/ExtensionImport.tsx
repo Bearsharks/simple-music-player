@@ -20,7 +20,7 @@ import { connectImportBridge } from "./bridge";
 import ImportPlayer from "./ImportPlayer";
 import { pauseMain } from "./pauseMain";
 import ExtensionInstall from "./ExtensionInstall";
-import "../prototype/YouTubeImportPrototype.scss";
+import "./editor.scss";
 import "./import.scss";
 
 export default function ExtensionImport() {
@@ -41,6 +41,7 @@ export default function ExtensionImport() {
   const queue=useMusicListManager(),playlists=usePlaylistManager();
   const tracks=state.draft?.tracks||[], active=tracks.find(t=>t.key===selected)||tracks[0];
   const busy=writing||!!state.resolving;
+  const checkConnection=()=>{setConnected(null);setConnectionCheck(n=>n+1);};
   const receive=(request:ImportEnvelope)=>{if(validEnvelope(request)){dispatch({type:"receive",request});}};
   useEffect(()=>connectImportBridge(receive,setConnected,receivedIds.current),[connectionCheck]);
   useEffect(()=>{if(connected)setInstallOpen(false);},[connected]);
@@ -81,8 +82,9 @@ export default function ExtensionImport() {
         <Button type="submit" variant="ghost" size="icon" aria-label="YouTube에서 검색"><Icon name="search"/></Button>
       </form>
       {connected===false&&<Button variant="outline" onClick={()=>setInstallOpen(true)}>확장 프로그램 다운로드</Button>}
+      <Button variant="ghost" disabled={connected===null} onClick={checkConnection}>{connected===null?"확인 중…":"연결 확인"}</Button>
     </div>
-    {installOpen&&!state.open&&<ExtensionInstall checking={connected===null} onClose={()=>setInstallOpen(false)} onCheck={()=>{setConnected(null);setConnectionCheck(n=>n+1);}}/>}
+    {installOpen&&!state.open&&<ExtensionInstall checking={connected===null} onClose={()=>setInstallOpen(false)} onCheck={checkConnection}/>}
     {state.open&&<Dialog label="목록 편집" className="yi-dialog" onClose={()=>{}}>
       <div ref={setMenuHost} className="li-dialog-body" aria-busy={writing}>
       <header className="yi-header"><h2>목록 편집</h2><Button variant="ghost" size="icon" disabled={writing||dragging} aria-label="목록 편집 닫기" onClick={close}><Icon name="close"/></Button></header>

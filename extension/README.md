@@ -8,7 +8,7 @@ Loopy 검색창 옆 **확장 프로그램 다운로드**에서 확장 전용 ZIP
 
 ## ZIP 패키지
 
-`npm run package:extension`은 개발용 `public/downloads/loopy-extension.zip`을 만든다. npm dev/start 전에 자동 실행한다. 명시적인 실행 파일 10개만 `loopy-extension/` 아래에 포함하며 테스트·전체 앱 코드·환경 파일·개인 경로는 포함하지 않는다. ZIP의 파일 순서·타임스탬프는 고정되어 같은 입력에서 동일한 패키지가 생성된다. 공개 manifest key를 유지하므로 압축해제 설치의 확장 ID도 같다.
+`npm run package:extension`은 개발용 `public/downloads/loopy-extension.zip`을 만든다. npm dev/start 전에 자동 실행한다. 명시적인 실행 파일 11개만 `loopy-extension/` 아래에 포함하며 테스트·전체 앱 코드·환경 파일·개인 경로는 포함하지 않는다. ZIP의 파일 순서·타임스탬프는 고정되어 같은 입력에서 동일한 패키지가 생성된다. 공개 manifest key를 유지하므로 압축해제 설치의 확장 ID도 같다.
 
 - 개발 서버의 다운로드는 `<BASE_URL>downloads/loopy-extension.zip`으로 현재 생성한 파일을 제공한다. 서버 실행 중 확장 파일을 수정했다면 `npm run package:extension`으로 갱신한다.
 - 개발 ZIP은 config.js와 manifest에 로컬 주소·권한을 추가한다. 기본 주소는 `http://127.0.0.1:4187/simple-music-player/`다. `npm run package:extension:release` 및 npm build는 운영 전용 ZIP을 `artifacts/loopy-extension.zip`과 `public/downloads/loopy-extension.zip`에 생성한다. 따라서 빌드 결과의 ZIP도 운영 전용이다. 빌드 후 개발 ZIP이 필요하면 개발 패키징을 다시 실행한다.
@@ -38,7 +38,7 @@ Loopy 검색창 옆 **확장 프로그램 다운로드**에서 확장 전용 ZIP
 
 - `protocol.js`가 앱과 확장의 검증을 공유한다. 추가 필드·임의 URL·HTML은 거부한다. 최대 100개 입력, 순서와 반복 항목 보존.
 - manifest의 key는 공개 식별 키다. 압축해제 로드 ID는 `lpkemppmemlhcggfjcdimmcpfbdjgfdb`. 스토어 배포는 별도 승인·서명·실제 배포 ID 계약 변경이 필요하다.
-- 앱이 고정 확장 ID로 `loopy.pull`을 호출하고 수용한 requestId에 `loopy.ack`로 응답한다. ACK는 저장 완료가 아니다.
+- 앱 시작과 명시적 연결 확인에서 고정 확장 ID로 `loopy.pull`을 한 번 호출한다. 확장 저장은 대상 탭의 최상위 `app-bridge.js`에 payload 없는 알림을 보내 추가 pull을 요청한다. 앱은 DOM 메시지를 수신 데이터로 신뢰하지 않으며 실제 데이터는 Chrome 외부 메시지로 검증한다. 수용한 requestId에 `loopy.ack`로 응답하며 ACK는 저장 완료가 아니다. 알림을 받지 못한 탭은 초기/수동 확인으로 대기 요청을 읽을 수 있다.
 - 운영 패키지의 허용 앱·탭 검색·새 탭 주소는 `https://loopy.bearsharks.dev/`뿐이다. 개발 패키지만 로컬 127.0.0.1/localhost의 4187·5173 포트 `/simple-music-player/` 경로를 추가한다. 최상위 frame만 허용한다. manifest의 포트 지정 한계를 서비스 워커의 정확한 URL 검사로 보완한다.
 - 기존 탭 검색을 위해 위 앱 호스트만 host_permissions에 선언한다. 전체 탭의 URL을 읽는 tabs 권한은 요청하지 않는다. 메시지는 실제 sender.tab.id와 이번 전송의 대상 탭 ID가 같아야 전달·ACK 처리한다. 다른 탭의 ACK는 목록을 비우지 않는다.
 - YouTube content script 및 확장 popup에서만 내부 명령을 받는다. 쿠키·방문 기록·다운로드·전역 CORS 변경 권한은 요구하지 않는다. 확장의 네트워크는 업데이트 확인용 api.github.com만 허용하며 원격 스크립트 실행은 허용하지 않는다.

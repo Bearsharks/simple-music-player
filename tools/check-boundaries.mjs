@@ -1,17 +1,29 @@
 import fs from 'node:fs';
 import path from 'node:path';
-const files = fs.readdirSync('src', {recursive:true}).filter(f=>/\.(ts|tsx)$/.test(f));
-const failures=[];
-for (const file of files) {
- const text=fs.readFileSync(path.join('src',file),'utf8');
- for (const [,specifier] of text.matchAll(/(?:from\s*|import\s*\(|import\s*)['"]([^'"]+)['"]/g)) {
-  if (specifier === 'recoil' || specifier === 'react-beautiful-dnd') failures.push(`${file}: retired dependency ${specifier}`);
-  if (file.startsWith('shared/') && /^(features|app)\//.test(specifier)) failures.push(`${file}: infrastructure depends on feature ${specifier}`);
-  if (/^(app|features|shared|test)\//.test(specifier)) {
-   const p=path.join('src',specifier);
-   if (![p,p+'.ts',p+'.tsx',p+'/index.ts'].some(p=>fs.existsSync(p))) failures.push(`${file}: unresolved ${specifier}`);
+import {fileURLToPath} from 'node:url';
+
+export function checkBoundaries(root=process.cwd()) {
+  const source=path.join(root,'src');
+  const files=fs.readdirSync(source,{recursive:true}).filter(file=>/\.(ts|tsx)$/.test(file));
+  const failures=[];
+  const inside=(file,directory)=>file===directory||file.startsWith(directory+path.sep);
+  for(const file of files){
+    const from=path.join(source,file),text=fs.readFileSync(from,'utf8');
+    for(const [,specifier] of text.matchAll(/(?:from\s*|import\s*\(|import\s*)['"]([^'"]+)['"]/g)){
+      if(['recoil','react-beautiful-dnd'].includes(specifier))failures.push(`${file}: retired dependency ${specifier}`);
+      const alias=/^(app|features|shared|test)\//.test(specifier);
+      if(!alias&&!specifier.startsWith('.'))continue;
+      const target=alias?path.resolve(source,specifier):path.resolve(path.dirname(from),specifier);
+      const feature=inside(target,path.join(source,'features')),app=inside(target,path.join(source,'app'));
+      if(inside(from,path.join(source,'shared'))&&(feature||app))failures.push(`${file}: infrastructure depends on feature/app ${specifier}`);
+      if(inside(from,path.join(source,'features'))&&app)failures.push(`${file}: feature depends on application wiring ${specifier}`);
+      if(![target,target+'.ts',target+'.tsx',target+'.d.ts',path.join(target,'index.ts'),path.join(target,'index.tsx')].some(candidate=>fs.existsSync(candidate)&&fs.statSync(candidate).isFile()))failures.push(`${file}: unresolved ${specifier}`);
+    }
   }
- }
+  return {files:files.length,failures};
 }
-if(failures.length){console.error(failures.join('\n'));process.exit(1);}
-console.log(`Feature boundaries/import paths: ${files.length} files checked`);
+if(process.argv[1]&&path.resolve(process.argv[1])===fileURLToPath(import.meta.url)){
+  const result=checkBoundaries();
+  if(result.failures.length){console.error(result.failures.join('\n'));process.exitCode=1;}
+  else console.log(`Feature boundaries/import paths: ${result.files} files checked`);
+}

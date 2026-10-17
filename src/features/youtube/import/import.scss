@@ -1,4 +1,4 @@
-.li-toolbar { display:flex;gap:8px;align-items:center;min-width:0; form {display:flex;align-items:center;min-width:0;} input {width:190px;} }
+.li-toolbar { display:flex;flex-wrap:wrap;gap:8px;align-items:center;min-width:0;max-width:100%; form {display:flex;align-items:center;min-width:0;} input {width:190px;} }
 .li-dialog-body {display:flex;flex-direction:column;min-height:0;max-height:inherit;}
 .li-install {padding:24px;width:min(500px,calc(100vw - 32px));max-height:calc(100dvh - 40px);overflow:auto;box-sizing:border-box;
   header {display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px;}h2{font-size:20px;margin:0;}
@@ -17,6 +17,5 @@
 @media(prefers-reduced-motion:reduce){.li-progress .icon{animation:none;}}
 .li-limitation {font-size:13px;color:var(--muted);margin:0 0 12px;}
 .li-track {grid-template-columns:44px minmax(0,1fr) 44px 44px!important;.yi-track-select .wave-cover{width:44px;height:44px;flex:0 0 44px;border-radius:8px;} }
-.li-notice {position:fixed;bottom:110px;left:50%;transform:translateX(-50%);z-index:var(--z-notice);padding:12px 18px;background:var(--surface);border:1px solid var(--line);border-radius:12px;button{margin-left:16px;background:none;color:inherit;border:0;min-width:32px;min-height:32px;}}
 .yi-fields #li-description {height:88px;min-height:0;max-height:88px;resize:none;overflow-y:auto;}
 @media(max-width:760px){.li-toolbar{input{width:110px;}button{font-size:12px;}}.studio-topbar{flex-wrap:wrap;height:auto!important;gap:8px;padding-block:12px!important;}.yi-fields #li-description{height:72px;max-height:72px;}}

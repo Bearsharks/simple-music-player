@@ -5,7 +5,7 @@ import { crc32, deflateRawSync } from "node:zlib";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 export const runtimeFiles = Object.freeze([
-  "background.js", "config.js", "content.css", "content.js", "manifest.json",
+  "app-bridge.js", "background.js", "config.js", "content.css", "content.js", "manifest.json",
   "popup.css", "popup.html", "popup.js", "protocol.js", "updates.js",
 ]);
 
@@ -24,6 +24,7 @@ export function createExtensionArchive(directory = join(root, "extension"), appU
       const manifest = JSON.parse(data);
       manifest.host_permissions.push("http://localhost/*", "http://127.0.0.1/*");
       manifest.externally_connectable.matches.push("http://localhost/*", "http://127.0.0.1/*");
+      manifest.content_scripts.find(script=>script.js.includes("app-bridge.js")).matches.push("http://localhost/*", "http://127.0.0.1/*");
       data = Buffer.from(JSON.stringify(manifest, null, 2)+"\n");
     }
     const compressed = deflateRawSync(data, { level: 9 });
