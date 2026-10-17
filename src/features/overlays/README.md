@@ -105,3 +105,9 @@ OverlayPortal의 page-level host는 공유된 안정 grid stack이다. 동시에
 selects `subtle`: native wrapper is transparent and its pseudo backdrop uses the
 shared 24% scrim; fallback paints the wrapper once. Native capability is exposed
 on the wrapper for CSS, without changing close ownership, priority or content lifetime.
+
+## Cold first-open menus (2026-10-17)
+
+OptionSelector uses fixed-size inline SVG icons from shared/ui/Icon. No icon font is fetched on first open. Playlist menu data resolves before the Radix popup mounts, avoiding a small generic Spinner that changes menu bounds. Pending reads remain cancellable with Escape or an outside pointer; cancellation never writes data and a late response cannot reopen the menu. Other modal loading placeholders remain intentional.
+
+Regression: cold-menu.test.tsx controls a pending atom and cancellation; e2e/cold-menu.mjs tests fresh browser contexts with HTTP cache disabled and font requests deliberately failed at 390/1440px.

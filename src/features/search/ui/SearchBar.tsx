@@ -1,4 +1,5 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useRef, useState } from "react";
+import Icon from "shared/ui/Icon";
 import OuterClickEventCatcher from "shared/ui/OuterClickEventCatcher";
 import styles from 'features/search/ui/SearchBar.module.scss';
 export interface SearchBarProps {
@@ -41,9 +42,7 @@ function SearchBar(props: SearchBarProps) {
                 className={`${styles['search-button']}`}
                 onClick={expandTextArea}
             >
-                <span className="material-icons md-28">
-                    search
-                </span>
+                <Icon name="search" />
             </div>
             <div ref={curRef} className={`${styles['wrapper']} ${isExpanded && styles['wrapper--expand']}`}>
                 <div className={styles['search-panel']}>
@@ -55,7 +54,7 @@ function SearchBar(props: SearchBarProps) {
                         <div
                             className={styles['close-btn']}
                             onClick={() => setExpended(false)}>
-                            <span className="material-icons md-38">close</span>
+                            <Icon name="close" />
                         </div>
                     </div>
                     <div className={`${styles['expanded-menu']}`}>
@@ -64,9 +63,7 @@ function SearchBar(props: SearchBarProps) {
                             className={`${styles['search-button']} ${styles['search-button--expand']}`}
                             onClick={search}
                         >
-                            <span className="material-icons md-28">
-                                search
-                            </span>
+                            <Icon name="search" />
                         </div>
                     </div>
                     <OuterClickEventCatcher

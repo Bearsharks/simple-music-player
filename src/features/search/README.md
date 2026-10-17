@@ -29,3 +29,7 @@ navigation이 배치하고 overlays가 결과 화면을 연다. 실제 조회와
 변경한 계약, 영향을 받는 소비자, 실행한 테스트와 결과, 미검증 항목을 적는다. 새 공개 함수나 의존 관계를 만들면 이 README도 갱신한다.
 
 [전체 구조](../../../docs/ARCHITECTURE.md) · [작업 시작 지도](../../../docs/CHANGE-GUIDE.md)
+
+## Legacy UI audit (2026-10-17)
+
+SearchBar/ConnectedSearchBar remain a legacy entry pair, not mounted by current navigation/Main. Their remaining icon-font spans were converted to shared inline SVG so later reuse cannot reintroduce first-open font loading. The old textarea selector is now scoped to its wrapper rather than styling every textarea. No search behavior was removed.

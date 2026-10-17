@@ -9,7 +9,7 @@ import {
   useClosePopup,
 } from "features/overlays/PopupStates";
 import styles from "features/overlays/Popup.module.scss";
-import { memo, useRef, Suspense } from "react";
+import { memo, useRef, useEffect, Suspense } from "react";
 import {
   MusicInfo,
   MusicInfoArrayCheck,
@@ -54,13 +54,11 @@ function InnerPopup({
       case PopupKind.PlaylistOptions:
         if (typeof info.data === "string") {
           return (
-            <Suspense fallback={<Spinner />}>
-              <PlaylistOptions
-                evTarget={info.target}
-                setPopupOpen={setOpen}
-                playlistid={info.data}
-              />
-            </Suspense>
+            <PlaylistOptions
+              evTarget={info.target}
+              setPopupOpen={setOpen}
+              playlistid={info.data}
+            />
           );
         }
         throw "playlistID is not valid can't render PlaylistOptions";
@@ -215,6 +213,31 @@ function Popup({ popupInfo }: { popupInfo: PopupInfo }) {
 }
 export default PopupWrapper;
 
+/** Keep the trigger usable while local menu data resolves. No undersized popup. */
+function PendingPopup({ info }: { info: PopupInfo }) {
+  const close = useClosePopup();
+  useEffect(() => {
+    const pointer = (event: PointerEvent) => {
+      if (!info.target.contains(event.target as Node)) close(info.key);
+    };
+    const key = (event: KeyboardEvent) => {
+      if (event.key === "Tab") close(info.key);
+      if (event.key === "Escape") {
+        event.preventDefault();
+        event.stopPropagation();
+        close(info.key);
+      }
+    };
+    document.addEventListener("pointerdown", pointer, true);
+    document.addEventListener("keydown", key, true);
+    return () => {
+      document.removeEventListener("pointerdown", pointer, true);
+      document.removeEventListener("keydown", key, true);
+    };
+  }, [close, info]);
+  return null;
+}
+
 function PopupWrapper() {
   const popupInfo: PopupInfo[] = useAtomValue(getPopupInfoState);
   const close = useClosePopup();
@@ -237,7 +260,9 @@ function PopupWrapper() {
             </Suspense>
           </Dialog>
         ) : (
-          <Popup key={info.key} popupInfo={info} />
+          <Suspense key={info.key} fallback={<PendingPopup info={info} />}>
+            <Popup popupInfo={info} />
+          </Suspense>
         ),
       )}
     </>
@@ -329,17 +354,17 @@ const useGetMusicOptions = (
   };
   return [
     {
-      icon: "playlist_play",
+      icon: "queue-next",
       name: "다음 음악으로 재생",
       onClickHandler: () => addToNextMusic(musicInfos),
     },
     {
-      icon: "queue_music",
+      icon: "queue",
       name: "대기열 끝에 추가",
       onClickHandler: () => appendMusic(musicInfos),
     },
     {
-      icon: "playlist_add",
+      icon: "playlist-add",
       name: "재생목록에 추가",
       onClickHandler: () => addToPlaylist(musicInfos),
     },
@@ -369,7 +394,7 @@ const MusicOptions = memo(function ({
   const options = [
     ...musicOptions,
     {
-      icon: "remove_circle_outline",
+      icon: "remove",
       name: "대기열에서 삭제",
       onClickHandler: () => deleteMusic(musicInfos),
     },
@@ -407,7 +432,7 @@ const PlaylistItemOptions = memo(function ({
   const options = [
     ...musicOptions,
     {
-      icon: "remove_circle_outline",
+      icon: "remove",
       name: "재생목록에서 삭제",
       onClickHandler: () => deleteMusic(musicInfos),
     },
@@ -463,17 +488,17 @@ const PlaylistOptions = memo(function ({
     };
   const options = [
     {
-      icon: "playlist_add",
+      icon: "playlist-add",
       name: "재생목록에 추가",
       onClickHandler: onClickHandlerWrapper(addToPlaylist),
     },
     {
-      icon: "playlist_play",
+      icon: "queue-next",
       name: "다음 음악으로 추가",
       onClickHandler: onClickHandlerWrapper(addToNextMusic),
     },
     {
-      icon: "queue_music",
+      icon: "queue",
       name: "대기열 끝에 추가",
       onClickHandler: onClickHandlerWrapper(appendPlaylist),
     },
@@ -487,7 +512,7 @@ const PlaylistOptions = memo(function ({
           ...(info.hasInitialSnapshot
             ? [
                 {
-                  icon: "history",
+                  icon: "clock",
                   name: "처음 가져온 목록으로 복원",
                   onClickHandler: onClickHandlerWrapper((id) => {
                     evTarget.focus();
@@ -497,7 +522,7 @@ const PlaylistOptions = memo(function ({
               ]
             : []),
           {
-            icon: "sync",
+            icon: "reset",
             name: "YouTube 최신 목록 가져오기",
             onClickHandler: onClickHandlerWrapper((id) => {
               evTarget.focus();
@@ -507,7 +532,7 @@ const PlaylistOptions = memo(function ({
         ]
       : []),
     {
-      icon: "delete_outline",
+      icon: "trash",
       name: "재생목록 삭제",
       onClickHandler: onClickHandlerWrapper(deletePlaylist),
     },
@@ -547,13 +572,13 @@ const SearchBarOptions = memo(function ({
   };
   const options = [
     {
-      icon: "playlist_play",
+      icon: "queue-next",
       name: "다음 음악으로 재생",
       onClickHandler: () =>
         addMusics(textarea, MusicListActionType.ADD_TO_NEXT),
     },
     {
-      icon: "playlist_add",
+      icon: "playlist-add",
       name: "대기열 끝에 추가",
       onClickHandler: () =>
         addMusics(textarea, MusicListActionType.APPEND_ITEMS),
@@ -573,7 +598,7 @@ const YTOptions = memo(function ({
   };
   const options = [
     {
-      icon: "add_link",
+      icon: "link",
       name: "링크에서 가져오기",
       onClickHandler: () => openModal(ModalKind.CreatePlaylist),
     },
