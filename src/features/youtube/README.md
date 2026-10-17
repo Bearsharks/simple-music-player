@@ -71,6 +71,10 @@ URL의 유효한 preview가 있어야 저장한다. URL Enter는 미리보기만
 이름/설명은 각각 empty/auto/user 소유권을 가진다. 사용자가 한 번 편집한 필드는 의도적으로
 빈칸으로 지워도 늦은 결과가 채우지 않는다. URL 변경은 곡 후보·요청·자동 입력만 버리고
 사용자 입력은 보존한다. URL 삭제 후 로컬 생성에 이전 source/snapshot/items를 남기지 않는다.
+URL → Tab → 이름에서 기다릴 때도 실제 제목을 바로 채운다. focused 빈 필드에 새 자동값을 넣는
+같은 layout commit에서 그 자동값만 전체 선택하여 첫 입력이 뒤에 붙지 않고 대체되게 한다.
+beforeinput/조합 시작/paste는 onChange 이전부터 동기 ref로 사용자 의도를 보호한다. 이미
+사용자가 편집한 값이나 선택 범위는 건드리지 않는다.
 선택곡을 전달한 기존 생성 경로는 URL 없는 경우 해당 items를 보존한다.
 
 `playlistMetadata.ts`는 공식 YouTube playlist oEmbed만 호출한다. 응답의 provider와

@@ -96,12 +96,16 @@ export async function installMediaSimulation(page) {
 }
 
 // Explicit fixture for official playlist oEmbed shape. Never a live metadata check.
-export async function installPlaylistMetadataSimulation(page) {
+export async function installPlaylistMetadataSimulation(
+  page,
+  { beforeReply } = {},
+) {
   await page.route("https://www.youtube.com/oembed?*", async (route) => {
     const endpoint = new URL(route.request().url());
     const source = new URL(endpoint.searchParams.get("url"));
     if (source.pathname !== "/playlist") return route.fallback();
     const id = source.searchParams.get("list");
+    await beforeReply?.(id);
     await route.fulfill({
       status: 200,
       contentType: "application/json",

@@ -2,7 +2,7 @@ import { useNotice } from "features/overlays/Notice";
 import Icon from "shared/ui/Icon";
 import ErrorToast from "shared/ui/ErrorToast";
 import { fetchVideoTitles } from "../api/videoMetadata";
-import { useEffect, useId, useRef, useState } from "react";
+import { useEffect, useId, useLayoutEffect, useRef, useState } from "react";
 import { usePlaylistManager } from "features/playlists/model/playlistAtoms";
 import {
   PlaylistActionType,
@@ -36,6 +36,8 @@ export default function PlaylistImport({
     name: emptyField(),
     description: emptyField(),
   }));
+  const userIntent = useRef({ name: false, description: false });
+  const committedDraft = useRef(draft);
   const preview = usePlaylistPreview(original?.sourcePlaylistUrl, !original);
   const [error, setError] = useState("");
   const [saveFailure, setSaveFailure] = useState(0);
@@ -44,6 +46,7 @@ export default function PlaylistImport({
   const pending = useRef(false);
   const pointerReady = useRef(false);
   const nameInput = useRef<HTMLInputElement>(null);
+  const descriptionInput = useRef<HTMLTextAreaElement>(null);
   const fieldID = useId();
   const errorID = `${fieldID}-error`;
   const nameErrorID = `${fieldID}-name-error`;
@@ -74,6 +77,7 @@ export default function PlaylistImport({
         const value = metadata[field];
         if (
           value &&
+          !userIntent.current[field] &&
           previous[field].owner === "empty" &&
           !previous[field].value.trim()
         )
@@ -82,6 +86,24 @@ export default function PlaylistImport({
       return next;
     });
   }, [preview.metadata, preview.status, original]);
+
+  useLayoutEffect(() => {
+    // URL → Tab → wait still shows a real title. If it arrives between focus /
+    // selection and the first input, select only this newly inserted auto value
+    // in the same commit so typing replaces it rather than appending to it.
+    for (const field of ["name", "description"] as const) {
+      const input =
+        field === "name" ? nameInput.current : descriptionInput.current;
+      if (
+        draft[field].owner === "auto" &&
+        committedDraft.current[field].value !== draft[field].value &&
+        !userIntent.current[field] &&
+        document.activeElement === input
+      )
+        input?.select();
+    }
+    committedDraft.current = draft;
+  }, [draft]);
 
   useEffect(() => {
     if (draft.name.value.trim()) setNameError("");
@@ -110,7 +132,12 @@ export default function PlaylistImport({
     return () => cancelAnimationFrame(frame);
   }, [failureToReveal, errorID, saveFailure]);
 
+  const claimField = (field: keyof Draft) => {
+    // Synchronous guard covers beforeinput / IME / paste before onChange commits.
+    userIntent.current[field] = true;
+  };
   const editField = (field: keyof Draft, value: string) => {
+    claimField(field);
     setDraft((previous) => ({
       ...previous,
       [field]: { value, owner: "user" },
@@ -124,9 +151,12 @@ export default function PlaylistImport({
     pointerReady.current = false;
     setError("");
     setDraft((previous) => ({
-      name: previous.name.owner === "auto" ? emptyField() : previous.name,
+      name:
+        previous.name.owner === "auto" && !userIntent.current.name
+          ? emptyField()
+          : previous.name,
       description:
-        previous.description.owner === "auto"
+        previous.description.owner === "auto" && !userIntent.current.description
           ? emptyField()
           : previous.description,
     }));
@@ -275,6 +305,9 @@ export default function PlaylistImport({
                 aria-invalid={Boolean(nameError) || undefined}
                 aria-errormessage={nameError ? nameErrorID : undefined}
                 value={draft.name.value}
+                onBeforeInput={() => claimField("name")}
+                onCompositionStart={() => claimField("name")}
+                onPaste={() => claimField("name")}
                 onChange={(event) => editField("name", event.target.value)}
                 onBlur={() => {
                   if (!draft.name.value.trim())
@@ -290,10 +323,14 @@ export default function PlaylistImport({
             <div className="import-field">
               <Label htmlFor={`${fieldID}-description`}>설명</Label>
               <Textarea
+                ref={descriptionInput}
                 id={`${fieldID}-description`}
                 rows={3}
                 maxLength={Math.max(1000, draft.description.value.length)}
                 value={draft.description.value}
+                onBeforeInput={() => claimField("description")}
+                onCompositionStart={() => claimField("description")}
+                onPaste={() => claimField("description")}
                 onChange={(event) =>
                   editField("description", event.target.value)
                 }

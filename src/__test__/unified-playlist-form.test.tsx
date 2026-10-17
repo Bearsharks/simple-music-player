@@ -6,6 +6,7 @@ import {
   waitFor,
 } from "@testing-library/react";
 import { Provider } from "jotai";
+import userEvent from "@testing-library/user-event";
 import PlaylistImport from "features/youtube/ui/PlaylistImport";
 import Dialog from "shared/ui/Dialog";
 import api from "shared/api/localAPI";
@@ -389,3 +390,49 @@ it("reveals each preview failure once, preserves focus, and keeps its explicit r
     else delete (HTMLElement.prototype as any).scrollIntoView;
   }
 });
+
+it("shows and selects a new automatic title while focused so first typing replaces it", async () => {
+  const user = userEvent.setup();
+  let resolve!: (value: unknown) => void;
+  mocks.metadata.mockReturnValue(
+    new Promise((done) => {
+      resolve = done;
+    }),
+  );
+  mount();
+  await load();
+  act(() => nameInput().focus());
+  await act(async () => resolve({ name: "늦게 도착한 제목" }));
+  const input = nameInput() as HTMLInputElement;
+  expect(input).toHaveValue("늦게 도착한 제목");
+  expect([input.selectionStart, input.selectionEnd]).toEqual([
+    0,
+    input.value.length,
+  ]);
+  await user.keyboard("직접 정한 이름");
+  expect(input).toHaveValue("직접 정한 이름");
+  input.setSelectionRange(1, 3);
+  change(descriptionInput(), "다른 필드 변경");
+  expect([input.selectionStart, input.selectionEnd]).toEqual([1, 3]);
+});
+
+it.each(["compositionStart", "paste"] as const)(
+  "protects user intent at %s before late metadata or change",
+  async (event) => {
+    let resolve!: (value: unknown) => void;
+    mocks.metadata.mockReturnValue(
+      new Promise((done) => {
+        resolve = done;
+      }),
+    );
+    mount();
+    await load();
+    act(() => nameInput().focus());
+    fireEvent[event](nameInput());
+    await act(async () => resolve({ name: "삽입하면 안 되는 제목" }));
+    expect(nameInput()).toHaveValue("");
+    change(nameInput(), "사용자 입력");
+    change(urlInput(), "");
+    expect(nameInput()).toHaveValue("사용자 입력");
+  },
+);

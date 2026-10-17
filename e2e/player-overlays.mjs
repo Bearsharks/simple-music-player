@@ -70,7 +70,18 @@ try {
     try {
       page.on("pageerror", (error) => errors.push(error.message));
       await installMediaSimulation(page);
-      await installPlaylistMetadataSimulation(page);
+      let releaseChangedMetadata;
+      const changedMetadata = new Promise((resolve) => {
+        releaseChangedMetadata = resolve;
+      });
+      let changedMetadataRequested = false;
+      await installPlaylistMetadataSimulation(page, {
+        beforeReply: async (id) => {
+          if (id !== "PLchanged") return;
+          changedMetadataRequested = true;
+          await changedMetadata;
+        },
+      });
       await page.goto(base);
       const create = page.getByRole("button", {
         name: "새 재생목록",
@@ -181,7 +192,29 @@ try {
       await createURL.fill("https://youtube.com/playlist?list=PLchanged");
       await expect(createName).toHaveValue("");
       await expect(make).toBeDisabled();
-      await createName.fill("직접 정한 이름");
+      // Hold the response until after focus/select-all, the exact insertion
+      // window that raced in Chromium. No timing guesses or weakened values.
+      await createName.focus();
+      await createName.press("ControlOrMeta+A");
+      await expect.poll(() => changedMetadataRequested).toBe(true);
+      const metadataReply = page.waitForResponse(
+        (response) =>
+          response.url().includes("oembed") &&
+          response.url().includes("PLchanged"),
+      );
+      releaseChangedMetadata();
+      await (await metadataReply).finished();
+      await expect(createName).toHaveValue("실제 응답 형태의 모의 목록");
+      await expect
+        .poll(() =>
+          createName.evaluate((input) => [
+            input.selectionStart,
+            input.selectionEnd,
+          ]),
+        )
+        .toEqual([0, "실제 응답 형태의 모의 목록".length]);
+      await createName.pressSequentially("직접 정한 이름");
+      await expect(createName).toHaveValue("직접 정한 이름");
       await createURL.fill("https://invalid.example/?list=PLchanged");
       await createURL.press("Enter");
       await expect(createURL).toHaveAttribute("aria-invalid", "true");
