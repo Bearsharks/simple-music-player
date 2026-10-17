@@ -1,0 +1,1 @@
+import{Z as e,et as t}from"./dnd.esm-CTpy6nM0.js";import{m as n}from"./index-B-iSUZWA.js";var r=n();function i({className:n,...i}){return(0,r.jsx)(e,{...i,variant:`default`,className:t(`brand-primary-button`,n)})}export{i as t};

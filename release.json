@@ -1,1 +1,1 @@
-{"sourceCommit": "44738d71139873acb632594966766beffa74005d", "name": "loopy", "domain": "loopy.bearsharks.dev", "storage": "IndexedDB", "csp": true, "fonts": ["Geist Sans", "Pretendard Variable"]}
+{"sourceCommit":"9f91b265c7059c9c2b2a0bb5663815eadfa6adea","name":"loopy","domain":"loopy.bearsharks.dev","storage":"IndexedDB","csp":true,"fonts":["Geist Sans","Pretendard Variable"],"extensionVersion":"0.2.3"}
