@@ -30,12 +30,6 @@ jobs:
           for i in $(seq 1 30); do curl -fsS http://127.0.0.1:4175/ >/dev/null && break; sleep 1; done
           TEST_URL=http://127.0.0.1:4175/ node e2e/smoke.mjs
           TEST_URL=http://127.0.0.1:4175/ TEST_WIDTHS=390,1440 node e2e/typography.mjs
-      - name: Design prototype preview
-        if: ${{ !cancelled() }}
-        run: |
-          python3 -m http.server 4174 --bind 127.0.0.1 > /tmp/prototype.log 2>&1 &
-          for i in $(seq 1 30); do curl -fsS http://127.0.0.1:4174/ >/dev/null && break; sleep 1; done
-          node e2e/design-prototype.mjs
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: always()
         with:
