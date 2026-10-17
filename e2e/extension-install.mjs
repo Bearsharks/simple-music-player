@@ -40,8 +40,7 @@ try {
       await page.evaluate(()=>{window.__connectionOK=false;window.dispatchEvent(new Event("focus"));document.dispatchEvent(new Event("visibilitychange"));});
       await page.waitForTimeout(6000);
       expect(await page.evaluate(()=>window.__connectionCalls)).toBe(1);await expect(install).toHaveCount(0);
-      await page.getByRole("button",{name:"연결 확인",exact:true}).click();await expect(install).toBeVisible();
-      expect(await page.evaluate(()=>window.__connectionCalls)).toBe(2);
+      await expect(page.getByRole("button",{name:"연결 확인",exact:true})).toHaveCount(0);
     }
     expect(errors).toEqual([]);
     await page.close();

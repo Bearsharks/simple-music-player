@@ -44,9 +44,11 @@ export function verifyRelease(directory) {
   if(JSON.stringify(fileHashes(directory))!==JSON.stringify(manifest.files))throw Error("Release bytes differ from the sealed manifest");
   return manifest;
 }
-export function assertPublishTarget(manifest,mainSHA,releaseSHA) {
+export function assertPublishTarget(manifest,mainSHA,existingRelease) {
   if(manifest.sourceCommit!==mainSHA)throw Error("Only the current main SHA can be published");
-  if(releaseSHA&&releaseSHA!==manifest.sourceCommit)throw Error("This extension version belongs to another commit; choose a new version");
+  if(existingRelease&&(!/^[a-f0-9]{40}$/.test(existingRelease.sourceCommit)||
+     !/^[a-f0-9]{64}$/.test(existingRelease.zipHash)||existingRelease.zipHash!==manifest.files?.["downloads/loopy-extension.zip"]))
+    throw Error("Published extension bytes differ; choose a new version");
 }
 function assertCheckout(sourceCommit) {
   if(git("rev-parse","HEAD")!==sourceCommit||git("status","--porcelain"))throw Error("Publishing requires a clean checkout of the recorded source SHA");
@@ -81,14 +83,15 @@ async function publish(directory) {
   const mainSHA=gh(["api",`repos/${REPOSITORY}/commits/main`,"--jq",".sha"]);
   const tag=`v${manifest.extensionVersion}`,release=releaseInfo(tag);
   const releaseSHA=release?gh(["api",`repos/${REPOSITORY}/commits/${tag}`,"--jq",".sha"]):null;
-  assertPublishTarget(manifest,mainSHA,releaseSHA);
+  assertPublishTarget(manifest,mainSHA,null);
   const temp=mkdtempSync(join(tmpdir(),"loopy-release-"));
   try {
     const zip=join(directory,"downloads/loopy-extension.zip"),expected=manifest.files["downloads/loopy-extension.zip"];
     if(release){
       if(release.draft||release.prerelease||release.assets.filter(asset=>asset.name==="loopy-extension.zip").length!==1)throw Error("Existing release is not a complete public release");
       gh(["release","download",tag,"--repo",REPOSITORY,"--pattern","loopy-extension.zip","--dir",temp]);
-      if(hash(readFileSync(join(temp,"loopy-extension.zip")))!==expected)throw Error("Published extension bytes differ; refusing to overwrite");
+      assertPublishTarget(manifest,mainSHA,{sourceCommit:releaseSHA,zipHash:hash(readFileSync(join(temp,"loopy-extension.zip")))});
+      console.log(`Reusing extension ${tag} from ${releaseSHA}; ZIP SHA-256 ${expected}`);
     }
     // The existing Pages source/domain is a protected deployment contract.
     const pages=JSON.parse(gh(["api",`repos/${REPOSITORY}/pages`]));

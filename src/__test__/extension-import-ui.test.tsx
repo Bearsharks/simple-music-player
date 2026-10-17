@@ -47,6 +47,7 @@ it("shows GitHub installation only while disconnected and auto-closes when conne
   act(()=>mocks.status!(true));
   await waitFor(()=>expect(screen.queryByRole("dialog",{name:"확장 프로그램 설치"})).not.toBeInTheDocument());
   expect(screen.queryByRole("button",{name:"확장 프로그램 다운로드"})).not.toBeInTheDocument();
+  expect(screen.queryByRole("button",{name:"연결 확인"})).not.toBeInTheDocument();
   act(()=>mocks.status!(false));expect(screen.getByRole("button",{name:"확장 프로그램 다운로드"})).toBeInTheDocument();
 });
 it("does not apply on receive; latest pending waits for approval and keeps edits",async()=>{

@@ -23,11 +23,14 @@ test("rejects extra files, symlinks, subpath builds and the wrong domain",()=>fi
   writeFileSync(join(dir,"index.html"),'<script src="/simple-music-player/assets/app.js"></script>');assert.throws(()=>sealRelease(dir,metadata),/domain root/);
   writeFileSync(join(dir,"CNAME"),"other.example");assert.throws(()=>sealRelease(dir,metadata),/domain/);
 }));
-test("requires current main and refuses version reuse with different source",()=>{
+test("allows app-only publication only with byte-identical published extension",()=>{
+  const zipHash="d".repeat(64),manifest={...metadata,files:{"downloads/loopy-extension.zip":zipHash}};
   assert.doesNotThrow(()=>assertPublishTarget(metadata,metadata.sourceCommit,null));
-  assert.doesNotThrow(()=>assertPublishTarget(metadata,metadata.sourceCommit,metadata.sourceCommit));
+  assert.doesNotThrow(()=>assertPublishTarget(manifest,metadata.sourceCommit,{sourceCommit:metadata.sourceCommit,zipHash}));
+  assert.doesNotThrow(()=>assertPublishTarget(manifest,metadata.sourceCommit,{sourceCommit:"c".repeat(40),zipHash}));
   assert.throws(()=>assertPublishTarget(metadata,"c".repeat(40),null),/main/);
-  assert.throws(()=>assertPublishTarget(metadata,metadata.sourceCommit,"c".repeat(40)),/another commit/);
+  assert.throws(()=>assertPublishTarget(manifest,metadata.sourceCommit,{sourceCommit:"c".repeat(40),zipHash:"e".repeat(64)}),/bytes differ/);
+  assert.throws(()=>assertPublishTarget(manifest,metadata.sourceCommit,{}),/bytes differ/);
 });
 test("verifies every published asset and rejects changed remote bytes",async()=>{
   let manifest,files;

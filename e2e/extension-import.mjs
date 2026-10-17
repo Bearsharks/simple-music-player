@@ -148,6 +148,7 @@ try {
   // The editing dialog is entered only through the real extension delivery.
   await expect(app.getByRole("button",{name:"담은 목록",exact:true})).toHaveCount(0);
   await expect(app.getByRole("button",{name:"확장 프로그램 다운로드",exact:true})).toHaveCount(0);
+  await expect(app.getByRole("button",{name:"연결 확인",exact:true})).toHaveCount(0);
   await expect(popup.locator("#count")).toHaveText("0");
   await collectVideo();
   await popup.getByRole("button",{name:"저장",exact:true}).click();

@@ -82,7 +82,7 @@ export default function ExtensionImport() {
         <Button type="submit" variant="ghost" size="icon" aria-label="YouTube에서 검색"><Icon name="search"/></Button>
       </form>
       {connected===false&&<Button variant="outline" onClick={()=>setInstallOpen(true)}>확장 프로그램 다운로드</Button>}
-      <Button variant="ghost" disabled={connected===null} onClick={checkConnection}>{connected===null?"확인 중…":"연결 확인"}</Button>
+      {connected!==true&&<Button variant="ghost" disabled={connected===null} onClick={checkConnection}>{connected===null?"확인 중…":"연결 확인"}</Button>}
     </div>
     {installOpen&&!state.open&&<ExtensionInstall checking={connected===null} onClose={()=>setInstallOpen(false)} onCheck={checkConnection}/>}
     {state.open&&<Dialog label="목록 편집" className="yi-dialog" onClose={()=>{}}>
